@@ -1,0 +1,18 @@
+-module(class_X_test).
+
+
+-define(Tested_modules,[class_X]).
+
+
+% For all facilities common to all tests:
+-include("test_constructs.hrl").
+
+
+	
+% Runs the test.
+run() ->
+
+	?test_start,
+
+	?test_stop.
+
