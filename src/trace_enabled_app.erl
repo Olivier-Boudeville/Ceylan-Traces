@@ -23,19 +23,25 @@
 % <http://www.mozilla.org/MPL/>.
 %
 % Author: Olivier Boudeville (olivier.boudeville@esperide.com)
-% Creation date: July 1, 2007.
+% Creation date: Tuesday, January 11, 2011
 
 
-% Note: the test_info macro is expected to be defined prior to the
-% class_TraceSupervisor.hrl inclusion (ex: included from test_constructs.hrl).
+% This is a very simple trace-enabled application, to ensure defines, build
+% targets and al support them correctly.
+%
+-module(trace_enabled_app).
 
 
-% Allows to use an interactive trace supervisor (LogMX) if true, otherwise a
-% silent execution.
+-include("traces_for_apps.hrl").
 
 
 
-% Defines trace filename, if not already specified:
--ifndef(TraceFilename).
-	-define(TraceFilename,"Ceylan-trace-test" ++ ?TraceExtension ).
--endif.
+-spec exec() -> no_return().
+exec() ->
+
+	?app_start,
+
+	?notify_info( "This is one of the simplest trace-enabled "
+			"applications possible!" ),
+
+	?app_stop.

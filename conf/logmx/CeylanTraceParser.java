@@ -30,68 +30,74 @@ import com.lightysoft.logmx.mgr.LogFileParser;
 public class CeylanTraceParser extends LogFileParser
 {
 
-    /** Current parsed log entry */
-    private ParsedEntry entry = null;
+	/** Current parsed log entry */
+	private ParsedEntry entry = null;
 
 
-    /** Entry date format */
-    private final static SimpleDateFormat DatePattern = new SimpleDateFormat(
+	/** Entry date format */
+	private final static SimpleDateFormat DatePattern = new SimpleDateFormat(
 	  "dd/MM/yyyy HH:mm:ss" ) ;
 
 
-    /** Pattern to match the beginning of a trace, like '<0.31.0>|':  */
-    private final static Pattern TraceBeginPattern =
+	/** Pattern to match the beginning of a trace, like '<0.31.0>|':  */
+	private final static Pattern TraceBeginPattern =
 		Pattern.compile("^<\\d++\\.\\d++\\.\\d++>\\|.*$");
 
 
-    /** Buffer for Entry message (improves performance for multi-lines
+	/** Buffer for Entry message (improves performance for multi-lines
 	 * entries)  */
-    private StringBuilder entryMsgBuffer = null;
+	private StringBuilder entryMsgBuffer = null;
 
 
-    /** Key of extra user-defined field about execution time */
-    private static final String ExecutionTimeKey = "Wallclock Time" ;
+	/** Key of extra user-defined field about execution time */
+	private static final String ExecutionTimeKey = "Wallclock Time" ;
 
-    /** Key of extra user-defined field about execution time */
-    private static final String EmitterLocationKey = "Emitter Location" ;
+	/** Key of extra user-defined field about execution time */
+	private static final String EmitterLocationKey = "Emitter Location" ;
 
-    /** Key of extra user-defined field about execution time */
-    private static final String CategoryKey = "Categorization" ;
+	/** Key of extra user-defined field about execution time */
+	private static final String CategoryKey = "Categorization" ;
 
-	private static final String[] ArrayOfKeys = 
+	private static final String[] ArrayOfKeys =
 	  { ExecutionTimeKey, EmitterLocationKey, CategoryKey } ;
 
-    /** User-defined fields names (here, only one) */
-    private static final List<String> KeysOfUserDefinedFields =
+	/** User-defined fields names (here, only one) */
+	private static final List<String> KeysOfUserDefinedFields =
 		Arrays.asList( ArrayOfKeys ) ;
 
 
 
-    /**
-     * Returns the name of this parser
-     * @see com.lightysoft.logmx.mgr.LogFileParser#getParserName()
-     */
-    public String getParserName()
+	/**
+	 * Returns the name of this parser.
+	 *
+	 * @see com.lightysoft.logmx.mgr.LogFileParser#getParserName()
+	 *
+	 */
+	public String getParserName()
 	{
 		return "Ceylan Trace Parser" ;
-    }
+	}
 
 
-    /**
-     * Returns the supported file type for this parser
-     * @see com.lightysoft.logmx.mgr.LogFileParser#getSupportedFileType()
-     */
-    public String getSupportedFileType()
+	/**
+	 * Returns the supported file type for this parser.
+	 *
+	 * @see com.lightysoft.logmx.mgr.LogFileParser#getSupportedFileType()
+	 *
+	 */
+	public String getSupportedFileType()
 	{
 		return "Ceylan trace files" ;
-    }
+	}
 
 
-    /**
-     * Process the new line of text read from file
-     * @see com.lightysoft.logmx.mgr.LogFileParser#parseLine(java.lang.String)
-     */
-    protected void parseLine(String line) throws Exception
+	/**
+	 * Process the new line of text read from file.
+	 *
+	 * @see com.lightysoft.logmx.mgr.LogFileParser#parseLine(java.lang.String)
+	 *
+	 */
+	protected void parseLine(String line) throws Exception
 	{
 
 		// If end of file, records last entry if necessary, and exits:
@@ -118,22 +124,22 @@ public class CeylanTraceParser extends LogFileParser
 			 * field #0: technical identifier (PID)  -> in entry 'Thread'
 			 *
 			 * field #1: name of the emitter         -> last part in entry
-			 * 'Emitter' (useful for automatic hierarchy sorting in the left 
+			 * 'Emitter' (useful for automatic hierarchy sorting in the left
 			 * panel of the GUI)
-			 * 
+			 *
 			 * field #2: emitter categorization      -> first part in entry
 			 * 'Emitter'
 			 *
-			 * field #3: Execution timestamp         -> in entry 'Timestamp' 
+			 * field #3: Execution timestamp         -> in entry 'Timestamp'
 			 * (called 'Date')
 			 *
 			 * field #4: Wallclock time              -> in entry
 			 * 'Wallclock Time'
 			 *
-			 * field #5: emitter location            -> in entry 
+			 * field #5: emitter location            -> in entry
 			 * 'Emitter Location'
 			 *
-			 * field #6: message categorization      -> in entry 
+			 * field #6: message categorization      -> in entry
 			 * 'Message Categorization'
 			 *
 			 * field #7: priority                    -> in entry 'Level'
@@ -189,57 +195,61 @@ public class CeylanTraceParser extends LogFileParser
 	}
 
 
-    /**
-     * Returns the ordered list of user-defined fields to display (given by
-     * their key), for each entry.
+	/**
+	 * Returns the ordered list of user-defined fields to display (given by
+	 * their key), for each entry.
 	 *
-     * @see com.lightysoft.logmx.mgr.LogFileParser#getUserDefinedFields()
-     */
-    @Override
+	 * @see com.lightysoft.logmx.mgr.LogFileParser#getUserDefinedFields()
+	 *
+	 */
+	@Override
 		public List<String> getUserDefinedFields() {
 		return KeysOfUserDefinedFields ;
-    }
+	}
 
 
-    /**
-     * Returns the relative timestamp (execution time) of given entry.
+	/**
+	 * Returns the relative timestamp (execution time) of given entry.
 	 *
-     * @see com.lightysoft.logmx.mgr.LogFileParser,
+	 * @see com.lightysoft.logmx.mgr.LogFileParser,
 	 * getRelativeEntryDate(com.lightysoft.logmx.business.ParsedEntry)
 	 *
-     */
-    public Date getRelativeEntryDate(ParsedEntry pEntry) throws Exception
-	{	
-		
+	 */
+	public Date getRelativeEntryDate( ParsedEntry pEntry ) throws Exception
+	{
+
 		final String executionTimeString = pEntry.getUserDefinedFields().get(
 		  ExecutionTimeKey ).toString() ;
 
 		return new Date( Integer.parseInt( executionTimeString ) ) ;
-    }
+	}
 
 
-    /**
-     * Returns the Date object for the given entry
-     * @see com.lightysoft.logmx.mgr.LogFileParser,
+	/**
+	 * Returns the Date object for the given entry
+	 *
+	 * @see com.lightysoft.logmx.mgr.LogFileParser,
 	 * getAbsoluteEntryDate(com.lightysoft.logmx.business.ParsedEntry)
-     */
-    public Date getAbsoluteEntryDate(ParsedEntry pEntry) throws Exception
+	 *
+	 */
+	public Date getAbsoluteEntryDate(ParsedEntry pEntry) throws Exception
 	{
 
 		return DatePattern.parse( pEntry.getDate() ) ;
 
-    }
+	}
 
 
 	/**
 	 * Sends to LogMX the current parsed log entry.
 	 *
 	 * @throws Exception
+	 *
 	 */
-	private void recordPreviousEntryIfExists() throws Exception 
+	private void recordPreviousEntryIfExists() throws Exception
 	{
 
-		if (entry != null) 
+		if (entry != null)
 		{
 			entry.setMessage( entryMsgBuffer.toString() );
 			addEntry(entry);
@@ -248,21 +258,22 @@ public class CeylanTraceParser extends LogFileParser
 	}
 
 
-    /**
-     * Sends to LogMX the current parsed log entry, then creates a new one.
+	/**
+	 * Sends to LogMX the current parsed log entry, then creates a new one.
 	 *
-     * @throws Exception
-     */
-    private void prepareNewEntry() throws Exception 
+	 * @throws Exception
+	 *
+	 */
+	private void prepareNewEntry() throws Exception
 	{
-	
+
 		recordPreviousEntryIfExists();
 		entry = createNewEntry();
 		entryMsgBuffer = new StringBuilder(80) ;
 
 		// Creates an empty Map with only one element allocated:
-		entry.setUserDefinedFields( new HashMap<String, Object>(1) ); 
+		entry.setUserDefinedFields( new HashMap<String, Object>(1) );
 
-    }
+	}
 
 }

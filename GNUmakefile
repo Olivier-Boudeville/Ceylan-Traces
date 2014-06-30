@@ -1,22 +1,30 @@
 TRACES_TOP = .
 
 
-.PHONY: release release-zip release-bz2   \
-	prepare-release clean-release clean-archive
+.PHONY: all register-version-in-header info-traces
 
 
 MODULES_DIRS = src doc #conf
 
-all: $(PREREQUISITES_DIRS)
-	@echo "   Building all, in parallel over $(CORE_COUNT) core(s), from "$(PWD) #`basename $(PWD)`
-	@for m in $(MODULES_DIRS); do if ! ( if [ -d $$m ] ; then cd $$m &&  \
-	$(MAKE) -s all-recurse -j $(CORE_COUNT) && cd .. ; else echo "     (directory $$m skipped)" ; \
-	fi ) ; then exit 1; fi ; done
+# To override the 'all' default target with a parallel version:
+BASE_MAKEFILE = true
 
 
-# No trace supervisor or graphical output wanted when running all tests from
-# a root directory (batch mode vs interactive one):
+# No trace supervisor or graphical output wanted when running all tests from a
+# root directory (batch mode vs interactive one):
 CMD_LINE_OPT = "--batch"
+
+
+# Default target:
+all:
+
+
+register-version-in-header:
+	@echo "-define( traces_version, \"$(TRACES_VERSION)\" )." >> $(VERSION_FILE)
+
+
+info-traces:
+	@echo "ENABLE_TRACE_OPT = $(ENABLE_TRACE_OPT)"
 
 
 include $(TRACES_TOP)/GNUmakesettings.inc

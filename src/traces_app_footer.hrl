@@ -23,19 +23,36 @@
 % <http://www.mozilla.org/MPL/>.
 %
 % Author: Olivier Boudeville (olivier.boudeville@esperide.com)
-% Creation date: July 1, 2007.
-
-
-% Note: the test_info macro is expected to be defined prior to the
-% class_TraceSupervisor.hrl inclusion (ex: included from test_constructs.hrl).
-
-
-% Allows to use an interactive trace supervisor (LogMX) if true, otherwise a
-% silent execution.
+% Creation date: Tuesday, January 11, 2011
 
 
 
-% Defines trace filename, if not already specified:
--ifndef(TraceFilename).
-	-define(TraceFilename,"Ceylan-trace-test" ++ ?TraceExtension ).
+% Defines all the functions useful for trace-using applications.
+%
+% Allows to define exports before functions: macros and functions have been
+% split so that overall header files can be defined which start with all macros
+% and finish with all function definitions.
+
+
+
+
+% Defines functions as late as possible:
+
+-ifndef(TracingActivated).
+
+
+
+% Allows to avoid warnings about variables not be used when traces are disabled:
+-spec app_trace_disabled( any() ) -> 'app_trace_disabled'.
+app_trace_disabled( _ ) ->
+	app_trace_disabled.
+
+
+
+-spec app_trace_disabled( any(), any() ) -> 'app_trace_disabled'.
+app_trace_disabled( _, _ ) ->
+	app_trace_disabled.
+
+
+
 -endif.

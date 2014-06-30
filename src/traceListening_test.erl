@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2013 Olivier Boudeville
+% Copyright (C) 2003-2014 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -32,12 +32,19 @@
 %  - class_TraceListener
 %  - class_TraceSupervisor
 %  - class_TraceAggregator
-% Made to be executed while the traceManagement_test is running.
+
+
+
+% Mode of operation: to be executed while the traceManagement_test is running:
+%
+%   - run on a first terminal: 'make traceManagement_run'
+%
+%   - then run on a second terminal: 'make traceListening_run'
+%
+% A new trace supervisor window should appear and allow to catch up all the past
+% traces.
+%
 -module(traceListening_test).
-
-
--define( Tested_modules, [ class_TraceListener, class_TraceAggregator,
-	class_TraceSupervisor ] ).
 
 
 % For trace facilities:
@@ -48,19 +55,14 @@
 -include("class_TraceAggregator.hrl").
 
 
--define(Prefix,"--> ").
-
-
-% ?test_stop should not be used here as its wait_for_any_trace_supervisor macro
-% would wait for a non-launched supervisor.
 
 
 send_traces( 0 ) ->
 	ok;
 
 send_traces( Count ) ->
-	?test_trace_fmt( "Emitting trace #~B.", [Count] ),
-	send_traces( Count-1 ).
+	?test_trace_fmt( "Emitting trace  #~B from listener.", [ Count ] ),
+	send_traces( Count - 1 ).
 
 
 
@@ -68,102 +70,114 @@ send_timed_traces( 0 ) ->
 	ok;
 
 send_timed_traces( Count ) ->
-	?test_trace_fmt( "Emitting timed trace #~B.", [Count] ),
-	timer:sleep(100),
-	send_timed_traces( Count-1 ).
+	?test_trace_fmt( "Emitting timed trace #~B from listener.", [ Count ] ),
+	timer:sleep( 100 ),
+	send_timed_traces( Count - 1 ).
 
 
 
 % The real code of the test, in a separate function to avoid an indentation
 % offset.
+%
+-spec test_actual_body() -> no_return().
 test_actual_body() ->
 
-	[_H,NodeName] = string:tokens( atom_to_list(node()), "@" ),
+	[ _H, NodeName ] = string:tokens( atom_to_list( node() ), "@" ),
 
 	TargetVMName = lists:flatten(
 		io_lib:format( "traceManagement_run-~s@~s",
-					  [system_utils:get_user_name(), NodeName] ) ),
+					[ system_utils:get_user_name(), NodeName ] ) ),
 
-	io:format( ?Prefix "Connecting to '~s'.~n", [TargetVMName]),
+	test_facilities:display( "Connecting to '~s'.", [ TargetVMName ] ),
 
-	case net_adm:ping( list_to_atom(TargetVMName) ) of
+	case net_adm:ping( list_to_atom( TargetVMName ) ) of
 
 		pong ->
 			ok;
 
 		pang ->
-			io:format( ?Prefix "Error, the trace management test "
-				"should already be running.~n For example, execute "
-				"'make traceManagement_run' in another terminal.~n" ),
-			throw( {no_trace_aggregator_to_listen,TargetVMName} )
+
+			test_facilities:display( "Error, the trace management test "
+				"should already be running.~nFor example, execute "
+				"'make traceManagement_run' in another terminal." ),
+
+			throw( { no_trace_aggregator_to_listen, TargetVMName } )
 
 	end,
 
 	% Otherwise the remote node could not be known before use:
 	global:sync(),
 
-	io:format( ?Prefix "Globally registered names: ~w.~n",
-		[global:registered_names()]),
+	test_facilities:display( "Globally registered names: ~w.",
+		[ global:registered_names() ] ),
 
 	AggregatorName = ?trace_aggregator_name,
-	io:format( ?Prefix "Looking up aggregator by name: ~s.~n",
-		[AggregatorName] ),
+
+	test_facilities:display( "Looking up aggregator by name: ~s.",
+		[ AggregatorName ] ),
 
 	AggregatorPid = case global:whereis_name( AggregatorName ) of
 
-		Pid when is_pid(Pid) ->
+		Pid when is_pid( Pid ) ->
 			Pid
 
 	end,
 
-	io:format( ?Prefix "Sending initial traces to force "
-		"a real synchronization.~n" ),
+	test_facilities:display( "Sending initial traces to force "
+		"a real synchronization." ),
 	send_traces( 50 ),
 
 	% No ?test_start: we will be using the aggregator from the node named
 	% 'traceManagement_run'.
-	io:format( ?Prefix "Creating a test trace local listener.~n" ),
-	MyTraceListener = class_TraceListener:synchronous_new_link(AggregatorPid),
+	test_facilities:display( "Creating a test trace local listener." ),
+	MyTraceListener = class_TraceListener:synchronous_new_link( AggregatorPid ),
 
 	send_timed_traces( 20 ),
 
 	% Could wait here for any event before stopping.
 
-	io:format( ?Prefix "Deleting this test trace listener.~n" ),
+	test_facilities:display( "Deleting this test trace listener." ),
 
 	MyTraceListener ! delete,
 
-	% To ensure the message has been sent before the VM shuts down:
-	timer:sleep(500),
+	% ?test_stop should not be used here as its wait_for_any_trace_supervisor
+	% macro would wait for a non-launched supervisor.
+	%
+	% ?test_stop_without_waiting_for_trace_supervisor() is neither used, as no
+	% aggregator was started from that test:
+	%
+	test_facilities:finished().
 
-	?test_info_fmt( "End of test for module(s) ~w.", [ ?Tested_modules ]  ),
-	check_pending_wooper_results(),
-	test_finished().
 
 
-
-% Run the tests.
+% Runs the test.
+%
+-spec run() -> no_return().
 run() ->
 
-	io:format( ?Prefix "Testing module ~w. "
-		"'make traceManagement_run' supposed to be already executed.~n",
-		[ ?Tested_modules ] ),
+	% No test_start here.
+
+	test_facilities:display( "Testing module ~w. "
+		"'make traceManagement_run' supposed to be already executed.",
+		[ ?MODULE ] ),
 
 
-	case init:get_argument('-batch') of
+	case executable_utils:is_batch() of
 
-		{ok,_} ->
-			io:format( ?Prefix "Running in batch mode, no traceManagement_test "
-				"supposed to be running, nothing done.~n" ),
-			io_lib:format( "End of test for module(s) ~w.",
-				[ ?Tested_modules ] ),
-			check_pending_wooper_results(),
-			test_finished();
+		true ->
 
-		_ ->
-			io:format( ?Prefix "Running in interactive mode, "
-				"'make traceManagement_run' supposed to be already running.~n"
-			),
+			test_facilities:display(
+				"Running in batch mode, no traceManagement_test "
+				"supposed to be running, nothing done." ),
+
+			% Nothing was started here:
+			test_facilities:finished();
+
+		false ->
+
+			test_facilities:display( "Running in interactive mode, "
+				"'make traceManagement_run' supposed to be already running." ),
+
 			test_actual_body()
 
 	end.

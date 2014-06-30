@@ -1,6 +1,4 @@
-
-# This is the file that all Trace GNUmakefiles, and only them,
-# should include.
+# This is the file that all Trace GNUmakefiles, and only them, should include.
 
 # Prerequisite: TRACES_TOP must be set.
 
@@ -18,4 +16,3 @@ include $(COMMON_TOP)/GNUmakevars.inc
 include $(TRACES_TOP)/GNUmakerules.inc
 include $(WOOPER_TOP)/GNUmakerules.inc
 include $(COMMON_TOP)/GNUmakerules.inc
-
