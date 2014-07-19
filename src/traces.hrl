@@ -271,6 +271,7 @@
 		% To ensure the asynchronous sending of the trace has a chance to
 		% complete, possibly before the interpreter is crashed:
 		system_utils:await_output_completion()
+
 ).
 
 
@@ -773,7 +774,7 @@
 
 
 
--else.
+-else. % TracingActivated
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1192,9 +1193,9 @@
 
 
 -define( notify_info_em( Message, EmitterName, EmitterCategorization,
-						 EmitterCategorization ),
+						 MessageCategorization ),
 		 trace_disabled( Message, EmitterName, EmitterCategorization,
-						 EmitterCategorization )
+						 MessageCategorization )
 ).
 
 

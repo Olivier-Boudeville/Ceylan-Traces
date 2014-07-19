@@ -142,4 +142,4 @@ endif
 # WOOPER_TOP may be a symbolic link pointing to the actual WOOPER package to be
 # used.
 #
-WOOPER_TOP = $(TRACES_TOP)/../Ceylan-WOOPER
+WOOPER_TOP = $(TRACES_TOP)/../wooper
