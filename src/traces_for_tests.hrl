@@ -124,6 +124,7 @@
 
 % Helper macro for those who would not know they could have called the
 % corresponding function directly:
+%
 -define( test_receive, test_receive() ).
 
 

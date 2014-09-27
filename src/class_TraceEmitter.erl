@@ -154,7 +154,7 @@
 % Note: this constructor should be idempotent, as a given instance might very
 % well inherit (directly or not) from that class more than once.
 %
--spec construct( wooper_state(), string() ) -> wooper_state().
+-spec construct( wooper:state(), string() ) -> wooper:state().
 construct( State, ?wooper_construct_parameters ) ->
 
 	%io:format( "~s Creating a trace emitter whose name is ~s, "
@@ -170,7 +170,7 @@ construct( State, ?wooper_construct_parameters ) ->
 
 	setAttributes( InitState, [
 
-		{ name, text_utils:string_to_binary(TraceEmitterName) },
+		{ name, text_utils:string_to_binary( TraceEmitterName ) },
 		{ initial_tick, undefined },
 		{ current_tick_offset, undefined },
 
@@ -185,7 +185,7 @@ construct( State, ?wooper_construct_parameters ) ->
 
 % Overridden destructor.
 %
--spec delete( wooper_state() ) -> wooper_state().
+-spec delete( wooper:state() ) -> wooper:state().
 delete( State ) ->
 
 	%io:format( "~s Deleting Trace Emitter.~n", [ ?LogPrefix ] ),
@@ -212,7 +212,7 @@ delete( State ) ->
 %
 % (const request)
 %
--spec getName( wooper_state() ) -> request_return( binary() ).
+-spec getName( wooper:state() ) -> request_return( binary() ).
 getName( State ) ->
 	?wooper_return_state_result( State, ?getAttr(name) ).
 
@@ -222,7 +222,7 @@ getName( State ) ->
 %
 % (oneway)
 %
--spec setName( wooper_state(), string() ) -> oneway_return().
+-spec setName( wooper:state(), string() ) -> oneway_return().
 setName( State, NewName ) ->
 	?wooper_return_state_only( setAttribute( State, name,
 								text_utils:string_to_binary(NewName) ) ).
@@ -238,7 +238,7 @@ setName( State, NewName ) ->
 %
 % (oneway)
 %
--spec setCategorization( wooper_state(), string() ) -> oneway_return().
+-spec setCategorization( wooper:state(), string() ) -> oneway_return().
 setCategorization( State, TraceCategorization ) ->
 
 	NewState = set_categorization( TraceCategorization, State ),
@@ -251,7 +251,7 @@ setCategorization( State, TraceCategorization ) ->
 %
 % (const request)
 %
--spec getInitialTick( wooper_state() ) -> request_return( traces:tick() ).
+-spec getInitialTick( wooper:state() ) -> request_return( traces:tick() ).
 getInitialTick( State ) ->
 	?wooper_return_state_result( State, ?getAttr(initial_tick) ).
 
@@ -265,7 +265,7 @@ getInitialTick( State ) ->
 %
 % (oneway)
 %
--spec setInitialTick( wooper_state(), traces:tick() ) -> oneway_return().
+-spec setInitialTick( wooper:state(), traces:tick() ) -> oneway_return().
 setInitialTick( State, NewInitialTick ) ->
 	?wooper_return_state_only( setAttribute( State, initial_tick,
 		NewInitialTick ) ).
@@ -277,7 +277,7 @@ setInitialTick( State, NewInitialTick ) ->
 %
 % (const request)
 %
--spec getCurrentTickOffset( wooper_state() ) -> request_return( traces:tick() ).
+-spec getCurrentTickOffset( wooper:state() ) -> request_return( traces:tick() ).
 getCurrentTickOffset( State ) ->
 	?wooper_return_state_result( State, ?getAttr(current_tick_offset) ).
 
@@ -287,7 +287,7 @@ getCurrentTickOffset( State ) ->
 %
 % (oneway)
 %
--spec setCurrentTickOffset( wooper_state(), traces:tick() ) ->
+-spec setCurrentTickOffset( wooper:state(), traces:tick() ) ->
 								  oneway_return().
 setCurrentTickOffset( State, NewCurrentTickOffset ) ->
 	?wooper_return_state_only(
@@ -299,9 +299,9 @@ setCurrentTickOffset( State, NewCurrentTickOffset ) ->
 %
 % (const request)
 %
--spec getCurrentTick( wooper_state() ) -> request_return( traces:tick() ).
+-spec getCurrentTick( wooper:state() ) -> request_return( traces:tick() ).
 getCurrentTick( State ) ->
-	?wooper_return_state_result( State, get_current_tick(State) ).
+	?wooper_return_state_result( State, get_current_tick( State ) ).
 
 
 
@@ -309,9 +309,9 @@ getCurrentTick( State ) ->
 %
 % (const oneway)
 %
--spec display( wooper_state() ) -> oneway_return().
+-spec display( wooper:state() ) -> oneway_return().
 display( State ) ->
-	wooper_display_instance( State ),
+	wooper:display_instance( State ),
 	?wooper_return_state_only( State ).
 
 
@@ -319,9 +319,9 @@ display( State ) ->
 %
 % (const request)
 %
--spec toString( wooper_state() ) -> request_return( string() ).
+-spec toString( wooper:state() ) -> request_return( string() ).
 toString( State ) ->
-	?wooper_return_state_result( State, wooper_state_toString(State) ).
+	?wooper_return_state_result( State, wooper:state_to_string( State ) ).
 
 
 
@@ -598,7 +598,7 @@ get_channel_name_for_priority( 6 ) ->
 %
 % (helper)
 %
--spec init( wooper_state() ) -> wooper_state().
+-spec init( wooper:state() ) -> wooper:state().
 init( State ) ->
 
 	% Context-specific, useful to re-use, for example for deserialisation:
@@ -631,8 +631,8 @@ init( State ) ->
 %
 % (helper)
 %
--spec set_categorization( traces:emitter_categorization(), wooper_state() ) ->
-								wooper_state().
+-spec set_categorization( traces:emitter_categorization(), wooper:state() ) ->
+								wooper:state().
 set_categorization( TraceCategorization, State ) ->
 	setAttribute( State, trace_categorization,
 				  text_utils:string_to_binary( TraceCategorization ) ) .
@@ -647,7 +647,7 @@ set_categorization( TraceCategorization, State ) ->
 %
 % (helper)
 %
--spec send( traces:message_type(), wooper_state(), traces:message() ) ->
+-spec send( traces:message_type(), wooper:state(), traces:message() ) ->
 	basic_utils:void().
 send( TraceType, State, Message ) ->
 	send( TraceType, State, Message, ?DefaultMessageCategorization ).
@@ -659,7 +659,7 @@ send( TraceType, State, Message ) ->
 %
 % (helper)
 %
--spec send( traces:message_type(), wooper_state(), traces:message(),
+-spec send( traces:message_type(), wooper:state(), traces:message(),
 		   traces:message_categorization() ) -> basic_utils:void().
 send( TraceType, State, Message, MessageCategorization ) ->
 	send( TraceType, State, Message, MessageCategorization,
@@ -671,7 +671,7 @@ send( TraceType, State, Message, MessageCategorization ) ->
 %
 % (helper)
 %
--spec send( traces:message_type(), wooper_state(), traces:message(),
+-spec send( traces:message_type(), wooper:state(), traces:message(),
 		   traces:message_categorization(), traces:tick() )
 		  -> basic_utils:void().
 send( TraceType, State, Message, MessageCategorization, Tick ) ->
@@ -711,7 +711,7 @@ send( TraceType, State, Message, MessageCategorization, Tick ) ->
 %
 % (helper)
 %
--spec get_current_tick( wooper_state() ) -> traces:tick().
+-spec get_current_tick( wooper:state() ) -> traces:tick().
 get_current_tick( State ) ->
 
 	%io:format( "get_current_tick called for ~w, initial tick is ~w, "
@@ -748,7 +748,7 @@ get_current_tick( State ) ->
 %
 % (helper)
 %
--spec get_current_tick_offset( wooper_state() ) -> traces:tick().
+-spec get_current_tick_offset( wooper:state() ) -> traces:tick().
 get_current_tick_offset( State ) ->
 
 	%io:format( "get_current_tick_offset called for ~w, initial tick is ~w, "
@@ -782,6 +782,6 @@ get_current_tick_offset( State ) ->
 %
 % (helper)
 %
--spec get_plain_name( wooper_state() ) -> string().
+-spec get_plain_name( wooper:state() ) -> string().
 get_plain_name( State ) ->
 	text_utils:binary_to_string( ?getAttr(name) ).

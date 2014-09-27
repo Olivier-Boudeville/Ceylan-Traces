@@ -125,8 +125,8 @@
 % trace type is {text_traces,pdf}, so that this aggregator does not display the
 % produced PDF when in batch mode
 %
--spec construct( wooper_state(), file_utils:file_name(), traces:trace_type(),
-				string(), boolean(), boolean() ) -> wooper_state().
+-spec construct( wooper:state(), file_utils:file_name(), traces:trace_type(),
+				string(), boolean(), boolean() ) -> wooper:state().
 construct( State, ?wooper_construct_parameters ) ->
 
 	% First the direct mother classes (none here), then this class-specific
@@ -214,7 +214,7 @@ construct( State, ?wooper_construct_parameters ) ->
 
 
 % Overridden destructor.
--spec delete( wooper_state() ) -> wooper_state().
+-spec delete( wooper:state() ) -> wooper:state().
 delete( State ) ->
 
 	%io:format( "~s Deleting trace aggregator.~n", [ ?LogPrefix ] ),
@@ -317,7 +317,7 @@ delete( State ) ->
 %
 % (const oneway)
 %
--spec send( wooper_state(), pid(), traces:emitter_name(),
+-spec send( wooper:state(), pid(), traces:emitter_name(),
 		   traces:emitter_categorization(), traces:tick(), traces:time(),
 		   traces:location(), traces:message_categorization(),
 		   traces:priority(), traces:message() ) -> oneway_return().
@@ -372,7 +372,7 @@ send( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 %
 % (oneway)
 %
--spec addTraceListener( wooper_state(), pid() ) -> oneway_return().
+-spec addTraceListener( wooper:state(), pid() ) -> oneway_return().
 addTraceListener( State, ListenerPid ) ->
 
 	% Better log this events directly in the traces:
@@ -410,7 +410,7 @@ addTraceListener( State, ListenerPid ) ->
 %
 % (oneway)
 %
--spec removeTraceListener( wooper_state(), pid() ) -> oneway_return().
+-spec removeTraceListener( wooper:state(), pid() ) -> oneway_return().
 removeTraceListener( State, ListenerPid ) ->
 
 	io:format( "~s Removing trace listener ~w.~n",
@@ -428,8 +428,8 @@ removeTraceListener( State, ListenerPid ) ->
 %
 % (const request)
 %
--spec requestReadyNotification( wooper_state() ) ->
-									  {wooper_state(),'trace_file_ready'}.
+-spec requestReadyNotification( wooper:state() ) ->
+									  {wooper:state(),'trace_file_ready'}.
 requestReadyNotification( State ) ->
 	% Being able to answer means ready, as a first synchronised message is sent
 	% from the constructor:
@@ -554,7 +554,7 @@ remove() ->
 
 		TraceAggregatorPid ->
 			% WOOPER convenience:
-			delete_synchronously_instance( TraceAggregatorPid )
+			wooper:delete_synchronously_instance( TraceAggregatorPid )
 
 	end.
 
@@ -654,7 +654,7 @@ overload_monitor_main_loop( AggregatorPid ) ->
 %
 % (helper function)
 %
--spec manage_trace_header( wooper_state() ) -> wooper_state().
+-spec manage_trace_header( wooper:state() ) -> wooper:state().
 manage_trace_header(State) ->
 
 	case ?getAttr(trace_type) of
@@ -716,7 +716,7 @@ manage_trace_header(State) ->
 %
 % (helper function)
 %
--spec manage_trace_footer( wooper_state() ) -> wooper_state().
+-spec manage_trace_footer( wooper:state() ) -> wooper:state().
 manage_trace_footer( State ) ->
 
 	case ?getAttr(trace_type) of

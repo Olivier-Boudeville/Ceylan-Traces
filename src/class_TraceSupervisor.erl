@@ -113,9 +113,9 @@
 % parameter should be the PID of the caller to be notified. This parameter has a
 % meaning iff MonitorNow is true
 %
--spec construct( wooper_state(),
+-spec construct( wooper:state(),
 				 { file_utils:file_name(), traces:trace_type(), pid() },
-				 boolean(), 'none' | pid() ) -> wooper_state().
+				 boolean(), 'none' | pid() ) -> wooper:state().
 construct( State, ?wooper_construct_parameters ) ->
 
 	%io:format( "~s Creating a trace supervisor, whose PID is ~w.~n",
@@ -209,7 +209,7 @@ construct( State, ?wooper_construct_parameters ) ->
 
 
 % Overridden destructor.
--spec delete( wooper_state() ) -> wooper_state().
+-spec delete( wooper:state() ) -> wooper:state().
 delete( State ) ->
 
 	%io:format( "~s Deleting supervisor.~n", [ ?LogPrefix ] ),
@@ -230,7 +230,7 @@ delete( State ) ->
 % Will return immediately.
 %
 % (oneway)
--spec monitor( wooper_state() ) -> oneway_return().
+-spec monitor( wooper:state() ) -> oneway_return().
 monitor( State ) ->
 
 	NewState = case ?getAttr(trace_type) of
@@ -278,7 +278,7 @@ monitor( State ) ->
 %
 % (request)
 %
--spec blocking_monitor( wooper_state() ) -> { wooper_state(), 'monitor_ok' }.
+-spec blocking_monitor( wooper:state() ) -> { wooper:state(), 'monitor_ok' }.
 blocking_monitor( State ) ->
 
 	case ?getAttr(trace_type) of
@@ -435,7 +435,7 @@ create( Blocking, MonitorNow, TraceFilename, TraceType, TraceAggregatorPid ) ->
 % monitor traces.
 %
 % (const helper)
--spec get_viewer_settings( wooper_state(), file_utils:file_name() ) ->
+-spec get_viewer_settings( wooper:state(), file_utils:file_name() ) ->
 					{file_utils:path(),file_utils:file_name()}.
 get_viewer_settings( State, Filename ) ->
 

@@ -78,7 +78,7 @@
 
 % Constructs a new test trace emitter.
 %
--spec construct( wooper_state(), string() ) -> wooper_state().
+-spec construct( wooper:state(), string() ) -> wooper:state().
 construct( State, ?wooper_construct_parameters ) ->
 
 	io:format( "~s Creating a new test trace emitter, whose name is ~s, "
@@ -105,7 +105,7 @@ construct( State, ?wooper_construct_parameters ) ->
 
 
 % Overridden destructor.
--spec delete( wooper_state() ) -> wooper_state().
+-spec delete( wooper:state() ) -> wooper:state().
 delete( State ) ->
 
 	% Class-specific actions:
@@ -133,7 +133,7 @@ delete( State ) ->
 
 
 % (const request)
--spec sendTraces( wooper_state() ) -> request_return( 'ok' ).
+-spec sendTraces( wooper:state() ) -> request_return( 'ok' ).
 sendTraces( State ) ->
 
 	%io:format( "~s Sending some traces.~n", [ ?LogPrefix ] ),
@@ -143,7 +143,7 @@ sendTraces( State ) ->
 
 
 % (const oneway)
--spec sendAsyncTraces( wooper_state() ) -> oneway_return().
+-spec sendAsyncTraces( wooper:state() ) -> oneway_return().
 sendAsyncTraces( State ) ->
 
 	%io:format( "~s Sending some asynchronous traces.~n", [ ?LogPrefix ] ),
@@ -158,7 +158,7 @@ sendAsyncTraces( State ) ->
 
 
 % We should be testing all forms of traces here.
--spec send_traces( wooper_state() ) -> basic_utils:void().
+-spec send_traces( wooper:state() ) -> basic_utils:void().
 send_traces( State ) ->
 
 	%io:format( "~s Sending some traces.~n", [ ?LogPrefix ] ),
@@ -242,7 +242,7 @@ send_traces( State ) ->
 
 % Fatal and error messages replaced by warning, as the former two induce sleeps,
 % which distorts the benchmarks.
--spec send_traces_benchmark( wooper_state() ) -> basic_utils:void().
+-spec send_traces_benchmark( wooper:state() ) -> basic_utils:void().
 send_traces_benchmark( State ) ->
 
 	%io:format( "~s Sending some traces.~n", [ ?LogPrefix ] ),

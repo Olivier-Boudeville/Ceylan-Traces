@@ -84,7 +84,7 @@
 % TraceAggregatorPid is the PID of the trace aggregator to which this listener
 % will be synchronized.
 %
--spec construct( wooper_state(), pid() ) -> wooper_state().
+-spec construct( wooper:state(), pid() ) -> wooper:state().
 construct( State, ?wooper_construct_parameters ) ->
 
 	io:format( "~s Creating a trace listener whose PID is ~w, "
@@ -133,7 +133,7 @@ construct( State, ?wooper_construct_parameters ) ->
 
 
 % Overridden destructor.
--spec delete( wooper_state() ) -> wooper_state().
+-spec delete( wooper:state() ) -> wooper:state().
 delete( State ) ->
 
 	io:format( "~s Deleting trace listener.~n", [ ?LogPrefix ] ),
@@ -159,7 +159,7 @@ delete( State ) ->
 %
 % (oneway)
 %
--spec monitor( wooper_state() ) -> oneway_return().
+-spec monitor( wooper:state() ) -> oneway_return().
 monitor( State ) ->
 
 	Filename = ?getAttr( trace_filename ),
@@ -190,7 +190,7 @@ monitor( State ) ->
 %
 % (oneway)
 %
--spec addTrace( wooper_state(), binary() ) -> oneway_return().
+-spec addTrace( wooper:state(), binary() ) -> oneway_return().
 addTrace( State, NewTrace ) ->
 	io:format( ?getAttr(trace_file), "~s", [binary_to_list(NewTrace)] ),
 	?wooper_return_state_only(State).
