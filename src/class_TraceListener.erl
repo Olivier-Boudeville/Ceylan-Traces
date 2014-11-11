@@ -108,46 +108,62 @@ construct( State, ?wooper_construct_parameters ) ->
 
 	TraceAggregatorPid ! { addTraceListener, self() },
 
-	receive
+	% We used to rely on basic ZIP sent over Erlang messages:
+	%receive
+	%
+	%	 { trace_zip, Bin, TraceFilename } ->
+	%
+	%			% Allows to run for the same directory as aggregator:
+	%			ListenerTraceFilename = "Listener-" ++ TraceFilename,
+	%
+	%           file_utils:zipped_term_to_unzipped_file( Bin,
+	%										 ListenerTraceFilename ),
+	%	{ trace_zip, ErrorReason } ->
+	%
+	%		io:format( "~s Trace listener cannot listen to current trace "
+	%				   "aggregator, as this aggregator does not use "
+	%				   "LogMX-based traces.~n", [ ?LogPrefix ] ),
+	%
+	%		throw( { cannot_listen_aggregator, TraceAggregatorPid,
+	%				 ErrorReason } )
 
-		 { trace_zip, Bin, TraceFilename } ->
+	% Now we prefer XZ + sendFile:
 
-			% Allows to run for the same directory as aggregator:
-			ListenerTraceFilename = "Listener-" ++ TraceFilename,
+	% Currently we prefer using a temporary directory (it also allows to avoid
+	% stepping on the source compressed file if running the listener from the
+	% same directory as the aggregator - as it is the case for tests):
+	%
+	TempDir = file_utils:create_temporary_directory(),
 
-			io:format( "~s Received from aggregator a trace synchronization "
-					   "for file '~s', will store it in '~s'.~n",
-					   [ ?LogPrefix, TraceFilename, ListenerTraceFilename ] ),
+	CompressedFilename = net_utils:receive_file( TraceAggregatorPid, TempDir ),
 
-			file_utils:zipped_term_to_unzipped_file( Bin,
-													 ListenerTraceFilename ),
+	TraceFilename = file_utils:decompress( CompressedFilename,
+										   _CompressionFormat=xz ),
 
-			% Will write in it newer traces:
-			File = file_utils:open( ListenerTraceFilename, [ append ] ),
+	file_utils:remove_file( CompressedFilename ),
 
-			NewState = setAttributes( State, [
+	io:format( "~s Received from aggregator a trace synchronization "
+			   "for file '~s', reused for later traces.~n",
+			   [ ?LogPrefix, TraceFilename ] ),
+
+	% Will write in it newly received traces (sent through messages):
+	%File = file_utils:open( TraceFilename,
+	%			[ append, raw, { delayed_write, _Size=1024, _Delay=200 } ] ),
+	File = file_utils:open( TraceFilename,
+				[ append ] ),
+
+	NewState = setAttributes( State, [
 				{ trace_aggregator_pid, TraceAggregatorPid },
-				{ trace_filename, ListenerTraceFilename },
-				{ trace_file, File }
-			] ),
+				{ trace_filename, TraceFilename },
+				{ trace_file, File },
+				{ temp_dir, TempDir } ] ),
 
-			EndState = executeOneway( NewState, monitor ),
+	EndState = executeOneway( NewState, monitor ),
 
-			io:format( "~s Trace listener created.~n", [ ?LogPrefix ] ),
+	io:format( "~s Trace listener created.~n", [ ?LogPrefix ] ),
 
-			EndState;
+	EndState.
 
-
-		{ trace_zip, ErrorReason } ->
-
-			io:format( "~s Trace listener cannot listen to current trace "
-					   "aggregator, as this aggregator does not use "
-					   "LogMX-based traces.~n", [ ?LogPrefix ] ),
-
-			throw( { cannot_listen_aggregator, TraceAggregatorPid,
-					 ErrorReason } )
-
-	end.
 
 
 
@@ -160,7 +176,11 @@ delete( State ) ->
 	% Class-specific actions:
 	?getAttr(trace_aggregator_pid) ! { removeTraceListener, self() },
 
-	file:close( ?getAttr(trace_file) ),
+	file_utils:close( ?getAttr(trace_file) ),
+
+	file_utils:remove_file( ?getAttr(trace_filename) ),
+
+	file_utils:remove_directory( ?getAttr(temp_dir) ),
 
 	% Then call the direct mother class counterparts: (none)
 	io:format( "~s Trace listener deleted.~n", [ ?LogPrefix ] ),
