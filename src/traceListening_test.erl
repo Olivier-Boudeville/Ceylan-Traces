@@ -167,7 +167,7 @@ test_actual_body() ->
 	% the listener trace file will this time have *more* entries that the
 	% aggregator one:
 	%
-	timer:sleep( 5000 ),
+	%timer:sleep( 5000 ),
 
 	% We want the listener to have enough time to properly write its traces
 	% before shutdown:
