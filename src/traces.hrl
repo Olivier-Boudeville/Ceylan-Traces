@@ -68,17 +68,17 @@
 % - check in the class_TraceEmitter.hrl file whether TracingActivated is defined
 %
 -ifndef(TraceType).
-	-define(TraceType,log_mx_traces).
-	%-define(TraceType,{text_traces,pdf}).
-	%-define(TraceType,{text_traces,text_only}).
+	-define( TraceType, log_mx_traces ).
+	%-define( TraceType, { text_traces, pdf } ).
+	%-define( TraceType, { text_traces, text_only } ).
 
--endif.
+-endif. % TraceType
 
 
 
 % Defines the trace title (ex: for PDF output), if not already specified:
 -ifndef(TraceTitle).
-	-define(TraceTitle,"Ceylan").
+	-define( TraceTitle, "Ceylan" ).
 -endif.
 
 
@@ -149,7 +149,7 @@
 
 
 % To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
+% static method). Tick corresponds to any measure of time.
 %
 -define( notify_fatal_full( Message, EmitterCategorization, Tick ),
 
@@ -176,7 +176,7 @@
 -define( notify_fatal_fmt( Message, FormatValues ),
 
 		io:format( "Fatal standalone trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		class_TraceEmitter:send_standalone( fatal,
 							  io_lib:format( Message, FormatValues ) ),
@@ -195,7 +195,7 @@
 -define( notify_fatal_fmt_cat( Message, FormatValues, EmitterCategorization ),
 
 		io:format( "Fatal standalone trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		 class_TraceEmitter:send_standalone( fatal,
 							  io_lib:format( Message, FormatValues ),
@@ -216,7 +216,7 @@
 								Tick ),
 
 		io:format( "Fatal standalone trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		class_TraceEmitter:send_standalone( fatal,
 							  io_lib:format( Message, FormatValues ),
@@ -266,7 +266,7 @@
 		io:format( "Error standalone trace message: ~s~n", [ Message ] ),
 
 		class_TraceEmitter:send_standalone( error, Message,
-											 EmitterCategorization ),
+											EmitterCategorization ),
 
 		% To ensure the asynchronous sending of the trace has a chance to
 		% complete, possibly before the interpreter is crashed:
@@ -284,7 +284,7 @@
 		io:format( "Error standalone trace message: ~s~n", [ Message ] ),
 
 		class_TraceEmitter:send_standalone( error, Message,
-											 EmitterCategorization, Tick ),
+											EmitterCategorization, Tick ),
 
 		% To ensure the asynchronous sending of the trace has a chance to
 		% complete, possibly before the interpreter is crashed:
@@ -304,7 +304,7 @@
 -define( notify_error_fmt( Message, FormatValues ),
 
 		io:format( "Error standalone trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		class_TraceEmitter:send_standalone( error,
 							  io_lib:format( Message, FormatValues ) ),
@@ -323,7 +323,7 @@
 -define( notify_error_fmt_cat( Message, FormatValues, EmitterCategorization ),
 
 		io:format( "Error standalone trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		class_TraceEmitter:send_standalone( error,
 							  io_lib:format( Message, FormatValues ),
@@ -344,7 +344,7 @@
 								Tick ),
 
 		io:format( "Error standalone trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		class_TraceEmitter:send_standalone( error,
 							  io_lib:format( Message, FormatValues ),
@@ -393,7 +393,7 @@
 		io:format( "Warning standalone trace message: ~s~n", [ Message ] ),
 
 		class_TraceEmitter:send_standalone( warning, Message,
-											 EmitterCategorization ),
+											EmitterCategorization ),
 
 		% To ensure the asynchronous sending of the trace has a chance to
 		% complete, possibly before the interpreter is crashed:
@@ -411,7 +411,7 @@
 		io:format( "Warning standalone trace message: ~s~n", [ Message ] ),
 
 		class_TraceEmitter:send_standalone( warning, Message,
-											 EmitterCategorization, Tick ),
+											EmitterCategorization, Tick ),
 
 		% To ensure the asynchronous sending of the trace has a chance to
 		% complete, possibly before the interpreter is crashed:
@@ -433,7 +433,7 @@
 -define( notify_warning_fmt( Message, FormatValues ),
 
 		io:format( "Warning standalone trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		class_TraceEmitter:send_standalone( warning,
 							  io_lib:format( Message, FormatValues ) ),
@@ -470,7 +470,7 @@
 % static method):
 %
 -define( notify_warning_fmt_full( Message, FormatValues, EmitterCategorization,
-								Tick ),
+								  Tick ),
 
 		io:format( "Warning standalone trace message: " ++ Message ++ "~n",
 				  FormatValues ),
@@ -505,7 +505,8 @@
 %
 -define( notify_info( Message ),
 
-		class_TraceEmitter:send_standalone( info, Message )
+		class_TraceEmitter:send_standalone( info, Message,
+							  atom_to_list( ?MODULE ) )
 
 ).
 
@@ -517,7 +518,7 @@
 -define( notify_info_cat( Message, EmitterCategorization ),
 
 		class_TraceEmitter:send_standalone( info, Message,
-										   EmitterCategorization )
+											EmitterCategorization )
 
 ).
 
@@ -542,7 +543,7 @@
 -define( notify_info_full( Message, EmitterCategorization, Tick ),
 
 		class_TraceEmitter:send_standalone( info, Message,
-										   EmitterCategorization, Tick )
+											EmitterCategorization, Tick )
 
 ).
 
@@ -583,7 +584,7 @@
 % static method):
 %
 -define( notify_info_fmt_full( Message, FormatValues, EmitterCategorization,
-								Tick ),
+							   Tick ),
 
 		class_TraceEmitter:send_standalone( info,
 							  io_lib:format( Message, FormatValues ),
@@ -630,7 +631,7 @@
 -define( notify_trace_full( Message, EmitterCategorization, Tick ),
 
 		class_TraceEmitter:send_standalone( trace, Message,
-											 EmitterCategorization, Tick )
+											EmitterCategorization, Tick )
 
 ).
 
@@ -704,7 +705,7 @@
 -define( notify_debug_cat( Message, EmitterCategorization ),
 
 		class_TraceEmitter:send_standalone( debug, Message,
-											 EmitterCategorization )
+											EmitterCategorization )
 
 ).
 
@@ -716,7 +717,7 @@
 -define( notify_debug_full( Message, EmitterCategorization, Tick ),
 
 		class_TraceEmitter:send_standalone( debug, Message,
-											 EmitterCategorization, Tick )
+											EmitterCategorization, Tick )
 
 ).
 
@@ -827,7 +828,7 @@
 		io:format( "Fatal standalone trace message: ~s~n", [ Message ] ),
 
 		class_TraceEmitter:send_standalone( fatal, Message,
-											 EmitterCategorization ),
+											EmitterCategorization ),
 
 		% To ensure the asynchronous sending of the trace has a chance to
 		% complete, possibly before the interpreter is crashed:
@@ -845,7 +846,7 @@
 		io:format( "Fatal standalone trace message: ~s~n", [ Message ] ),
 
 		class_TraceEmitter:send_standalone( fatal, Message,
-											 EmitterCategorization, Tick ),
+											EmitterCategorization, Tick ),
 
 		% To ensure the asynchronous sending of the trace has a chance to
 		% complete, possibly before the interpreter is crashed:
@@ -955,7 +956,7 @@
 		io:format( "Error standalone trace message: ~s~n", [ Message ] ),
 
 		class_TraceEmitter:send_standalone( error, Message,
-											 EmitterCategorization ),
+											EmitterCategorization ),
 
 		% To ensure the asynchronous sending of the trace has a chance to
 		% complete, possibly before the interpreter is crashed:
@@ -972,7 +973,7 @@
 		io:format( "Error standalone trace message: ~s~n", [ Message ] ),
 
 		class_TraceEmitter:send_standalone( error, Message,
-											 EmitterCategorization, Tick ),
+											EmitterCategorization, Tick ),
 
 		% To ensure the asynchronous sending of the trace has a chance to
 		% complete, possibly before the interpreter is crashed:
@@ -992,7 +993,7 @@
 -define( notify_error_fmt( Message, FormatValues ),
 
 		io:format( "Error standalone trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		class_TraceEmitter:send_standalone( error,
 							  io_lib:format( Message, FormatValues ) ),
@@ -1011,7 +1012,7 @@
 -define( notify_error_fmt_cat( Message, FormatValues, EmitterCategorization ),
 
 		io:format( "Error standalone trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		class_TraceEmitter:send_standalone( error,
 							  io_lib:format( Message, FormatValues ),
@@ -1032,7 +1033,7 @@
 								Tick ),
 
 		io:format( "Error standalone trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		class_TraceEmitter:send_standalone( error,
 							  io_lib:format( Message, FormatValues ),
@@ -1081,7 +1082,7 @@
 		io:format( "Warning standalone trace message: ~s~n", [ Message ] ),
 
 		class_TraceEmitter:send_standalone( warning, Message,
-											 EmitterCategorization ),
+											EmitterCategorization ),
 
 		% To ensure the asynchronous sending of the trace has a chance to
 		% complete, possibly before the interpreter is crashed:
@@ -1099,7 +1100,7 @@
 		io:format( "Warning standalone trace message: ~s~n", [ Message ] ),
 
 		class_TraceEmitter:send_standalone( warning, Message,
-											 EmitterCategorization, Tick ),
+											EmitterCategorization, Tick ),
 
 		% To ensure the asynchronous sending of the trace has a chance to
 		% complete, possibly before the interpreter is crashed:
@@ -1121,7 +1122,7 @@
 -define( notify_warning_fmt( Message, FormatValues ),
 
 		io:format( "Warning standalone trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		class_TraceEmitter:send_standalone( warning,
 							  io_lib:format( Message, FormatValues ) ),
@@ -1140,7 +1141,7 @@
 -define( notify_warning_fmt_cat( Message, FormatValues, EmitterCategorization ),
 
 		io:format( "Warning standalone trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		 class_TraceEmitter:send_standalone( warning,
 							  io_lib:format( Message, FormatValues ),
@@ -1158,7 +1159,7 @@
 % static method):
 %
 -define( notify_warning_fmt_full( Message, FormatValues, EmitterCategorization,
-								Tick ),
+								  Tick ),
 
 		io:format( "Warning standalone trace message: " ++ Message ++ "~n",
 				  FormatValues ),
