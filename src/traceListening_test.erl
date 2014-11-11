@@ -35,14 +35,18 @@
 
 
 
-% Mode of operation: to be executed while the traceManagement_test is running:
+% The mode of operation is to execute this test while the traceManagement_test
+% is running:
 %
-%   - run on a first terminal: 'make traceManagement_run'
+% - run on a first terminal: 'make traceManagement_run'
 %
-%   - then run on a second terminal: 'make traceListening_run'
+% - then run on a second terminal: 'make traceListening_run'
 %
 % A new trace supervisor window should appear and allow to catch up all the past
 % traces.
+%
+% One may check that the aggregator and the listener have exactly the same
+% messages (ex: at least counts must match of both interfaces).
 %
 -module(traceListening_test).
 
@@ -56,8 +60,8 @@
 
 
 
-
-send_traces( 0 ) ->
+% Sends (as fast as possible) the specified number of traces:
+send_traces( _Count=0 ) ->
 	ok;
 
 send_traces( Count ) ->
@@ -66,12 +70,16 @@ send_traces( Count ) ->
 
 
 
-send_timed_traces( 0 ) ->
+% Sends the specified number of traces with some waiting between sendings:
+send_timed_traces( _Count=0 ) ->
 	ok;
 
 send_timed_traces( Count ) ->
+
 	?test_trace_fmt( "Emitting timed trace #~B from listener.", [ Count ] ),
+
 	timer:sleep( 100 ),
+
 	send_timed_traces( Count - 1 ).
 
 
@@ -82,15 +90,27 @@ send_timed_traces( Count ) ->
 -spec test_actual_body() -> no_return().
 test_actual_body() ->
 
-	[ _H, NodeName ] = string:tokens( atom_to_list( node() ), "@" ),
+	NodeStringName = case net_utils:localnode() of
 
-	TargetVMName = lists:flatten(
-		io_lib:format( "traceManagement_run-~s@~s",
-					[ system_utils:get_user_name(), NodeName ] ) ),
+				   local_node ->
+					   throw( { node_not_networked, node() } );
 
-	test_facilities:display( "Connecting to '~s'.", [ TargetVMName ] ),
+				   N ->
+					   text_utils:atom_to_string( N )
 
-	case net_adm:ping( list_to_atom( TargetVMName ) ) of
+	end,
+
+	% Get rid of the test module prefix, just to have the node-specific suffix
+	% (generally, the hostname):
+	%
+	[ _TestModuleName, NodeSuffix ] = string:tokens( NodeStringName, "@" ),
+
+	TargetNodeName = text_utils:format( "traceManagement_run-~s@~s",
+						[ system_utils:get_user_name(), NodeSuffix ] ),
+
+	test_facilities:display( "Connecting to node '~s'.", [ TargetNodeName ] ),
+
+	case net_adm:ping( text_utils:string_to_atom( TargetNodeName ) ) of
 
 		pong ->
 			ok;
@@ -101,7 +121,7 @@ test_actual_body() ->
 				"should already be running.~nFor example, execute "
 				"'make traceManagement_run' in another terminal." ),
 
-			throw( { no_trace_aggregator_to_listen, TargetVMName } )
+			throw( { no_trace_aggregator_to_listen, TargetNodeName } )
 
 	end,
 
@@ -109,36 +129,50 @@ test_actual_body() ->
 	global:sync(),
 
 	test_facilities:display( "Globally registered names: ~w.",
-		[ global:registered_names() ] ),
+							 [ global:registered_names() ] ),
 
 	AggregatorName = ?trace_aggregator_name,
 
 	test_facilities:display( "Looking up aggregator by name: ~s.",
-		[ AggregatorName ] ),
+							 [ AggregatorName ] ),
 
-	AggregatorPid = case global:whereis_name( AggregatorName ) of
-
-		Pid when is_pid( Pid ) ->
-			Pid
-
-	end,
+	AggregatorPid = basic_utils:get_registered_pid_for( AggregatorName,
+														global ),
 
 	test_facilities:display( "Sending initial traces to force "
-		"a real synchronization." ),
-	send_traces( 50 ),
+							 "a real synchronization." ),
 
-	% No ?test_start: we will be using the aggregator from the node named
+	?test_info( "First trace sent from listener." ),
+
+	send_traces( _Count=40 ),
+
+	% No ?test_start: we want to use the aggregator from the node named
 	% 'traceManagement_run'.
+
 	test_facilities:display( "Creating a test trace local listener." ),
+
 	MyTraceListener = class_TraceListener:synchronous_new_link( AggregatorPid ),
 
-	send_timed_traces( 20 ),
+	send_timed_traces( _TimedCount=20 ),
+
+	?test_info( "Last trace sent from listener." ),
 
 	% Could wait here for any event before stopping.
 
 	test_facilities:display( "Deleting this test trace listener." ),
 
-	MyTraceListener ! delete,
+	% In a real test, we do not wait for traceManagement_run to finish until
+	% launching the listener; however we do not want either that this listener
+	% terminates *before* traceManagement_run terminates, otherwise of course
+	% the listener trace file will this time have *more* entries that the
+	% aggregator one:
+	%
+	timer:sleep( 5000 ),
+
+	% We want the listener to have enough time to properly write its traces
+	% before shutdown:
+	%
+	wooper:delete_synchronously_instance( MyTraceListener ),
 
 	% ?test_stop should not be used here as its wait_for_any_trace_supervisor
 	% macro would wait for a non-launched supervisor.
@@ -157,10 +191,8 @@ run() ->
 
 	% No test_start here.
 
-	test_facilities:display( "Testing module ~w. "
-		"'make traceManagement_run' supposed to be already executed.",
-		[ ?MODULE ] ),
-
+	test_facilities:display( "Testing module ~w. 'make traceManagement_run' "
+							 "supposed to be already executed.", [ ?MODULE ] ),
 
 	case executable_utils:is_batch() of
 
