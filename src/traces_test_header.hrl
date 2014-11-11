@@ -29,13 +29,20 @@
 % Defines some macros and functions useful for trace-using tests.
 
 
+-ifndef(TraceEmitterCategorization).
+
+-define( TraceEmitterCategorization, "test" ).
+
+-endif. % TraceEmitterCategorization
+
+
 
 % Allows to define exports before functions:
 -ifndef(TracingActivated).
 
 -export([ test_trace_disabled/1, test_trace_disabled/2 ]).
 
--endif.
+-endif. % TracingActivated
 
 
 
@@ -180,7 +187,7 @@
 
 
 
--else.
+-else. % TracingActivated
 
 
 
@@ -296,4 +303,4 @@
 		test_trace_disabled( Message, FormatValues ) ).
 
 
--endif.
+-endif. % TracingActivated
