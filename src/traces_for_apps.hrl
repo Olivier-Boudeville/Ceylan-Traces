@@ -79,7 +79,7 @@
 
 
 
--else.
+-else. % TracingActivated
 
 
 % Here, even if the trace sending is deactivated, a trace aggregator is created,
@@ -102,7 +102,7 @@
 	traces_for_apps:app_immediate_stop( ?MODULE, TraceAggregatorPid ) ).
 
 
--endif.
+-endif. % TracingActivated
 
 
 
@@ -140,6 +140,7 @@ app_receive() ->
 
 % Helper macro for those who would not know they could have called the
 % corresponding function directly:
+%
 -define( app_failed, app_failed() ).
 
 

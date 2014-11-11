@@ -36,6 +36,9 @@
 		  test_stop_on_shell/2 ]).
 
 
+-define( TraceEmitterCategorization, "test.life-cycle" ).
+
+
 % For test_info_fmt and al:
 -include("traces_test_header.hrl").
 
@@ -48,6 +51,7 @@
 
 
 -include("traces_test_footer.hrl").
+
 
 
 
@@ -111,6 +115,7 @@ test_stop( ModuleName, TraceAggregatorPid ) ->
 
 	class_TraceSupervisor:wait_for(),
 
+	% Stop trace sent there:
 	test_immediate_stop( ModuleName, TraceAggregatorPid ).
 
 
@@ -128,6 +133,8 @@ test_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 % To be called from the counterpart macro.
 -spec test_stop_on_shell( basic_utils:module_name(), pid() ) -> no_return().
 test_stop_on_shell( ModuleName, TraceAggregatorPid ) ->
+
+	?test_info_fmt( "Stopping test ~s.", [ ModuleName ] ),
 
 	% Variable shared through macro use:
 	TraceAggregatorPid ! { synchronous_delete, self() },

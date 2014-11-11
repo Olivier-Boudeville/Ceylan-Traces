@@ -36,6 +36,9 @@
 		  app_stop_on_shell/2 ]).
 
 
+-define( TraceEmitterCategorization, "application.life-cycle" ).
+
+
 % For app_info_fmt and al:
 -include("traces_app_header.hrl").
 
@@ -48,6 +51,7 @@
 
 
 -include("traces_app_footer.hrl").
+
 
 
 
@@ -68,8 +72,9 @@ app_start( ModuleName, _InitTraceSupervisor=true ) ->
 	% First jump to the other clause:
 	TraceAggregatorPid = app_start( ModuleName, false ),
 
-	class_TraceSupervisor:init( traces:get_trace_filename(ModuleName),
+	class_TraceSupervisor:init( traces:get_trace_filename( ModuleName ),
 							   ?TraceType, TraceAggregatorPid ),
+
 	TraceAggregatorPid;
 
 
@@ -91,7 +96,7 @@ app_start( ModuleName, _InitTraceSupervisor=false ) ->
 
 	AppIsBatch = executable_utils:is_batch(),
 
-	TraceFilename = traces:get_trace_filename(ModuleName),
+	TraceFilename = traces:get_trace_filename( ModuleName ),
 
 	TraceAggregatorPid = class_TraceAggregator:synchronous_new_link(
 		TraceFilename, ?TraceType, ?TraceTitle, _TraceIsPrivate=false,
@@ -107,7 +112,9 @@ app_start( ModuleName, _InitTraceSupervisor=false ) ->
 % To be called from the counterpart macro.
 -spec app_stop( basic_utils:module_name(), pid() ) -> no_return().
 app_stop( ModuleName, TraceAggregatorPid ) ->
+
 	class_TraceSupervisor:wait_for(),
+
 	app_immediate_stop( ModuleName, TraceAggregatorPid ).
 
 
@@ -116,6 +123,7 @@ app_stop( ModuleName, TraceAggregatorPid ) ->
 -spec app_immediate_stop( basic_utils:module_name(), pid() ) -> no_return().
 app_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 
+	% Stop trace sent there:
 	app_stop_on_shell( ModuleName, TraceAggregatorPid ),
 
 	app_facilities:finished().
@@ -126,7 +134,8 @@ app_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 -spec app_stop_on_shell( basic_utils:module_name(), pid() ) -> no_return().
 app_stop_on_shell( ModuleName, TraceAggregatorPid ) ->
 
-	% Variable shared through macro use:
+	?app_info_fmt( "Stopping application ~s.", [ ModuleName ] ),
+
 	TraceAggregatorPid ! { synchronous_delete, self() },
 
 	receive

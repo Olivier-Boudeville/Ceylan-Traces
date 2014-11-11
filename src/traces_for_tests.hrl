@@ -67,7 +67,7 @@
 
 -define( test_start,
 	TraceAggregatorPid = traces_for_tests:test_start( ?MODULE,
-													_InitTraceSupervisor=true )
+											 _InitTraceSupervisor=true )
 ).
 
 
@@ -76,7 +76,7 @@
 ).
 
 
--else.
+-else. % TracingActivated
 
 
 % Here, even if the trace sending is deactivated, a trace aggregator is created,
@@ -86,7 +86,7 @@
 % However no trace supervisor is needed here.
 -define( test_start,
 	TraceAggregatorPid = traces_for_tests:test_start( ?MODULE,
-										   _InitTraceSupervisor=false ) ).
+											 _InitTraceSupervisor=false ) ).
 
 
 -define( test_stop,
@@ -94,7 +94,7 @@
 	traces_for_tests:test_immediate_stop( ?MODULE, TraceAggregatorPid ) ).
 
 
--endif.
+-endif. % TracingActivated
 
 
 
