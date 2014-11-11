@@ -177,7 +177,7 @@ construct( State, ?wooper_construct_parameters ) ->
 		% Should be converted to binary each time when set (but will not crash
 		% if remaining a plain string):
 		{ trace_categorization,
-		 text_utils:string_to_binary(?TraceEmitterCategorization) }
+		 text_utils:string_to_binary( ?TraceEmitterCategorization ) }
 
 						   ] ).
 
@@ -225,7 +225,7 @@ getName( State ) ->
 -spec setName( wooper:state(), string() ) -> oneway_return().
 setName( State, NewName ) ->
 	?wooper_return_state_only( setAttribute( State, name,
-								text_utils:string_to_binary(NewName) ) ).
+								text_utils:string_to_binary( NewName ) ) ).
 
 
 
@@ -268,7 +268,7 @@ getInitialTick( State ) ->
 -spec setInitialTick( wooper:state(), traces:tick() ) -> oneway_return().
 setInitialTick( State, NewInitialTick ) ->
 	?wooper_return_state_only( setAttribute( State, initial_tick,
-		NewInitialTick ) ).
+											 NewInitialTick ) ).
 
 
 
@@ -366,7 +366,7 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 		undefined ->
 
 			error_logger:info_msg( "class_TraceEmitter:send_from_test: "
-				"trace aggregator not found." ),
+								   "trace aggregator not found." ),
 
 			throw( trace_aggregator_not_found );
 
@@ -409,7 +409,7 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 							 basic_utils:void().
 send_standalone( TraceType, Message ) ->
 	send_standalone( TraceType, Message,
-		?DefaultStandaloneEmitterCategorization ).
+					 ?DefaultStandaloneEmitterCategorization ).
 
 
 
@@ -442,11 +442,17 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 			% No State available here:
 			EmitterNode = get_emitter_node_as_binary(),
 
+			% Visual noise:
+			%PidName = "(anonymous)",
+
+			% Not wanting dots in PID here (otherwise this would be interpreted
+			% as sub-categories in the traces:
+			PidName = text_utils:substitute( $., $-, pid_to_list( self() ) ),
+
 			AggregatorPid ! { send,
 				[
 				 _TraceEmitterPid=self(),
-				 _TraceEmitterName=text_utils:string_to_binary(
-									 "(anonymous)" ),
+				 _TraceEmitterName=text_utils:string_to_binary( PidName ),
 				 _TraceEmitterCategorization=
 					 text_utils:string_to_binary( EmitterCategorization ),
 				 _Tick=none,
