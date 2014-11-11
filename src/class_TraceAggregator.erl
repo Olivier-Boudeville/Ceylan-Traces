@@ -398,9 +398,38 @@ addTraceListener( State, ListenerPid ) ->
 			% Transfers file:
 			TraceFilename = ?getAttr(trace_filename),
 
-			Bin = file_utils:file_to_zipped_term( TraceFilename ),
+			% We used to rely on basic ZIP over Erlang carrier:
+			%Bin = file_utils:file_to_zipped_term( TraceFilename ),
+			%ListenerPid ! { trace_zip, Bin, TraceFilename },
 
-			ListenerPid ! { trace_zip, Bin, TraceFilename },
+			% Now we prefer using xz over sendFile, which must be a lot more
+			% efficient:
+			%
+			XZFilename = file_utils:compress( TraceFilename,
+											  _CompressionFormat=xz ),
+
+			% If compressing 'traceManagement_test.traces' for example, we do
+			% not want to send 'traceManagement_test.traces.xz', as if the
+			% listener (ex: traceListening_test) happens to decompress the
+			% received file on the same directory, it will overwrite the first
+			% file.
+
+			% That way we would be producing
+			% "Listener-traceManagement_test.traces" for example:
+			%
+			% The client will have nevertheless to receive this file to a
+			% temporary ianother directory, as the same client-side overwriting
+			% could happen directly with the compressed file (which have to
+			% exist simultaneously on both ends).
+			%
+			% So finally the server-side renaming is useless, it will be done by
+			% the listener:
+
+			io:format( "Sending '~s' to ~w.~n", [ XZFilename, ListenerPid ] ),
+
+			net_utils:send_file( XZFilename, ListenerPid ),
+
+			file_utils:remove_file( XZFilename ),
 
 			NewListeners = [ ListenerPid | ?getAttr(trace_listeners) ],
 
@@ -438,6 +467,9 @@ removeTraceListener( State, ListenerPid ) ->
 
 	io:format( "~s Removing trace listener ~w.~n",
 			   [ ?LogPrefix, ListenerPid ] ),
+
+	?notify_info_fmt( "Trace aggregator removing trace listener ~w.~n",
+					  [ ListenerPid ] ),
 
 	UnregisterState = deleteFromAttribute( State, trace_listeners,
 										   ListenerPid ),
