@@ -50,12 +50,12 @@
 % Declaring all variations of WOOPER standard life-cycle operations:
 % (template pasted, two replacements performed to update arities)
 -define( wooper_construct_export, new/1, new_link/1,
-	synchronous_new/1, synchronous_new_link/1,
-	synchronous_timed_new/1, synchronous_timed_new_link/1,
-	remote_new/2, remote_new_link/2, remote_synchronous_new/2,
-	remote_synchronous_new_link/2, remote_synchronisable_new_link/2,
-	remote_synchronous_timed_new/2, remote_synchronous_timed_new_link/2,
-	construct/2, delete/1 ).
+		 synchronous_new/1, synchronous_new_link/1,
+		 synchronous_timed_new/1, synchronous_timed_new_link/1,
+		 remote_new/2, remote_new_link/2, remote_synchronous_new/2,
+		 remote_synchronous_new_link/2, remote_synchronisable_new_link/2,
+		 remote_synchronous_timed_new/2, remote_synchronous_timed_new_link/2,
+		 construct/2, delete/1 ).
 
 
 
@@ -74,9 +74,19 @@
 -define(LogPrefix,"[Trace Listener]").
 
 
-%-define( LogOutput(Message,Format), io:format(Message,Format) ).
--define( LogOutput(Message,Format), void ).
+%-define( LogOutput( Message, Format ), io:format( Message, Format ) ).
+-define( LogOutput( Message, Format ), void ).
 
+
+
+% Implementation notes:
+%
+% In some (presumably rare) cases, LogMX may register a message twice. To
+% compare traces for equality, one should preferably compare directly *.traces
+% files.
+
+
+% We want the trace listeners to have the *exact* same traces as the aggregator.
 
 
 % Constructs a new trace listener.
@@ -88,45 +98,54 @@
 construct( State, ?wooper_construct_parameters ) ->
 
 	io:format( "~s Creating a trace listener whose PID is ~w, "
-		"synchronized on trace aggregator ~w.~n",
-		[ ?LogPrefix, self(), TraceAggregatorPid ] ),
+			   "synchronized on trace aggregator ~w.~n",
+			   [ ?LogPrefix, self(), TraceAggregatorPid ] ),
 
 	% First the direct mother classes (none), then this class-specific actions:
 
 	io:format( "~s Requesting from aggregator a trace synchronization.~n",
-		[ ?LogPrefix ] ),
+			   [ ?LogPrefix ] ),
 
-	TraceAggregatorPid ! {addTraceListener,self()},
+	TraceAggregatorPid ! { addTraceListener, self() },
 
 	receive
 
-		 {trace_zip,Bin,TraceFilename} ->
+		 { trace_zip, Bin, TraceFilename } ->
+
 			% Allows to run for the same directory as aggregator:
 			ListenerTraceFilename = "Listener-" ++ TraceFilename,
+
 			io:format( "~s Received from aggregator a trace synchronization "
-				"for file '~s', will store it in '~s'.~n",
-				[ ?LogPrefix, TraceFilename, ListenerTraceFilename] ),
-			file_utils:zipped_term_to_unzipped_file(Bin,ListenerTraceFilename),
+					   "for file '~s', will store it in '~s'.~n",
+					   [ ?LogPrefix, TraceFilename, ListenerTraceFilename ] ),
+
+			file_utils:zipped_term_to_unzipped_file( Bin,
+													 ListenerTraceFilename ),
 
 			% Will write in it newer traces:
-			{ok,File} = file:open( ListenerTraceFilename, [append] ),
+			File = file_utils:open( ListenerTraceFilename, [ append ] ),
 
 			NewState = setAttributes( State, [
-				{trace_aggregator_pid,TraceAggregatorPid},
-				{trace_filename,ListenerTraceFilename},
-				{trace_file,File}
+				{ trace_aggregator_pid, TraceAggregatorPid },
+				{ trace_filename, ListenerTraceFilename },
+				{ trace_file, File }
 			] ),
 
 			EndState = executeOneway( NewState, monitor ),
 
 			io:format( "~s Trace listener created.~n", [ ?LogPrefix ] ),
+
 			EndState;
 
-		{trace_zip,ErrorReason} ->
+
+		{ trace_zip, ErrorReason } ->
+
 			io:format( "~s Trace listener cannot listen to current trace "
-				"aggregator, as this aggregator does not use LogMX-based "
-				"traces.~n", [ ?LogPrefix ] ),
-			throw( {cannot_listen_aggregator,TraceAggregatorPid,ErrorReason} )
+					   "aggregator, as this aggregator does not use "
+					   "LogMX-based traces.~n", [ ?LogPrefix ] ),
+
+			throw( { cannot_listen_aggregator, TraceAggregatorPid,
+					 ErrorReason } )
 
 	end.
 
@@ -139,8 +158,10 @@ delete( State ) ->
 	io:format( "~s Deleting trace listener.~n", [ ?LogPrefix ] ),
 
 	% Class-specific actions:
-	?getAttr(trace_aggregator_pid) ! {removeTraceListener,self()},
+	?getAttr(trace_aggregator_pid) ! { removeTraceListener, self() },
+
 	file:close( ?getAttr(trace_file) ),
+
 	% Then call the direct mother class counterparts: (none)
 	io:format( "~s Trace listener deleted.~n", [ ?LogPrefix ] ),
 
@@ -154,7 +175,9 @@ delete( State ) ->
 
 
 % Triggers an asynchronous supervision (trace monitoring).
+%
 % Will return immediately.
+%
 % Note: directly inspired from class_TraceSupervisor.erl.
 %
 % (oneway)
@@ -163,23 +186,26 @@ delete( State ) ->
 monitor( State ) ->
 
 	Filename = ?getAttr( trace_filename ),
-	case filelib:is_file( Filename ) of
+
+	case file_utils:is_existing_file( Filename ) of
 
 		true ->
 			ok;
 
 		false ->
 			error_logger:error_msg( "class_TraceListener:monitor "
-				"unable to find trace file '~s'.~n", [ Filename ] ),
+									"unable to find trace file '~s'.~n",
+									[ Filename ] ),
 			trace_file_not_found
 
 	end,
+
 	io:format( "~s Trace listener will monitor file '~s' with LogMX now.~n",
-		[ ?LogPrefix, Filename ] ),
+			   [ ?LogPrefix, Filename ] ),
 
 	% Non-blocking (logmx.sh must be found in the PATH):
 	[] = os:cmd( executable_utils:get_default_trace_viewer_path() ++ " "
-		++ Filename ++ " &" ),
+				 ++ Filename ++ " &" ),
 
 	?wooper_return_state_only( State ).
 
@@ -192,8 +218,11 @@ monitor( State ) ->
 %
 -spec addTrace( wooper:state(), binary() ) -> oneway_return().
 addTrace( State, NewTrace ) ->
-	io:format( ?getAttr(trace_file), "~s", [binary_to_list(NewTrace)] ),
-	?wooper_return_state_only(State).
+
+	io:format( ?getAttr(trace_file), "~s", [ binary_to_list( NewTrace ) ] ),
+
+	?wooper_return_state_only( State ).
+
 
 
 
@@ -204,6 +233,11 @@ addTrace( State, NewTrace ) ->
 % aggregator.
 %
 % (static)
+%
 -spec create( pid() ) -> pid().
 create( AggregatorPid ) ->
+
+	% No link here, not wanting to take down the whole system because of a
+	% listener:
+	%
 	new( AggregatorPid ).
