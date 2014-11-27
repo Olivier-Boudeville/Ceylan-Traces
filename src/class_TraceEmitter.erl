@@ -66,7 +66,7 @@
 		  remote_new/2, remote_new_link/2, remote_synchronous_new/2,
 		  remote_synchronous_new_link/2, remote_synchronous_timed_new/2,
 		  remote_synchronous_timed_new_link/2, remote_synchronisable_new_link/2,
-		  construct/2, delete/1 ]).
+		  construct/2, destruct/1 ]).
 
 
 
@@ -185,8 +185,8 @@ construct( State, ?wooper_construct_parameters ) ->
 
 % Overridden destructor.
 %
--spec delete( wooper:state() ) -> wooper:state().
-delete( State ) ->
+-spec destruct( wooper:state() ) -> wooper:state().
+destruct( State ) ->
 
 	%io:format( "~s Deleting Trace Emitter.~n", [ ?LogPrefix ] ),
 

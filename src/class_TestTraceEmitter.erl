@@ -43,12 +43,12 @@
 % Declaring all variations of WOOPER standard life-cycle operations:
 % (template pasted, two replacements performed to update arities)
 -define( wooper_construct_export, new/1, new_link/1,
-		synchronous_new/1, synchronous_new_link/1,
-		synchronous_timed_new/1, synchronous_timed_new_link/1,
-		remote_new/2, remote_new_link/2, remote_synchronous_new/2,
-		remote_synchronous_new_link/2, remote_synchronisable_new_link/2,
-		remote_synchronous_timed_new/2, remote_synchronous_timed_new_link/2,
-		construct/2, delete/1 ).
+		 synchronous_new/1, synchronous_new_link/1,
+		 synchronous_timed_new/1, synchronous_timed_new_link/1,
+		 remote_new/2, remote_new_link/2, remote_synchronous_new/2,
+		 remote_synchronous_new_link/2, remote_synchronisable_new_link/2,
+		 remote_synchronous_timed_new/2, remote_synchronous_timed_new_link/2,
+		 construct/2, destruct/1 ).
 
 
 
@@ -105,8 +105,8 @@ construct( State, ?wooper_construct_parameters ) ->
 
 
 % Overridden destructor.
--spec delete( wooper:state() ) -> wooper:state().
-delete( State ) ->
+-spec destruct( wooper:state() ) -> wooper:state().
+destruct( State ) ->
 
 	% Class-specific actions:
 	io:format( "~s Deleting test trace emitter ~s.~n",

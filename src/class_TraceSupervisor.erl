@@ -47,13 +47,14 @@
 
 % Declaring all variations of WOOPER standard life-cycle operations:
 % (template pasted, two replacements performed to update arities)
+%
 -define( wooper_construct_export, new/3, new_link/3,
-	synchronous_new/3, synchronous_new_link/3,
-	synchronous_timed_new/3, synchronous_timed_new_link/3,
-	remote_new/4, remote_new_link/4, remote_synchronous_new/4,
-	remote_synchronous_new_link/4, remote_synchronisable_new_link/4,
-	remote_synchronous_timed_new/4, remote_synchronous_timed_new_link/4,
-	construct/4, delete/1 ).
+		 synchronous_new/3, synchronous_new_link/3,
+		 synchronous_timed_new/3, synchronous_timed_new_link/3,
+		 remote_new/4, remote_new_link/4, remote_synchronous_new/4,
+		 remote_synchronous_new_link/4, remote_synchronisable_new_link/4,
+		 remote_synchronous_timed_new/4, remote_synchronous_timed_new_link/4,
+		 construct/4, destruct/1 ).
 
 
 
@@ -124,15 +125,15 @@ construct( State, ?wooper_construct_parameters ) ->
 	% First the direct mother classes (none), then this class-specific actions:
 	NewState = setAttributes( State, [
 
-		{trace_filename,TraceFilename},
-		{trace_type,TraceType},
-		{trace_aggregator_pid,TraceAggregatorPid}
+		{ trace_filename, TraceFilename },
+		{ trace_type, TraceType },
+		{ trace_aggregator_pid, TraceAggregatorPid }
 
 	] ),
 
 	case TraceAggregatorPid of
 
-		AggPid when is_pid(AggPid) ->
+		AggPid when is_pid( AggPid ) ->
 			% We have a PID, avoid the race condition that could happen if LogMX
 			% was launched before a first trace was written by the aggregator in
 			% the trace file:
@@ -167,7 +168,7 @@ construct( State, ?wooper_construct_parameters ) ->
 
 			case Blocking of
 
-				Pid when is_pid(Pid) ->
+				Pid when is_pid( Pid ) ->
 					% Pattern-match the result of in-place invocation:
 					% ('monitor_ok' used to be temporarily replaced by '_'
 					% due to the LogMX issue with
@@ -203,14 +204,16 @@ construct( State, ?wooper_construct_parameters ) ->
 			NewState
 
 	end,
+
 	%io:format( "~s Supervisor created.~n", [ ?LogPrefix ] ),
+
 	EndState.
 
 
 
 % Overridden destructor.
--spec delete( wooper:state() ) -> wooper:state().
-delete( State ) ->
+-spec destruct( wooper:state() ) -> wooper:state().
+destruct( State ) ->
 
 	%io:format( "~s Deleting supervisor.~n", [ ?LogPrefix ] ),
 	% Class-specific actions:
@@ -482,7 +485,7 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 			% Default: a trace supervisor is used.
 			%io:format( "Supervisor enabled.~n" ),
 			create( _BlockingSupervisor=true, TraceFilename, TraceType,
-				   TraceAggregatorPid )
+					TraceAggregatorPid )
 			%io:format( "Waiting for trace supervisor to be closed.~n" )
 
 	end.

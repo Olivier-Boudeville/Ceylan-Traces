@@ -59,7 +59,7 @@
 		 remote_new/6, remote_new_link/6, remote_synchronous_new/6,
 		 remote_synchronous_new_link/6, remote_synchronisable_new_link/6,
 		 remote_synchronous_timed_new/6, remote_synchronous_timed_new_link/6,
-		 construct/6, delete/1 ).
+		 construct/6, destruct/1 ).
 
 
 
@@ -212,8 +212,8 @@ construct( State, ?wooper_construct_parameters ) ->
 
 
 % Overridden destructor.
--spec delete( wooper:state() ) -> wooper:state().
-delete( State ) ->
+-spec destruct( wooper:state() ) -> wooper:state().
+destruct( State ) ->
 
 	%io:format( "~s Deleting trace aggregator.~n", [ ?LogPrefix ] ),
 
