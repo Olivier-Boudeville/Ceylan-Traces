@@ -288,16 +288,16 @@ blocking_monitor( State ) ->
 
 		{ text_traces, pdf } ->
 			io:format( "~s Supervisor has nothing to monitor, "
-					   "as the PDF trace report will be generated on execution "
-					   "termination.~n", [ ?LogPrefix ] ),
+				"as the PDF trace report will be generated on execution "
+				"termination.~n", [ ?LogPrefix ] ),
 			?wooper_return_state_result( State, monitor_ok );
 
 		_Other ->
 
 			{ Command, ActualFilename } = get_viewer_settings( State,
-											?getAttr(trace_filename) ),
+				?getAttr(trace_filename) ),
 
-			case file_utils:is_existing_file( ActualFilename ) of
+			case filelib:is_file( ActualFilename ) of
 
 				true ->
 					ok;
@@ -311,15 +311,15 @@ blocking_monitor( State ) ->
 			end,
 
 			io:format( "~s Supervisor will monitor file '~s' now with '~s', "
-					   "blocking until the user closes the viewer window.~n",
-					   [ ?LogPrefix, ActualFilename, Command ] ),
+				"blocking until the user closes the viewer window.~n",
+				[ ?LogPrefix, ActualFilename, Command ] ),
 
 			% Blocking:
 			case os:cmd( Command ++ " " ++ ActualFilename ) of
 
 				[] ->
 					io:format( "~s Supervisor ended monitoring of '~s'.~n",
-							   [ ?LogPrefix, ActualFilename ] ),
+						[ ?LogPrefix, ActualFilename ] ),
 					?wooper_return_state_result( State, monitor_ok );
 
 				Other ->

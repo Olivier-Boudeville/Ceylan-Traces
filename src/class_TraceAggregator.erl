@@ -132,10 +132,9 @@ construct( State, ?wooper_construct_parameters ) ->
 	% First the direct mother classes (none here), then this class-specific
 	% actions:
 
-	AbsTraceFilename = file_utils:ensure_path_is_absolute( TraceFilename ),
 
 	% Creates the trace file as soon as possible:
-	File = open_trace_file( AbsTraceFilename ),
+	File = open_trace_file( TraceFilename ),
 
 	% Increases the chances that the aggregator does not lag too much behind the
 	% current simulation state:
@@ -143,7 +142,7 @@ construct( State, ?wooper_construct_parameters ) ->
 
 	SetState = setAttributes( State, [
 
-		{ trace_filename, AbsTraceFilename },
+		{ trace_filename, TraceFilename },
 		{ trace_file, File },
 		{ trace_type, TraceType },
 		{ trace_title, TraceTitle },
@@ -155,7 +154,7 @@ construct( State, ?wooper_construct_parameters ) ->
 	Message = io_lib:format( "Trace aggregator created, "
 							 "trace filename is '~s', trace type is '~w', "
 							 "and trace title is '~s'.~n",
-							 [ AbsTraceFilename, TraceType, TraceTitle ] ),
+							 [ TraceFilename, TraceType, TraceTitle ] ),
 
 	TimestampText = text_utils:string_to_binary(
 					  basic_utils:get_textual_timestamp() ),

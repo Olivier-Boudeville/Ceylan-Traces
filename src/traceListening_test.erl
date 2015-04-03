@@ -151,8 +151,7 @@ test_actual_body() ->
 
 	test_facilities:display( "Creating a test trace local listener." ),
 
-	MyTraceListener = class_TraceListener:synchronous_new_link( AggregatorPid,
-												_CloseListenerPid=undefined ),
+	MyTraceListener = class_TraceListener:synchronous_new_link( AggregatorPid ),
 
 	send_timed_traces( _TimedCount=20 ),
 
