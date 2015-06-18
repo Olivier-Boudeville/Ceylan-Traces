@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2014 Olivier Boudeville
+% Copyright (C) 2003-2015 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -240,14 +240,14 @@ monitor( State ) ->
 
 		{ text_traces, pdf } ->
 			io:format( "~s Supervisor has nothing to monitor, "
-				"as the PDF trace report will be generated only on execution "
-				"termination.~n", [ ?LogPrefix ] ),
-				State;
+					   "as the PDF trace report will be generated only on "
+					   "execution termination.~n", [ ?LogPrefix ] ),
+			State;
 
 		_Other ->
 
 			{ Command, ActualFilename } = get_viewer_settings( State,
-				?getAttr( trace_filename ) ),
+												 ?getAttr( trace_filename ) ),
 
 			case filelib:is_file( ActualFilename ) of
 
@@ -266,7 +266,9 @@ monitor( State ) ->
 				"with '~s'.~n", [ ?LogPrefix, ActualFilename, Command ] ),
 
 			% Non-blocking (command must be found in the PATH):
-			[] = os:cmd( Command ++ " " ++ ActualFilename ++ " 1>/dev/null &" ),
+			system_utils:execute_background_command( Command ++ " "
+					++ ActualFilename  ),
+
 			State
 
 	end,
@@ -288,16 +290,16 @@ blocking_monitor( State ) ->
 
 		{ text_traces, pdf } ->
 			io:format( "~s Supervisor has nothing to monitor, "
-				"as the PDF trace report will be generated on execution "
-				"termination.~n", [ ?LogPrefix ] ),
+					   "as the PDF trace report will be generated on execution "
+					   "termination.~n", [ ?LogPrefix ] ),
 			?wooper_return_state_result( State, monitor_ok );
 
 		_Other ->
 
 			{ Command, ActualFilename } = get_viewer_settings( State,
-				?getAttr(trace_filename) ),
+											?getAttr(trace_filename) ),
 
-			case filelib:is_file( ActualFilename ) of
+			case file_utils:is_existing_file( ActualFilename ) of
 
 				true ->
 					ok;
@@ -311,21 +313,23 @@ blocking_monitor( State ) ->
 			end,
 
 			io:format( "~s Supervisor will monitor file '~s' now with '~s', "
-				"blocking until the user closes the viewer window.~n",
-				[ ?LogPrefix, ActualFilename, Command ] ),
+					   "blocking until the user closes the viewer window.~n",
+					   [ ?LogPrefix, ActualFilename, Command ] ),
 
 			% Blocking:
-			case os:cmd( Command ++ " " ++ ActualFilename ) of
+			case system_utils:execute_command(
+				   Command ++ " " ++ ActualFilename ) of
 
-				[] ->
+				{ _ExitStatus=0, _Output } ->
 					io:format( "~s Supervisor ended monitoring of '~s'.~n",
-						[ ?LogPrefix, ActualFilename ] ),
+							   [ ?LogPrefix, ActualFilename ] ),
 					?wooper_return_state_result( State, monitor_ok );
 
-				Other ->
+				{ ExitStatus, ErrorOutput } ->
 					error_logger:error_msg(
-						"The monitoring of trace supervisor failed: ~s.~n",
-						[ Other ] ),
+						"The monitoring of trace supervisor failed "
+						"(error ~B): '~s'.~n",
+						[ ExitStatus, ErrorOutput ] ),
 
 					% Must not be a blocking error:
 					%?wooper_return_state_result( State, monitor_failed )

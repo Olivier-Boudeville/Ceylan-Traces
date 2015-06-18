@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2014 Olivier Boudeville
+% Copyright (C) 2003-2015 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -132,9 +132,10 @@ construct( State, ?wooper_construct_parameters ) ->
 	% First the direct mother classes (none here), then this class-specific
 	% actions:
 
+	AbsTraceFilename = file_utils:ensure_path_is_absolute( TraceFilename ),
 
 	% Creates the trace file as soon as possible:
-	File = open_trace_file( TraceFilename ),
+	File = open_trace_file( AbsTraceFilename ),
 
 	% Increases the chances that the aggregator does not lag too much behind the
 	% current simulation state:
@@ -142,7 +143,7 @@ construct( State, ?wooper_construct_parameters ) ->
 
 	SetState = setAttributes( State, [
 
-		{ trace_filename, TraceFilename },
+		{ trace_filename, AbsTraceFilename },
 		{ trace_file, File },
 		{ trace_type, TraceType },
 		{ trace_title, TraceTitle },
@@ -154,7 +155,7 @@ construct( State, ?wooper_construct_parameters ) ->
 	Message = io_lib:format( "Trace aggregator created, "
 							 "trace filename is '~s', trace type is '~w', "
 							 "and trace title is '~s'.~n",
-							 [ TraceFilename, TraceType, TraceTitle ] ),
+							 [ AbsTraceFilename, TraceType, TraceTitle ] ),
 
 	TimestampText = text_utils:string_to_binary(
 					  basic_utils:get_textual_timestamp() ),
@@ -261,16 +262,14 @@ destruct( State ) ->
 			PdfTargetFilename = file_utils:replace_extension(
 				?getAttr(trace_filename), ?TraceExtension, ".pdf" ),
 
-			GenerationCommand = "if make " ++ PdfTargetFilename
-				++ " VIEW_PDF=no 1>/dev/null 2>&1; "
-				"then echo ok; else echo error; fi",
+			GenerationCommand = "make " ++ PdfTargetFilename ++ " VIEW_PDF=no",
 
 			%io:format( "PDF generation command is '~s'.~n",
 			% [ GenerationCommand ] ),
 
-			case os:cmd( GenerationCommand ) of
+			case system_utils:execute_command( GenerationCommand ) of
 
-				"ok\n" ->
+				{ _ExitCode=0, _Output } ->
 
 					case ?getAttr(is_batch) of
 
@@ -279,16 +278,18 @@ destruct( State ) ->
 
 						false ->
 							io:format( "~s Displaying PDF trace report.~n",
-									  [ ?LogPrefix ] ),
+									   [ ?LogPrefix ] ),
 
 							executable_utils:display_pdf_file(
-							   PdfTargetFilename )
+							  PdfTargetFilename )
 
 						end;
 
-				"error\n" ->
-					io:format( "~s Generation of PDF from ~s failed.~n",
-						[ ?LogPrefix, ?getAttr(trace_filename) ] )
+				{ ExitCode, ErrorOutput } ->
+					io:format( "~s Generation of PDF from ~s failed "
+							   "(error ~B: '~s').~n",
+							   [ ?LogPrefix, ?getAttr(trace_filename),
+								 ExitCode, ErrorOutput ] )
 
 			end
 
