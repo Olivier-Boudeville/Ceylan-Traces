@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2015 Olivier Boudeville
+% Copyright (C) 2003-2016 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -65,7 +65,7 @@
 
 % Static method declarations (to be directly called from module):
 -define( wooper_static_method_export, create/0, create/1, create/2, create/4,
-		create/5, init/3, wait_for/0 ).
+		 create/5, init/3, wait_for/0 ).
 
 
 % Allows to define WOOPER base variables and methods for that class:
@@ -115,8 +115,8 @@
 % meaning iff MonitorNow is true
 %
 -spec construct( wooper:state(),
-				 { file_utils:file_name(), traces:trace_type(), pid() },
-				 boolean(), 'none' | pid() ) -> wooper:state().
+			 { file_utils:file_name(), traces:trace_supervision_type(), pid() },
+			 boolean(), 'none' | pid() ) -> wooper:state().
 construct( State, ?wooper_construct_parameters ) ->
 
 	%io:format( "~s Creating a trace supervisor, whose PID is ~w.~n",
@@ -265,9 +265,10 @@ monitor( State ) ->
 			io:format( "~s Supervisor will monitor file '~s' now, "
 				"with '~s'.~n", [ ?LogPrefix, ActualFilename, Command ] ),
 
+			Cmd = Command ++ " '" ++ ActualFilename ++ "'",
+
 			% Non-blocking (command must be found in the PATH):
-			system_utils:execute_background_command( Command ++ " "
-					++ ActualFilename  ),
+			system_utils:run_background_executable( Cmd ),
 
 			State
 
@@ -317,8 +318,8 @@ blocking_monitor( State ) ->
 					   [ ?LogPrefix, ActualFilename, Command ] ),
 
 			% Blocking:
-			case system_utils:execute_command(
-				   Command ++ " " ++ ActualFilename ) of
+			case system_utils:run_executable(
+				   Command ++ " '" ++ ActualFilename ++ "'" ) of
 
 				{ _ExitStatus=0, _Output } ->
 					io:format( "~s Supervisor ended monitoring of '~s'.~n",
@@ -396,11 +397,11 @@ create( Blocking, TraceFilename ) ->
 % See create/5 for a more in-depth explanation of the parameters.
 %
 % (static)
--spec create( boolean(), file_utils:file_name(), traces:trace_type(),
-			 pid() | 'undefined' ) -> pid().
+-spec create( boolean(), file_utils:file_name(),
+			  traces:trace_supervision_type(), pid() | 'undefined' ) -> pid().
 create( Blocking, TraceFilename, TraceType, TraceAggregatorPid ) ->
 	create( Blocking, _MonitorNow=true, TraceFilename, TraceType,
-		   TraceAggregatorPid ).
+			TraceAggregatorPid ).
 
 
 
@@ -420,7 +421,7 @@ create( Blocking, TraceFilename, TraceType, TraceAggregatorPid ) ->
 %  'undefined' atom
 %
 -spec create( boolean(), boolean(), file_utils:file_name(),
-			 traces:trace_type(), pid() | 'undefined' ) -> pid().
+			 traces:trace_supervision_type(), pid() | 'undefined' ) -> pid().
 create( Blocking, MonitorNow, TraceFilename, TraceType, TraceAggregatorPid ) ->
 
 	BlockingParam = case Blocking of
@@ -434,7 +435,7 @@ create( Blocking, MonitorNow, TraceFilename, TraceType, TraceAggregatorPid ) ->
 	end,
 
 	new_link( { TraceFilename, TraceType, TraceAggregatorPid },
-			 MonitorNow, BlockingParam ).
+			  MonitorNow, BlockingParam ).
 
 
 
@@ -470,7 +471,7 @@ get_viewer_settings( State, Filename ) ->
 % Use the --batch option (ex: erl --batch, or with the make system 'make
 % MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
 %
--spec init( file_utils:file_name(), traces:trace_type(), pid() ) ->
+-spec init( file_utils:file_name(), traces:trace_supervision_type(), pid() ) ->
 				  'no_trace_supervisor_wanted' | pid().
 init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 
@@ -482,7 +483,8 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 
 		true ->
 			% Option specified to disable the supervisor:
-			%io:format( "Supervisor disabled.~n" ),
+			io:format( "Simulation trace file is '~s'; no interactive "
+					   "supervision requested.~n", [ TraceFilename ] ),
 			no_trace_supervisor_wanted;
 
 		false ->

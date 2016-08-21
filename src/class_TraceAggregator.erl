@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2015 Olivier Boudeville
+% Copyright (C) 2003-2016 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -64,8 +64,10 @@
 
 
 % Member method declarations.
--define( wooper_method_export, send/10, addTraceListener/2,
-		 removeTraceListener/2, requestReadyNotification/1 ).
+-define( wooper_method_export, send/10,
+		 renameTraceFile/2, launchTraceSupervisor/3,
+		 addTraceListener/2, removeTraceListener/2,
+		 requestReadyNotification/1 ).
 
 
 % Static method declarations (to be directly called from module):
@@ -125,8 +127,9 @@
 % trace type is {text_traces,pdf}, so that this aggregator does not display the
 % produced PDF when in batch mode
 %
--spec construct( wooper:state(), file_utils:file_name(), traces:trace_type(),
-				string(), boolean(), boolean() ) -> wooper:state().
+-spec construct( wooper:state(), file_utils:file_name(),
+				 traces:trace_supervision_type(), string(), boolean(),
+				 boolean() ) -> wooper:state().
 construct( State, ?wooper_construct_parameters ) ->
 
 	% First the direct mother classes (none here), then this class-specific
@@ -158,7 +161,7 @@ construct( State, ?wooper_construct_parameters ) ->
 							 [ AbsTraceFilename, TraceType, TraceTitle ] ),
 
 	TimestampText = text_utils:string_to_binary(
-					  basic_utils:get_textual_timestamp() ),
+					  time_utils:get_textual_timestamp() ),
 
 	% Not State available here:
 	EmitterNode = class_TraceEmitter:get_emitter_node_as_binary(),
@@ -179,7 +182,12 @@ construct( State, ?wooper_construct_parameters ) ->
 
 												] ),
 
-	io:format( "~n~s ~s", [ ?LogPrefix, Message ] ),
+	% We do not display these information of the console now, as the
+	% appplication may have to change the trace filename (the best moment to
+	% display that file information on the console is when the filename is
+	% final, typically when the trace supervisor is started):
+	%
+	%io:format( "~n~s ~s", [ ?LogPrefix, Message ] ),
 
 
 	PrivateState = case IsPrivate of
@@ -191,7 +199,7 @@ construct( State, ?wooper_construct_parameters ) ->
 
 		false ->
 			%io:format( "~n~s Creating the trace aggregator, "
-			%	"whose PID is ~w.~n", [ ?LogPrefix, self() ] ),
+			%   "whose PID is ~w.~n", [ ?LogPrefix, self() ] ),
 
 			basic_utils:register_as( ?trace_aggregator_name, local_and_global ),
 
@@ -262,12 +270,14 @@ destruct( State ) ->
 			PdfTargetFilename = file_utils:replace_extension(
 				?getAttr(trace_filename), ?TraceExtension, ".pdf" ),
 
-			GenerationCommand = "make " ++ PdfTargetFilename ++ " VIEW_PDF=no",
+			% Supposedly in the path:
+			GenerationCommand = executable_utils:find_executable( "make" )
+				++ " '" ++ PdfTargetFilename ++ "' VIEW_PDF=no",
 
 			%io:format( "PDF generation command is '~s'.~n",
 			% [ GenerationCommand ] ),
 
-			case system_utils:execute_command( GenerationCommand ) of
+			case system_utils:run_executable( GenerationCommand ) of
 
 				{ _ExitCode=0, _Output } ->
 
@@ -362,6 +372,56 @@ send( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 				Listeners )
 
 	end,
+
+	?wooper_return_state_only( State ).
+
+
+
+% Renames the trace file currently in use.
+%
+% Useful for example when the application requires an identifier to be included
+% in the trace filename to discriminate among different runs.
+%
+% Note: if another process is reading that file (ex: a trace supervisor), an I/O
+% will be triggered at its level (hence this is not a solution to transparently
+% rename a file).
+%
+-spec renameTraceFile( wooper:state(), file_utils:file_name() ) ->
+							 oneway_return().
+renameTraceFile( State, NewTraceFilename ) ->
+
+	TraceFilename = ?getAttr(trace_filename),
+
+	AbsNewTraceFilename = file_utils:ensure_path_is_absolute(
+							NewTraceFilename ),
+
+	?notify_info_fmt( "Trace aggregator renaming atomically trace file "
+					  "from '~s' to '~s'.~n",
+					  [ TraceFilename, AbsNewTraceFilename ] ),
+
+	% Switching:
+	%file_utils:close( ?getAttr(trace_file) ),
+	%File = open_trace_file( AbsNewTraceFilename ),
+	%
+	% Better yet still not sufficient for a transparent renaming:
+	file_utils:rename( TraceFilename, AbsNewTraceFilename ),
+
+	NewState = setAttribute( State, trace_filename, AbsNewTraceFilename ),
+
+	?wooper_return_state_only( NewState ).
+
+
+
+% Launches the trace supervisor.
+%
+% Useful to do so once the final trace filename is known.
+%
+-spec launchTraceSupervisor( wooper:state(), traces:trace_supervision_type(),
+							 pid() ) -> oneway_return().
+launchTraceSupervisor( State, TraceType, TraceAggregatorPid ) ->
+
+	class_TraceSupervisor:init( ?getAttr(trace_filename), TraceType,
+								TraceAggregatorPid ),
 
 	?wooper_return_state_only( State ).
 
@@ -512,7 +572,7 @@ create( UseSynchronousNew ) ->
 %
 % (static)
 %
--spec create( boolean(), traces:trace_type() ) -> pid().
+-spec create( boolean(), traces:trace_supervision_type() ) -> pid().
 create( _UseSynchronousNew=false, TraceType ) ->
 	new_link( ?trace_aggregator_filename, TraceType, ?TraceTitle,
 			  _IsPrivate=false, _IsBatch=false  );
@@ -732,7 +792,7 @@ manage_trace_header(State) ->
 												 "Execution Context", 2 ) ] )
 				++ io_lib:format( "Report generated on ~s, "
 					"from trace file ``~s``, on host ``~s``.~n~n",
-					[ basic_utils:get_textual_timestamp(),
+					[ time_utils:get_textual_timestamp(),
 					 ?getAttr(trace_filename), net_adm:localhost() ] )
 				++ io_lib:format( "~s",
 					[ text_utils:generate_title( "Trace Begin", 2 ) ] ),
@@ -818,7 +878,7 @@ get_row_separator( DashType ) ->
 %
 % Returns a plain string.
 %
--spec format_trace_for( traces:trace_type(),
+-spec format_trace_for( traces:trace_supervision_type(),
 		 { pid(), traces:emitter_name(), traces:emitter_categorization(),
 		  traces:tick(), traces:time(), traces:location(),
 		  traces:message_categorization(), traces:priority(),

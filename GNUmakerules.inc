@@ -8,12 +8,13 @@
 
 
 # Not wanting to define a default rule:
-#clean: clean-traces
+clean: clean-traces
 
 
-ERL_FILES = $(wildcard *.erl)
+TRACES_FILES = $(wildcard *.traces)
 
-TRACES_FILES = $(patsubst %.erl,%.traces,$(ERL_FILES))
+clean-traces:
+	-@/bin/rm -f $(TRACES_FILES)
 
 
 AUX_GENERATED_FILES  := $(AUX_GENERATED_FILES)  \

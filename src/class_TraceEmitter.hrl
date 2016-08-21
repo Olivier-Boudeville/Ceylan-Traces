@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2015 Olivier Boudeville
+% Copyright (C) 2003-2016 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -27,8 +27,8 @@
 
 
 % Note: this header file must be included *after* the WOOPER one, as, in
-% production mode, this file has to define functions
-% (namely trace_disabled/{1,2,3,4,5}).
+% production mode, this file has to define functions (namely
+% trace_disabled/{1,2,3,4,5}).
 
 
 
@@ -103,16 +103,24 @@
 
 -ifndef(TraceEmitterCategorization).
 	-define(TraceEmitterCategorization,"NotCategorized").
--endif.
+-endif. % TraceEmitterCategorization
 
 
 
-% Section dedicated to trace emitters that are not WOOPER-based and dedicated to
-% tests.
+% Section dedicated to trace emitters that are not WOOPER-based and are
+% dedicated to tests.
 %
 % See also: test_constructs.hrl.
 %
 -define(DefaultTestMessageCategorization,"Test.Uncategorized").
+
+
+% Section dedicated to trace emitters that are not WOOPER-based and are
+% dedicated to cases.
+%
+% See also: case_constructs.hrl.
+%
+-define(DefaultCaseMessageCategorization,"Case.Uncategorized").
 
 
 % Section dedicated to trace emitters that are not WOOPER-based and dedicated to
@@ -127,12 +135,14 @@
 % When no emitter is specified:
 %
 -define(DefaultTestEmitterCategorization,"Test.Uncategorized").
+-define(DefaultCaseEmitterCategorization,"Case.Uncategorized").
 -define(DefaultStandaloneEmitterCategorization,"Standalone.Uncategorized").
 -define(DefaultTraceEmitterCategorization,"").
 
 
 
 % See the ENABLE_TRACES make variable to enable/disable tracing:
+%
 -ifdef(TracingActivated).
 
 
@@ -391,7 +401,7 @@
 							  MessageCategorization ),
 
 		io:format( "Fatal trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		 % To ensure the asynchronous sending of the trace has a chance to
 		 % complete, possibly before the interpreter is crashed:
@@ -623,7 +633,7 @@
 								io_lib:format( Message, FormatValues ) ),
 
 		io:format( "Error trace message: " ++ Message ++ "~n",
-				  FormatValues ),
+				   FormatValues ),
 
 		% To ensure the asynchronous sending of the trace has a chance to
 		% complete, possibly before the interpreter is crashed:
@@ -935,7 +945,7 @@
 % state.
 %
 -define( send_warning_fmt_cat( State, Message, FormatValues,
-							 MessageCategorization ),
+							   MessageCategorization ),
 
 		class_TraceEmitter:send( warning, State,
 								 io_lib:format( Message, FormatValues ),
@@ -1564,26 +1574,9 @@
 %-compile( {inline,[ trace_disabled/1, trace_disabled/2, trace_disabled/3,
 %				   trace_disabled/4, trace_disabled/5 ] } ).
 
-
-trace_disabled( _ ) ->
-	trace_disabled.
-
-
-trace_disabled( _, _ ) ->
-	trace_disabled.
-
-
-trace_disabled( _, _, _ ) ->
-	trace_disabled.
-
-
-trace_disabled( _, _, _, _ ) ->
-	trace_disabled.
-
-
-trace_disabled( _, _, _, _, _ ) ->
-	trace_disabled.
-
+% Final solution: replacing calls to trace_disabled/[1..5] by tuples containing
+% these variables (ex: 'trace_disabled( State, Message )' -> { State, Message })
+% (and not defining these trace_disabled functions)
 
 
 
@@ -1607,7 +1600,7 @@ trace_disabled( _, _, _, _, _ ) ->
 		% complete, possibly before the interpreter is crashed:
 		system_utils:await_output_completion(),
 
-		trace_disabled( State )
+		State
 ).
 
 
@@ -1679,7 +1672,7 @@ trace_disabled( _, _, _, _, _ ) ->
 
 
 -define( send_fatal_fmt_full( State, Message, FormatValues,
-						  MessageCategorization, Tick ),
+							  MessageCategorization, Tick ),
 		?send_fatal( State, io_lib:format( Message, FormatValues )
 					 ++ "(" ++ MessageCategorization
 					 ++ io_lib:format( ") at tick ~w", [ Tick ] ) )
@@ -1717,7 +1710,7 @@ trace_disabled( _, _, _, _, _ ) ->
 		% complete, possibly before the interpreter is crashed:
 		%
 		system_utils:await_output_completion(),
-		trace_disabled( State )
+		State
 ).
 
 
@@ -1834,14 +1827,14 @@ trace_disabled( _, _, _, _, _ ) ->
 		%
 		system_utils:await_output_completion(),
 
-		trace_disabled( State, Message )
+		{ State, Message }
 
 ).
 
 
 -define( warning( Message ),
 		?send_warning( State, Message )
-		%trace_disabled( State, Message )
+		%{ State, Message }
 ).
 
 
@@ -1849,13 +1842,13 @@ trace_disabled( _, _, _, _, _ ) ->
 
 -define( send_warning_cat( State, Message, MessageCategorization ),
 		?send_warning( State, Message ++ "(" ++ MessageCategorization ++ ")" )
-		%trace_disabled( State, Message, MessageCategorization )
+		%{ State, Message, MessageCategorization }
 ).
 
 
 -define( warning_cat( Message, MessageCategorization ),
 		?send_warning_cat( State, Message, MessageCategorization )
-		%trace_disabled( State, Message, MessageCategorization )
+		%{ State, Message, MessageCategorization }
 ).
 
 
@@ -1864,13 +1857,13 @@ trace_disabled( _, _, _, _, _ ) ->
 -define( send_warning_full( State, Message, MessageCategorization, Tick ),
 		?send_warning( State, Message ++ "(" ++ MessageCategorization
 					   ++ io_lib:format( ") at tick ~w", [ Tick ] ) )
-		%trace_disabled( State, Message, MessageCategorization, Tick )
+		%{ State, Message, MessageCategorization, Tick }
 ).
 
 
 -define( warning_full( Message, MessageCategorization, Tick ),
 		?send_warning_full( State, Message, MessageCategorization, Tick )
-		%trace_disabled( State, Message, MessageCategorization, Tick )
+		%{ State, Message, MessageCategorization, Tick }
 ).
 
 
@@ -1882,30 +1875,29 @@ trace_disabled( _, _, _, _, _ ) ->
 
 -define( send_warning_fmt( State, Message, FormatValues ),
 		?send_warning( State, io_lib:format( Message, FormatValues ) )
-		%trace_disabled( State, Message, FormatValues )
+		%{ State, Message, FormatValues }
 ).
 
 
 -define( warning_fmt( Message, FormatValues ),
 		?send_warning_fmt( State, Message, FormatValues )
-		%trace_disabled( State, Message, FormatValues )
+		%{ State, Message, FormatValues }
 ).
 
 
 
 -define( send_warning_fmt_cat( State, Message, FormatValues,
-							 MessageCategorization ),
+							   MessageCategorization ),
 		?send_warning( State, io_lib:format( Message, FormatValues )
 					   ++ "(" ++ MessageCategorization ++ ")" )
-		%trace_disabled( State, Message, FormatValues,
-		%					 MessageCategorization )
+		%{ State, Message, FormatValues, MessageCategorization }
 ).
 
 
 -define( warning_fmt_cat( Message, FormatValues, MessageCategorization ),
 		?send_warning_fmt_cat( State, Message, FormatValues,
 							   MessageCategorization )
-		%trace_disabled( State, Message, FormatValues, MessageCategorization )
+		%{ State, Message, FormatValues, MessageCategorization }
 ).
 
 
@@ -1917,16 +1909,14 @@ trace_disabled( _, _, _, _, _ ) ->
 		?send_warning( State, io_lib:format( Message, FormatValues )
 					   ++ "(" ++ MessageCategorization
 					   ++ io_lib:format( ") at tick ~w", [ Tick ] ) )
-		%trace_disabled( State, Message, FormatValues,
-		%				  MessageCategorization, Tick )
+		%{ State, Message, FormatValues, MessageCategorization, Tick }
 ).
 
 
 -define( warning_fmt_full( Message, FormatValues, MessageCategorization, Tick ),
 		?send_warning_fmt_full( State, Message, FormatValues,
 								MessageCategorization, Tick )
-		%trace_disabled( State, Message, FormatValues, MessageCategorization,
-		%			   Tick )
+		%{ State, Message, FormatValues, MessageCategorization, Tick }
 ).
 
 
@@ -1948,12 +1938,12 @@ trace_disabled( _, _, _, _, _ ) ->
 % Most important trace categories cannot be disabled:
 
 -define( send_info( State, Message ),
-		trace_disabled( State, Message )
+		{ State, Message }
 ).
 
 
 -define( info( Message ),
-		trace_disabled( State, Message )
+		{ State, Message }
 ).
 
 
@@ -1962,24 +1952,24 @@ trace_disabled( _, _, _, _, _ ) ->
 
 
 -define( send_info_cat( State, Message, MessageCategorization ),
-		trace_disabled( State, Message, MessageCategorization )
+		{ State, Message, MessageCategorization }
 ).
 
 
 -define( info_cat( Message, MessageCategorization ),
-		trace_disabled( State, Message, MessageCategorization )
+		{ State, Message, MessageCategorization }
 ).
 
 
 
 
 -define( send_info_full( State, Message, MessageCategorization, Tick ),
-		trace_disabled( State, Message, MessageCategorization, Tick )
+		{ State, Message, MessageCategorization, Tick }
 ).
 
 
 -define( info_full( Message, MessageCategorization, Tick ),
-		trace_disabled( State, Message, MessageCategorization, Tick )
+		{ State, Message, MessageCategorization, Tick }
 ).
 
 
@@ -1991,12 +1981,12 @@ trace_disabled( _, _, _, _, _ ) ->
 
 
 -define( send_info_fmt( State, Message, FormatValues ),
-		trace_disabled( State, Message, FormatValues )
+		{ State, Message, FormatValues }
 ).
 
 
 -define( info_fmt( Message, FormatValues ),
-		trace_disabled( State, Message, FormatValues )
+		{ State, Message, FormatValues }
 ).
 
 
@@ -2004,13 +1994,13 @@ trace_disabled( _, _, _, _, _ ) ->
 
 
 -define( send_info_fmt_cat( State, Message, FormatValues,
-							 MessageCategorization ),
-		trace_disabled( State, Message, FormatValues, MessageCategorization )
+							MessageCategorization ),
+		{ State, Message, FormatValues, MessageCategorization }
 ).
 
 
 -define( info_fmt_cat( Message, FormatValues, MessageCategorization ),
-		trace_disabled( State, Message, FormatValues, MessageCategorization )
+		{ State, Message, FormatValues, MessageCategorization }
 
 ).
 
@@ -2021,14 +2011,12 @@ trace_disabled( _, _, _, _, _ ) ->
 
 -define( send_info_fmt_full( State, Message, FormatValues,
 							 MessageCategorization, Tick ),
-		trace_disabled( State, Message, FormatValues,
-						MessageCategorization, Tick )
+		{ State, Message, FormatValues, MessageCategorization, Tick }
 ).
 
 
 -define( info_fmt_full( Message, FormatValues, MessageCategorization, Tick ),
-		 trace_disabled( State, Message, FormatValues, MessageCategorization,
-						 Tick )
+		 { State, Message, FormatValues, MessageCategorization, Tick }
 ).
 
 
@@ -2048,12 +2036,12 @@ trace_disabled( _, _, _, _, _ ) ->
 % Most important trace categories cannot be disabled:
 
 -define( send_trace( State, Message ),
-		 trace_disabled( State, Message )
+		 { State, Message }
 ).
 
 
 -define( trace( Message ),
-		 trace_disabled( State, Message )
+		 { State, Message }
 ).
 
 
@@ -2061,12 +2049,12 @@ trace_disabled( _, _, _, _, _ ) ->
 
 
 -define( send_trace_cat( State, Message, MessageCategorization ),
-		 trace_disabled( State, Message, MessageCategorization )
+		 { State, Message, MessageCategorization }
 ).
 
 
 -define( trace_cat( Message, MessageCategorization ),
-		 trace_disabled( State, Message, MessageCategorization )
+		 { State, Message, MessageCategorization }
 ).
 
 
@@ -2074,12 +2062,12 @@ trace_disabled( _, _, _, _, _ ) ->
 
 
 -define( send_trace_full( State, Message, MessageCategorization, Tick ),
-		 trace_disabled( State, Message, MessageCategorization, Tick )
+		 { State, Message, MessageCategorization, Tick }
 ).
 
 
 -define( trace_full( Message, MessageCategorization, Tick ),
-		 trace_disabled( State, Message, MessageCategorization, Tick )
+		 { State, Message, MessageCategorization, Tick }
 ).
 
 
@@ -2091,38 +2079,36 @@ trace_disabled( _, _, _, _, _ ) ->
 
 
 -define( send_trace_fmt( State, Message, FormatValues ),
-		 trace_disabled( State, Message, FormatValues )
+		 { State, Message, FormatValues }
 ).
 
 
 -define( trace_fmt( Message, FormatValues ),
-		 trace_disabled( State, Message, FormatValues )
+		 { State, Message, FormatValues }
 ).
 
 
 
 -define( send_trace_fmt_cat( State, Message, FormatValues,
 							 MessageCategorization ),
-		 trace_disabled( State, Message, FormatValues, MessageCategorization )
+		 { State, Message, FormatValues, MessageCategorization }
 ).
 
 
 -define( trace_fmt_cat( Message, FormatValues, MessageCategorization ),
-		 trace_disabled( State, Message, FormatValues, MessageCategorization )
+		 { State, Message, FormatValues, MessageCategorization }
 ).
 
 
 
 -define( send_trace_fmt_full( State, Message, FormatValues,
-						  MessageCategorization, Tick ),
-		 trace_disabled( State, Message, FormatValues,
-						 MessageCategorization, Tick )
+							  MessageCategorization, Tick ),
+		 { State, Message, FormatValues, MessageCategorization, Tick }
 ).
 
 
 -define( trace_fmt_full( Message, FormatValues, MessageCategorization, Tick ),
-		 trace_disabled( State, Message, FormatValues, MessageCategorization,
-						 Tick )
+		 { State, Message, FormatValues, MessageCategorization, Tick }
 ).
 
 
@@ -2144,12 +2130,12 @@ trace_disabled( _, _, _, _, _ ) ->
 % Most important debug categories cannot be disabled:
 
 -define( send_debug( State, Message ),
-		 trace_disabled( State, Message )
+		 { State, Message }
 ).
 
 
 -define( debug(Message),
-		 trace_disabled( State, Message )
+		 { State, Message }
 ).
 
 
@@ -2158,12 +2144,12 @@ trace_disabled( _, _, _, _, _ ) ->
 
 
 -define( send_debug_cat( State, Message, MessageCategorization ),
-		 trace_disabled( State, Message, MessageCategorization )
+		 { State, Message, MessageCategorization }
 ).
 
 
 -define( debug_cat( Message, MessageCategorization ),
-		 trace_disabled( State, Message, MessageCategorization )
+		 { State, Message, MessageCategorization }
 ).
 
 
@@ -2171,12 +2157,12 @@ trace_disabled( _, _, _, _, _ ) ->
 
 
 -define( send_debug_full( State, Message, MessageCategorization, Tick ),
-		 trace_disabled( State, Message, MessageCategorization, Tick )
+		 { State, Message, MessageCategorization, Tick }
 ).
 
 
 -define( debug_full( Message, MessageCategorization, Tick ),
-		 trace_disabled( State, Message, MessageCategorization, Tick )
+		 { State, Message, MessageCategorization, Tick }
 ).
 
 
@@ -2190,12 +2176,12 @@ trace_disabled( _, _, _, _, _ ) ->
 
 
 -define( send_debug_fmt( State, Message, FormatValues ),
-		 trace_disabled( State, Message, FormatValues )
+		 { State, Message, FormatValues }
 ).
 
 
 -define( debug_fmt( Message, FormatValues ),
-		 trace_disabled( State, Message, FormatValues )
+		 { State, Message, FormatValues }
 ).
 
 
@@ -2204,13 +2190,12 @@ trace_disabled( _, _, _, _, _ ) ->
 
 -define( send_debug_fmt_cat( State, Message, FormatValues,
 							 MessageCategorization ),
-		 trace_disabled( State, Message, FormatValues,
-						 MessageCategorization )
+		 { State, Message, FormatValues, MessageCategorization }
 ).
 
 
 -define( debug_fmt_cat( Message, FormatValues, MessageCategorization ),
-		 trace_disabled( State, Message, FormatValues, MessageCategorization )
+		 { State, Message, FormatValues, MessageCategorization }
 ).
 
 
@@ -2220,19 +2205,17 @@ trace_disabled( _, _, _, _, _ ) ->
 
 -define( send_debug_fmt_full( State, Message, FormatValues,
 							  MessageCategorization, Tick ),
-		 trace_disabled( State, Message, FormatValues,
-						 MessageCategorization, Tick )
+		 { State, Message, FormatValues, MessageCategorization, Tick }
 ).
 
 
 -define( debug_fmt_full( Message, FormatValues, MessageCategorization, Tick ),
-		 trace_disabled( State, Message, FormatValues, MessageCategorization,
-						 Tick )
+		 { State, Message, FormatValues, MessageCategorization, Tick }
 ).
 
 
 
--endif.
+-endif. % TracingActivated
 
 
 
@@ -2376,7 +2359,7 @@ trace_disabled( _, _, _, _, _ ) ->
 % variable named 'State'.
 %
 -define( report_full_fmt( State, Message, FormatValues, MessageCategorization,
-					  Tick ),
+						  Tick ),
 
 		 CoreMessage = io_lib:format( Message, FormatValues ),
 

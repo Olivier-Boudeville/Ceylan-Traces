@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2015 Olivier Boudeville
+% Copyright (C) 2003-2016 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -27,7 +27,7 @@
 
 
 % This is a very simple trace-enabled application, to ensure defines, build
-% targets and al support them correctly.
+% targets and all other elements support them correctly.
 %
 -module(trace_enabled_app).
 
@@ -42,6 +42,6 @@ exec() ->
 	?app_start,
 
 	?notify_info( "This is one of the simplest trace-enabled "
-			"applications possible!" ),
+				  "applications possible!" ),
 
 	?app_stop.

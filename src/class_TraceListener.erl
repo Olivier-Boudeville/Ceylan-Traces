@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2015 Olivier Boudeville
+% Copyright (C) 2003-2016 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -267,9 +267,9 @@ monitor( State ) ->
 	WaiterPid = spawn_link( fun() ->
 
 		% Blocking this waiter process (logmx.sh must be found in the PATH):
-		case system_utils:execute_command(
-			   executable_utils:get_default_trace_viewer_path() ++ " "
-			   ++ Filename ) of
+		case system_utils:run_executable(
+			   executable_utils:get_default_trace_viewer_path() ++ " '"
+			   ++ Filename ++ "'" ) of
 
 				{ _ExitCode=0, _Output } ->
 					io:format( "~s Trace listener ended the monitoring "

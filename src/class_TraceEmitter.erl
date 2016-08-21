@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2015 Olivier Boudeville
+% Copyright (C) 2003-2016 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -81,7 +81,9 @@
 
 % Static method declarations:
 %
--define( wooper_static_method_export, send_from_test/2, send_from_test/3,
+-define( wooper_static_method_export,
+		 send_from_test/2, send_from_test/3,
+		 send_from_case/2, send_from_case/3,
 		 send_standalone/2, send_standalone/3, send_standalone/5,
 		 get_emitter_node_as_binary/0,
 		 get_priority_for/1, get_channel_name_for_priority/1 ).
@@ -143,6 +145,9 @@
 % plain strings.
 
 
+% Introducing 'cases' support alongside 'tests' ought to have been avoided, as,
+% at the level of the 'Traces' layer, cases are not really defined. However a
+% completly clean separation would involve much duplication, efforts and overhead.
 
 
 
@@ -335,7 +340,8 @@ toString( State ) ->
 
 
 
-% Sends all types of traces without requiring a class_TraceEmitter state.
+% Sends all types of traces on behalf of a test, thus without requiring a
+% class_TraceEmitter state.
 %
 % Uses default trace aggregator, supposed to be already available and
 % registered.
@@ -343,13 +349,14 @@ toString( State ) ->
 % (static)
 %
 -spec send_from_test( traces:message_type(), traces:message() ) ->
-							 basic_utils:void().
+							basic_utils:void().
 send_from_test( TraceType, Message ) ->
 	send_from_test( TraceType, Message, ?DefaultTestEmitterCategorization ).
 
 
 
-% Sends all types of traces without requiring a class_TraceEmitter state.
+% Sends all types of traces on behalf of a test, thus without requiring a
+% class_TraceEmitter state.
 %
 % Uses default trace aggregator, supposed to be already available and
 % registered.
@@ -357,7 +364,7 @@ send_from_test( TraceType, Message ) ->
 % (static)
 %
 -spec send_from_test( traces:message_type(), traces:message(),
-					traces:emitter_categorization() ) -> basic_utils:void().
+					  traces:emitter_categorization() ) -> basic_utils:void().
 send_from_test( TraceType, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
@@ -373,7 +380,7 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 		AggregatorPid ->
 
 			TimestampText = text_utils:string_to_binary(
-				basic_utils:get_textual_timestamp() ),
+							  time_utils:get_textual_timestamp() ),
 
 			% Not State available here:
 			EmitterNode = get_emitter_node_as_binary(),
@@ -395,6 +402,74 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 				] }
 
 	end.
+
+
+
+
+
+% Sends all types of traces on behalf of a case, thus without requiring a
+% class_TraceEmitter state.
+%
+% Uses default trace aggregator, supposed to be already available and
+% registered.
+%
+% (static)
+%
+-spec send_from_case( traces:message_type(), traces:message() ) ->
+							basic_utils:void().
+send_from_case( TraceType, Message ) ->
+	send_from_case( TraceType, Message, ?DefaultCaseEmitterCategorization ).
+
+
+
+% Sends all types of traces on behalf of a case, thus without requiring a
+% class_TraceEmitter state.
+%
+% Uses default trace aggregator, supposed to be already available and
+% registered.
+%
+% (static)
+%
+-spec send_from_case( traces:message_type(), traces:message(),
+					  traces:emitter_categorization() ) -> basic_utils:void().
+send_from_case( TraceType, Message, EmitterCategorization ) ->
+
+	% Follows the order of our trace format; oneway call:
+	case global:whereis_name(?trace_aggregator_name) of
+
+		undefined ->
+
+			error_logger:info_msg( "class_TraceEmitter:send_from_case: "
+								   "trace aggregator not found." ),
+
+			throw( trace_aggregator_not_found );
+
+		AggregatorPid ->
+
+			TimestampText = text_utils:string_to_binary(
+							  time_utils:get_textual_timestamp() ),
+
+			% Not State available here:
+			EmitterNode = get_emitter_node_as_binary(),
+
+			AggregatorPid ! { send,
+				[
+				 _TraceEmitterPid=self(),
+				 _TraceEmitterName=
+					 text_utils:string_to_binary( "(case)" ),
+				 _TraceEmitterCategorization=
+					 text_utils:string_to_binary( EmitterCategorization ),
+				 _Tick=none,
+				 _Time=TimestampText,
+				 _Location=EmitterNode,
+				 _MessageCategorization=
+					 text_utils:string_to_binary( "Case" ),
+				 _Priority=get_priority_for( TraceType ),
+				 _Message=text_utils:string_to_binary( Message )
+				] }
+
+	end.
+
 
 
 
@@ -437,7 +512,7 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 		AggregatorPid ->
 
 			TimestampText = text_utils:string_to_binary(
-				basic_utils:get_textual_timestamp() ),
+				time_utils:get_textual_timestamp() ),
 
 			% No State available here:
 			EmitterNode = get_emitter_node_as_binary(),
@@ -494,7 +569,7 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 		AggregatorPid ->
 
 			TimestampText = text_utils:string_to_binary(
-				basic_utils:get_textual_timestamp() ),
+				time_utils:get_textual_timestamp() ),
 
 			% No State available here:
 			EmitterNode = get_emitter_node_as_binary(),
@@ -683,7 +758,7 @@ send( TraceType, State, Message, MessageCategorization ) ->
 send( TraceType, State, Message, MessageCategorization, Tick ) ->
 
 	TimestampText = text_utils:string_to_binary(
-	   basic_utils:get_textual_timestamp() ),
+	   time_utils:get_textual_timestamp() ),
 
 	% Follows the order of our trace format; oneway call:
 	?getAttr(trace_aggregator_pid) ! { send,

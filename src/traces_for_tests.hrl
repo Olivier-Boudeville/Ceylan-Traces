@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2015 Olivier Boudeville
+% Copyright (C) 2003-2016 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -45,7 +45,7 @@
 
 
 % To avoid warnings if not used:
--export([ test_receive/0, test_failed/1, test_failed/2 ]).
+-export([ test_receive/0, test_receive/1, test_failed/1, test_failed/2 ]).
 
 
 % For notify_* and al:
@@ -129,6 +129,13 @@
 
 
 
+% Helper macro for those who would not know they could have called the
+% corresponding function directly:
+%
+-define( test_receive( AnyMessage ), test_receive( AnyMessage ) ).
+
+
+
 % Helper function to write receive clauses in tests which cannot interfere with
 % trace supervision, as a test may also receive trace control message the test
 % code should be unware of.
@@ -151,6 +158,16 @@
 -spec test_receive() -> any().
 test_receive() ->
 	traces:receive_applicative_message().
+
+
+
+% Helper function to write receive clauses for specific messages in tests while
+% not interfering with trace supervision.
+%
+-spec test_receive( any() ) -> basic_utils:void().
+test_receive( Message ) ->
+	traces:receive_applicative_message( Message ).
+
 
 
 

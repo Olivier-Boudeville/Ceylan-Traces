@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2015 Olivier Boudeville
+% Copyright (C) 2003-2016 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -55,10 +55,10 @@
 % trace text file; this is mostly useful when LogMX cannot be used for any
 % reason, like needing to generate a report; TraceTextOutputType can be:
 %
-%  - 'text_only', if wanting to have traces be directly written to disk as pure
-%  yet human-readable text
+%   * 'text_only', if wanting to have traces be directly written to disk as pure
+%   yet human-readable text
 %
-%  - 'pdf', if wanting to read finally the traces in a generated PDF file
+%   * 'pdf', if wanting to read finally the traces in a generated PDF file
 %
 % Note:
 %
@@ -80,7 +80,6 @@
 -ifndef(TraceTitle).
 	-define( TraceTitle, "Ceylan" ).
 -endif.
-
 
 
 % For supervisor macros (ex: init_trace_supervisor):
@@ -506,7 +505,7 @@
 -define( notify_info( Message ),
 
 		class_TraceEmitter:send_standalone( info, Message,
-							  atom_to_list( ?MODULE ) )
+											atom_to_list( ?MODULE ) )
 
 ).
 
@@ -1184,41 +1183,41 @@
 
 
 -define( notify_info( Message ),
-		 trace_disabled( Message )
+		 Message
 ).
 
 
 -define( notify_info_cat( Message, EmitterCategorization ),
-		 trace_disabled( Message, EmitterCategorization )
+		 { Message, EmitterCategorization }
 ).
 
 
 -define( notify_info_em( Message, EmitterName, EmitterCategorization,
 						 MessageCategorization ),
-		 trace_disabled( Message, EmitterName, EmitterCategorization,
-						 MessageCategorization )
+		 { Message, EmitterName, EmitterCategorization,
+						 MessageCategorization }
 ).
 
 
 -define( notify_info_full( Message, EmitterCategorization, Tick ),
-		 trace_disabled( Message, EmitterCategorization, Tick )
+		 { Message, EmitterCategorization, Tick }
 ).
 
 
 
 -define( notify_info_fmt( Message, FormatValues ),
-		 trace_disabled( Message, FormatValues )
+		 { Message, FormatValues }
 ).
 
 
 -define( notify_info_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization )
+		 { Message, FormatValues, EmitterCategorization }
 ).
 
 
 -define( notify_info_fmt_full( Message, FormatValues, EmitterCategorization,
-				 Tick ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization, Tick )
+							   Tick ),
+		 { Message, FormatValues, EmitterCategorization, Tick }
 ).
 
 
@@ -1231,34 +1230,34 @@
 
 
 -define( notify_trace( Message ),
-		 trace_disabled( Message )
+		 Message
 ).
 
 
 -define( notify_trace_cat( Message, EmitterCategorization ),
-		 trace_disabled( Message, EmitterCategorization )
+		 { Message, EmitterCategorization }
 ).
 
 
 -define( notify_trace_full( Message, EmitterCategorization, Tick ),
-		 trace_disabled( Message, EmitterCategorization, Tick )
+		 { Message, EmitterCategorization, Tick }
 ).
 
 
 
 -define( notify_trace_fmt( Message, FormatValues ),
-		 trace_disabled( Message, FormatValues )
+		 { Message, FormatValues }
 ).
 
 
 -define( notify_trace_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization )
+		 { Message, FormatValues, EmitterCategorization }
 ).
 
 
 -define( notify_trace_fmt_full( Message, FormatValues, EmitterCategorization,
-				 Tick ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization, Tick )
+								Tick ),
+		 { Message, FormatValues, EmitterCategorization, Tick }
 ).
 
 
@@ -1270,34 +1269,34 @@
 
 
 -define( notify_debug( Message ),
-		 trace_disabled( Message )
+		 Message
 ).
 
 
 -define( notify_debug_cat( Message, EmitterCategorization ),
-		 trace_disabled( Message, EmitterCategorization )
+		 { Message, EmitterCategorization }
 ).
 
 
 -define( notify_debug_full( Message, EmitterCategorization, Tick ),
-		 trace_disabled( Message, EmitterCategorization, Tick )
+		 { Message, EmitterCategorization, Tick }
 ).
 
 
 
 -define( notify_debug_fmt( Message, FormatValues ),
-		 trace_disabled( Message, FormatValues )
+		 { Message, FormatValues }
 ).
 
 
 -define( notify_debug_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization )
+		 { Message, FormatValues, EmitterCategorization }
 ).
 
 
 -define( notify_debug_fmt_full( Message, FormatValues, EmitterCategorization,
-				 Tick ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization, Tick )
+								Tick ),
+		 { Message, FormatValues, EmitterCategorization, Tick }
 ).
 
 

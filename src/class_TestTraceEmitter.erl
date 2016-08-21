@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2015 Olivier Boudeville
+% Copyright (C) 2003-2016 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -27,6 +27,7 @@
 
 
 % Test of TraceEmitter class.
+%
 % See class_TraceEmitter.hrl and class_TraceEmitter.erl.
 %
 -module(class_TestTraceEmitter).
@@ -69,10 +70,10 @@
 % Must be included before class_TraceEmitter header:
 -define(TraceEmitterCategorization,"TraceEmitter.Test").
 
+
+
 % Allows to use macros for trace sending:
 -include("class_TraceEmitter.hrl").
-
-
 
 
 
@@ -82,14 +83,14 @@
 construct( State, ?wooper_construct_parameters ) ->
 
 	io:format( "~s Creating a new test trace emitter, whose name is ~s, "
-		"whose PID is ~w.~n", [ ?LogPrefix, TraceEmitterName, self() ] ),
+			   "whose PID is ~w.~n", [ ?LogPrefix, TraceEmitterName, self() ] ),
 
 	% First the direct mother classes, then this class-specific actions:
 	TraceState = class_TraceEmitter:construct( State, TraceEmitterName ),
 
 	% Class-specific:
 	TestTraceState = setAttribute( TraceState, trace_categorization,
-		text_utils:string_to_binary(?TraceEmitterCategorization) ),
+		text_utils:string_to_binary( ?TraceEmitterCategorization ) ),
 
 	% From now on, traces can be sent (but from the constructor send_* traces
 	% only should be sent, to be able to refer to a trace-enabled state):
@@ -193,22 +194,22 @@ send_traces( State ) ->
 
 
 	?fatal_full(   "Still livin' in a fatal world! (full)",
-				?application_start, 5 ),
+				   ?application_start, 5 ),
 
 	?error_full(   "Still livin' in a error world! (full)",
-				?application_save, 6 ),
+				   ?application_save, 6 ),
 
 	?warning_full( "Still livin' in a warning world! (full)",
-				  ?time, 7 ),
+				   ?time, 7 ),
 
 	?info_full(    "Still livin' in a info world! (full)",
-			   ?execution, 8 ),
+				   ?execution, 8 ),
 
 	?trace_full(   "Still livin' in a trace world! (full)",
-				?application_start, 9 ),
+				   ?application_start, 9 ),
 
 	?debug_full(   "Still livin' in a debug world! (full)",
-				?application_start, 10 ),
+				   ?application_start, 10 ),
 
 
 
@@ -222,12 +223,12 @@ send_traces( State ) ->
 	?debug_fmt(   "Yes, still livin' in a ~w world! (plain)", [debug]   ),
 
 
-	?fatal_fmt_cat( "Ouh-ouh-ouuuuuh ~w",   [fatal],   ?application_start ),
-	?error_fmt_cat( "Ouh-ouh-ouuuuuh ~w",   [error],   ?application_save  ),
-	?warning_fmt_cat( "Ouh-ouh-ouuuuuh ~w", [warning], ?time              ),
-	?info_fmt_cat(    "Ouh-ouh-ouuuuuh ~w", [info],    ?execution         ),
-	?trace_fmt_cat(   "Ouh-ouh-ouuuuuh ~w", [trace],   ?application_start ),
-	?debug_fmt_cat(   "Ouh-ouh-ouuuuuh ~w", [debug],   ?application_start ),
+	?fatal_fmt_cat(    "Ouh-ouh-ouuuuuh ~w", [fatal],   ?application_start ),
+	?error_fmt_cat(    "Ouh-ouh-ouuuuuh ~w", [error],   ?application_save  ),
+	?warning_fmt_cat(  "Ouh-ouh-ouuuuuh ~w", [warning], ?time              ),
+	?info_fmt_cat(     "Ouh-ouh-ouuuuuh ~w", [info],    ?execution         ),
+	?trace_fmt_cat(    "Ouh-ouh-ouuuuuh ~w", [trace],   ?application_start ),
+	?debug_fmt_cat(    "Ouh-ouh-ouuuuuh ~w", [debug],   ?application_start ),
 
 
 	?fatal_fmt_full(   "Oh yeah ~w", [fatal],   ?application_start,  5 ),
@@ -239,9 +240,9 @@ send_traces( State ) ->
 
 
 
-
 % Fatal and error messages replaced by warning, as the former two induce sleeps,
 % which distorts the benchmarks.
+%
 -spec send_traces_benchmark( wooper:state() ) -> basic_utils:void().
 send_traces_benchmark( State ) ->
 
@@ -261,22 +262,22 @@ send_traces_benchmark( State ) ->
 
 
 	?warning_cat( "Still livin' in a fatal world! (cat)",
-				 ?application_start ),
+				  ?application_start ),
 
 	?warning_cat( "Still livin' in a error world! (cat)",
-				 ?application_save ),
+				  ?application_save ),
 
 	?warning_cat( "Still livin' in a warning world! (cat)",
-				 ?time ),
+				  ?time ),
 
 	?info_cat(    "Still livin' in a info world! (cat)",
-			  ?execution ),
+				  ?execution ),
 
 	?trace_cat(   "Still livin' in a trace world! (cat)",
-			   ?application_start ),
+				  ?application_start ),
 
 	?debug_cat(   "Still livin' in a debug world! (cat)",
-			   ?application_start ),
+				  ?application_start ),
 
 
 	?warning_full( "Still livin' in a fatal world! (full)",

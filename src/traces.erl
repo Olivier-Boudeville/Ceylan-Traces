@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2015 Olivier Boudeville
+% Copyright (C) 2003-2016 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -32,12 +32,12 @@
 -module(traces).
 
 
--export([ get_trace_filename/1, receive_applicative_message/0,
+-export([ get_trace_filename/1,
+		  receive_applicative_message/0, receive_applicative_message/1,
 		  check_pending_wooper_results/0 ]).
 
 
 
--type trace_type() :: 'log_mx_traces' | {'text_traces', 'text_only' | 'pdf' }.
 
 -type emitter_name() :: string().
 -type emitter_categorization() :: string().
@@ -56,9 +56,14 @@
 					   | 'warning' | 'error' | 'fatal'.
 
 
--export_type([ trace_type/0, emitter_name/0, emitter_categorization/0, tick/0,
+% Type of trace supervision:
+-type trace_supervision_type() :: 'log_mx_traces'
+								 | {'text_traces', 'text_only' | 'pdf' }.
+
+
+-export_type([ emitter_name/0, emitter_categorization/0, tick/0,
 			   time/0, location/0, message_categorization/0, priority/0,
-			   message/0, message_type/0 ]).
+			   message/0, message_type/0, trace_supervision_type/0 ]).
 
 
 % For notify_warning_fmt:
@@ -76,13 +81,32 @@ get_trace_filename( ModuleName ) ->
 % Receives an applicative, non-trace message, to protect user messages from the
 % trace ones.
 %
--spec receive_applicative_message() -> basic_utils:void().
+-spec receive_applicative_message() -> any().
 receive_applicative_message() ->
 
 	receive
 
 		{ wooper_result, V } when V /= monitor_ok ->
 			V
+
+	end.
+
+
+
+% Receives specified applicative, non-trace message, to protect user messages
+% from the trace ones.
+%
+-spec receive_applicative_message( any() ) -> basic_utils:void().
+receive_applicative_message( Message=monitor_ok ) ->
+	% Would interfere with the monitoring system:
+	throw( { invalid_applicative_message, Message } );
+
+receive_applicative_message( Message ) ->
+
+	receive
+
+		{ wooper_result, Message } ->
+			message_received
 
 	end.
 

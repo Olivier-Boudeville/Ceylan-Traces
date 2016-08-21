@@ -1,7 +1,7 @@
 TRACES_TOP = .
 
 
-.PHONY: all register-version-in-header info-traces
+.PHONY: all register-version-in-header register-traces info-traces
 
 
 MODULES_DIRS = src doc #conf
@@ -20,6 +20,12 @@ all:
 
 
 register-version-in-header:
+	@if [ -z "$(VERSION_FILE)" ] ; then \
+	echo "Error, no version file defined." 1>&2 ; exit 52 ; else \
+	$(MAKE) register-traces ; fi
+
+
+register-traces:
 	@echo "-define( traces_version, \"$(TRACES_VERSION)\" )." >> $(VERSION_FILE)
 
 

@@ -1,4 +1,4 @@
-% Copyright (C) 2007-2015 Olivier Boudeville
+% Copyright (C) 2007-2016 Olivier Boudeville
 %
 % This file is part of the Ceylan Erlang library.
 %
@@ -150,4 +150,4 @@ test_stop_on_shell( ModuleName, TraceAggregatorPid ) ->
 
 	class_TraceAggregator:remove(),
 
-	test_facilities:display( "End of test ~s.", [ ModuleName ] ).
+	test_facilities:display( "End of test ~s", [ ModuleName ] ).
