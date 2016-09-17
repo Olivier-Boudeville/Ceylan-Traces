@@ -147,7 +147,8 @@
 
 % Introducing 'cases' support alongside 'tests' ought to have been avoided, as,
 % at the level of the 'Traces' layer, cases are not really defined. However a
-% completly clean separation would involve much duplication, efforts and overhead.
+% completly clean separation would involve much duplication, efforts and
+% overhead.
 
 
 
@@ -230,7 +231,7 @@ getName( State ) ->
 -spec setName( wooper:state(), string() ) -> oneway_return().
 setName( State, NewName ) ->
 	?wooper_return_state_only( setAttribute( State, name,
-								text_utils:string_to_binary( NewName ) ) ).
+								   text_utils:string_to_binary( NewName ) ) ).
 
 
 
@@ -368,7 +369,7 @@ send_from_test( TraceType, Message ) ->
 send_from_test( TraceType, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
-	case global:whereis_name(?trace_aggregator_name) of
+	case global:whereis_name( ?trace_aggregator_name ) of
 
 		undefined ->
 
@@ -435,7 +436,7 @@ send_from_case( TraceType, Message ) ->
 send_from_case( TraceType, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
-	case global:whereis_name(?trace_aggregator_name) of
+	case global:whereis_name( ?trace_aggregator_name ) of
 
 		undefined ->
 

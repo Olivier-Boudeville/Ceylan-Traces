@@ -133,13 +133,13 @@ These fields are:
 Example of trace line (end of lines added for readability)::
 
   <0.45.0>|I am a test emitter of traces|TraceEmitter.Test|none|2016/6/13
-  14:21:16|traceManagement_run-paul@volt.edf.fr|MyTest.SomeCategory|6
+  14:21:16|traceManagement_run-paul@hurricane.foobar.org|MyTest.SomeCategory|6
   |Hello debug world!
 
 or::
 
   <9097.51.0>|Instance tracker|Core.Tracker.Instances|14875|2016/6/10
-  15:43:31|Sim-Diasca_Soda_Platform_Integration_Case-john@hurricane.org|
+  15:43:31|My_application_case-john@hurricane.foobar.org|
   Execution.Uncategorized|4|Creating a new root instance tracker whose
   troubleshooting mode is enabled.
 
