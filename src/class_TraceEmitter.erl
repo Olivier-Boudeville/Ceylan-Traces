@@ -93,7 +93,8 @@
 % Helper functions:
 %
 -export([ init/1, set_categorization/2, send/3, send/4, send/5,
-		  get_current_tick/1, get_current_tick_offset/1, get_plain_name/1 ]).
+		  get_current_tick/1, get_current_tick_offset/1, get_plain_name/1,
+		  sync/1, await_output_completion/0 ]).
 
 
 
@@ -673,6 +674,7 @@ get_channel_name_for_priority( 6 ) ->
 
 
 
+
 % Section for helper functions.
 
 
@@ -867,3 +869,29 @@ get_current_tick_offset( State ) ->
 -spec get_plain_name( wooper:state() ) -> string().
 get_plain_name( State ) ->
 	text_utils:binary_to_string( ?getAttr(name) ).
+
+
+
+% Synchronises the caller with the trace aggregator, ensuring that all
+% (asynchronous) operations it triggered on this aggregator are over.
+%
+% Useful to ensure that traces have been fully received and stored before
+% continuing (possibly with a VM crash).
+%
+-spec sync( wooper:state() ) -> basic_utils:void().
+sync( State ) ->
+
+	?getAttr(trace_aggregator_pid) ! { sync, [], self() },
+	receive
+
+		{ wooper_result, aggregator_synchronised } ->
+			ok
+
+	end.
+
+
+% Awaits for the completion of trace outputs.
+%
+-spec await_output_completion() -> basic_utils:void().
+await_output_completion() ->
+	system_utils:await_output_completion( _Milliseconds=200 ).

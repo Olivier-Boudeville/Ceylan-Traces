@@ -67,7 +67,7 @@
 -define( wooper_method_export, send/10,
 		 renameTraceFile/2, launchTraceSupervisor/3,
 		 addTraceListener/2, removeTraceListener/2,
-		 requestReadyNotification/1 ).
+		 requestReadyNotification/1, sync/1 ).
 
 
 % Static method declarations (to be directly called from module):
@@ -552,6 +552,24 @@ requestReadyNotification( State ) ->
 	% from the constructor:
 	?wooper_return_state_result( State, trace_file_ready ).
 
+
+
+% Requests this aggregator to acknowledge this message (like a ping).
+%
+% The purpose is to ensure that all pending operations are performed (ex: so
+% that any next crash will not result in the loss of traces).
+%
+-spec sync( wooper:state() ) -> request_return( 'aggregator_synchronised' ).
+sync( State ) ->
+
+	% Still to be done, otherwise might sit in cache and be wiped out before the
+	% actual writing takes place:
+
+	TraceFile = ?getAttr(trace_file),
+
+	file:sync( TraceFile ),
+
+	?wooper_return_state_result( State, aggregator_synchronised ).
 
 
 
