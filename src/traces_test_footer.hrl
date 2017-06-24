@@ -38,7 +38,7 @@
 
 % Define functions as late as possible:
 
--ifndef(TracingActivated).
+-ifndef(tracing_activated).
 
 
 
@@ -56,4 +56,4 @@ test_trace_disabled( _, _ ) ->
 
 
 
--endif. % TracingActivated
+-endif. % tracing_activated

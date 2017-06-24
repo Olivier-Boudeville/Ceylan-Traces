@@ -35,10 +35,9 @@
 
 
 
-
 % Defines functions as late as possible:
 
--ifndef(TracingActivated).
+-ifndef(tracing_activated).
 
 
 
@@ -55,4 +54,4 @@ app_trace_disabled( _, _ ) ->
 
 
 
--endif.
+-endif. % tracing_activated

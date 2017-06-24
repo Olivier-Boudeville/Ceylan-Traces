@@ -99,6 +99,7 @@ endif
 
 # Enforce default values:
 
+
 ifndef ENABLE_TRACES
 
 	ENABLE_TRACES := true
@@ -106,13 +107,15 @@ ifndef ENABLE_TRACES
 endif
 
 
+# To selectively force any (de)activation:
+#ENABLE_TRACES := false
+
 
 # Tells whether traces will be activated for the next modules to be built.
 # By default, they are enabled.
 ifeq ($(ENABLE_TRACES),true)
 
-	ENABLE_TRACE_OPT := -DTracingActivated
-
+	ENABLE_TRACE_OPT := -Dtracing_activated
 
 else
 

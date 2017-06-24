@@ -59,17 +59,15 @@
 -export([ send_traces/1, send_traces_benchmark/1 ]).
 
 
+% Used by the trace_categorize/1 macro to use the right emitter:
+%-define( trace_emitter_categorization, "TraceEmitter.Test" ).
+
 % Allows to define WOOPER base variables and methods for that class:
 -include("wooper.hrl").
 
 
 % Only to test the trace system:
 -define(LogPrefix,"[Test TraceEmitter]").
-
-
-% Must be included before class_TraceEmitter header:
--define(TraceEmitterCategorization,"TraceEmitter.Test").
-
 
 
 % Allows to use macros for trace sending:
@@ -79,29 +77,27 @@
 
 % Constructs a new test trace emitter.
 %
--spec construct( wooper:state(), string() ) -> wooper:state().
-construct( State, ?wooper_construct_parameters ) ->
+-spec construct( wooper:state(), class_TraceEmitter:emitter_init() ) ->
+					   wooper:state().
+construct( State, TraceEmitterName ) ->
 
-	io:format( "~s Creating a new test trace emitter, whose name is ~s, "
+	io:format( "~s Creating a new test trace emitter, whose name is ~p, "
 			   "whose PID is ~w.~n", [ ?LogPrefix, TraceEmitterName, self() ] ),
 
 	% First the direct mother classes, then this class-specific actions:
-	TraceState = class_TraceEmitter:construct( State, TraceEmitterName ),
-
-	% Class-specific:
-	TestTraceState = setAttribute( TraceState, trace_categorization,
-		text_utils:string_to_binary( ?TraceEmitterCategorization ) ),
+	TraceState = class_TraceEmitter:construct( State,
+									   ?trace_categorize( TraceEmitterName ) ),
 
 	% From now on, traces can be sent (but from the constructor send_* traces
 	% only should be sent, to be able to refer to a trace-enabled state):
-	?send_fatal(   TestTraceState, "Hello fatal world!"   ),
-	?send_error(   TestTraceState, "Hello error world!"   ),
-	?send_warning( TestTraceState, "Hello warning world!" ),
-	?send_info(    TestTraceState, "Hello info world!"    ),
-	?send_trace(   TestTraceState, "Hello trace world!"   ),
-	?send_debug(   TestTraceState, "Hello debug world!"   ),
+	?send_fatal(   TraceState, "Hello fatal world!"   ),
+	?send_error(   TraceState, "Hello error world!"   ),
+	?send_warning( TraceState, "Hello warning world!" ),
+	?send_info(    TraceState, "Hello info world!"    ),
+	?send_trace(   TraceState, "Hello trace world!"   ),
+	?send_debug(   TraceState, "Hello debug world!"   ),
 
-	TestTraceState.
+	TraceState.
 
 
 
@@ -111,7 +107,7 @@ destruct( State ) ->
 
 	% Class-specific actions:
 	io:format( "~s Deleting test trace emitter ~s.~n",
-		[ ?LogPrefix, ?getAttr(name) ] ),
+			   [ ?LogPrefix, ?getAttr(name) ] ),
 
 	% Last moment to send traces:
 	?fatal(   "Goodbye fatal world!"   ),
@@ -122,7 +118,7 @@ destruct( State ) ->
 	?debug(   "Goodbye debug world!"   ),
 
 	io:format( "~s Test trace emitter ~s deleted.~n",
-		[ ?LogPrefix, ?getAttr(name) ] ),
+			   [ ?LogPrefix, ?getAttr(name) ] ),
 
 	% Allows chaining:
 	State.
@@ -141,6 +137,7 @@ sendTraces( State ) ->
 	%send_traces(State),
 	send_traces_benchmark( State ),
 	?wooper_return_state_result( State, ok ).
+
 
 
 % (const oneway)
@@ -289,8 +286,11 @@ send_traces_benchmark( State ) ->
 	?warning_full( "Still livin' in a warning world! (full)",
 				   ?time, 7 ),
 
+	% Useful also to test non-integer timestamps (works correctly with the trace
+	% supervisors as they are):
+	%
 	?info_full(    "Still livin' in a info world! (full)",
-				   ?execution, 8 ),
+				   ?execution, {8,2} ),
 
 	?trace_full(   "Still livin' in a trace world! (full)",
 				   ?application_start, 9 ),

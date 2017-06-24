@@ -27,7 +27,7 @@
 
 
 % This module gathers all code, common to tests and applications, that allows to
-% lighten the trace macros.
+% lighten the trace macros or to share defines and types.
 %
 -module(traces).
 
@@ -37,15 +37,27 @@
 		  check_pending_wooper_results/0 ]).
 
 
-
-
 -type emitter_name() :: string().
 -type emitter_categorization() :: string().
--type tick() :: integer() | 'none'.
+
+
+% A trace timestamp can be anything (ex: integer() | 'none'), no constraint
+% applies on purpose, so that any kind of application-specific timestamps can be
+% elected.
+%
+-type app_timestamp() :: any().
+
 -type time() :: string().
+
 -type location() :: string().
--type message_categorization() :: string().
+
+
+% A message may or may not (which is the default) by categorized:
+%
+-type message_categorization() :: string() | 'uncategorized'.
+
 -type priority() :: 1..6.
+
 -type message() :: string().
 
 
@@ -61,7 +73,7 @@
 								 | {'text_traces', 'text_only' | 'pdf' }.
 
 
--export_type([ emitter_name/0, emitter_categorization/0, tick/0,
+-export_type([ emitter_name/0, emitter_categorization/0, app_timestamp/0,
 			   time/0, location/0, message_categorization/0, priority/0,
 			   message/0, message_type/0, trace_supervision_type/0 ]).
 
@@ -96,6 +108,8 @@ receive_applicative_message() ->
 % Receives specified applicative, non-trace message, to protect user messages
 % from the trace ones.
 %
+% Used for synchronization purpose.
+
 -spec receive_applicative_message( any() ) -> basic_utils:void().
 receive_applicative_message( Message=monitor_ok ) ->
 	% Would interfere with the monitoring system:
@@ -124,7 +138,7 @@ check_pending_wooper_results() ->
 		{ wooper_result, AResult }  ->
 
 			?notify_warning_fmt( "Following WOOPER result was unread: ~p.~n",
-						   [ AResult ] ),
+								 [ AResult ] ),
 
 			check_pending_wooper_results()
 

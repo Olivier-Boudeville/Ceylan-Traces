@@ -26,20 +26,11 @@
 % Creation date: July 1, 2007.
 
 
-% Base class for all emitters of traces.
-%
-% A trace emitter has a notion of time (execution tick) as it needs to
-% timestamp its traces.
+% Base class for all (WOOPER-based) emitters of traces.
 %
 % See class_TestTraceEmitter.erl and class_TraceEmitter_test.erl
 %
 -module(class_TraceEmitter).
-
-
-% Name of a trace emitter:
--type name() :: string().
-
--export_type([ name/0 ]).
 
 
 
@@ -49,12 +40,14 @@
 
 
 % Parameters taken by the constructor ('construct').
-% These are class-specific data needing to be set in the constructor:
-% (TraceEmitterCategorization will be set in the trace_categorization attribute
-% of each child class when coming down the inheritance hierarchy, so that the
-% latest child class sets its targeted trace_categorization value)
 %
--define( wooper_construct_parameters, TraceEmitterName ).
+% These are class-specific data needing to be set in the constructor: (the
+% class-specific trace_emitter_categorization define will be set in the
+% trace_categorization attribute of each child class when coming down the
+% inheritance hierarchy, so that the latest child class sets its targeted
+% trace_categorization value)
+%
+-define( wooper_construct_parameters, TraceEmitterInit ).
 
 
 
@@ -66,16 +59,13 @@
 		  remote_new/2, remote_new_link/2, remote_synchronous_new/2,
 		  remote_synchronous_new_link/2, remote_synchronous_timed_new/2,
 		  remote_synchronous_timed_new_link/2, remote_synchronisable_new_link/2,
-		  construct/2, destruct/1 ]).
+		  construct/2 ]).
 
 
 
 % Member method declarations:
 %
 -define( wooper_method_export, getName/1, setName/2, setCategorization/2,
-		 getInitialTick/1, setInitialTick/2,
-		 getCurrentTickOffset/1, setCurrentTickOffset/2,
-		 getCurrentTick/1,
 		 display/1, toString/1 ).
 
 
@@ -93,25 +83,65 @@
 % Helper functions:
 %
 -export([ init/1, set_categorization/2, send/3, send/4, send/5,
-		  get_current_tick/1, get_current_tick_offset/1, get_plain_name/1,
-		  sync/1, await_output_completion/0 ]).
+		  get_trace_timestamp/1, get_trace_timestamp_as_binary/1,
+		  get_plain_name/1, sync/1, await_output_completion/0 ]).
 
+
+
+% The name of a trace emitter.
+%
+% It is a plain string containing the name of a trace emitter.
+%
+% Note: dots are not allowed in an emitter name (they are used as naming
+% separator).
+%
+% Ex: "MyObject 16".
+%
+-type emitter_name() :: string().
+
+
+
+% The categorization of a trace emitter.
+%
+% It is a plain string listing increasingly detailed trace sub-categories,
+% separated by dots.
+%
+% Ex: "topics.sports.basketball"
+%
+-type emitter_categorization() :: string().
+
+
+
+% Initializing a trace emitter is specifying its name to the constructor of its
+% actual class, which will augment that information with the correspond
+% class-specific emitter categorization. Then, the pair resulting from this
+% one-shot, initial operation will climb up the class hierarchy until reaching
+% the class_TraceEmitter constructor.
+%
+% See also the trace_categorize/1 macro.
+%
+-type emitter_init() :: emitter_name()
+						| { emitter_name(), emitter_categorization() }.
+
+
+% PID of a trace emitter:
+-type emitter_pid() :: wooper:instance_pid().
+
+
+-export_type([ emitter_name/0, emitter_categorization/0, emitter_init/0,
+			   emitter_pid/0 ]).
 
 
 % Allows to define WOOPER base variables and methods for that class:
 -include("wooper.hrl").
 
 
-% Must be included before class_TraceEmitter header:
--define(TraceEmitterCategorization,"Trace.Emitter").
+% For send_from_* and all:
+-include("class_TraceAggregator.hrl").
 
 
 % For trace_aggregator_name:
 -include("class_TraceEmitter.hrl").
-
-
-% For DefaultEmitterCategorization:
--include("class_TraceAggregator.hrl").
 
 
 -define(LogPrefix,"[Trace Emitter]").
@@ -121,87 +151,112 @@
 
 % Implementation notes:
 
-% As traces are timestamped, a trace emitter has to have some notion of time,
-% here based on (integer) execution ticks.
-%
-% Its current tick, to be obtained with the getCurrentTick/1 method or the
-% get_current_tick/1 function, is determined based on the addition of:
-%
-% - the initial emitter tick (initial_tick), a supposedly absolute time
-% reference (possibly a very large integer), whatever this reference may be
-% (creation tick for that instance, initial execution tick, etc.)
-%
-% - the current tick offset of the emitter (current_tick_offset), defined
-% relatively (i.e. as an offset) to initial_tick; this offset is generally able
-% to fit in a platform-native integer, therefore, for increased performances,
-% processings should be based preferably on offsets rather than on absolute time
-% references
-%
-% Currently the timestamps reported are tick offsets rather than ticks, as
-% otherwise the trace browsing usually involves very long integers, which, for
-% humans, are not convenient to read, remember, compare, etc.
+% A trace emitter used to have a specific notion of time (execution tick) as it
+% needs to timestamp its traces. Now it relies on the content of an opaque
+% ``trace_timestamp`` attribute, which is stringified and used as it is,
+% allowing for mostly any kind of application-level timestamp.
+
 
 % To reduce the memory footprint in the trace aggregator mailbox and the size of
 % messages sent over the network, most of the time binaries are used instead of
 % plain strings.
+%
+% Notably the 'name' attribute is stored as a binary.
+%
+% Use text_utils:binary_to_string/1 to get back a plain string or,
+% preferably, the class_TraceEmitter:get_plain_name/1 static method.
+%
+% The same applies for the 'trace_categorization' attribute.
 
 
 % Introducing 'cases' support alongside 'tests' ought to have been avoided, as,
-% at the level of the 'Traces' layer, cases are not really defined. However a
-% completly clean separation would involve much duplication, efforts and
-% overhead.
-
-
-
-% Constructs a new Trace emitter.
+% at the level of the 'Traces' layer, cases are not really defined.
 %
-% EmitterName is a plain string containing the name of this trace emitter, ex:
-% "MyObject 16".
+% However a completly clean separation would involve much duplication, efforts
+% and overhead.
+
+
+% Attributes of a trace emitter are:
+%
+% - name :: text_utils:bin_string() is the name of this trace emitter; not named
+% trace_name is order to be more versatile
+%
+% - trace_categorization :: text_utils:bin_string() is the categorization of
+% this trace emitter
+%
+% - trace_timestamp :: app_timestamp() is the current application-specific
+% timestamp
+
+
+
+% Constructs a new Trace emitter, from:
+%
+% - EmitterInit must be here a pair made of this name and another plain string
+% listing increasingly detailed sub-categories about this trace emitter,
+% separated by dots (ex: "topics.sports.basketball.coach")
 %
 % Note: this constructor should be idempotent, as a given instance might very
 % well inherit (directly or not) from that class more than once.
 %
--spec construct( wooper:state(), string() ) -> wooper:state().
-construct( State, ?wooper_construct_parameters ) ->
+-spec construct( wooper:state(), { emitter_name(), emitter_categorization() } )
+			   -> wooper:state().
+construct( State, _EmitterInit={ EmitterName, EmitterCategorization } ) ->
 
-	%io:format( "~s Creating a trace emitter whose name is ~s, "
-	%	"whose PID is ~w and whose categorization is ~s.~n",
-	%	[ ?LogPrefix, TraceEmitterName, self(), ?TraceEmitterCategorization ] ),
-
-
-	% Note: the 'name' attribute is stored as a binary, to reduce the memory
-	% footprint. Use text_utils:binary_to_string/1 to get back a plain string
-	% or, preferably, the class_TraceEmitter:get_plain_name/1 static method.
+	%io:format( "~s Creating a trace emitter whose name is '~s', "
+	%		   "whose PID is ~w and whose categorization is '~s'.~n",
+	%		   [ ?LogPrefix, EmitterName, self(), EmitterCategorization ] ),
 
 	InitState = init( State ),
 
+	BinName = check_and_binarise_name( EmitterName ),
+
+	BinCategorization = text_utils:string_to_binary( EmitterCategorization ),
+
 	setAttributes( InitState, [
+		{ name, BinName },
+		{ trace_categorization, BinCategorization },
+		{ trace_timestamp, undefined } ] );
 
-		{ name, text_utils:string_to_binary( TraceEmitterName ) },
-		{ initial_tick, undefined },
-		{ current_tick_offset, undefined },
 
-		% Should be converted to binary each time when set (but will not crash
-		% if remaining a plain string):
-		{ trace_categorization,
-		 text_utils:string_to_binary( ?TraceEmitterCategorization ) }
-
-						   ] ).
+% Should no mother class have set it:
+construct( State, EmitterName ) ->
+	construct( State, _EmitterInit={ EmitterName,
+									 ?default_trace_emitter_categorization } ).
 
 
 
+% Checks the emitter name and returns a binary version thereof.
+%
+% (helper)
+%
+-spec check_and_binarise_name( string() ) -> text_utils:bin_string().
+check_and_binarise_name( Name ) ->
+
+	% Not dot allowed, as is used as a naming separator:
+	%
+	case text_utils:split_at_first( _Marker=$., Name ) of
+
+		none_found ->
+			text_utils:string_to_binary( Name );
+
+		_ ->
+			throw( { not_dot_allowed_in_emitter_name, Name } )
+
+	end.
+
+
+% Useless:
+%
 % Overridden destructor.
 %
--spec destruct( wooper:state() ) -> wooper:state().
-destruct( State ) ->
+%-spec destruct( wooper:state() ) -> wooper:state().
+%destruct( State ) ->
 
 	%io:format( "~s Deleting Trace Emitter.~n", [ ?LogPrefix ] ),
 
 	%io:format( "~s Trace Emitter deleted.~n", [ ?LogPrefix ] ).
 
-	State.
-
-
+%	State.
 
 
 
@@ -219,7 +274,7 @@ destruct( State ) ->
 %
 % (const request)
 %
--spec getName( wooper:state() ) -> request_return( binary() ).
+-spec getName( wooper:state() ) -> request_return( text_utils:bin_string() ).
 getName( State ) ->
 	?wooper_return_state_result( State, ?getAttr(name) ).
 
@@ -229,10 +284,12 @@ getName( State ) ->
 %
 % (oneway)
 %
--spec setName( wooper:state(), string() ) -> oneway_return().
+-spec setName( wooper:state(), emitter_name() ) -> oneway_return().
 setName( State, NewName ) ->
-	?wooper_return_state_only( setAttribute( State, name,
-								   text_utils:string_to_binary( NewName ) ) ).
+
+	BinName = text_utils:string_to_binary( NewName ),
+
+	?wooper_return_state_only( setAttribute( State, name, BinName ) ).
 
 
 
@@ -245,70 +302,14 @@ setName( State, NewName ) ->
 %
 % (oneway)
 %
--spec setCategorization( wooper:state(), string() ) -> oneway_return().
+-spec setCategorization( wooper:state(), emitter_categorization() ) ->
+							   oneway_return().
 setCategorization( State, TraceCategorization ) ->
 
 	NewState = set_categorization( TraceCategorization, State ),
 
 	?wooper_return_state_only( NewState ).
 
-
-
-% Returns the initial tick of this trace emitter.
-%
-% (const request)
-%
--spec getInitialTick( wooper:state() ) -> request_return( traces:tick() ).
-getInitialTick( State ) ->
-	?wooper_return_state_result( State, ?getAttr(initial_tick) ).
-
-
-
-
-% Sets the initial tick of this trace emitter.
-%
-% Note: does not update the tick offset, therefore the current tick is not
-% preserved.
-%
-% (oneway)
-%
--spec setInitialTick( wooper:state(), traces:tick() ) -> oneway_return().
-setInitialTick( State, NewInitialTick ) ->
-	?wooper_return_state_only( setAttribute( State, initial_tick,
-											 NewInitialTick ) ).
-
-
-
-
-% Returns the current tick offset of this trace emitter.
-%
-% (const request)
-%
--spec getCurrentTickOffset( wooper:state() ) -> request_return( traces:tick() ).
-getCurrentTickOffset( State ) ->
-	?wooper_return_state_result( State, ?getAttr(current_tick_offset) ).
-
-
-
-% Sets the current tick offset of this trace emitter.
-%
-% (oneway)
-%
--spec setCurrentTickOffset( wooper:state(), traces:tick() ) ->
-								  oneway_return().
-setCurrentTickOffset( State, NewCurrentTickOffset ) ->
-	?wooper_return_state_only(
-		setAttribute( State, current_tick_offset, NewCurrentTickOffset ) ).
-
-
-
-% Returns the current tick of this trace emitter.
-%
-% (const request)
-%
--spec getCurrentTick( wooper:state() ) -> request_return( traces:tick() ).
-getCurrentTick( State ) ->
-	?wooper_return_state_result( State, get_current_tick( State ) ).
 
 
 
@@ -353,7 +354,7 @@ toString( State ) ->
 -spec send_from_test( traces:message_type(), traces:message() ) ->
 							basic_utils:void().
 send_from_test( TraceType, Message ) ->
-	send_from_test( TraceType, Message, ?DefaultTestEmitterCategorization ).
+	send_from_test( TraceType, Message, ?default_test_emitter_categorization ).
 
 
 
@@ -374,7 +375,7 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 
 		undefined ->
 
-			error_logger:info_msg( "class_TraceEmitter:send_from_test: "
+			error_logger:info_msg( "class_TraceEmitter:send_from_test/3: "
 								   "trace aggregator not found." ),
 
 			throw( trace_aggregator_not_found );
@@ -394,7 +395,7 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 					 text_utils:string_to_binary( "(test)" ),
 				 _TraceEmitterCategorization=
 					 text_utils:string_to_binary( EmitterCategorization ),
-				 _Tick=none,
+				 _AppTimestamp=none,
 				 _Time=TimestampText,
 				 _Location=EmitterNode,
 				 _MessageCategorization=
@@ -420,7 +421,7 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 -spec send_from_case( traces:message_type(), traces:message() ) ->
 							basic_utils:void().
 send_from_case( TraceType, Message ) ->
-	send_from_case( TraceType, Message, ?DefaultCaseEmitterCategorization ).
+	send_from_case( TraceType, Message, ?default_case_emitter_categorization ).
 
 
 
@@ -461,7 +462,7 @@ send_from_case( TraceType, Message, EmitterCategorization ) ->
 					 text_utils:string_to_binary( "(case)" ),
 				 _TraceEmitterCategorization=
 					 text_utils:string_to_binary( EmitterCategorization ),
-				 _Tick=none,
+				 _AppTimestamp=none,
 				 _Time=TimestampText,
 				 _Location=EmitterNode,
 				 _MessageCategorization=
@@ -486,7 +487,7 @@ send_from_case( TraceType, Message, EmitterCategorization ) ->
 							 basic_utils:void().
 send_standalone( TraceType, Message ) ->
 	send_standalone( TraceType, Message,
-					 ?DefaultStandaloneEmitterCategorization ).
+					 ?default_standalone_emitter_categorization ).
 
 
 
@@ -498,7 +499,7 @@ send_standalone( TraceType, Message ) ->
 % (static)
 %
 -spec send_standalone( traces:message_type(), traces:message(),
-					  traces:emitter_categorization() ) -> basic_utils:void().
+					   traces:emitter_categorization() ) -> basic_utils:void().
 send_standalone( TraceType, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
@@ -506,8 +507,8 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 
 		undefined ->
 
-			error_logger:info_msg( "class_TraceEmitter:send_standalone: "
-				"trace aggregator not found." ),
+			error_logger:info_msg( "class_TraceEmitter:send_standalone/3: "
+								   "trace aggregator not found." ),
 
 			throw( trace_aggregator_not_found );
 
@@ -532,7 +533,7 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 				 _TraceEmitterName=text_utils:string_to_binary( PidName ),
 				 _TraceEmitterCategorization=
 					 text_utils:string_to_binary( EmitterCategorization ),
-				 _Tick=none,
+				 _AppTimestamp=none,
 				 _Time=TimestampText,
 				 _Location=EmitterNode,
 				 _MessageCategorization=
@@ -563,8 +564,8 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 
 		undefined ->
 
-			error_logger:info_msg( "class_TraceEmitter:send_standalone: "
-				"trace aggregator not found." ),
+			error_logger:info_msg( "class_TraceEmitter:send_standalone/5: "
+								   "trace aggregator not found." ),
 
 			throw( trace_aggregator_not_found );
 
@@ -582,7 +583,7 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 				 _TraceEmitterName=text_utils:string_to_binary( EmitterName ),
 				 _TraceEmitterCategorization=
 					 text_utils:string_to_binary( EmitterCategorization ),
-				 _Tick=none,
+				 _AppTimestamp=none,
 				 _Time=TimestampText,
 				 _Location=EmitterNode,
 				 _MessageCategorization=
@@ -596,11 +597,11 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 
 
 
-% Returns the name of the node this emitter is on, as an atom.
+% Returns the name of the node this emitter is on, as a binary string.
 %
 % (static)
 %
--spec get_emitter_node_as_binary() -> binary().
+-spec get_emitter_node_as_binary() -> text_utils:bin_string().
 get_emitter_node_as_binary() ->
 	erlang:atom_to_binary( net_utils:localnode(), _Encoding=latin1 ).
 
@@ -678,7 +679,7 @@ get_channel_name_for_priority( 6 ) ->
 % Section for helper functions.
 
 
-% Initializes some context-specific informations.
+% Initializes some context-specific information.
 %
 % (helper)
 %
@@ -692,14 +693,11 @@ init( State ) ->
 	% condition that would lead to the creation of multiple aggregators):
 	%
 	AggregatorPid = class_TraceAggregator:get_aggregator(
-												  _DoLaunchAggregator=false ),
+												  _LaunchAggregator=false ),
 
 	setAttributes( State, [
-
 		{ emitter_node, get_emitter_node_as_binary() },
-		{ trace_aggregator_pid, AggregatorPid }
-
-						   ] ).
+		{ trace_aggregator_pid, AggregatorPid } ] ).
 
 
 
@@ -726,7 +724,7 @@ set_categorization( TraceCategorization, State ) ->
 % Sends a trace from that emitter.
 % Message is a plain string.
 %
-% All information are available here, except the tick and the message
+% All information are available here, except the trace timestamp and the message
 % categorization.
 %
 % (helper)
@@ -734,20 +732,22 @@ set_categorization( TraceCategorization, State ) ->
 -spec send( traces:message_type(), wooper:state(), traces:message() ) ->
 	basic_utils:void().
 send( TraceType, State, Message ) ->
-	send( TraceType, State, Message, ?DefaultMessageCategorization ).
+	send( TraceType, State, Message, _MessageCategorization=uncategorized ).
 
 
 
-% Message and MessageCategorization are plain strings.
-% All informations available but the tick, determining its availability:
+% Message is a plain string, MessageCategorization as well unless it is the
+% 'uncategorized' atom.
+
+% All informations available but the timestamp, determining its availability:
 %
 % (helper)
 %
 -spec send( traces:message_type(), wooper:state(), traces:message(),
-		   traces:message_categorization() ) -> basic_utils:void().
+			traces:message_categorization() ) -> basic_utils:void().
 send( TraceType, State, Message, MessageCategorization ) ->
 	send( TraceType, State, Message, MessageCategorization,
-		get_current_tick_offset( State ) ).
+		  get_trace_timestamp( State ) ).
 
 
 
@@ -756,29 +756,44 @@ send( TraceType, State, Message, MessageCategorization ) ->
 % (helper)
 %
 -spec send( traces:message_type(), wooper:state(), traces:message(),
-		   traces:message_categorization(), traces:tick() )
-		  -> basic_utils:void().
-send( TraceType, State, Message, MessageCategorization, Tick ) ->
+			traces:message_categorization(), traces:app_timestamp() ) ->
+				  basic_utils:void().
+send( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
 
 	TimestampText = text_utils:string_to_binary(
 	   time_utils:get_textual_timestamp() ),
 
+	MsgCateg = case MessageCategorization of
+
+		uncategorized ->
+			uncategorized;
+
+		_ ->
+			text_utils:string_to_binary( MessageCategorization )
+
+	end,
+
+	AppTimestampString = list_to_binary(
+						   io_lib:format( "~p", [ AppTimestamp ] ) ),
+
 	% Follows the order of our trace format; oneway call:
+	% (toggle the comment for the two blocks below to debug)
+
 	?getAttr(trace_aggregator_pid) ! { send,
 
-	%io:format( "PID = ~w, name = ~s, emitter categorization = ~s, "
-	%	"tick = ~w, user time = ~s, location = ~s, "
-	%	"message categorization = ~s, trace type = ~w, message = ~s ~n",
+	%io:format( "Sending trace: PID=~w, emitter name='~p', "
+	%		   "emitter categorization='~p', "
+	%		   "app timestamp='~p', user time='~p', location='~p', "
+	%		   "message categorization='~p', trace type='~w', message='~p'~n",
 
 		[
 		 _TraceEmitterPid=self(),
 		 _TraceEmitterName=?getAttr(name),
 		 _TraceEmitterCategorization=?getAttr(trace_categorization),
-		 _Tick=Tick,
+		 AppTimestampString,
 		 _Time=TimestampText,
 		 _Location=?getAttr(emitter_node),
-		 _MessageCategorizatio=text_utils:string_to_binary(
-								 MessageCategorization ),
+		 _MessageCategorization=MsgCateg,
 		 _Priority=get_priority_for( TraceType ),
 		 _Message=text_utils:string_to_binary( Message )
 		]
@@ -787,82 +802,32 @@ send( TraceType, State, Message, MessageCategorization, Tick ) ->
 
 
 
-
-
-
-% Returns the current (numerical) execution tick, expressed in execution ticks,
-% or the atom 'none' if the emitter time is not known.
+% Returns the current trace-level timestamp (ex: possibly an execution tick
+% offset), or the atom 'none' if the emitter time is not known.
 %
 % (helper)
 %
--spec get_current_tick( wooper:state() ) -> traces:tick().
-get_current_tick( State ) ->
-
-	%io:format( "get_current_tick called for ~w, initial tick is ~w, "
-	%	"current tick offset is ~w.~n",
-	%	[ self(), ?getAttr(initial_tick), ?getAttr(current_tick_offset) ] ),
-
-	InitialEmitterTick = ?getAttr(initial_tick),
-
-	case InitialEmitterTick of
-
-		undefined ->
-			none;
-
-		InitialTick ->
-			CurrentTickOffset = ?getAttr(current_tick_offset),
-			case CurrentTickOffset of
-
-				undefined ->
-					none;
-
-				TickOffset ->
-					%io:format( "InitialTick = ~p, TickOffset = ~p~n",
-					%  [ InitialTick, TickOffset ] ),
-					InitialTick + TickOffset
-
-			end
-
-	end.
+-spec get_trace_timestamp( wooper:state() ) -> traces:timestamp().
+get_trace_timestamp( State ) ->
+	?getAttr(trace_timestamp).
 
 
 
-% Returns the current (numerical) execution tick offset, expressed in execution
-% ticks, or the atom 'none' if the emitter time is not known.
+% Returns the current trace-level timestamp, as a binary string.
 %
 % (helper)
 %
--spec get_current_tick_offset( wooper:state() ) -> traces:tick().
-get_current_tick_offset( State ) ->
-
-	%io:format( "get_current_tick_offset called for ~w, initial tick is ~w, "
-	%	"current tick offset is ~w.~n",
-	%	[ self(), ?getAttr(initial_tick), ?getAttr(current_tick_offset) ] ),
-
-	InitialEmitterTick = ?getAttr(initial_tick),
-
-	case InitialEmitterTick of
-
-		undefined ->
-			none;
-
-		_InitialTick ->
-			CurrentTickOffset = ?getAttr(current_tick_offset),
-			case CurrentTickOffset of
-
-				undefined ->
-					none;
-
-				TickOffset ->
-					TickOffset
-
-			end
-
-	end.
+-spec get_trace_timestamp_as_binary( wooper:state() ) ->
+										   text_utils:bin_string().
+get_trace_timestamp_as_binary( State ) ->
+	% Avoiding text_utils for a supposed speed-up:
+	Stringified = io_lib:format( "~p", [ ?getAttr(trace_timestamp) ] ),
+	list_to_binary( Stringified ).
 
 
 
-% Returns the name of this trace emitter, as a plain string, not as a binary.
+
+% Returns the name of this trace emitter, as a plain string (not as a binary).
 %
 % (helper)
 %
@@ -890,7 +855,10 @@ sync( State ) ->
 	end.
 
 
+
 % Awaits for the completion of trace outputs.
+%
+% No firm guarantee, done of a best-effort basis.
 %
 -spec await_output_completion() -> basic_utils:void().
 await_output_completion() ->

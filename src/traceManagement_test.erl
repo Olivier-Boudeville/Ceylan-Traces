@@ -69,7 +69,7 @@ run() ->
 
 
 	test_facilities:display( "Starting Trace system, with a trace aggregator "
-		"and, if requested, a trace supervisor." ),
+							 "and, if requested, a trace supervisor." ),
 
 	% Test target here:
 	?test_start,
@@ -80,7 +80,8 @@ run() ->
 
 	% Should not trigger the launch of another global aggregator:
 	% (as test_start triggers a *synchronous* aggregator):
-	MyTraceEmitter = class_TestTraceEmitter:synchronous_new_link(Name),
+	%
+	MyTraceEmitter = class_TestTraceEmitter:synchronous_new_link( Name ),
 
 	% Test target here:
 	?test_fatal(   "This is a test of the fatal priority for tests."   ),
@@ -92,22 +93,22 @@ run() ->
 
 
 	?test_fatal_fmt( "This is a test of the ~w priority for tests.",
-					[ fatal ] ),
+					 [ fatal ] ),
 
 	?test_error_fmt( "This is a test of the ~w priority for tests.",
-					[ error ] ),
+					 [ error ] ),
 
 	?test_warning_fmt( "This is a test of the ~w priority for tests.",
-					[ warning ] ),
+					   [ warning ] ),
 
 	?test_info_fmt( "This is a test of the ~w priority for tests.",
 					[ info ] ),
 
 	?test_trace_fmt( "This is a test of the ~w priority for tests.",
-					[ trace ] ),
+					 [ trace ] ),
 
 	?test_debug_fmt( "This is a test of the ~w priority for tests.",
-					[ debug ] ),
+					 [ debug ] ),
 
 
 	test_facilities:display(
@@ -123,7 +124,7 @@ run() ->
 
 	end,
 
-	ExpectedFirstBinaryName = list_to_binary(Name),
+	ExpectedFirstBinaryName = text_utils:string_to_binary( Name ),
 
 	MyTraceEmitter ! { getName, [], self() },
 	receive
@@ -137,7 +138,7 @@ run() ->
 
 	MyTraceEmitter ! { setName, [ NewName ] },
 
-	ExpectedSecondBinaryName = list_to_binary(NewName),
+	ExpectedSecondBinaryName = text_utils:string_to_binary( NewName ),
 
 	MyTraceEmitter ! { getName, [], self() },
 	receive

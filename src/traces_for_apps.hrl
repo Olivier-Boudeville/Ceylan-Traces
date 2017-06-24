@@ -58,28 +58,28 @@
 % Start/stop section.
 
 
--ifdef(TracingActivated).
+-ifdef(tracing_activated).
 
 
 % TraceAggregatorPid voluntarily exported from app_start, for app_stop:
 
 -define( app_start,
-	TraceAggregatorPid = traces_for_apps:app_start( ?MODULE,
-												   _InitTraceSupervisor=true )
+		 TraceAggregatorPid = traces_for_apps:app_start( ?MODULE,
+											   _InitTraceSupervisor=true )
 ).
 
 
 -define( app_stop,
-	traces_for_apps:app_stop( ?MODULE, TraceAggregatorPid )
+		 traces_for_apps:app_stop( ?MODULE, TraceAggregatorPid )
 ).
 
 
 -define( app_stop_without_waiting_for_trace_supervisor,
-	traces_for_apps:app_immediate_stop( ?MODULE, TraceAggregatorPid ) ).
+		 traces_for_apps:app_immediate_stop( ?MODULE, TraceAggregatorPid ) ).
 
 
 
--else. % TracingActivated
+-else. % tracing_activated
 
 
 % Here, even if the trace sending is deactivated, a trace aggregator is created,
@@ -88,21 +88,21 @@
 %
 % However no trace supervisor is needed here.
 -define( app_start,
-	TraceAggregatorPid = traces_for_apps:app_start( ?MODULE,
+		 TraceAggregatorPid = traces_for_apps:app_start( ?MODULE,
 										   _InitTraceSupervisor=false ) ).
 
 
 
 -define( app_stop,
-	% No supervisor to wait for, here:
-	traces_for_apps:app_immediate_stop( ?MODULE, TraceAggregatorPid ) ).
+		 % No supervisor to wait for, here:
+		 traces_for_apps:app_immediate_stop( ?MODULE, TraceAggregatorPid ) ).
 
 
 -define( app_stop_without_waiting_for_trace_supervisor,
-	traces_for_apps:app_immediate_stop( ?MODULE, TraceAggregatorPid ) ).
+		 traces_for_apps:app_immediate_stop( ?MODULE, TraceAggregatorPid ) ).
 
 
--endif. % TracingActivated
+-endif. % tracing_activated
 
 
 
@@ -146,6 +146,7 @@ app_receive() ->
 
 
 % Handles an application failure.
+%
 -spec app_failed( string() ) -> no_return().
 app_failed( Reason ) ->
 
@@ -153,10 +154,12 @@ app_failed( Reason ) ->
 	% they are always output as unreadable lists.
 
 	Message = io_lib:format( "Application ~s failed, reason: ~s.~n",
-							[ ?MODULE, Reason ] ),
+							 [ ?MODULE, Reason ] ),
 
 	error_logger:error_msg( Message ),
 	?app_fatal( Message ),
+
 	% Needed, otherwise error_logger may not display anything:
 	system_utils:await_output_completion(),
+
 	erlang:error( "Application ~s failed.", [ ?MODULE ] ).

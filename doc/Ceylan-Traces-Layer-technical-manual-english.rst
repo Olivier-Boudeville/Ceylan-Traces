@@ -11,13 +11,14 @@ Technical Manual of the ``Traces`` Layer
 
 
 :Author: Olivier Boudeville
-:Contact: olivier.boudeville@esperide.com
+:Contact: olivier.boudeville@esperide.org
 :Creation Date: Wednesday, August 11, 2010
-:Lastly Updated on: Monday, June 13, 2016
+:Lastly Updated on: Friday, March 24, 2017
+
 
 
 :Status: Work in progress
-:Version: 0.0.2
+:Version: 0.0.3
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
@@ -122,7 +123,7 @@ These fields are:
  #. **technical identifier of the emitter**, as a string (ex: ``<9097.51.0>`` for the PID of a distributed Erlang process)
  #. **name of the emitter** (ex: ``"Instance tracker"``)
  #. **dotted categorization of the emitter** (ex: ``"Core.Tracker.Instances"``); here for example the emitter is an element of the service in charge of the instances, which itself belongs to the tracker services, which themselves belong to the core services
- #. **application-level timestamp** (ex: operation count, relative tick, absolute timestep, etc.), possibly ``none`` or ``undefined`` if not applicable (ex: a simulation that would not be started yet)
+ #. **application-level timestamp** (ex: operation count, relative tick, absolute timestep, complex, application-specific timestamp, etc.), possibly ``none`` or ``undefined`` if not applicable (ex: a simulation that would not be started yet)
  #. **wall-clock timestamp**, in the ``"Year/Month/Day Hour:Minute:Second"`` format (ex: ``"2016/6/10 15:43:31"``)
  #. **emitter location**, as a string (ex: the name of the Erlang node, possibly including the name of the application use case, of the user and of the host; ex: ``my_foobar_test_john@hurricane.org``)
  #. **dotted categorization of the trace message** itself (ex: ``MyApplication.MyTopic.SomeTheme``)
@@ -180,3 +181,32 @@ Traces can be browsed with this tool:
 
 
 The supervision solution can be switched at compile time (see the ``TraceType`` defined in ``traces/src/traces.hrl``); the ``Traces`` layer shall then be rebuilt.
+
+
+
+
+:raw-latex:`\pagebreak`
+
+
+Trace Implementation
+====================
+
+General Mode of Operation
+-------------------------
+
+All processes are able to emit traces, either by using standalone trace sending primitives (mostly for plain Erlang processes), or by inheriting from the ``TraceEmitter`` class, in the (general) case of WOOPER-based processes.
+
+In the vast majority of cases, all these emitters send their traces to a single trace aggregator, in charge of collecting them and storing them on-disk, according to an adequate trace format.
+
+This trace format can be parsed by various trace supervisors, the most popular being `LogMX <http://www.logmx.com>`_.
+
+Various measures have been taken in order to reduce the overhead induced by the overall trace system. Notably traces are sent in a "fire and forget", non-blocking manner (thanks to oneways, which are not specifically acknowledged). The number of messages exchanged is thus reduced, at the cost of a lesser synchronization of the traces (i.e. there is no strong guarantee that the traces will be ultimately displayed in the order of their emission in wallclock-time, as they will be directly stored in their actual order of receiving by the trace aggregator [#]_, with no further reordering).
+
+.. [#] For example, if both the trace aggregator and a process B are running on the same host, and if a process A, running on another host, emits a trace then sends a message to B so that B sends in turn a trace, then the trace from  B *might* in some cases be received - and thus be listed - by the aggregator *before* the trace for A (it depends on the network congestion, relative scheduling of processes, etc.).
+
+
+
+Trace Emitters
+--------------
+
+When sending a trace, an emitter relies on its ``trace_timestamp`` attribute, and sends a string representation thereof (obtained thanks to the ``~p`` quantifier of ``io:format/2`` ). This allows the trace subsystem to support all kinds of application-specific traces (ex: integers, floats, tuples, strings, etc.).

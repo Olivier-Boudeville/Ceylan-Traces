@@ -36,7 +36,7 @@
 		  app_stop_on_shell/2 ]).
 
 
--define( TraceEmitterCategorization, "application.life-cycle" ).
+-define( trace_emitter_categorization, "application.life-cycle" ).
 
 
 % For app_info_fmt and al:

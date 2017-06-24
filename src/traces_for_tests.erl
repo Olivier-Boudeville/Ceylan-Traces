@@ -36,7 +36,7 @@
 		  test_stop_on_shell/2 ]).
 
 
--define( TraceEmitterCategorization, "test.life-cycle" ).
+-define( trace_emitter_categorization, "test.life-cycle" ).
 
 
 % For test_info_fmt and al:
@@ -73,7 +73,7 @@ test_start( ModuleName, _InitTraceSupervisor=true ) ->
 	TraceAggregatorPid = test_start( ModuleName, false ),
 
 	class_TraceSupervisor:init( traces:get_trace_filename( ModuleName ),
-							   ?TraceType, TraceAggregatorPid ),
+								?TraceType, TraceAggregatorPid ),
 
 	TraceAggregatorPid;
 
