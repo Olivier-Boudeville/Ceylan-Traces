@@ -18,7 +18,7 @@ endif
 
 
 ifndef PACKAGE_NAME
-	PACKAGE_NAME = traces
+	PACKAGE_NAME = Ceylan-Traces
 endif
 
 
