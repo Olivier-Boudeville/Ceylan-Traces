@@ -35,25 +35,24 @@
 
 
 
-
-% Define functions as late as possible:
-
--ifndef(tracing_activated).
-
-
-
-% Allows to avoid warnings about variables not be used when traces are disabled:
+% Define functions as late as possible.
 %
--spec test_trace_disabled( any() ) -> 'test_trace_disabled'.
+% test_trace_disabled/{1,2} must be defined whether or not traces are enabled
+% (as void traces use them in all cases), but then they might be reported as
+% unused (depending on the user code).
+%
+% Hence this report is silenced here in all cases:
+
+
+-compile( [ { nowarn_unused_function, [ { test_trace_disabled, 1 },
+										{ test_trace_disabled, 2 } ] } ] ).
+
+
+-spec test_trace_disabled( any() ) -> basic_utils:void().
 test_trace_disabled( _ ) ->
-	test_trace_disabled.
+	ok.
 
 
-
--spec test_trace_disabled( any(), any() ) -> 'test_trace_disabled'.
+-spec test_trace_disabled( any(), any() ) -> basic_utils:void().
 test_trace_disabled( _, _ ) ->
-	test_trace_disabled.
-
-
-
--endif. % tracing_activated
+	ok.

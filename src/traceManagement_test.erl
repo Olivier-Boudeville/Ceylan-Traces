@@ -90,6 +90,7 @@ run() ->
 	?test_info(    "This is a test of the info priority for tests."    ),
 	?test_trace(   "This is a test of the trace priority for tests."   ),
 	?test_debug(   "This is a test of the debug priority for tests."   ),
+	?test_void(    "This is a test of the void priority for tests."   ),
 
 
 	?test_fatal_fmt( "This is a test of the ~w priority for tests.",
@@ -109,6 +110,9 @@ run() ->
 
 	?test_debug_fmt( "This is a test of the ~w priority for tests.",
 					 [ debug ] ),
+
+	?test_void_fmt( "This is a test of the ~w priority for tests.",
+					 [ void ] ),
 
 
 	test_facilities:display(

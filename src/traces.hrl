@@ -100,8 +100,14 @@
 % Usage: '?notify_debug( "Starting!" )'
 
 
+% We moved away from the tracing_activated conditional sections the most severe
+% trace sendings (namely fatal, error and warning), as in all cases (whether or
+% not the traces are activated), we want them, and both as actual traces and as
+% console outputs.
 
--ifdef(tracing_activated).
+
+% Note: when no emitter categorization is specified, 'atom_to_list( ?MODULE )'
+% might be used as a default.
 
 
 
@@ -118,15 +124,7 @@
 % static method):
 %
 -define( notify_fatal( Message ),
-
-		 io:format( "Fatal standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( fatal, Message ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( fatal, Message )
 ).
 
 
@@ -135,16 +133,8 @@
 % static method):
 %
 -define( notify_fatal_cat( Message, EmitterCategorization ),
-
-		 io:format( "Fatal standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( fatal, Message,
-											 EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( fatal, Message,
+											 EmitterCategorization )
 ).
 
 
@@ -155,16 +145,8 @@
 %
 -define( notify_fatal_full( Message, EmitterCategorization,
 							ApplicationTimestamp ),
-
-		 io:format( "Fatal standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( fatal, Message,
-								EmitterCategorization, ApplicationTimestamp ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( fatal, Message,
+								EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -177,17 +159,8 @@
 % static method):
 %
 -define( notify_fatal_fmt( Message, FormatValues ),
-
-		 io:format( "Fatal standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( fatal,
-							  io_lib:format( Message, FormatValues ) ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( fatal,
+							  text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -196,18 +169,9 @@
 % static method):
 %
 -define( notify_fatal_fmt_cat( Message, FormatValues, EmitterCategorization ),
-
-		 io:format( "Fatal standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( fatal,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( fatal,
+							  text_utils:format( Message, FormatValues ),
+							  EmitterCategorization )
 ).
 
 
@@ -217,18 +181,9 @@
 %
 -define( notify_fatal_fmt_full( Message, FormatValues, EmitterCategorization,
 								ApplicationTimestamp ),
-
-		 io:format( "Fatal standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( fatal,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization, ApplicationTimestamp ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( fatal,
+							  text_utils:format( Message, FormatValues ),
+							  EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -248,15 +203,7 @@
 % static method):
 %
 -define( notify_error( Message ),
-
-		 io:format( "Error standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( error, Message ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( error, Message )
 ).
 
 
@@ -265,16 +212,8 @@
 % static method):
 %
 -define( notify_error_cat( Message, EmitterCategorization ),
-
-		 io:format( "Error standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( error, Message,
-											 EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( error, Message,
+												  EmitterCategorization )
 ).
 
 
@@ -284,16 +223,8 @@
 %
 -define( notify_error_full( Message, EmitterCategorization,
 							ApplicationTimestamp ),
-
-		 io:format( "Error standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( error, Message,
-							EmitterCategorization, ApplicationTimestamp ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( error, Message,
+							EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -306,17 +237,8 @@
 % static method):
 %
 -define( notify_error_fmt( Message, FormatValues ),
-
-		 io:format( "Error standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( error,
-							  io_lib:format( Message, FormatValues ) ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( error,
+							  text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -325,18 +247,9 @@
 % static method):
 %
 -define( notify_error_fmt_cat( Message, FormatValues, EmitterCategorization ),
-
-		 io:format( "Error standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( error,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( error,
+							  text_utils:format( Message, FormatValues ),
+							  EmitterCategorization )
 ).
 
 
@@ -346,18 +259,9 @@
 %
 -define( notify_error_fmt_full( Message, FormatValues, EmitterCategorization,
 								ApplicationTimestamp ),
-
-		 io:format( "Error standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( error,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization, ApplicationTimestamp ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( error,
+							  text_utils:format( Message, FormatValues ),
+							  EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -376,15 +280,7 @@
 % static method):
 %
 -define( notify_warning( Message ),
-
-		 io:format( "Warning standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( warning, Message ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( warning, Message )
 ).
 
 
@@ -393,16 +289,8 @@
 % static method):
 %
 -define( notify_warning_cat( Message, EmitterCategorization ),
-
-		 io:format( "Warning standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( warning, Message,
-											 EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( warning, Message,
+												  EmitterCategorization )
 ).
 
 
@@ -412,16 +300,8 @@
 %
 -define( notify_warning_full( Message, EmitterCategorization,
 							  ApplicationTimestamp ),
-
-		 io:format( "Warning standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( warning, Message,
-								 EmitterCategorization, ApplicationTimestamp ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( warning, Message,
+								 EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -436,17 +316,8 @@
 % static method):
 %
 -define( notify_warning_fmt( Message, FormatValues ),
-
-		 io:format( "Warning standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( warning,
-							  io_lib:format( Message, FormatValues ) ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( warning,
+							  text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -455,18 +326,9 @@
 % static method):
 %
 -define( notify_warning_fmt_cat( Message, FormatValues, EmitterCategorization ),
-
-		 io:format( "Warning standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( warning,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( warning,
+							  text_utils:format( Message, FormatValues ),
+							  EmitterCategorization )
 ).
 
 
@@ -476,20 +338,19 @@
 %
 -define( notify_warning_fmt_full( Message, FormatValues, EmitterCategorization,
 								  ApplicationTimestamp ),
-
-		 io:format( "Warning standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( warning,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization, ApplicationTimestamp ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( warning,
+							  text_utils:format( Message, FormatValues ),
+							  EmitterCategorization, ApplicationTimestamp )
 ).
 
+
+
+
+
+
+
+
+-ifdef(tracing_activated).
 
 
 
@@ -509,9 +370,7 @@
 % static method):
 %
 -define( notify_info( Message ),
-
-		 class_TraceEmitter:send_standalone( info, Message,
-											 atom_to_list( ?MODULE ) )
+		 class_TraceEmitter:send_standalone( info, Message )
 
 ).
 
@@ -521,10 +380,8 @@
 % static method):
 %
 -define( notify_info_cat( Message, EmitterCategorization ),
-
 		 class_TraceEmitter:send_standalone( info, Message,
-											 EmitterCategorization )
-
+												  EmitterCategorization )
 ).
 
 
@@ -534,10 +391,8 @@
 %
 -define( notify_info_em( Message, EmitterName, EmitterCategorization,
 						 MessageCategorization ),
-
 		 class_TraceEmitter:send_standalone( info, Message, EmitterName,
 							 EmitterCategorization, MessageCategorization )
-
 ).
 
 
@@ -547,10 +402,8 @@
 %
 -define( notify_info_full( Message, EmitterCategorization,
 						   ApplicationTimestamp ),
-
 		class_TraceEmitter:send_standalone( info, Message,
 								EmitterCategorization, ApplicationTimestamp )
-
 ).
 
 
@@ -565,10 +418,8 @@
 % static method):
 %
 -define( notify_info_fmt( Message, FormatValues ),
-
 		 class_TraceEmitter:send_standalone( info,
-							  io_lib:format( Message, FormatValues ) )
-
+							  text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -577,11 +428,9 @@
 % static method):
 %
 -define( notify_info_fmt_cat( Message, FormatValues, EmitterCategorization ),
-
 		 class_TraceEmitter:send_standalone( info,
-							  io_lib:format( Message, FormatValues ),
+							  text_utils:format( Message, FormatValues ),
 							  EmitterCategorization )
-
 ).
 
 
@@ -591,11 +440,9 @@
 %
 -define( notify_info_fmt_full( Message, FormatValues, EmitterCategorization,
 							   ApplicationTimestamp ),
-
 		 class_TraceEmitter:send_standalone( info,
-							  io_lib:format( Message, FormatValues ),
+							  text_utils:format( Message, FormatValues ),
 							  EmitterCategorization, ApplicationTimestamp )
-
 ).
 
 
@@ -615,9 +462,7 @@
 % static method):
 %
 -define( notify_trace( Message ),
-
 		class_TraceEmitter:send_standalone( trace, Message )
-
 ).
 
 
@@ -625,10 +470,8 @@
 % To send traces neither from a TraceEmitter instance nor from a test (ex: in a
 % static method):
 -define( notify_trace_cat( Message, EmitterCategorization ),
-
 		 class_TraceEmitter:send_standalone( trace, Message,
-											 EmitterCategorization )
-
+												  EmitterCategorization )
 ).
 
 
@@ -638,10 +481,8 @@
 %
 -define( notify_trace_full( Message, EmitterCategorization,
 							ApplicationTimestamp ),
-
 		 class_TraceEmitter:send_standalone( trace, Message,
 								EmitterCategorization, ApplicationTimestamp )
-
 ).
 
 
@@ -652,10 +493,8 @@
 % static method):
 %
 -define( notify_trace_fmt( Message, FormatValues ),
-
 		 class_TraceEmitter:send_standalone( trace,
-							  io_lib:format( Message, FormatValues ) )
-
+							  text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -664,11 +503,9 @@
 % static method):
 %
 -define( notify_trace_fmt_cat( Message, FormatValues, EmitterCategorization ),
-
 		 class_TraceEmitter:send_standalone( trace,
-							  io_lib:format( Message, FormatValues ),
+							  text_utils:format( Message, FormatValues ),
 							  EmitterCategorization )
-
 ).
 
 
@@ -678,11 +515,9 @@
 %
 -define( notify_trace_fmt_full( Message, FormatValues, EmitterCategorization,
 								ApplicationTimestamp ),
-
 		 class_TraceEmitter:send_standalone( trace,
-							  io_lib:format( Message, FormatValues ),
+							  text_utils:format( Message, FormatValues ),
 							  EmitterCategorization, ApplicationTimestamp )
-
 ).
 
 
@@ -702,9 +537,7 @@
 % static method):
 %
 -define( notify_debug( Message ),
-
 		 class_TraceEmitter:send_standalone( debug, Message )
-
 ).
 
 
@@ -712,10 +545,8 @@
 % To send debugs neither from a DebugEmitter instance nor from a test (ex: in a
 % static method):
 -define( notify_debug_cat( Message, EmitterCategorization ),
-
 		 class_TraceEmitter:send_standalone( debug, Message,
-											EmitterCategorization )
-
+												  EmitterCategorization )
 ).
 
 
@@ -725,10 +556,8 @@
 %
 -define( notify_debug_full( Message, EmitterCategorization,
 							ApplicationTimestamp ),
-
 		 class_TraceEmitter:send_standalone( debug, Message,
 								EmitterCategorization, ApplicationTimestamp )
-
 ).
 
 
@@ -740,10 +569,8 @@
 % static method):
 %
 -define( notify_debug_fmt( Message, FormatValues ),
-
 		 class_TraceEmitter:send_standalone( debug,
-							  io_lib:format( Message, FormatValues ) )
-
+							  text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -752,11 +579,9 @@
 % static method):
 %
 -define( notify_debug_fmt_cat( Message, FormatValues, EmitterCategorization ),
-
 		 class_TraceEmitter:send_standalone( debug,
-							  io_lib:format( Message, FormatValues ),
+							  text_utils:format( Message, FormatValues ),
 							  EmitterCategorization )
-
 ).
 
 
@@ -766,14 +591,13 @@
 %
 -define( notify_debug_fmt_full( Message, FormatValues, EmitterCategorization,
 								ApplicationTimestamp ),
-
 		 class_TraceEmitter:send_standalone( debug,
-							  io_lib:format( Message, FormatValues ),
+							  text_utils:format( Message, FormatValues ),
 							  EmitterCategorization, ApplicationTimestamp )
-
 ).
 
 
+% 'void' section muted in all cases, thus placed near the end of this file.
 
 
 
@@ -804,392 +628,6 @@
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Fatal section.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-% Subsection for Fatal, without formatting.
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_fatal( Message ),
-
-		 io:format( "Fatal standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( fatal, Message ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_fatal_cat( Message, EmitterCategorization ),
-
-		 io:format( "Fatal standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( fatal, Message,
-											 EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_fatal_full( Message, EmitterCategorization,
-							ApplicationTimestamp ),
-
-		 io:format( "Fatal standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( fatal, Message,
-								 EmitterCategorization, ApplicationTimestamp ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-
-% Subsection for Fatal, with formatting.
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_fatal_fmt( Message, FormatValues ),
-
-		 io:format( "Fatal standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( fatal,
-							  io_lib:format( Message, FormatValues ) ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_fatal_fmt_cat( Message, FormatValues, EmitterCategorization ),
-
-		 io:format( "Fatal standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( fatal,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_fatal_fmt_full( Message, FormatValues, EmitterCategorization,
-								ApplicationTimestamp ),
-
-		 io:format( "Fatal standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( fatal,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization, ApplicationTimestamp ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Error section.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-% Subsection for Error, without formatting.
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_error( Message ),
-
-		 io:format( "Error standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( error, Message ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_error_cat( Message, EmitterCategorization ),
-
-		 io:format( "Error standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( error, Message,
-											 EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_error_full( Message, EmitterCategorization,
-							ApplicationTimestamp ),
-
-		 io:format( "Error standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( error, Message,
-								EmitterCategorization, ApplicationTimestamp ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-
-% Subsection for Error, with formatting.
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_error_fmt( Message, FormatValues ),
-
-		 io:format( "Error standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( error,
-							  io_lib:format( Message, FormatValues ) ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_error_fmt_cat( Message, FormatValues, EmitterCategorization ),
-
-		 io:format( "Error standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( error,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_error_fmt_full( Message, FormatValues, EmitterCategorization,
-								ApplicationTimestamp ),
-
-		 io:format( "Error standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( error,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization, ApplicationTimestamp ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Warning section.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-% Subsection for Warning, without formatting.
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_warning( Message ),
-
-		 io:format( "Warning standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( warning, Message ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_warning_cat( Message, EmitterCategorization ),
-
-		 io:format( "Warning standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( warning, Message,
-											 EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_warning_full( Message, EmitterCategorization,
-							  ApplicationTimestamp ),
-
-		 io:format( "Warning standalone trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( warning, Message,
-								 EmitterCategorization, ApplicationTimestamp ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-
-
-% Subsection for Warning, with formatting.
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_warning_fmt( Message, FormatValues ),
-
-		 io:format( "Warning standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( warning,
-							  io_lib:format( Message, FormatValues ) ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_warning_fmt_cat( Message, FormatValues, EmitterCategorization ),
-
-		 io:format( "Warning standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( warning,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_warning_fmt_full( Message, FormatValues, EmitterCategorization,
-								  ApplicationTimestamp ),
-
-		 io:format( "Warning standalone trace message: " ++ Message ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( warning,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization, ApplicationTimestamp ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
-).
-
-
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Info section.
@@ -1197,41 +635,44 @@
 
 
 -define( notify_info( Message ),
-		 trace_disabled
+		 trace_disabled( Message )
 ).
 
 
 -define( notify_info_cat( Message, EmitterCategorization ),
-		 trace_disabled
+		 trace_disabled( Message, EmitterCategorization )
 ).
 
 
 -define( notify_info_em( Message, EmitterName, EmitterCategorization,
 						 MessageCategorization ),
-		 trace_disabled
+		 trace_disabled( Message, EmitterName, EmitterCategorization,
+						 MessageCategorization )
 ).
 
 
 -define( notify_info_full( Message, EmitterCategorization,
 						   ApplicationTimestamp ),
-		 trace_disabled
+		 trace_disabled( Message, EmitterCategorization,
+						   ApplicationTimestamp )
 ).
 
 
 
 -define( notify_info_fmt( Message, FormatValues ),
-		 trace_disabled
+		 trace_disabled( Message, FormatValues )
 ).
 
 
 -define( notify_info_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 trace_disabled
+		 trace_disabled( Message, FormatValues, EmitterCategorization )
 ).
 
 
 -define( notify_info_fmt_full( Message, FormatValues, EmitterCategorization,
 							   ApplicationTimestamp ),
-		 trace_disabled
+		 trace_disabled( Message, FormatValues, EmitterCategorization,
+						 ApplicationTimestamp )
 ).
 
 
@@ -1244,35 +685,37 @@
 
 
 -define( notify_trace( Message ),
-		 trace_disabled
+		 trace_disabled( Message )
 ).
 
 
 -define( notify_trace_cat( Message, EmitterCategorization ),
-		 trace_disabled
+		 trace_disabled( Message, EmitterCategorization )
 ).
 
 
 -define( notify_trace_full( Message, EmitterCategorization,
 							ApplicationTimestamp ),
-		 trace_disabled
+		 trace_disabled( Message, EmitterCategorization,
+						 ApplicationTimestamp )
 ).
 
 
 
 -define( notify_trace_fmt( Message, FormatValues ),
-		 trace_disabled
+		 trace_disabled( Message, FormatValues )
 ).
 
 
 -define( notify_trace_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 trace_disabled
+		 trace_disabled( Message, FormatValues, EmitterCategorization )
 ).
 
 
 -define( notify_trace_fmt_full( Message, FormatValues, EmitterCategorization,
 								ApplicationTimestamp ),
-		 trace_disabled
+		 trace_disabled( Message, FormatValues, EmitterCategorization,
+						 ApplicationTimestamp )
 ).
 
 
@@ -1284,41 +727,90 @@
 
 
 -define( notify_debug( Message ),
-		 trace_disabled
+		 trace_disabled( Message )
 ).
 
 
 -define( notify_debug_cat( Message, EmitterCategorization ),
-		 trace_disabled
+		 trace_disabled( Message, EmitterCategorization )
 ).
 
 
 -define( notify_debug_full( Message, EmitterCategorization,
 							ApplicationTimestamp ),
-		 trace_disabled
+		 trace_disabled( Message, EmitterCategorization,
+						 ApplicationTimestamp )
 ).
 
 
 
 -define( notify_debug_fmt( Message, FormatValues ),
-		 trace_disabled
+		 trace_disabled( Message, FormatValues )
 ).
 
 
 -define( notify_debug_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 trace_disabled
+		 trace_disabled( Message, FormatValues, EmitterCategorization )
 ).
 
 
 -define( notify_debug_fmt_full( Message, FormatValues, EmitterCategorization,
 								ApplicationTimestamp ),
-		 trace_disabled
+		 trace_disabled( Message, FormatValues, EmitterCategorization,
+						 ApplicationTimestamp )
 ).
 
 
 -endif. % here no tracing_activated
 
+
 % End of the tracing_activated branch.
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Void section, for traces that are muted in all cases.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+-define( notify_void( Message ),
+		 trace_disabled( Message )
+).
+
+
+-define( notify_void_cat( Message, EmitterCategorization ),
+		 trace_disabled( Message, EmitterCategorization )
+).
+
+
+-define( notify_void_full( Message, EmitterCategorization,
+						   ApplicationTimestamp ),
+		 trace_disabled( Message, EmitterCategorization,
+						 ApplicationTimestamp )
+).
+
+
+
+-define( notify_void_fmt( Message, FormatValues ),
+		 trace_disabled( Message, FormatValues )
+).
+
+
+-define( notify_void_fmt_cat( Message, FormatValues, EmitterCategorization ),
+		 trace_disabled( Message, FormatValues, EmitterCategorization )
+).
+
+
+-define( notify_void_fmt_full( Message, FormatValues, EmitterCategorization,
+							   ApplicationTimestamp ),
+		 trace_disabled( Message, FormatValues, EmitterCategorization,
+							   ApplicationTimestamp )
+).
+
+
 
 
 
@@ -1342,7 +834,7 @@
 
 		 io:format( "[info] " ++ Message ++ "~n" ),
 
-		 class_TraceEmitter:send_standalone( info, Message ),
+		 class_TraceEmitter:send_standalone_safe( info, Message ),
 
 		 % To ensure the asynchronous sending of the trace has a chance to
 		 % complete, possibly before the interpreter is crashed:
@@ -1356,16 +848,7 @@
 % static method):
 %
 -define( notify_cat( Message, EmitterCategorization ),
-
-		 io:format( "[info] " ++ Message ++ "~n" ),
-
-		 class_TraceEmitter:send_standalone( info, Message,
-											 EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( info, Message )
 ).
 
 
@@ -1376,10 +859,11 @@
 -define( notify_em( Message, EmitterName, EmitterCategorization,
 					MessageCategorization ),
 
+FIXME
 		 % EmitterCategorization ignored here:
 		 io:format( "[info] [" ++ EmitterName ++ "] " ++ Message ++ "~n" ),
 
-		 class_TraceEmitter:send_standalone( info, Message, EmitterName,
+		 class_TraceEmitter:send_standalone_safe( info, Message, EmitterName,
 							 EmitterCategorization, MessageCategorization ),
 
 		 % To ensure the asynchronous sending of the trace has a chance to
@@ -1395,16 +879,8 @@
 % static method):
 %
 -define( notify_fmt( Message, FormatValues ),
-
-		 io:format( "[info] " ++ Message ++ "~n", FormatValues ),
-
-		 class_TraceEmitter:send_standalone( info,
-							  io_lib:format( Message, FormatValues ) ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( info,
+							 text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -1413,17 +889,9 @@
 % static method):
 %
 -define( notify_fmt_cat( Message, FormatValues, EmitterCategorization ),
-
-		 io:format( "[info] " ++ Message ++ "~n", FormatValues ),
-
-		 class_TraceEmitter:send_standalone( info,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( info,
+				text_utils:format( Message, FormatValues ),
+				EmitterCategorization )
 ).
 
 
@@ -1433,17 +901,9 @@
 %
 -define( notify_fmt_full( Message, FormatValues, EmitterCategorization,
 						  ApplicationTimestamp ),
-
-		 io:format( "[info] " ++ Message ++ "~n", FormatValues ),
-
-		 class_TraceEmitter:send_standalone( info,
-							  io_lib:format( Message, FormatValues ),
-							  EmitterCategorization, ApplicationTimestamp ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( info,
+			text_utils:format( Message, FormatValues ),
+			EmitterCategorization, ApplicationTimestamp )
 ).
 
 

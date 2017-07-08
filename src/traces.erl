@@ -61,16 +61,12 @@
 -type message() :: string().
 
 
-% 6 levels of severity, from least important to most: debug, trace, info,
-% warning, error and fatal:
-%
--type message_type() ::  'debug'| 'trace' | 'info'
-					   | 'warning' | 'error' | 'fatal'.
+-type message_type() :: trace_utils:trace_severity().
 
 
 % Type of trace supervision:
 -type trace_supervision_type() :: 'log_mx_traces'
-								 | {'text_traces', 'text_only' | 'pdf' }.
+								| { 'text_traces', 'text_only' | 'pdf' }.
 
 
 -export_type([ emitter_name/0, emitter_categorization/0, app_timestamp/0,

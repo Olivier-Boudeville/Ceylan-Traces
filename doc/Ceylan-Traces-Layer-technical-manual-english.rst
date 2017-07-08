@@ -11,14 +11,14 @@ Technical Manual of the ``Traces`` Layer
 
 
 :Author: Olivier Boudeville
-:Contact: olivier.boudeville@esperide.org
+:Contact: olivier.boudeville@esperide.com
 :Creation Date: Wednesday, August 11, 2010
-:Lastly Updated on: Friday, March 24, 2017
+:Lastly Updated on: Tuesday, July 4, 2017
 
 
 
 :Status: Work in progress
-:Version: 0.0.3
+:Version: 0.0.5
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
@@ -63,6 +63,16 @@ This main purpose of the **Traces** layer is to provide adequate traces for dist
 This layer defined a trace format of its own, supported by our Java-based parser for LogMX.
 
 
+.. Note::
+  In some cases, it may be convenient to have one's debugging traces be directly output on the console.
+
+  Then, once the basic bugs are fixed (ex: the program is not crashing anymore), the full power of this ``Traces`` layer can then be best used by switching these first, basic traces to the more advanced traces presented here.
+
+  To output (basic) console traces, one may use the ``trace_utils`` module of the ``Common`` layer; ex: ``trace_utils:debug_fmt( "Hello world #~B", [ 2 ] )``.
+
+  Then switching to the mainstream, more advanced traces is just a matter of replacing, for a trace type T, ``trace_utils:T`` with ``?T``, like in: ``?debug_fmt( "Hello world #~B", [ 2 ] )`` (with no further change in the trace parameters).
+
+
 
 Trace Emission
 ==============
@@ -102,6 +112,11 @@ Trace Severity        Mapped Level
 ``error``             2
 ``fatal``             1
 ===================== ============
+
+There is also an addition trace severity, ``void``, that designates traces that shall be muted in all cases.
+
+Its purpose is to provide another means of muting/unmuting some tracesn instead of commenting out/uncommenting said traces.
+
 
 
 
@@ -190,6 +205,7 @@ The supervision solution can be switched at compile time (see the ``TraceType`` 
 
 Trace Implementation
 ====================
+
 
 General Mode of Operation
 -------------------------

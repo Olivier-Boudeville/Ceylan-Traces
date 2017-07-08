@@ -127,7 +127,16 @@ endif
 
 BEAM_DIRS += $(TRACES_BEAM)
 
-ERLANG_COMPILER_OPT += "+{nowarn_unused_function,[{trace_disabled,1},{trace_disabled,2},{trace_disabled,3},{trace_disabled,4},{trace_disabled,5},{test_trace_disabled,1},{test_trace_disabled,2} ]}" $(ENABLE_TRACE_OPT)
+
+ERLANG_COMPILER_OPT += $(ENABLE_TRACE_OPT)
+
+
+# Strangely not taken into account by the compiler, hence commented-out here and
+# replaced by a in-file -compile/1 directive (in class_TraceEmitter.hrl):
+#
+# (same for {test,app}_trace_disabled/{1,2} and al)
+#
+#ERLANG_COMPILER_OPT += "+{nowarn_unused_function,[{trace_disabled,1},{trace_disabled,2},{trace_disabled,3},{trace_disabled,4},{trace_disabled,5},{test_trace_disabled,1},{test_trace_disabled,2}]}"
 
 
 # For later reuse in the next layer of the software stack:

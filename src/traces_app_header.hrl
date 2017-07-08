@@ -36,164 +36,99 @@
 -endif. % trace_emitter_categorization
 
 
-% Allows to define exports before functions:
--ifndef(tracing_activated).
-
--export([ app_trace_disabled/1, app_trace_disabled/2 ]).
-
--endif. % tracing_activated
-
-
 
 
 % Section for trace output macros.
+
+
+% We moved away from the tracing_activated conditional sections the most severe
+% trace sendings (namely fatal, error and warning), as in all cases (whether or
+% not the traces are activated), we want them, and both as actual traces and as
+% console outputs.
+
+
+
+-define( app_fatal( Message ),
+		 class_TraceEmitter:send_standalone_safe( fatal, Message )
+).
+
+
+-define( app_fatal_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( fatal,
+					  text_utils:format( MessageFormat, FormatValues ) )
+).
+
+
+-define( app_error( Message ),
+		 class_TraceEmitter:send_standalone_safe( error, Message )
+).
+
+
+-define( app_error_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( error,
+					  text_utils:format( MessageFormat, FormatValues ) )
+).
+
+
+-define( app_warning( Message ),
+		 class_TraceEmitter:send_standalone_safe( warning, Message )
+).
+
+
+-define( app_warning_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( warning,
+					  text_utils:format( MessageFormat, FormatValues ) )
+).
+
+
+
 
 
 -ifdef(tracing_activated).
 
 
 
--define( app_fatal( Message ),
-
-		 io:format( "Fatal application trace message: ~s.~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( fatal, Message,
-											 ?trace_emitter_categorization ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
--define( app_fatal_fmt( MessageFormat, FormatValues ),
-
-		 io:format( "Fatal trace message: " ++ MessageFormat ++ ".~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( fatal,
-						io_lib:format( MessageFormat, FormatValues ),
-						?trace_emitter_categorization ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
--define( app_error( Message ),
-
-		 io:format( "Error application trace message: ~s.~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( error, Message,
-											 ?trace_emitter_categorization ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
--define( app_error_fmt( MessageFormat, FormatValues ),
-
-		 io:format( "Error application trace message: " ++ MessageFormat
-					++ ".~n", FormatValues ),
-
-		 class_TraceEmitter:send_standalone( error,
-						io_lib:format( MessageFormat, FormatValues ),
-						?trace_emitter_categorization ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
--define( app_warning( Message ),
-
-		 io:format( "Warning application trace message: ~s.~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( warning, Message,
-											 ?trace_emitter_categorization ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
--define( app_warning_fmt( MessageFormat, FormatValues ),
-
-		 io:format( "Warning application trace message: " ++ MessageFormat
-					++ ".~n", FormatValues ),
-
-		 class_TraceEmitter:send_standalone( warning,
-						io_lib:format( MessageFormat, FormatValues ),
-						?trace_emitter_categorization ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
 -define( app_info( Message ),
-
-		class_TraceEmitter:send_standalone( info, Message,
-											?trace_emitter_categorization )
+		 class_TraceEmitter:send_standalone_safe( info, Message )
 
 ).
 
 
 -define( app_info_fmt( MessageFormat, FormatValues ),
-
-		 class_TraceEmitter:send_standalone( info,
-						io_lib:format( MessageFormat, FormatValues ),
-						?trace_emitter_categorization )
-
+		 class_TraceEmitter:send_standalone_safe( info,
+					  text_utils:format( MessageFormat, FormatValues ) )
 ).
 
 
 
 -define( app_trace( Message ),
-
-		 class_TraceEmitter:send_standalone( trace, Message,
-											 ?trace_emitter_categorization )
+		 class_TraceEmitter:send_standalone_safe( trace, Message )
 
 ).
 
 
 -define( app_trace_fmt( MessageFormat, FormatValues ),
-
-		 class_TraceEmitter:send_standalone( trace,
-						io_lib:format( MessageFormat, FormatValues ),
-						?trace_emitter_categorization )
+		 class_TraceEmitter:send_standalone_safe( trace,
+					  text_utils:format( MessageFormat, FormatValues ) )
 
 ).
 
 
 
 -define( app_debug( Message ),
-
-		 class_TraceEmitter:send_standalone( debug, Message,
-											 ?trace_emitter_categorization )
-
+		 class_TraceEmitter:send_standalone_safe( debug, Message )
 ).
 
 
 -define( app_debug_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( debug,
+					  text_utils:format( MessageFormat, FormatValues ) )
 
-		 class_TraceEmitter:send_standalone( debug,
-						io_lib:format( MessageFormat, FormatValues ),
-						?trace_emitter_categorization )
 
 ).
+
+
+% 'void' section put near the end of this file.
 
 
 
@@ -206,119 +141,39 @@
 
 
 
-% Message is returned, as otherwise some variables in calling code could be
-% determined as unused, and thus would trigger a warning:
-
-
-
--define( app_fatal( Message ),
-
-		 io:format( "Fatal application trace message: ~s.~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( fatal, Message,
-											 ?trace_emitter_categorization ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
--define( app_error( Message ),
-
-		 io:format( "Error application trace message: ~s.~n", [ Message ] ),
-
-		 class_TraceEmitter:send_standalone( error, Message,
-											 ?trace_emitter_categorization ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
--define( app_warning( Message ),
-
-		 io:format( "Warning application trace message: " ++ Message ++ ".~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_standalone( warning, Message,
-											 ?trace_emitter_categorization ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
 
 
 -define( app_info( Message ), app_trace_disabled( Message ) ).
-
-
--define( app_trace( Message ), app_trace_disabled( Message ) ).
-
-
--define( app_debug( Message ), app_trace_disabled( Message ) ).
-
-
-
-
--define( app_fatal_fmt( MessageFormat, FormatValues ),
-
-		 io:format( "Fatal application trace message: " ++ MessageFormat
-					++ ".~n", FormatValues ),
-
-		 class_TraceEmitter:send_standalone( fatal,
-						io_lib:format( MessageFormat, FormatValues ),
-						?trace_emitter_categorization ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
--define( app_error_fmt( MessageFormat, FormatValues ),
-
-		 io:format( "Error application trace message: " ++ MessageFormat
-					++ ".~n", FormatValues ),
-
-		 class_TraceEmitter:send_standalone( error,
-						io_lib:format( MessageFormat, FormatValues ),
-						?trace_emitter_categorization ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-)).
-
-
--define( app_warning_fmt( MessageFormat, FormatValues ),
-
-		 io:format( "Warning application trace message: " ++ MessageFormat
-					++ ".~n", FormatValues ),
-
-		 class_TraceEmitter:send_standalone( warning,
-						io_lib:format( MessageFormat, FormatValues ),
-						?trace_emitter_categorization ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
 
 
 -define( app_info_fmt( Message, FormatValues ),
 		 app_trace_disabled( Message, FormatValues ) ).
 
 
+
+-define( app_trace( Message ), app_trace_disabled( Message ) ).
+
+
 -define( app_trace_fmt( Message, FormatValues ),
 		 app_trace_disabled( Message, FormatValues ) ).
+
+
+
+-define( app_debug( Message ), app_trace_disabled( Message ) ).
 
 
 -define( app_debug_fmt( Message, FormatValues ),
 		 app_trace_disabled( Message, FormatValues ) ).
 
 
+
 -endif. % tracing_activated
+
+
+
+% Void traces muted in all cases:
+
+-define( app_void( Message ), app_trace_disabled( Message ) ).
+
+-define( app_void_fmt( Message, FormatValues ),
+		 app_trace_disabled( Message, FormatValues ) ).

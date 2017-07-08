@@ -27,7 +27,7 @@
 
 
 
-% Defines all the functions useful for trace-using applications.
+% Defines all the macros and exports useful for trace-using applications.
 %
 % Allows to define exports before functions: macros and functions have been
 % split so that overall header files can be defined which start with all macros
@@ -35,23 +35,24 @@
 
 
 
-% Defines functions as late as possible:
+% Define functions as late as possible.
+%
+% app_trace_disabled/{1,2} must be defined whether or not traces are enabled
+% (as void traces use them in all cases), but then they might be reported as
+% unused (depending on the user code).
+%
+% Hence this report is silenced here in all cases:
 
--ifndef(tracing_activated).
+
+-compile( [ { nowarn_unused_function, [ { app_trace_disabled, 1 },
+										{ app_trace_disabled, 2 } ] } ] ).
 
 
-
-% Allows to avoid warnings about variables not be used when traces are disabled:
--spec app_trace_disabled( any() ) -> 'app_trace_disabled'.
+-spec app_trace_disabled( any() ) -> basic_utils:void().
 app_trace_disabled( _ ) ->
-	app_trace_disabled.
+	ok.
 
 
-
--spec app_trace_disabled( any(), any() ) -> 'app_trace_disabled'.
+-spec app_trace_disabled( any(), any() ) -> basic_utils:void().
 app_trace_disabled( _, _ ) ->
-	app_trace_disabled.
-
-
-
--endif. % tracing_activated
+	ok.

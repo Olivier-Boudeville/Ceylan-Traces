@@ -56,7 +56,8 @@
 % Member method declarations.
 -define( wooper_method_export, sendTraces/1, sendAsyncTraces/1 ).
 
--export([ send_traces/1, send_traces_benchmark/1 ]).
+-export([ send_traces/1, send_fatal_trace/1, send_debug_trace/1,
+		  send_traces_benchmark/1 ]).
 
 
 % Used by the trace_categorize/1 macro to use the right emitter:
@@ -96,6 +97,7 @@ construct( State, TraceEmitterName ) ->
 	?send_info(    TraceState, "Hello info world!"    ),
 	?send_trace(   TraceState, "Hello trace world!"   ),
 	?send_debug(   TraceState, "Hello debug world!"   ),
+	?send_void(    TraceState, "Hello void world!"    ),
 
 	TraceState.
 
@@ -116,6 +118,7 @@ destruct( State ) ->
 	?info(    "Goodbye info world!"    ),
 	?trace(   "Goodbye trace world!"   ),
 	?debug(   "Goodbye debug world!"   ),
+	?void(    "Goodbye void world!"   ),
 
 	io:format( "~s Test trace emitter ~s deleted.~n",
 			   [ ?LogPrefix, ?getAttr(name) ] ),
@@ -173,6 +176,7 @@ send_traces( State ) ->
 	?info(    "Still livin' in a info world! (plain)"    ),
 	?trace(   "Still livin' in a trace world! (plain)"   ),
 	?debug(   "Still livin' in a debug world! (plain)"   ),
+	?void(    "Still livin' in a void world! (plain)"   ),
 
 
 
@@ -187,6 +191,8 @@ send_traces( State ) ->
 	?trace_cat(   "Still livin' in a trace world! (cat)", ?application_start ),
 
 	?debug_cat(   "Still livin' in a debug world! (cat)", ?application_start ),
+
+	?void_cat(   "Still livin' in a void world! (cat)", ?application_start ),
 
 
 
@@ -208,6 +214,9 @@ send_traces( State ) ->
 	?debug_full(   "Still livin' in a debug world! (full)",
 				   ?application_start, 10 ),
 
+	?void_full(   "Still livin' in a void world! (full)",
+				   ?application_start, 11 ),
+
 
 
 	% With formatting:
@@ -218,6 +227,7 @@ send_traces( State ) ->
 	?info_fmt(    "Yes, still livin' in a ~w world! (plain)", [info]    ),
 	?trace_fmt(   "Yes, still livin' in a ~w world! (plain)", [trace]   ),
 	?debug_fmt(   "Yes, still livin' in a ~w world! (plain)", [debug]   ),
+	?void_fmt(    "Yes, still livin' in a ~w world! (plain)", [void]   ),
 
 
 	?fatal_fmt_cat(    "Ouh-ouh-ouuuuuh ~w", [fatal],   ?application_start ),
@@ -226,6 +236,7 @@ send_traces( State ) ->
 	?info_fmt_cat(     "Ouh-ouh-ouuuuuh ~w", [info],    ?execution         ),
 	?trace_fmt_cat(    "Ouh-ouh-ouuuuuh ~w", [trace],   ?application_start ),
 	?debug_fmt_cat(    "Ouh-ouh-ouuuuuh ~w", [debug],   ?application_start ),
+	?void_fmt_cat(     "Ouh-ouh-ouuuuuh ~w", [void],    ?application_start ),
 
 
 	?fatal_fmt_full(   "Oh yeah ~w", [fatal],   ?application_start,  5 ),
@@ -233,7 +244,36 @@ send_traces( State ) ->
 	?warning_fmt_full( "Oh yeah ~w", [warning], ?time,               7 ),
 	?info_fmt_full(    "Oh yeah ~w", [info],    ?execution,          8 ),
 	?trace_fmt_full(   "Oh yeah ~w", [trace],   ?application_start,  9 ),
-	?debug_fmt_full(   "Oh yeah ~w", [debug],   ?application_start, 10 ).
+	?debug_fmt_full(   "Oh yeah ~w", [debug],   ?application_start, 10 ),
+	?void_fmt_full(    "Oh yeah ~w", [void],    ?application_start, 11 ).
+
+
+
+% To test compilation problems when only one non-maskable trace is used (ex:
+% variable unused, or term constructed whereas not used either).
+%
+-spec send_fatal_trace( wooper:state() ) -> basic_utils:void().
+send_fatal_trace( State ) ->
+
+	Message = "Unique ~w trace!",
+	Format = [ fatal ],
+	Categ = ?application_start,
+
+	?fatal_fmt_cat( Message, Format, Categ ).
+
+
+
+% To test compilation problems when only one maskable trace is used (ex:
+% variable unused, or term constructed whereas not used either).
+%
+-spec send_debug_trace( wooper:state() ) -> basic_utils:void().
+send_debug_trace( State ) ->
+
+	Message = "Unique ~w trace!",
+	Format = [ debug ],
+	Categ = ?application_start,
+
+	?debug_fmt_cat( Message, Format, Categ ).
 
 
 
@@ -256,32 +296,37 @@ send_traces_benchmark( State ) ->
 	?info(    "Still livin' in a info world! (plain)"    ),
 	?trace(   "Still livin' in a trace world! (plain)"   ),
 	?debug(   "Still livin' in a debug world! (plain)"   ),
+	?void(    "Still livin' in a void world! (plain)"   ),
 
 
-	?warning_cat( "Still livin' in a fatal world! (cat)",
-				  ?application_start ),
+	?fatal_cat( "Still livin' in a fatal world! (cat)",
+				?application_start ),
 
-	?warning_cat( "Still livin' in a error world! (cat)",
-				  ?application_save ),
+	?error_cat( "Still livin' in a error world! (cat)",
+				?application_save ),
 
 	?warning_cat( "Still livin' in a warning world! (cat)",
 				  ?time ),
 
-	?info_cat(    "Still livin' in a info world! (cat)",
-				  ?execution ),
+	?info_cat( "Still livin' in a info world! (cat)",
+			   ?execution ),
 
-	?trace_cat(   "Still livin' in a trace world! (cat)",
-				  ?application_start ),
+	?trace_cat( "Still livin' in a trace world! (cat)",
+				?application_start ),
 
-	?debug_cat(   "Still livin' in a debug world! (cat)",
-				  ?application_start ),
+	?debug_cat( "Still livin' in a debug world! (cat)",
+				?application_start ),
+
+	?void_cat( "Still livin' in a void world! (cat)",
+			   ?application_start ),
 
 
-	?warning_full( "Still livin' in a fatal world! (full)",
-				   ?application_start, 5 ),
 
-	?warning_full( "Still livin' in a error world! (full)",
-				   ?application_save, 6 ),
+	?fatal_full( "Still livin' in a fatal world! (full)",
+				 ?application_start, 5 ),
+
+	?error_full( "Still livin' in a error world! (full)",
+				 ?application_save, 6 ),
 
 	?warning_full( "Still livin' in a warning world! (full)",
 				   ?time, 7 ),
@@ -289,39 +334,45 @@ send_traces_benchmark( State ) ->
 	% Useful also to test non-integer timestamps (works correctly with the trace
 	% supervisors as they are):
 	%
-	?info_full(    "Still livin' in a info world! (full)",
-				   ?execution, {8,2} ),
+	?info_full( "Still livin' in a info world! (full)",
+				?execution, {8,2} ),
 
-	?trace_full(   "Still livin' in a trace world! (full)",
-				   ?application_start, 9 ),
+	?trace_full( "Still livin' in a trace world! (full)",
+				 ?application_start, 9 ),
 
-	?debug_full(   "Still livin' in a debug world! (full)",
-				   ?application_start, 10 ),
+	?debug_full( "Still livin' in a debug world! (full)",
+				 ?application_start, 10 ),
+
+	?void_full( "Still livin' in a void world! (full)",
+				?application_start, 11 ),
 
 
 
 	% With formatting:
 
-	?warning_fmt( "Yes, still livin' in a ~w world! (plain)", [fatal]   ),
-	?warning_fmt( "Yes, still livin' in a ~w world! (plain)", [error]   ),
+	?fatal_fmt(   "Yes, still livin' in a ~w world! (plain)", [fatal]   ),
+	?error_fmt(   "Yes, still livin' in a ~w world! (plain)", [error]   ),
 	?warning_fmt( "Yes, still livin' in a ~w world! (plain)", [warning] ),
 	?info_fmt(    "Yes, still livin' in a ~w world! (plain)", [info]    ),
 	?trace_fmt(   "Yes, still livin' in a ~w world! (plain)", [trace]   ),
 	?debug_fmt(   "Yes, still livin' in a ~w world! (plain)", [debug]   ),
+	?void_fmt(    "Yes, still livin' in a ~w world! (plain)", [void]    ),
 
 
 
-	?warning_fmt_cat( "Ouh-ouh-ouuuuuh ~w", [fatal],   ?application_start ),
-	?warning_fmt_cat( "Ouh-ouh-ouuuuuh ~w", [error],   ?application_save  ),
+	?fatal_fmt_cat(   "Ouh-ouh-ouuuuuh ~w", [fatal],   ?application_start ),
+	?error_fmt_cat(   "Ouh-ouh-ouuuuuh ~w", [error],   ?application_save  ),
 	?warning_fmt_cat( "Ouh-ouh-ouuuuuh ~w", [warning], ?time              ),
 	?info_fmt_cat(    "Ouh-ouh-ouuuuuh ~w", [info],    ?execution         ),
 	?trace_fmt_cat(   "Ouh-ouh-ouuuuuh ~w", [trace],   ?application_start ),
 	?debug_fmt_cat(   "Ouh-ouh-ouuuuuh ~w", [debug],   ?application_start ),
+	?void_fmt_cat(    "Ouh-ouh-ouuuuuh ~w", [void],    ?application_start ),
 
 
-	?warning_fmt_full( "Oh yeah ~w", [fatal],   ?application_start,  5 ),
-	?warning_fmt_full( "Oh yeah ~w", [error],   ?application_save,   6 ),
+	?fatal_fmt_full(   "Oh yeah ~w", [fatal],   ?application_start,  5 ),
+	?error_fmt_full(   "Oh yeah ~w", [error],   ?application_save,   6 ),
 	?warning_fmt_full( "Oh yeah ~w", [warning], ?time,               7 ),
 	?info_fmt_full(    "Oh yeah ~w", [info],    ?execution,          8 ),
 	?trace_fmt_full(   "Oh yeah ~w", [trace],   ?application_start,  9 ),
-	?debug_fmt_full(   "Oh yeah ~w", [debug],   ?application_start, 10 ).
+	?debug_fmt_full(   "Oh yeah ~w", [debug],   ?application_start, 10 ),
+	?void_fmt_full(    "Oh yeah ~w", [void],    ?application_start, 11 ).

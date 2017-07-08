@@ -37,152 +37,98 @@
 
 
 
-% Allows to define exports before functions:
--ifndef(tracing_activated).
-
--export([ test_trace_disabled/1, test_trace_disabled/2 ]).
-
--endif. % tracing_activated
-
-
-
 
 % Section for trace output macros.
+
+
+% We moved away from the tracing_activated conditional sections the most severe
+% trace sendings (namely fatal, error and warning), as in all cases (whether or
+% not the traces are activated), we want them, and both as actual traces and as
+% console outputs.
+
+
+
+-define( test_fatal( Message ),
+		 class_TraceEmitter:send_standalone_safe( fatal, Message )
+).
+
+
+-define( test_fatal_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( fatal,
+					  text_utils:format( MessageFormat, FormatValues ) )
+).
+
+
+-define( test_error( Message ),
+		 class_TraceEmitter:send_standalone_safe( error, Message )
+).
+
+
+-define( test_error_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( error,
+					  text_utils:format( MessageFormat, FormatValues ) )
+).
+
+
+-define( test_warning( Message ),
+		 class_TraceEmitter:send_standalone_safe( warning, Message )
+).
+
+
+-define( test_warning_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( warning,
+					  text_utils:format( MessageFormat, FormatValues ) )
+).
+
+
+
 
 
 -ifdef(tracing_activated).
 
 
 
--define( test_fatal( Message ),
-
-		 io:format( "Fatal test trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_from_test( fatal, Message ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
--define( test_fatal_fmt( MessageFormat, FormatValues ),
-
-		 io:format( "Fatal trace message: " ++ MessageFormat ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_from_test( fatal,
-						 io_lib:format( MessageFormat, FormatValues ) ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
--define( test_error( Message ),
-
-		 io:format( "Error test trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_from_test( error, Message ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
--define( test_error_fmt( MessageFormat, FormatValues ),
-
-		 io:format( "Error test trace message: " ++ MessageFormat ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_from_test( error,
-						io_lib:format( MessageFormat, FormatValues ) ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
--define( test_warning( Message ),
-
-		 io:format( "Warning test trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_from_test( warning, Message ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
--define( test_warning_fmt( MessageFormat, FormatValues ),
-
-		 io:format( "Warning test trace message: " ++ MessageFormat ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_from_test( warning,
-						io_lib:format( MessageFormat, FormatValues ) ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
 -define( test_info( Message ),
-
-		 class_TraceEmitter:send_from_test( info, Message )
+		 class_TraceEmitter:send_standalone_safe( info, Message )
 
 ).
 
 
 -define( test_info_fmt( MessageFormat, FormatValues ),
-
-		 class_TraceEmitter:send_from_test( info,
-						io_lib:format( MessageFormat, FormatValues ) )
-
+		 class_TraceEmitter:send_standalone_safe( info,
+					  text_utils:format( MessageFormat, FormatValues ) )
 ).
 
 
 
 -define( test_trace( Message ),
-
-		 class_TraceEmitter:send_from_test( trace, Message )
+		 class_TraceEmitter:send_standalone_safe( trace, Message )
 
 ).
 
 
 -define( test_trace_fmt( MessageFormat, FormatValues ),
-
-		 class_TraceEmitter:send_from_test( trace,
-						io_lib:format( MessageFormat, FormatValues ) )
+		 class_TraceEmitter:send_standalone_safe( trace,
+					  text_utils:format( MessageFormat, FormatValues ) )
 
 ).
 
 
 
 -define( test_debug( Message ),
-
-		 class_TraceEmitter:send_from_test( debug, Message )
-
+		 class_TraceEmitter:send_standalone_safe( debug, Message )
 ).
 
 
 -define( test_debug_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( debug,
+					  text_utils:format( MessageFormat, FormatValues ) )
 
-		 class_TraceEmitter:send_from_test( debug,
-						 io_lib:format( MessageFormat, FormatValues ) )
 
 ).
+
+
+% 'void' section put near the end of this file.
 
 
 
@@ -195,112 +141,39 @@
 
 
 
-% Message is returned, as otherwise some variables in calling code could be
-% determined as unused, and thus would trigger a warning:
-
-
-
--define( test_fatal( Message ),
-
-		 io:format( "Fatal test trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_from_test( fatal, Message ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
-
--define( test_error( Message ),
-
-		 io:format( "Error test trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_from_test( error, Message ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
--define( test_warning( Message ),
-
-		 io:format( "Warning test trace message: ~s~n", [ Message ] ),
-
-		 class_TraceEmitter:send_from_test( warning, Message ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
 
 
 -define( test_info( Message ), test_trace_disabled( Message ) ).
-
-
--define( test_trace( Message ), test_trace_disabled( Message ) ).
-
-
--define( test_debug( Message ), test_trace_disabled( Message ) ).
-
-
-
-
--define( test_fatal_fmt( MessageFormat, FormatValues ),
-
-		io:format( "Fatal test trace message: " ++ MessageFormat ++ "~n",
-				  FormatValues ),
-
-		class_TraceEmitter:send_from_test( fatal,
-						io_lib:format( MessageFormat, FormatValues ) ),
-
-		% To ensure the asynchronous output of the trace has a chance to
-		% complete, possibly before the interpreter is crashed:
-		system_utils:await_output_completion()
-).
-
-
-
--define( test_error_fmt( MessageFormat, FormatValues ),
-
-		 io:format( "Error test trace message: " ++ MessageFormat ++ "~n",
-					FormatValues ),
-
-		 class_TraceEmitter:send_from_test( error,
-						io_lib:format( MessageFormat, FormatValues ) ),
-
-		 % To ensure the asynchronous output of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-).
-
-
--define( test_warning_fmt( MessageFormat, FormatValues ),
-
-		io:format( "Warning test trace message: " ++ MessageFormat ++ "~n",
-				   FormatValues ),
-
-		class_TraceEmitter:send_from_test( warning,
-						io_lib:format( MessageFormat, FormatValues ) ),
-
-		% To ensure the asynchronous output of the trace has a chance to
-		% complete, possibly before the interpreter is crashed:
-		system_utils:await_output_completion()
-).
 
 
 -define( test_info_fmt( Message, FormatValues ),
 		 test_trace_disabled( Message, FormatValues ) ).
 
 
+
+-define( test_trace( Message ), test_trace_disabled( Message ) ).
+
+
 -define( test_trace_fmt( Message, FormatValues ),
 		 test_trace_disabled( Message, FormatValues ) ).
+
+
+
+-define( test_debug( Message ), test_trace_disabled( Message ) ).
 
 
 -define( test_debug_fmt( Message, FormatValues ),
 		 test_trace_disabled( Message, FormatValues ) ).
 
 
+
 -endif. % tracing_activated
+
+
+
+% Void traces muted in all cases:
+
+-define( test_void( Message ), test_trace_disabled( Message ) ).
+
+-define( test_void_fmt( Message, FormatValues ),
+		 test_trace_disabled( Message, FormatValues ) ).

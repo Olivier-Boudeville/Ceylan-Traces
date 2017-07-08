@@ -104,6 +104,7 @@ run() ->
 	?test_info(    "This is a test of the info priority for tests." ),
 	?test_trace(   "This is a test of the trace priority for tests." ),
 	?test_debug(   "This is a test of the debug priority for tests." ),
+	?test_void(    "This is a test of the void priority for tests." ),
 
 	test_facilities:display(
 		"Requesting the TestTraceEmitter to send some traces." ),

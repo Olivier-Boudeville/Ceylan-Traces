@@ -75,6 +75,8 @@
 		 send_from_test/2, send_from_test/3,
 		 send_from_case/2, send_from_case/3,
 		 send_standalone/2, send_standalone/3, send_standalone/5,
+		 send_standalone_safe/2, send_standalone_safe/3,
+		 send_standalone_safe/4, send_standalone_safe/5,
 		 get_emitter_node_as_binary/0,
 		 get_priority_for/1, get_channel_name_for_priority/1 ).
 
@@ -82,7 +84,9 @@
 
 % Helper functions:
 %
--export([ init/1, set_categorization/2, send/3, send/4, send/5,
+-export([ init/1, set_categorization/2,
+		  send/3, send_safe/3, send/4, send_safe/4, send/5, send_safe/5,
+		  send_synchronised/5,
 		  get_trace_timestamp/1, get_trace_timestamp_as_binary/1,
 		  get_plain_name/1, sync/1, await_output_completion/0 ]).
 
@@ -174,6 +178,14 @@
 %
 % However a completly clean separation would involve much duplication, efforts
 % and overhead.
+
+
+% The send_safe/{3,4,5} variations differ from their basic send/{3,4,5}
+% counterparts on two aspects:
+%
+% - they are synchronous (blocking, hence safer)
+% - they are echoed on the console as well
+
 
 
 % Attributes of a trace emitter are:
@@ -375,8 +387,8 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 
 		undefined ->
 
-			error_logger:info_msg( "class_TraceEmitter:send_from_test/3: "
-								   "trace aggregator not found." ),
+			trace_utils:error( "class_TraceEmitter:send_from_test/3: "
+							   "trace aggregator not found." ),
 
 			throw( trace_aggregator_not_found );
 
@@ -442,8 +454,8 @@ send_from_case( TraceType, Message, EmitterCategorization ) ->
 
 		undefined ->
 
-			error_logger:info_msg( "class_TraceEmitter:send_from_case: "
-								   "trace aggregator not found." ),
+			trace_utils:error( "class_TraceEmitter:send_from_case: "
+							   "trace aggregator not found." ),
 
 			throw( trace_aggregator_not_found );
 
@@ -507,8 +519,8 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 
 		undefined ->
 
-			error_logger:info_msg( "class_TraceEmitter:send_standalone/3: "
-								   "trace aggregator not found." ),
+			trace_utils:error( "class_TraceEmitter:send_standalone/3: "
+							   "trace aggregator not found." ),
 
 			throw( trace_aggregator_not_found );
 
@@ -520,12 +532,10 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 			% No State available here:
 			EmitterNode = get_emitter_node_as_binary(),
 
-			% Visual noise:
-			%PidName = "(anonymous)",
+			PidName = get_emitter_name_from_pid(),
 
-			% Not wanting dots in PID here (otherwise this would be interpreted
-			% as sub-categories in the traces:
-			PidName = text_utils:substitute( $., $-, pid_to_list( self() ) ),
+			MessageCategorization =
+				get_default_standalone_message_categorization(),
 
 			AggregatorPid ! { send,
 				[
@@ -537,7 +547,7 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 				 _Time=TimestampText,
 				 _Location=EmitterNode,
 				 _MessageCategorization=
-					 text_utils:string_to_binary( "Standalone" ),
+					 text_utils:string_to_binary( MessageCategorization ),
 				 _Priority=get_priority_for( TraceType ),
 				 _Message=text_utils:string_to_binary( Message )
 				] }
@@ -562,12 +572,14 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 	% Follows the order of our trace format; oneway call:
 	case global:whereis_name( ?trace_aggregator_name ) of
 
+
 		undefined ->
 
-			error_logger:info_msg( "class_TraceEmitter:send_standalone/5: "
-								   "trace aggregator not found." ),
+			trace_utils:error( "class_TraceEmitter:send_standalone/5: "
+							   "trace aggregator not found." ),
 
 			throw( trace_aggregator_not_found );
+
 
 		AggregatorPid ->
 
@@ -592,6 +604,151 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 				 _Message=text_utils:string_to_binary( Message )
 				] }
 
+	end.
+
+
+
+% Sends all types of traces without requiring a class_TraceEmitter state, in a
+% safe manner (synchronous and echoed on the console).
+%
+% Uses default trace aggregator, supposed to be already available and
+% registered.
+%
+% (static)
+%
+-spec send_standalone_safe( traces:message_type(), traces:message() ) ->
+							 basic_utils:void().
+send_standalone_safe( TraceType, Message ) ->
+
+	EmitterCategorization = ?trace_emitter_categorization,
+
+	ApplicationTimestamp = time_utils:get_textual_timestamp(),
+
+	send_standalone_safe( TraceType, Message, EmitterCategorization,
+						  ApplicationTimestamp ).
+
+
+
+% Sends all types of traces without requiring a class_TraceEmitter state, in a
+% safe manner (synchronous and echoed on the console).
+%
+% Uses default trace aggregator, supposed to be already available and
+% registered.
+%
+% (static)
+%
+-spec send_standalone_safe( traces:message_type(), traces:message(),
+		  traces:emitter_categorization() ) -> basic_utils:void().
+send_standalone_safe( TraceType, Message, EmitterCategorization ) ->
+
+	ApplicationTimestamp = time_utils:get_textual_timestamp(),
+
+	send_standalone_safe( TraceType, Message, EmitterCategorization,
+						  ApplicationTimestamp ).
+
+
+
+% Sends all types of traces without requiring a class_TraceEmitter state, in a
+% safe manner (synchronous and echoed on the console).
+%
+% Uses default trace aggregator, supposed to be already available and
+% registered.
+%
+% (static)
+%
+-spec send_standalone_safe( traces:message_type(), traces:message(),
+				 traces:emitter_categorization(), traces:app_timestamp() ) ->
+							 basic_utils:void().
+send_standalone_safe( TraceType, Message, EmitterCategorization,
+					  ApplicationTimestamp ) ->
+
+	EmitterName = get_emitter_name_from_pid(),
+
+	MessageCategorization = get_default_standalone_message_categorization(),
+
+	send_standalone_safe( TraceType, Message, EmitterName,
+		  EmitterCategorization, MessageCategorization, ApplicationTimestamp ).
+
+
+
+% Sends all types of traces without requiring a class_TraceEmitter state, in a
+% safe manner (synchronous and echoed on the console).
+%
+% Uses default trace aggregator, supposed to be already available and
+% registered.
+%
+% (static)
+%
+-spec send_standalone_safe( traces:message_type(), traces:message(),
+					   traces:emitter_name(), traces:emitter_categorization(),
+					   traces:message_categorization() ) -> basic_utils:void().
+send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
+					  MessageCategorization ) ->
+
+	ApplicationTimestamp = time_utils:get_textual_timestamp(),
+
+	send_standalone_safe( TraceType, Message, EmitterName,
+		 EmitterCategorization, MessageCategorization, ApplicationTimestamp ).
+
+
+
+
+% Sends all types of traces without requiring a class_TraceEmitter state, in a
+% safe manner (synchronous and echoed on the console).
+%
+% Uses default trace aggregator, supposed to be already available and
+% registered.
+%
+% (static)
+%
+-spec send_standalone_safe( traces:message_type(), traces:message(),
+			   traces:emitter_name(), traces:emitter_categorization(),
+			   traces:message_categorization(), traces:app_timestamp() ) ->
+							 basic_utils:void().
+send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
+					  MessageCategorization, ApplicationTimestamp ) ->
+
+	% Follows the order of our trace format; request call:
+	case global:whereis_name( ?trace_aggregator_name ) of
+
+		undefined ->
+
+			trace_utils:error( "class_TraceEmitter:send_standalone_safe/6: "
+							   "trace aggregator not found." ),
+
+			throw( trace_aggregator_not_found );
+
+		AggregatorPid ->
+
+			TimestampText = text_utils:string_to_binary(
+							  ApplicationTimestamp ),
+
+			% No State available here:
+			EmitterNode = get_emitter_node_as_binary(),
+
+			MessageCategorization =
+				get_default_standalone_message_categorization(),
+
+
+			AggregatorPid ! { sendSync,
+				[
+				 _TraceEmitterPid=self(),
+				 _TraceEmitterName=text_utils:string_to_binary( EmitterName ),
+				 _TraceEmitterCategorization=
+					 text_utils:string_to_binary( EmitterCategorization ),
+				 _AppTimestamp=none,
+				 _Time=TimestampText,
+				 _Location=EmitterNode,
+				 _MessageCategorization=
+					 text_utils:string_to_binary( MessageCategorization ),
+				 _Priority=get_priority_for( TraceType ),
+				 _Message=text_utils:string_to_binary( Message )
+				], self() },
+
+			trace_utils:echo( Message, TraceType, MessageCategorization,
+							  ApplicationTimestamp ),
+
+			wait_aggregator_sync()
 
 	end.
 
@@ -643,6 +800,8 @@ get_priority_for( trace ) ->
 get_priority_for( debug ) ->
 	6.
 
+% 'void' not expected here.
+
 
 
 % Returns the name of the trace channel corresponding to the trace priority.
@@ -671,12 +830,39 @@ get_channel_name_for_priority( 5 ) ->
 get_channel_name_for_priority( 6 ) ->
 	debug.
 
+% 'void' not expected here.
 
 
 
 
 
 % Section for helper functions.
+
+
+% Returns a default emitter name, deduced from the PID of the corresponding
+% process.
+%
+% (helper)
+%
+-spec get_emitter_name_from_pid() -> emitter_name().
+get_emitter_name_from_pid() ->
+
+	% Not wanting dots in PID here (otherwise this would be interpreted as
+	% sub-categories in the traces):
+	%
+	text_utils:substitute( $., $-, pid_to_list( self() ) ).
+
+
+
+% Returns the default message categorization.
+%
+% (helper)
+
+-spec get_default_standalone_message_categorization() ->
+								 emitter_categorization().
+get_default_standalone_message_categorization() ->
+	"Standalone".
+
 
 
 % Initializes some context-specific information.
@@ -736,6 +922,24 @@ send( TraceType, State, Message ) ->
 
 
 
+% Sends a trace from that emitter, echoing it through basic traces as well.
+%
+% Message is a plain string.
+%
+% All information are available here, except the trace timestamp and the message
+% categorization.
+%
+% (helper)
+%
+-spec send_safe( traces:message_type(), wooper:state(),
+					  traces:message() ) -> basic_utils:void().
+send_safe( TraceType, State, Message ) ->
+	send_safe( TraceType, State, Message,
+			   _MessageCategorization=uncategorized ).
+
+
+
+
 % Message is a plain string, MessageCategorization as well unless it is the
 % 'uncategorized' atom.
 
@@ -750,8 +954,25 @@ send( TraceType, State, Message, MessageCategorization ) ->
 		  get_trace_timestamp( State ) ).
 
 
+% All informations available but the timestamp, determining its availability:
+%
+% (helper)
+%
+-spec send_safe( traces:message_type(), wooper:state(), traces:message(),
+				 traces:message_categorization() ) -> basic_utils:void().
+send_safe( TraceType, State, Message, MessageCategorization ) ->
 
-% The function used to send all types of traces:
+	send_synchronisable( TraceType, State, Message, MessageCategorization,
+						 get_trace_timestamp( State ) ),
+
+	trace_utils:echo( Message, TraceType, MessageCategorization ),
+
+	wait_aggregator_sync().
+
+
+
+
+% Sends all types of (unsynchronised) traces.
 %
 % (helper)
 %
@@ -802,6 +1023,115 @@ send( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
 
 
 
+% Sends all types of synchronisable traces (the synchronisation answer is
+% requested yet not waited here, to allow for any interleaving).
+%
+% (helper)
+%
+-spec send_synchronisable( traces:message_type(), wooper:state(),
+		  traces:message(), traces:message_categorization(),
+		  traces:app_timestamp() ) -> basic_utils:void().
+send_synchronisable( TraceType, State, Message, MessageCategorization,
+					 AppTimestamp ) ->
+
+	% Almost exactly the same as send/5, except that the sendSync/10 agggregator
+	% request is called instead of the send/10 oneway, so that it sends an
+	% acknowlegment when done.
+
+	TimestampText = text_utils:string_to_binary(
+	   time_utils:get_textual_timestamp() ),
+
+	MsgCateg = case MessageCategorization of
+
+		uncategorized ->
+			uncategorized;
+
+		_ ->
+			text_utils:string_to_binary( MessageCategorization )
+
+	end,
+
+	AppTimestampString = list_to_binary(
+						   io_lib:format( "~p", [ AppTimestamp ] ) ),
+
+	% Follows the order of our trace format; request call:
+	% (toggle the comment for the two blocks below to debug)
+
+	?getAttr(trace_aggregator_pid) ! { sendSync,
+
+	%io:format( "Sending trace: PID=~w, emitter name='~p', "
+	%		   "emitter categorization='~p', "
+	%		   "app timestamp='~p', user time='~p', location='~p', "
+	%		   "message categorization='~p', trace type='~w', message='~p'~n",
+
+		[
+		 _TraceEmitterPid=self(),
+		 _TraceEmitterName=?getAttr(name),
+		 _TraceEmitterCategorization=?getAttr(trace_categorization),
+		 AppTimestampString,
+		 _Time=TimestampText,
+		 _Location=?getAttr(emitter_node),
+		 _MessageCategorization=MsgCateg,
+		 _Priority=get_priority_for( TraceType ),
+		 _Message=text_utils:string_to_binary( Message )
+		],
+		self()
+	% ).
+	}.
+
+
+
+
+% Sends all types of synchronised traces (the synchronisation answer is
+% requested and waited).
+%
+% (helper)
+%
+-spec send_synchronised( traces:message_type(), wooper:state(),
+		  traces:message(), traces:message_categorization(),
+		  traces:app_timestamp() ) -> basic_utils:void().
+send_synchronised( TraceType, State, Message, MessageCategorization,
+				   AppTimestamp ) ->
+	send_synchronisable( TraceType, State, Message, MessageCategorization,
+						 AppTimestamp ),
+	wait_aggregator_sync().
+
+
+
+% The function used to send all types of traces, with an echo.
+%
+% (helper)
+%
+-spec send_safe( traces:message_type(), wooper:state(), traces:message(),
+			traces:message_categorization(), traces:app_timestamp() ) ->
+				  basic_utils:void().
+send_safe( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
+
+	send_synchronisable( TraceType, State, Message, MessageCategorization,
+						 AppTimestamp ),
+
+	trace_utils:echo( Message, TraceType, MessageCategorization, AppTimestamp ),
+
+	wait_aggregator_sync().
+
+
+
+% Waits for the aggregator to report that a trace synchronization has been
+% completed.
+%
+% (helper)
+%
+-spec wait_aggregator_sync() -> basic_utils:void().
+wait_aggregator_sync() ->
+	receive
+
+		{ wooper_result, trace_aggregator_synchronised } ->
+			ok
+
+	end.
+
+
+
 % Returns the current trace-level timestamp (ex: possibly an execution tick
 % offset), or the atom 'none' if the emitter time is not known.
 %
@@ -847,9 +1177,10 @@ get_plain_name( State ) ->
 sync( State ) ->
 
 	?getAttr(trace_aggregator_pid) ! { sync, [], self() },
+
 	receive
 
-		{ wooper_result, aggregator_synchronised } ->
+		{ wooper_result, trace_aggregator_synchronised } ->
 			ok
 
 	end.
