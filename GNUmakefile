@@ -1,7 +1,8 @@
 TRACES_TOP = .
 
 
-.PHONY: all register-version-in-header register-traces info-traces
+.PHONY: help help-intro help-traces                                 \
+		all register-version-in-header register-traces info-traces
 
 
 MODULES_DIRS = src doc #conf
@@ -15,8 +16,18 @@ BASE_MAKEFILE = true
 CMD_LINE_OPT = "--batch"
 
 
+
 # Default target:
-all:
+help: help-intro help-traces
+
+
+help-intro:
+	@echo " Following main make targets are available for package $(PACKAGE_NAME):"
+
+
+help-traces:
+	@cd $(WOOPER_TOP) && $(MAKE) -s help-wooper
+
 
 
 register-version-in-header:

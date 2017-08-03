@@ -546,7 +546,7 @@
 % static method):
 -define( notify_debug_cat( Message, EmitterCategorization ),
 		 class_TraceEmitter:send_standalone( debug, Message,
-												  EmitterCategorization )
+											 EmitterCategorization )
 ).
 
 
@@ -831,15 +831,7 @@
 % static method):
 %
 -define( notify( Message ),
-
-		 io:format( "[info] " ++ Message ++ "~n" ),
-
-		 class_TraceEmitter:send_standalone_safe( info, Message ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+		 class_TraceEmitter:send_standalone_safe( info, Message )
 ).
 
 
@@ -848,7 +840,8 @@
 % static method):
 %
 -define( notify_cat( Message, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( info, Message )
+		 class_TraceEmitter:send_standalone_safe( info, Message,
+												  EmitterCategorization )
 ).
 
 
@@ -858,18 +851,8 @@
 %
 -define( notify_em( Message, EmitterName, EmitterCategorization,
 					MessageCategorization ),
-
-FIXME
-		 % EmitterCategorization ignored here:
-		 io:format( "[info] [" ++ EmitterName ++ "] " ++ Message ++ "~n" ),
-
 		 class_TraceEmitter:send_standalone_safe( info, Message, EmitterName,
-							 EmitterCategorization, MessageCategorization ),
-
-		 % To ensure the asynchronous sending of the trace has a chance to
-		 % complete, possibly before the interpreter is crashed:
-		 system_utils:await_output_completion()
-
+							 EmitterCategorization, MessageCategorization )
 ).
 
 
