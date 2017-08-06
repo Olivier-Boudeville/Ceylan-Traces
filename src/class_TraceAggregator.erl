@@ -76,7 +76,7 @@
 
 
 % Helpers:
--export([ send_internal/3, send_internal/4, inspect_fields/1 ]).
+-export([ send_internal_immediate/3, send_internal_immediate/4, inspect_fields/1 ]).
 
 
 -define( trace_emitter_categorization, "Traces" ).
@@ -100,7 +100,9 @@
 % Use global:registered_names() to check aggregator presence.
 
 
-%-define( LogOutput( Message, Format ), io:format( Message, Format ) ).
+%-define( LogOutput( Message, Format ),
+%  trace_utils:debug_fmt( Message, Format ) ).
+
 -define( LogOutput( Message, Format ), void ).
 
 
@@ -167,18 +169,18 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 	% display that file information on the console is when the filename is
 	% final, typically when the trace supervisor is started):
 	%
-	%io:format( "~n~s ~s", [ ?LogPrefix, Message ] ),
+	%trace_utils:info_fmt( "~n~s ~s", [ ?LogPrefix, Message ] ),
 
 
 	PrivateState = case IsPrivate of
 
 		true ->
-			io:format( "~n~s Creating a private trace aggregator, "
-					   "whose PID is ~w.~n", [ ?LogPrefix, self() ] ),
+			trace_utils:info( "~s Creating a private trace aggregator, "
+							  "whose PID is ~w.", [ ?LogPrefix, self() ] ),
 			setAttribute( SetState, is_private, true );
 
 		false ->
-			%io:format( "~n~s Creating the trace aggregator, "
+			%trace_utils:info( "~n~s Creating the trace aggregator, "
 			%   "whose PID is ~w.~n", [ ?LogPrefix, self() ] ),
 
 			basic_utils:register_as( ?trace_aggregator_name, local_and_global ),
@@ -199,7 +201,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 	HeaderState = manage_trace_header( OverloadState ),
 
 	% Writes the very first trace after this header, returns an updated state:
-	TraceState = send_internal( info, "Trace aggregator created, "
+	TraceState = send_internal_immediate( info, "Trace aggregator created, "
 								"trace filename is '~s', trace type is '~w', "
 								"and trace title is '~s'.~n",
 				   [ AbsTraceFilename, TraceType, TraceTitle ], HeaderState ),
@@ -210,7 +212,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 			TraceState;
 
 		false ->
-			send_internal( warning, "Note that this trace aggregator has been "
+			send_internal_immediate( warning, "Note that this trace aggregator has been "
 						   "built with the trace system being deactivated, "
 						   "hinting that the overall codebase is probably "
 						   "in the same case (hence a lot less talkative).",
@@ -225,7 +227,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 -spec destruct( wooper:state() ) -> wooper:state().
 destruct( State ) ->
 
-	%io:format( "~s Deleting trace aggregator.~n", [ ?LogPrefix ] ),
+	%trace_utils:debug_fmt( "~s Deleting trace aggregator.", [ ?LogPrefix ] ),
 
 	?getAttr(overload_monitor_pid) ! delete,
 
@@ -268,7 +270,8 @@ destruct( State ) ->
 
 		{ text_traces, pdf } ->
 
-			io:format( "~s Generating PDF trace report.~n", [ ?LogPrefix ] ),
+			trace_utils:info( "~s Generating PDF trace report.",
+							  [ ?LogPrefix ] ),
 
 			PdfTargetFilename = file_utils:replace_extension(
 				?getAttr(trace_filename), ?TraceExtension, ".pdf" ),
@@ -290,8 +293,9 @@ destruct( State ) ->
 							ok;
 
 						false ->
-							io:format( "~s Displaying PDF trace report.~n",
-									   [ ?LogPrefix ] ),
+							trace_utils:info_fmt(
+							  "~s Displaying PDF trace report.",
+							  [ ?LogPrefix ] ),
 
 							executable_utils:display_pdf_file(
 							  PdfTargetFilename )
@@ -299,10 +303,10 @@ destruct( State ) ->
 						end;
 
 				{ ExitCode, ErrorOutput } ->
-					io:format( "~s Generation of PDF from ~s failed "
-							   "(error ~B: '~s').~n",
-							   [ ?LogPrefix, ?getAttr(trace_filename),
-								 ExitCode, ErrorOutput ] )
+					trace_utils:error_fmt(
+					  "~s Generation of PDF from ~s failed (error ~B: '~s').",
+					  [ ?LogPrefix, ?getAttr(trace_filename),
+						ExitCode, ErrorOutput ] )
 
 			end
 
@@ -310,7 +314,7 @@ destruct( State ) ->
 
 	% Then call the direct mother class counterparts: (none)
 
-	%io:format( "~s Aggregator deleted.~n", [ ?LogPrefix ] ),
+	%trace_utils:info_fmt( "~s Aggregator deleted.", [ ?LogPrefix ] ),
 
 	% Allow chaining:
 	FooterState.
@@ -455,7 +459,7 @@ renameTraceFile( State, NewTraceFilename ) ->
 	AbsNewTraceFilename = file_utils:ensure_path_is_absolute(
 							NewTraceFilename ),
 
-	SentState = send_internal( info,
+	SentState = send_internal_immediate( info,
 							   "Trace aggregator renaming atomically trace "
 							   "file from '~s' to '~s'.~n",
 							   [ TraceFilename, AbsNewTraceFilename ],
@@ -515,10 +519,10 @@ addTraceListener( State, ListenerPid ) ->
 			% Not a trace emitter but still able to send traces (to itself);
 			% will be read from mailbox as first live-forwarded message:
 			%
-			SentState = send_internal( info,
-									   "Trace aggregator adding trace listener "
-									   "~w, and sending it previous traces.~n",
-									   [ ListenerPid ], State ),
+			send_internal_deferred( info,
+									"Trace aggregator adding trace listener "
+									"~w, and sending it previous traces.~n",
+									[ ListenerPid ] ),
 
 			% Transfers file:
 			TraceFilename = ?getAttr(trace_filename),
@@ -550,7 +554,8 @@ addTraceListener( State, ListenerPid ) ->
 			% So finally the server-side renaming is useless, it will be done by
 			% the listener:
 
-			io:format( "Sending '~s' to ~w.~n", [ XZFilename, ListenerPid ] ),
+			trace_utils:trace_fmt( "Sending '~s' to ~w.~n",
+								   [ XZFilename, ListenerPid ] ),
 
 			net_utils:send_file( XZFilename, ListenerPid ),
 
@@ -560,7 +565,7 @@ addTraceListener( State, ListenerPid ) ->
 
 			NewFile = reopen_trace_file( TraceFilename ),
 
-			setAttributes( SentState, [ { trace_listeners, NewListeners },
+			setAttributes( State, [ { trace_listeners, NewListeners },
 										{ trace_file, NewFile } ] );
 
 
@@ -571,7 +576,6 @@ addTraceListener( State, ListenerPid ) ->
 				"as it requires LogMX traces, whereas the current trace "
 				"type is ~w.~n", [ ListenerPid, OtherTraceType ] ),
 
-			io:format( "Warning: " ++ Message ),
 			?notify_warning( Message ),
 			ListenerPid ! { trace_zip, incompatible_trace_type },
 			State
@@ -589,10 +593,10 @@ addTraceListener( State, ListenerPid ) ->
 -spec removeTraceListener( wooper:state(), pid() ) -> oneway_return().
 removeTraceListener( State, ListenerPid ) ->
 
-	io:format( "~s Removing trace listener ~w.~n",
-			   [ ?LogPrefix, ListenerPid ] ),
+	trace_utils:info_fmt( "~s Removing trace listener ~w.",
+						  [ ?LogPrefix, ListenerPid ] ),
 
-	SentState = send_internal( info, "Trace aggregator removing trace "
+	SentState = send_internal_immediate( info, "Trace aggregator removing trace "
 							   "listener ~w.~n",
 							   [ ListenerPid ], State ),
 
@@ -851,13 +855,15 @@ overload_monitor_main_loop( AggregatorPid ) ->
 
 
 
-% Sends traces from the aggregator itself (hence to itself).
+% Sends traces immediately from the aggregator itself (hence to itself); this is
+% done directly (ex: to write it, before any trace message that would be waiting
+% in the mailbox).
 %
 % (helper)
 %
--spec send_internal( traces:message_type(), string(), wooper:state() ) ->
-						   wooper:state().
-send_internal( MessageType, Message, State ) ->
+-spec send_internal_immediate( traces:message_type(), string(),
+					 wooper:state() ) -> wooper:state().
+send_internal_immediate( MessageType, Message, State ) ->
 
 	TimestampText = text_utils:string_to_binary(
 					  time_utils:get_textual_timestamp() ),
@@ -868,7 +874,6 @@ send_internal( MessageType, Message, State ) ->
 	MessageCategorization = text_utils:string_to_binary( "Trace Management" ),
 
 	SelfSentState = executeOneway( State, send, [
-
 		_TraceEmitterPid=self(),
 		_TraceEmitterName=text_utils:string_to_binary( "Trace Aggregator" ),
 		_TraceEmitterCategorization=text_utils:string_to_binary(
@@ -886,16 +891,66 @@ send_internal( MessageType, Message, State ) ->
 
 
 
+% Sends format-based traces from the aggregator itself (hence to itself).
+%
+% (helper)
+%
+-spec send_internal_immediate( traces:message_type(), string(), [ any() ],
+					 wooper:state() ) -> wooper:state().
+send_internal_immediate( MessageType, MessageFormat, MessageValues, State ) ->
+	Message = text_utils:format( MessageFormat, MessageValues ),
+	send_internal_immediate( MessageType, Message, State ).
+
+
+
+
+% Sends traces immediately from the aggregator itself (hence to itself), through
+% a message sending, so that a trace can be sent even if at that point no trace
+% file is available for writing.
+%
+% (helper)
+%
+-spec send_internal_deferred( traces:message_type(), string() ) ->
+									basic_utils:void().
+send_internal_deferred( MessageType, Message ) ->
+
+	TimestampText = text_utils:string_to_binary(
+					  time_utils:get_textual_timestamp() ),
+
+	% Not State available here:
+	EmitterNode = class_TraceEmitter:get_emitter_node_as_binary(),
+
+	MessageCategorization = text_utils:string_to_binary( "Trace Management" ),
+
+	self() ! { send, [
+		_TraceEmitterPid=self(),
+		_TraceEmitterName=text_utils:string_to_binary( "Trace Aggregator" ),
+		_TraceEmitterCategorization=text_utils:string_to_binary(
+									  ?trace_emitter_categorization ),
+		_AppTimestamp=none,
+		_Time=TimestampText,
+		_Location=EmitterNode,
+		MessageCategorization,
+		_Priority=class_TraceEmitter:get_priority_for( MessageType ),
+								 Message ] },
+
+	trace_utils:echo( Message, MessageType ).
+
+
+
 
 % Sends format-based traces from the aggregator itself (hence to itself).
 %
 % (helper)
 %
--spec send_internal( traces:message_type(), string(), [ any() ],
-					 wooper:state() ) -> wooper:state().
-send_internal( MessageType, MessageFormat, MessageValues, State ) ->
+-spec send_internal_deferred( traces:message_type(), string(), [ any() ] ) ->
+									basic_utils:void().
+send_internal_deferred( MessageType, MessageFormat, MessageValues ) ->
 	Message = text_utils:format( MessageFormat, MessageValues ),
-	send_internal( MessageType, Message, State ).
+	send_internal_deferred( MessageType, Message ).
+
+
+
 
 
 
