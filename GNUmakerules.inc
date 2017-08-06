@@ -4,7 +4,11 @@
 
 
 
-.PHONY: clean-traces
+.PHONY: all clean clean-traces
+
+
+# The default rule:
+all:
 
 
 # Not wanting to define a default rule:
