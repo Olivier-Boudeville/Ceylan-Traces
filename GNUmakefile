@@ -1,8 +1,9 @@
 TRACES_TOP = .
 
 
-.PHONY: help help-intro help-traces                                 \
-		all register-version-in-header register-traces info-traces
+.PHONY: help help-intro help-traces                                   \
+		all register-version-in-header register-traces list-beam-dirs \
+		info-traces
 
 
 MODULES_DIRS = src doc #conf
@@ -38,6 +39,11 @@ register-version-in-header:
 
 register-traces:
 	@echo "-define( traces_version, \"$(TRACES_VERSION)\" )." >> $(VERSION_FILE)
+
+
+# Useful to extract internal layout for re-use in upper layers:
+list-beam-dirs:
+	@for d in $(TRACES_BEAM_DIRS) ; do echo $$(readlink -f $$d) ; done
 
 
 info-traces:
