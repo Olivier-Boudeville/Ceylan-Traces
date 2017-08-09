@@ -131,7 +131,7 @@ BEAM_DIRS += $(TRACES_BEAM_DIRS)
 # So that they can be fetched from outside
 # (see the 'list-beam-dirs' target)
 #
-TRACES_BEAM_DIRS =  $(TRACES_BEAM)/src
+TRACES_BEAM_DIRS = $(TRACES_BEAM)/src
 
 
 ERLANG_COMPILER_OPT += $(ENABLE_TRACE_OPT)
