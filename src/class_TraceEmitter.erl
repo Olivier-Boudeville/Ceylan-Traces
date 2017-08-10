@@ -94,14 +94,14 @@
 
 % The name of a trace emitter.
 %
-% It is a plain string containing the name of a trace emitter.
+% It is a plain string or a binary one, containing the name of a trace emitter.
 %
 % Note: dots are not allowed in an emitter name (they are used as naming
 % separator).
 %
-% Ex: "MyObject 16".
+% Ex: "MyObject 16", or <<"First Talker">>.
 %
--type emitter_name() :: string().
+-type emitter_name() :: string() | text_utils:bin_string().
 
 
 
@@ -112,7 +112,7 @@
 %
 % Ex: "topics.sports.basketball"
 %
--type emitter_categorization() :: string().
+-type emitter_categorization() :: string() | text_utils:bin_string().
 
 
 
@@ -214,15 +214,15 @@
 			   -> wooper:state().
 construct( State, _EmitterInit={ EmitterName, EmitterCategorization } ) ->
 
-	%io:format( "~s Creating a trace emitter whose name is '~s', "
-	%		   "whose PID is ~w and whose categorization is '~s'.~n",
-	%		   [ ?LogPrefix, EmitterName, self(), EmitterCategorization ] ),
+	%trace_utils:debug_fmt( "~s Creating a trace emitter whose name is '~s', "
+	%						"whose PID is ~w and whose categorization is '~s'.",
+	%			   [ ?LogPrefix, EmitterName, self(), EmitterCategorization ] ),
 
 	InitState = init( State ),
 
 	BinName = check_and_binarise_name( EmitterName ),
 
-	BinCategorization = text_utils:string_to_binary( EmitterCategorization ),
+	BinCategorization = text_utils:ensure_binary( EmitterCategorization ),
 
 	setAttributes( InitState, [
 		{ name, BinName },
@@ -237,24 +237,36 @@ construct( State, EmitterName ) ->
 
 
 
-% Checks the emitter name and returns a binary version thereof.
+% Checks the emitter name, and, if needed, returns a binary version thereof.
 %
 % (helper)
 %
--spec check_and_binarise_name( string() ) -> text_utils:bin_string().
-check_and_binarise_name( Name ) ->
+-spec check_and_binarise_name( emitter_name() ) -> text_utils:bin_string().
+check_and_binarise_name( StringName ) when is_list( StringName ) ->
+	check_string_name( StringName ),
+	text_utils:string_to_binary( StringName );
 
-	% Not dot allowed, as is used as a naming separator:
+check_and_binarise_name( BinName ) when is_binary( BinName ) ->
+	StringName = text_utils:binary_to_string( BinName ),
+	check_string_name( StringName ),
+	BinName.
+
+
+% Helper:
+check_string_name( Name ) ->
+
+	% No dot allowed, as is used as a naming separator:
 	%
 	case text_utils:split_at_first( _Marker=$., Name ) of
 
 		none_found ->
-			text_utils:string_to_binary( Name );
+			ok;
 
 		_ ->
 			throw( { not_dot_allowed_in_emitter_name, Name } )
 
 	end.
+
 
 
 % Useless:
@@ -264,11 +276,11 @@ check_and_binarise_name( Name ) ->
 %-spec destruct( wooper:state() ) -> wooper:state().
 %destruct( State ) ->
 
-	%io:format( "~s Deleting Trace Emitter.~n", [ ?LogPrefix ] ),
+	%trace_utils:debug_fmt( "~s Deleting Trace Emitter.", [ ?LogPrefix ] ),
 
-	%io:format( "~s Trace Emitter deleted.~n", [ ?LogPrefix ] ).
+	%trace_utils:debug_fmt( "~s Trace Emitter deleted.", [ ?LogPrefix ] ).
 
-%	State.
+	%State.
 
 
 
