@@ -144,6 +144,9 @@
 				 boolean() ) -> wooper:state().
 construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 
+	%trace_utils:debug_fmt( "Starting trace aggregator, with initial trace "
+	%					   "filename '~s'.", [ TraceFilename ] ),
+
 	% First the direct mother classes (none here), then this class-specific
 	% actions:
 	%
