@@ -172,12 +172,8 @@
 %
 % The same applies for the 'trace_categorization' attribute.
 
-
-% Introducing 'cases' support alongside 'tests' ought to have been avoided, as,
-% at the level of the 'Traces' layer, cases are not really defined.
-%
-% However a completly clean separation would involve much duplication, efforts
-% and overhead.
+% The constructor of this class is idempotent, in the sense that it can be
+% applied more than once with no undesirable consequence.
 
 
 % The send_safe/{3,4,5} variations differ from their basic send/{3,4,5}
