@@ -136,7 +136,7 @@ test_actual_body() ->
 	test_facilities:display( "Looking up aggregator by name: ~s.",
 							 [ AggregatorName ] ),
 
-	AggregatorPid = basic_utils:get_registered_pid_for( AggregatorName,
+	AggregatorPid = naming_utils:get_registered_pid_for( AggregatorName,
 														global ),
 
 	test_facilities:display( "Sending initial traces to force "

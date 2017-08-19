@@ -186,7 +186,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 			%trace_utils:info( "~n~s Creating the trace aggregator, "
 			%   "whose PID is ~w.~n", [ ?LogPrefix, self() ] ),
 
-			basic_utils:register_as( ?trace_aggregator_name, local_and_global ),
+			naming_utils:register_as( ?trace_aggregator_name, local_and_global ),
 
 			setAttribute( SetState, is_private, false )
 
@@ -241,7 +241,7 @@ destruct( State ) ->
 			ok;
 
 		false ->
-			basic_utils:unregister( ?trace_aggregator_name, local_and_global )
+			naming_utils:unregister( ?trace_aggregator_name, local_and_global )
 
 	end,
 
@@ -712,7 +712,7 @@ get_aggregator( CreateIfNotAvailable ) ->
 	%
 	try
 
-		basic_utils:wait_for_global_registration_of( ?trace_aggregator_name )
+		naming_utils:wait_for_global_registration_of( ?trace_aggregator_name )
 
 	catch { global_registration_waiting_timeout, _Name } ->
 
@@ -727,7 +727,7 @@ get_aggregator( CreateIfNotAvailable ) ->
 
 				try
 
-					basic_utils:wait_for_global_registration_of(
+					naming_utils:wait_for_global_registration_of(
 					  ?trace_aggregator_name )
 
 				catch { global_registration_waiting_timeout, _Name } ->
@@ -935,7 +935,7 @@ send_internal_deferred( MessageType, Message ) ->
 		_Location=EmitterNode,
 		MessageCategorization,
 		_Priority=class_TraceEmitter:get_priority_for( MessageType ),
-								 Message ] },
+					  Message ] },
 
 	trace_utils:echo( Message, MessageType ).
 
