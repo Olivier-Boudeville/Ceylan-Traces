@@ -3,6 +3,7 @@ TRACES_TOP = .
 
 .PHONY: help help-intro help-traces                                   \
 		all register-version-in-header register-traces list-beam-dirs \
+		add-prerequisite-plts link-plt                                \
 		info-traces
 
 
@@ -44,6 +45,14 @@ register-traces:
 # Useful to extract internal layout for re-use in upper layers:
 list-beam-dirs:
 	@for d in $(TRACES_BEAM_DIRS) ; do echo $$(readlink -f $$d) ; done
+
+
+add-prerequisite-plts: link-plt
+
+
+# As upper layers may rely on the 'traces' naming:
+link-plt:
+	@/bin/ln -s $(PLT_FILE) $(TRACES_PLT_FILE)
 
 
 info-traces:

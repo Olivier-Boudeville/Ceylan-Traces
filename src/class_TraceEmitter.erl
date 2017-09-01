@@ -157,8 +157,8 @@
 
 % A trace emitter used to have a specific notion of time (execution tick) as it
 % needs to timestamp its traces. Now it relies on the content of an opaque
-% ``trace_timestamp`` attribute, which is stringified and used as it is,
-% allowing for mostly any kind of application-level timestamp.
+% 'trace_timestamp' attribute, which is stringified and used as it is, allowing
+% for mostly any kind of application-level timestamp.
 
 
 % To reduce the memory footprint in the trace aggregator mailbox and the size of
@@ -625,7 +625,7 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 % (static)
 %
 -spec send_standalone_safe( traces:message_type(), traces:message() ) ->
-							 basic_utils:void().
+								  basic_utils:void().
 send_standalone_safe( TraceType, Message ) ->
 
 	EmitterCategorization = ?trace_emitter_categorization,
@@ -1145,7 +1145,7 @@ wait_aggregator_sync() ->
 %
 % (helper)
 %
--spec get_trace_timestamp( wooper:state() ) -> traces:timestamp().
+-spec get_trace_timestamp( wooper:state() ) -> traces:app_timestamp().
 get_trace_timestamp( State ) ->
 	?getAttr(trace_timestamp).
 

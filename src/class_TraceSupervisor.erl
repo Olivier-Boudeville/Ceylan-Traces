@@ -41,7 +41,8 @@
 
 % Parameters taken by the constructor ('construct').
 -define( wooper_construct_parameters,
-		{TraceFilename,TraceType,TraceAggregatorPid}, MonitorNow, Blocking ).
+		{ TraceFilename, TraceType, TraceAggregatorPid }, MonitorNow,
+		 Blocking ).
 
 
 
@@ -81,7 +82,7 @@
 
 
 
--define(LogPrefix,"[Trace Supervisor]").
+-define( LogPrefix, "[Trace Supervisor]" ).
 
 % Use global:registered_names() to check supervisor presence.
 
@@ -93,7 +94,8 @@
 
 % Total width (expressed as a number of characters) of a line of log,
 % in text mode (text_traces).
--define(TextWidth,110).
+%
+-define( TextWidth, 110 ).
 
 
 % Constructs a new trace supervisor:
@@ -124,12 +126,9 @@ construct( State, ?wooper_construct_parameters ) ->
 
 	% First the direct mother classes (none), then this class-specific actions:
 	NewState = setAttributes( State, [
-
 		{ trace_filename, TraceFilename },
 		{ trace_type, TraceType },
-		{ trace_aggregator_pid, TraceAggregatorPid }
-
-	] ),
+		{ trace_aggregator_pid, TraceAggregatorPid } ] ),
 
 	case TraceAggregatorPid of
 
@@ -215,10 +214,9 @@ construct( State, ?wooper_construct_parameters ) ->
 -spec destruct( wooper:state() ) -> wooper:state().
 destruct( State ) ->
 
-	%io:format( "~s Deleting supervisor.~n", [ ?LogPrefix ] ),
 	% Class-specific actions:
 	% Then call the direct mother class counterparts: (none)
-	io:format( "~s Supervisor deleted.~n", [ ?LogPrefix ] ),
+	%trace_utils:debug( "~s Supervisor deleted.", [ ?LogPrefix ] ),
 
 	% Allow chaining:
 	State.
@@ -233,6 +231,7 @@ destruct( State ) ->
 % Will return immediately.
 %
 % (oneway)
+%
 -spec monitor( wooper:state() ) -> oneway_return().
 monitor( State ) ->
 
@@ -256,8 +255,8 @@ monitor( State ) ->
 
 				false ->
 					error_logger:error_msg( "class_TraceSupervisor:monitor "
-						"unable to find trace file '~s'.~n",
-						[ ActualFilename ] ),
+											"unable to find trace file '~s'.~n",
+											[ ActualFilename ] ),
 					throw( { trace_file_not_found, ActualFilename } )
 
 			end,
@@ -307,8 +306,8 @@ blocking_monitor( State ) ->
 
 				false ->
 					error_logger:error_msg( "class_TraceSupervisor:monitor "
-						"unable to find trace file '~s'.~n",
-						[ ActualFilename ] ),
+											"unable to find trace file '~s'.~n",
+											[ ActualFilename ] ),
 					throw( { trace_file_not_found, ActualFilename } )
 
 			end,
@@ -329,8 +328,7 @@ blocking_monitor( State ) ->
 				{ ExitStatus, ErrorOutput } ->
 					error_logger:error_msg(
 						"The monitoring of trace supervisor failed "
-						"(error ~B): '~s'.~n",
-						[ ExitStatus, ErrorOutput ] ),
+						"(error ~B): '~s'.~n", [ ExitStatus, ErrorOutput ] ),
 
 					% Must not be a blocking error:
 					%?wooper_return_state_result( State, monitor_failed )
@@ -370,6 +368,7 @@ create() ->
 % See create/5 for a more in-depth explanation of the parameters.
 %
 % (static)
+%
 -spec create( boolean() ) -> pid().
 create( Blocking ) ->
 	create( Blocking, ?trace_aggregator_filename ).
@@ -384,6 +383,7 @@ create( Blocking ) ->
 % See create/5 for a more in-depth explanation of the parameters.
 %
 % (static)
+%
 -spec create( boolean(), file_utils:file_name() ) -> pid().
 create( Blocking, TraceFilename ) ->
 	create( Blocking, TraceFilename, _TraceType=log_mx_traces,
@@ -397,8 +397,10 @@ create( Blocking, TraceFilename ) ->
 % See create/5 for a more in-depth explanation of the parameters.
 %
 % (static)
+%
 -spec create( boolean(), file_utils:file_name(),
-			  traces:trace_supervision_type(), pid() | 'undefined' ) -> pid().
+			  traces:trace_supervision_type(), basic_utils:maybe( pid() ) ) ->
+					pid().
 create( Blocking, TraceFilename, TraceType, TraceAggregatorPid ) ->
 	create( Blocking, _MonitorNow=true, TraceFilename, TraceType,
 			TraceAggregatorPid ).
