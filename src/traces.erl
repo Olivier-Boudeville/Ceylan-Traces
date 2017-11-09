@@ -40,6 +40,8 @@
 -type emitter_name() :: string().
 -type emitter_categorization() :: string().
 
+-type emitter_info() :: { emitter_name(), emitter_categorization() }.
+
 
 % A trace timestamp can be anything (ex: integer() | 'none'), no constraint
 % applies on purpose, so that any kind of application-specific timestamps can be
@@ -69,9 +71,10 @@
 								| { 'text_traces', 'text_only' | 'pdf' }.
 
 
--export_type([ emitter_name/0, emitter_categorization/0, app_timestamp/0,
-			   time/0, location/0, message_categorization/0, priority/0,
-			   message/0, message_type/0, trace_supervision_type/0 ]).
+-export_type([ emitter_name/0, emitter_categorization/0, emitter_info/0,
+			   app_timestamp/0, time/0, location/0, message_categorization/0,
+			   priority/0, message/0, message_type/0,
+			   trace_supervision_type/0 ]).
 
 
 % For notify_warning_fmt:
