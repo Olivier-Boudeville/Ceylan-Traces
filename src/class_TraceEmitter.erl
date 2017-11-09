@@ -74,7 +74,8 @@
 -define( wooper_static_method_export,
 		 send_from_test/2, send_from_test/3,
 		 send_from_case/2, send_from_case/3,
-		 send_standalone/2, send_standalone/3, send_standalone/5,
+		 send_standalone/2, send_standalone/3, send_standalone/4,
+		 send_standalone/5,
 		 send_standalone_safe/2, send_standalone_safe/3,
 		 send_standalone_safe/4, send_standalone_safe/5,
 		 get_emitter_node_as_binary/0,
@@ -412,7 +413,7 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 				[
 				 _TraceEmitterPid=self(),
 				 _TraceEmitterName=
-					 text_utils:string_to_binary( "(test)" ),
+					 text_utils:string_to_binary( "test" ),
 				 _TraceEmitterCategorization=
 					 text_utils:string_to_binary( EmitterCategorization ),
 				 _AppTimestamp=none,
@@ -479,7 +480,7 @@ send_from_case( TraceType, Message, EmitterCategorization ) ->
 				[
 				 _TraceEmitterPid=self(),
 				 _TraceEmitterName=
-					 text_utils:string_to_binary( "(case)" ),
+					 text_utils:string_to_binary( "case" ),
 				 _TraceEmitterCategorization=
 					 text_utils:string_to_binary( EmitterCategorization ),
 				 _AppTimestamp=none,
@@ -572,6 +573,22 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 % (static)
 %
 -spec send_standalone( traces:message_type(), traces:message(),
+		   traces:emitter_name(), traces:emitter_categorization() ) ->
+							 basic_utils:void().
+send_standalone( TraceType, Message, EmitterName, EmitterCategorization ) ->
+	send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
+					 _MessageCategorization=uncategorized ).
+
+
+
+% Sends all types of traces without requiring a class_TraceEmitter state.
+%
+% Uses default trace aggregator, supposed to be already available and
+% registered.
+%
+% (static)
+%
+-spec send_standalone( traces:message_type(), traces:message(),
 					   traces:emitter_name(), traces:emitter_categorization(),
 					   traces:message_categorization() ) -> basic_utils:void().
 send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
@@ -597,6 +614,16 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 			% No State available here:
 			EmitterNode = get_emitter_node_as_binary(),
 
+			ActualMsgCateg = case MessageCategorization of
+
+				uncategorized ->
+					uncategorized;
+
+				Categ ->
+					text_utils:string_to_binary( Categ )
+
+			end,
+
 			AggregatorPid ! { send,
 				[
 				 _TraceEmitterPid=self(),
@@ -606,8 +633,7 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 				 _AppTimestamp=none,
 				 _Time=TimestampText,
 				 _Location=EmitterNode,
-				 _MessageCategorization=
-					 text_utils:string_to_binary( MessageCategorization ),
+				 _MessageCategorization=ActualMsgCateg,
 				 _Priority=get_priority_for( TraceType ),
 				 _Message=text_utils:string_to_binary( Message )
 				] }
