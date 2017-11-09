@@ -72,8 +72,9 @@
 %
 -define( trace_categorize( TracesInitialisationTermInternal ),
 
-		 % As few variables bound, and longer variable names chosen (prefixed
-		 % with 'Traces'), to avoid clashes with user-defined variables:
+		 % As few variables bound as possible, and longer variable names chosen
+		 % (prefixed with 'Traces'), to avoid clashes with user-defined
+		 % variables:
 		 %
 		 case TracesInitialisationTermInternal of
 
@@ -153,7 +154,7 @@
 	-define( update, ?execution".Update" ).
 	-define( state,  ?execution".State"  ).
 
--define( default_message_categorization, ?execution".Uncategorized" ).
+-define( default_message_categorization, ?execution ).
 
 
 % Priority will be determined from the name of the chosen macro: fatal, error,
@@ -175,7 +176,7 @@
 %
 % See also: test_constructs.hrl.
 %
--define( default_test_message_categorization, "Test.Uncategorized" ).
+-define( default_test_message_categorization, "Test" ).
 
 
 % Section dedicated to trace emitters that are not WOOPER-based and are
@@ -183,7 +184,7 @@
 %
 % See also: case_constructs.hrl.
 %
--define( default_case_message_categorization, "Case.Uncategorized" ).
+-define( default_case_message_categorization, "Case" ).
 
 
 % Section dedicated to trace emitters that are not WOOPER-based and dedicated to
@@ -191,19 +192,17 @@
 %
 % See also: traces.hrl.
 %
--define( default_standalone_message_categorization,
-		 "Standalone.Uncategorized" ).
+-define( default_standalone_message_categorization, "Standalone" ).
 
 
 
 % When no emitter is specified:
 %
--define( default_test_emitter_categorization, "Test.Uncategorized" ).
+-define( default_test_emitter_categorization, "Test" ).
 
--define( default_case_emitter_categorization, "Case.Uncategorized" ).
+-define( default_case_emitter_categorization, "Case" ).
 
--define( default_standalone_emitter_categorization,
-		 "Standalone.Uncategorized" ).
+-define( default_standalone_emitter_categorization, "Standalone" ).
 
 -define( default_trace_emitter_categorization, "uncategorized" ).
 
