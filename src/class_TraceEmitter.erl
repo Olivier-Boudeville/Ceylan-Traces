@@ -260,7 +260,7 @@ check_string_name( Name ) ->
 			ok;
 
 		_ ->
-			throw( { not_dot_allowed_in_emitter_name, Name } )
+			throw( { no_dot_allowed_in_emitter_name, Name } )
 
 	end.
 
