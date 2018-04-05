@@ -48,11 +48,11 @@
 										{ app_trace_disabled, 2 } ] } ] ).
 
 
--spec app_trace_disabled( any() ) -> basic_utils:void().
+-spec app_trace_disabled( any() ) -> void().
 app_trace_disabled( _ ) ->
 	ok.
 
 
--spec app_trace_disabled( any(), any() ) -> basic_utils:void().
+-spec app_trace_disabled( any(), any() ) -> void().
 app_trace_disabled( _, _ ) ->
 	ok.

@@ -159,7 +159,7 @@ sendAsyncTraces( State ) ->
 
 
 % We should be testing all forms of traces here.
--spec send_traces( wooper:state() ) -> basic_utils:void().
+-spec send_traces( wooper:state() ) -> void().
 send_traces( State ) ->
 
 	%io:format( "~s Sending some traces.~n", [ ?LogPrefix ] ),
@@ -252,7 +252,7 @@ send_traces( State ) ->
 % To test compilation problems when only one non-maskable trace is used (ex:
 % variable unused, or term constructed whereas not used either).
 %
--spec send_fatal_trace( wooper:state() ) -> basic_utils:void().
+-spec send_fatal_trace( wooper:state() ) -> void().
 send_fatal_trace( State ) ->
 
 	Message = "Unique ~w trace!",
@@ -266,7 +266,7 @@ send_fatal_trace( State ) ->
 % To test compilation problems when only one maskable trace is used (ex:
 % variable unused, or term constructed whereas not used either).
 %
--spec send_debug_trace( wooper:state() ) -> basic_utils:void().
+-spec send_debug_trace( wooper:state() ) -> void().
 send_debug_trace( State ) ->
 
 	Message = "Unique ~w trace!",
@@ -280,7 +280,7 @@ send_debug_trace( State ) ->
 % Fatal and error messages replaced by warning, as the former two induce sleeps,
 % which distorts the benchmarks.
 %
--spec send_traces_benchmark( wooper:state() ) -> basic_utils:void().
+-spec send_traces_benchmark( wooper:state() ) -> void().
 send_traces_benchmark( State ) ->
 
 	%io:format( "~s Sending some traces.~n", [ ?LogPrefix ] ),

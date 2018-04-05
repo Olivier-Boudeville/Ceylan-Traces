@@ -158,7 +158,7 @@ receive_applicative_message() ->
 %
 % Used for synchronization purpose.
 
--spec receive_applicative_message( any() ) -> basic_utils:void().
+-spec receive_applicative_message( any() ) -> void().
 receive_applicative_message( Message=monitor_ok ) ->
 	% Would interfere with the monitoring system:
 	throw( { invalid_applicative_message, Message } );
@@ -178,7 +178,7 @@ receive_applicative_message( Message ) ->
 %
 % Defined here, since uses a trace.
 %
--spec check_pending_wooper_results() -> basic_utils:void().
+-spec check_pending_wooper_results() -> void().
 check_pending_wooper_results() ->
 
 	receive

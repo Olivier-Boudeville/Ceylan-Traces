@@ -48,11 +48,11 @@
 										{ test_trace_disabled, 2 } ] } ] ).
 
 
--spec test_trace_disabled( any() ) -> basic_utils:void().
+-spec test_trace_disabled( any() ) -> void().
 test_trace_disabled( _ ) ->
 	ok.
 
 
--spec test_trace_disabled( any(), any() ) -> basic_utils:void().
+-spec test_trace_disabled( any(), any() ) -> void().
 test_trace_disabled( _, _ ) ->
 	ok.

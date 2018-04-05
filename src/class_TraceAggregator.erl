@@ -913,8 +913,7 @@ send_internal_immediate( MessageType, MessageFormat, MessageValues, State ) ->
 %
 % (helper)
 %
--spec send_internal_deferred( traces:message_type(), string() ) ->
-									basic_utils:void().
+-spec send_internal_deferred( traces:message_type(), string() ) -> void().
 send_internal_deferred( MessageType, Message ) ->
 
 	TimestampText = text_utils:string_to_binary(
@@ -947,7 +946,7 @@ send_internal_deferred( MessageType, Message ) ->
 % (helper)
 %
 -spec send_internal_deferred( traces:message_type(), string(), [ any() ] ) ->
-									basic_utils:void().
+									void().
 send_internal_deferred( MessageType, MessageFormat, MessageValues ) ->
 	Message = text_utils:format( MessageFormat, MessageValues ),
 	send_internal_deferred( MessageType, Message ).

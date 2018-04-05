@@ -503,7 +503,7 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 % Waits, usually at the end of a test, for any trace supervisor to be closed by
 % the user.
 %
--spec wait_for() -> basic_utils:void().
+-spec wait_for() -> void().
 wait_for() ->
 
 	case executable_utils:is_batch() of
