@@ -409,21 +409,21 @@ create( Blocking, TraceFilename, TraceType, TraceAggregatorPid ) ->
 
 % Creates a trace supervisor:
 %
-%  - Blocking tells whether the monitoring should be blocking (if true) or not
-%  (the supervisor tool is then launched in the background)
+% - Blocking tells whether the monitoring should be blocking (if true) or not
+% (the supervisor tool is then launched in the background)
 %
-%  - MonitorNow tells whether the monitoring should start immediately or only
-%  when a monitor/blocking_monitor method is called
+% - MonitorNow tells whether the monitoring should start immediately or only
+% when a monitor/blocking_monitor method is called
 %
-%  - TraceFilename the trace file to monitor
+% - TraceFilename the trace file to monitor
 %
-%  - TraceType the expected type of the traces (ex: log_mx_traces, text_traces)
+% - TraceType the expected type of the traces (ex: log_mx_traces, text_traces)
 %
-%  - TraceAggregatorPid is either the PID of the trace aggregator, or the
-%  'undefined' atom
+% - TraceAggregatorPid is either the PID of the trace aggregator, or the
+% 'undefined' atom
 %
 -spec create( boolean(), boolean(), file_utils:file_name(),
-			 traces:trace_supervision_type(), pid() | 'undefined' ) -> pid().
+			 traces:trace_supervision_type(), maybe( pid() ) ) -> pid().
 create( Blocking, MonitorNow, TraceFilename, TraceType, TraceAggregatorPid ) ->
 
 	BlockingParam = case Blocking of

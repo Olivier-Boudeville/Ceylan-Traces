@@ -104,9 +104,9 @@
 % - supervision_waiter_pid :: pid() allows to keep track of the process in
 % charge of waiting for the trace interface to be closed
 %
-% - close_listener_pid :: pid() | 'undefined' corresponds to the process (if
-% any) to notify the listener is terminating (typically so that the calling
-% application can itself terminate afterwards)
+% - close_listener_pid :: maybe( pid() ) corresponds to the process (if any) to
+% notify the listener is terminating (typically so that the calling application
+% can itself terminate afterwards)
 
 
 
