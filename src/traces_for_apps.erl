@@ -22,7 +22,7 @@
 % If not, see <http://www.gnu.org/licenses/> and
 % <http://www.mozilla.org/MPL/>.
 %
-% Author: Olivier Boudeville (olivier.boudeville@esperide.com)
+% Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
 
 
@@ -73,7 +73,7 @@ app_start( ModuleName, _InitTraceSupervisor=true ) ->
 	TraceAggregatorPid = app_start( ModuleName, false ),
 
 	class_TraceSupervisor:init( traces:get_trace_filename( ModuleName ),
-							   ?TraceType, TraceAggregatorPid ),
+								?TraceType, TraceAggregatorPid ),
 
 	TraceAggregatorPid;
 

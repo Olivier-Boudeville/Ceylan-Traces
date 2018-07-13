@@ -22,7 +22,7 @@
 % If not, see <http://www.gnu.org/licenses/> and
 % <http://www.mozilla.org/MPL/>.
 %
-% Author: Olivier Boudeville (olivier.boudeville@esperide.com)
+% Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
 
 
@@ -67,6 +67,7 @@
 
 % Member method declarations.
 -define( wooper_method_export, send/10, sendSync/10, renameTraceFile/2,
+		 getTraceType/1,
 		 launchTraceSupervisor/3, addTraceListener/2, removeTraceListener/2,
 		 requestReadyNotification/1, sync/1 ).
 
@@ -76,7 +77,8 @@
 
 
 % Helpers:
--export([ send_internal_immediate/3, send_internal_immediate/4, inspect_fields/1 ]).
+-export([ send_internal_immediate/3, send_internal_immediate/4,
+		  inspect_fields/1 ]).
 
 
 -define( trace_emitter_categorization, "Traces" ).
@@ -106,6 +108,8 @@
 -define( LogOutput( Message, Format ), void ).
 
 
+% Shorthand:
+-type trace_type() :: traces:trace_supervision_type().
 
 
 
@@ -186,7 +190,8 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 			%trace_utils:info( "~n~s Creating the trace aggregator, "
 			%   "whose PID is ~w.~n", [ ?LogPrefix, self() ] ),
 
-			naming_utils:register_as( ?trace_aggregator_name, local_and_global ),
+			naming_utils:register_as( ?trace_aggregator_name,
+									  local_and_global ),
 
 			setAttribute( SetState, is_private, false )
 
@@ -215,7 +220,8 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 			TraceState;
 
 		false ->
-			send_internal_immediate( warning, "Note that this trace aggregator has been "
+			send_internal_immediate( warning,
+						   "Note that this trace aggregator has been "
 						   "built with the trace system being deactivated, "
 						   "hinting that the overall codebase is probably "
 						   "in the same case (hence a lot less talkative).",
@@ -273,8 +279,8 @@ destruct( State ) ->
 
 		{ text_traces, pdf } ->
 
-			trace_utils:info( "~s Generating PDF trace report.",
-							  [ ?LogPrefix ] ),
+			trace_utils:info_fmt( "~s Generating PDF trace report.",
+								  [ ?LogPrefix ] ),
 
 			PdfTargetFilename = file_utils:replace_extension(
 				?getAttr(trace_filename), ?TraceExtension, ".pdf" ),
@@ -283,7 +289,7 @@ destruct( State ) ->
 			GenerationCommand = executable_utils:find_executable( "make" )
 				++ " '" ++ PdfTargetFilename ++ "' VIEW_PDF=no",
 
-			%io:format( "PDF generation command is '~s'.~n",
+			%trace_utils:info_fmt( "PDF generation command is '~s'.",
 			% [ GenerationCommand ] ),
 
 			case system_utils:run_executable( GenerationCommand ) of
@@ -358,6 +364,7 @@ send( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 	% Was: io:format( ?getAttr(trace_file), "~s", [ Trace ] ),
 	% but now we use faster raw writes:
 	%ok = file:write( ?getAttr(trace_file), io_lib:format( "~s", [ Trace ] ) ),
+
 	file_utils:write( ?getAttr(trace_file), Trace ),
 
 	Listeners = ?getAttr(trace_listeners),
@@ -481,6 +488,22 @@ renameTraceFile( State, NewTraceFilename ) ->
 
 
 
+% Returns to the caller the current trace type in use.
+%
+% Useful for example to launch a relevant trace supervision.
+%
+% (const request)
+%
+-spec getTraceType( wooper:state() ) ->
+				  request_return( { 'notify_trace_types', trace_type() } ).
+getTraceType( State ) ->
+
+	Res = { notify_trace_type, ?getAttr(trace_type) },
+
+	?wooper_return_state_result( State, Res ).
+
+
+
 % Launches the trace supervisor.
 %
 % Useful to do so once the final trace filename is known.
@@ -569,7 +592,7 @@ addTraceListener( State, ListenerPid ) ->
 			NewFile = reopen_trace_file( TraceFilename ),
 
 			setAttributes( State, [ { trace_listeners, NewListeners },
-										{ trace_file, NewFile } ] );
+									{ trace_file, NewFile } ] );
 
 
 		OtherTraceType ->
@@ -599,9 +622,9 @@ removeTraceListener( State, ListenerPid ) ->
 	trace_utils:info_fmt( "~s Removing trace listener ~w.",
 						  [ ?LogPrefix, ListenerPid ] ),
 
-	SentState = send_internal_immediate( info, "Trace aggregator removing trace "
-							   "listener ~w.~n",
-							   [ ListenerPid ], State ),
+	SentState = send_internal_immediate( info,
+					"Trace aggregator removing trace listener ~w.~n",
+					[ ListenerPid ], State ),
 
 	UnregisterState = deleteFromAttribute( SentState, trace_listeners,
 										   ListenerPid ),
@@ -913,8 +936,7 @@ send_internal_immediate( MessageType, MessageFormat, MessageValues, State ) ->
 %
 % (helper)
 %
--spec send_internal_deferred( traces:message_type(), string() ) ->
-									basic_utils:void().
+-spec send_internal_deferred( traces:message_type(), string() ) -> void().
 send_internal_deferred( MessageType, Message ) ->
 
 	TimestampText = text_utils:string_to_binary(
@@ -935,7 +957,7 @@ send_internal_deferred( MessageType, Message ) ->
 		_Location=EmitterNode,
 		MessageCategorization,
 		_Priority=class_TraceEmitter:get_priority_for( MessageType ),
-					  Message ] },
+		Message ] },
 
 	trace_utils:echo( Message, MessageType ).
 
@@ -947,7 +969,7 @@ send_internal_deferred( MessageType, Message ) ->
 % (helper)
 %
 -spec send_internal_deferred( traces:message_type(), string(), [ any() ] ) ->
-									basic_utils:void().
+									void().
 send_internal_deferred( MessageType, MessageFormat, MessageValues ) ->
 	Message = text_utils:format( MessageFormat, MessageValues ),
 	send_internal_deferred( MessageType, Message ).
@@ -1099,7 +1121,7 @@ format_trace_for( { text_traces, _TargetFormat }, { TraceEmitterPid,
 
 	% Can be a tick, an atom like 'unknown' or anything alike:
 	AppTimestampLines = text_utils:format_text_for_width(
-		io_lib:format( "~p", [ AppTimestamp ] ), ?AppTimestampWidth ),
+		io_lib:format( "~s", [ AppTimestamp ] ), ?AppTimestampWidth ),
 
 	TimeLines = text_utils:format_text_for_width(
 		io_lib:format( "~s", [ Time ] ), ?TimeWidth ),
@@ -1113,7 +1135,7 @@ format_trace_for( { text_traces, _TargetFormat }, { TraceEmitterPid,
 		io_lib:format( "~s", [ Message ] ), ?MessageWidth ),
 
 	format_linesets( PidLines, EmitterNameLines, AppTimestampLines, TimeLines,
-		PriorityLines, MessageLines ) ++ get_row_separator().
+					 PriorityLines, MessageLines ) ++ get_row_separator().
 
 
 

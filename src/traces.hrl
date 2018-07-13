@@ -22,7 +22,7 @@
 % If not, see <http://www.gnu.org/licenses/> and
 % <http://www.mozilla.org/MPL/>.
 %
-% Author: Olivier Boudeville (olivier.boudeville@esperide.com)
+% Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
 
 
@@ -134,7 +134,7 @@
 %
 -define( notify_fatal_cat( Message, EmitterCategorization ),
 		 class_TraceEmitter:send_standalone_safe( fatal, Message,
-											 EmitterCategorization )
+												  EmitterCategorization )
 ).
 
 
@@ -488,8 +488,8 @@
 -define( notify_info_fmt_em( Message, FormatValues, EmitterName,
 							 EmitterCategorization, MessageCategorization ),
 		 class_TraceEmitter:send_standalone( info,
-							  text_utils:format( Message, FormatValues ), EmitterName,
-							  EmitterCategorization, MessageCategorization )
+					  text_utils:format( Message, FormatValues ), EmitterName,
+					  EmitterCategorization, MessageCategorization )
 ).
 
 
@@ -902,7 +902,7 @@
 -define( notify_void_fmt_full( Message, FormatValues, EmitterCategorization,
 							   ApplicationTimestamp ),
 		 trace_disabled( Message, FormatValues, EmitterCategorization,
-							   ApplicationTimestamp )
+						 ApplicationTimestamp )
 ).
 
 
@@ -970,6 +970,18 @@
 		 class_TraceEmitter:send_standalone_safe( info,
 				text_utils:format( Message, FormatValues ),
 				EmitterCategorization )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_fmt_em( Message, FormatValues, EmitterName,
+						EmitterCategorization, MessageCategorization ),
+		 class_TraceEmitter:send_standalone_safe( info,
+				text_utils:format( Message, FormatValues ),
+				EmitterName, EmitterCategorization, MessageCategorization )
 ).
 
 

@@ -22,7 +22,7 @@
 % If not, see <http://www.gnu.org/licenses/> and
 % <http://www.mozilla.org/MPL/>.
 %
-% Author: Olivier Boudeville (olivier.boudeville@esperide.com)
+% Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
 
 
@@ -66,9 +66,27 @@
 -type message_type() :: trace_utils:trace_severity().
 
 
-% Type of trace supervision:
+
+% Text traces are either in pure, raw text, or in PDF:
+%
+-type trace_text_type() :: 'text_only' | 'pdf'.
+
+
+
+% A trace type must be selected so that, when the traces are aggregated, the
+% corresponding output is compliant with the tools to be used for supervision.
+%
+% So the trace type to select depends on whether LogMX should be used to browse
+% the execution traces, or just a text viewer (possibly with a PDF displaying
+% thereof); indeed it is:
+%
+% - either 'log_mx_traces', for traces typically expected to be read from the
+% LogMX tool (relyong then on our parser); see http://logmx.com/
+%
+% - or { 'text_traces', trace_text_type() }
+%
 -type trace_supervision_type() :: 'log_mx_traces'
-								| { 'text_traces', 'text_only' | 'pdf' }.
+								| { 'text_traces', trace_text_type() }.
 
 
 -export_type([ emitter_name/0, emitter_categorization/0, emitter_info/0,
@@ -158,7 +176,7 @@ receive_applicative_message() ->
 %
 % Used for synchronization purpose.
 
--spec receive_applicative_message( any() ) -> basic_utils:void().
+-spec receive_applicative_message( any() ) -> void().
 receive_applicative_message( Message=monitor_ok ) ->
 	% Would interfere with the monitoring system:
 	throw( { invalid_applicative_message, Message } );
@@ -178,7 +196,7 @@ receive_applicative_message( Message ) ->
 %
 % Defined here, since uses a trace.
 %
--spec check_pending_wooper_results() -> basic_utils:void().
+-spec check_pending_wooper_results() -> void().
 check_pending_wooper_results() ->
 
 	receive

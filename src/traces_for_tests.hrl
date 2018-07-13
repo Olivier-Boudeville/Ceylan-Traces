@@ -22,7 +22,7 @@
 % If not, see <http://www.gnu.org/licenses/> and
 % <http://www.mozilla.org/MPL/>.
 %
-% Author: Olivier Boudeville (olivier.boudeville@esperide.com)
+% Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
 
 
@@ -161,7 +161,7 @@ test_receive() ->
 % Helper function to write receive clauses for specific messages in tests while
 % not interfering with trace supervision.
 %
--spec test_receive( any() ) -> basic_utils:void().
+-spec test_receive( any() ) -> void().
 test_receive( Message ) ->
 	traces:receive_applicative_message( Message ).
 
