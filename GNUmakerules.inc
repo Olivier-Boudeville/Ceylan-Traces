@@ -45,5 +45,5 @@ TRACES_GENERATED_FILES := $(AUX_GENERATED_FILES) $(TEX_GENERATED_FILES)    \
 	$(PDF_GENERATED_FILES) $(GENERATOR_LOG_FILE) Listener-*.traces
 
 
-# Used by the clean-override target in 'Common':
+# Used by the clean-override target in Myriad:
 FILES_TO_CLEAN += $(TRACES_FILES) $(TRACES_GENERATED_FILES)

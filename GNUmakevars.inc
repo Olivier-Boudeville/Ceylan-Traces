@@ -134,7 +134,7 @@ BEAM_DIRS += $(TRACES_BEAM_DIRS)
 TRACES_BEAM_DIRS = $(TRACES_BEAM)/src
 
 
-ERLANG_COMPILER_OPT += $(ENABLE_TRACE_OPT)
+ERLANG_COMPILER_OPT_BASE += $(ENABLE_TRACE_OPT)
 
 
 # Strangely not taken into account by the compiler, hence commented-out here and
