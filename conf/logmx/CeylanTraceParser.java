@@ -24,7 +24,10 @@ import com.lightysoft.logmx.mgr.LogFileParser;
  *   |Execution.Topic.SpecificEvent|2|No answer from Object XYZ
  * """
  *
- * @see erlang/traces/conf/logmx/TraceSample.txt
+ * This parser is a part of the Ceylan-Traces project, refer to
+ * http://traces.esperide.com for more information.
+ *
+ * @see traces/conf/logmx/TraceSample.txt
  *
  */
 public class CeylanTraceParser extends LogFileParser
@@ -34,8 +37,11 @@ public class CeylanTraceParser extends LogFileParser
 	private ParsedEntry entry = null;
 
 
-	/** Entry date format */
-	private final static SimpleDateFormat DatePattern = new SimpleDateFormat(
+	/** Entry date format
+	 * (static declaration removed, to avoid a potential deadlock)
+	 *
+	 */
+	private final SimpleDateFormat DatePattern = new SimpleDateFormat(
 	  "dd/MM/yyyy HH:mm:ss" ) ;
 
 
@@ -153,7 +159,7 @@ public class CeylanTraceParser extends LogFileParser
 			entry.setDate(    fields[3].trim() );
 			entry.setLevel(   fields[7].trim() ) ;
 
-			// From field #8 to all that may remain:
+			// From field #8 to everything that may remain:
 			String remainingFields = "" ;
 
 			Integer remainingFieldsCount = fields.length - 8 ;
