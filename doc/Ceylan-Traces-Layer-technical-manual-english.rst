@@ -20,7 +20,7 @@
 
 :raw-html:`<a name="traces_top"></a>`
 
-:raw-html:`<div class="banner"><p><em>Traces documentation</em> <a href="http://traces.esperide.org">browse latest</a> <a href="https://olivier-boudeville.github.io/Ceylan-Traces/traces.html">browse mirror</a> <a href="traces.pdf">get PDF</a> <a href="#traces_top">go to top</a> <a href="#traces_bottom">go to bottom</a> <a href="mailto:about(dash)traces(at)esperide(dot)com?subject=[Ceylan-Traces]%20Remark">mail us</a></p></div>`
+:raw-html:`<div class="banner"><p><em><a href="http://traces.esperide.org">Traces documentation</a></em> <a href="http://traces.esperide.org">browse latest</a> <a href="https://olivier-boudeville.github.io/Ceylan-Traces/traces.html">browse mirror</a> <a href="traces.pdf">get PDF</a> <a href="#traces_top">go to top</a> <a href="#traces_bottom">go to bottom</a> <a href="mailto:about(dash)traces(at)esperide(dot)com?subject=[Ceylan-Traces]%20Remark">mail us</a></p></div>`
 
 
 
@@ -37,10 +37,9 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2008-2018 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation Date: Wednesday, August 11, 2010
-:Lastly Updated: Sunday, May 6, 2018
-
+:Lastly Updated: Saturday, December 8, 2018
 :Status: Work in progress
-:Version: 0.0.6
+:Version: 0.0.7
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 

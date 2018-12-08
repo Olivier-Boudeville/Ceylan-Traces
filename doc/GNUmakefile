@@ -5,11 +5,14 @@ DOCUTILS_TOP = $(TRACES_TOP)
 
 DOC_BASE_NAME := Ceylan-Traces-Layer-technical-manual-english
 
-DOC_PDF_NAME := $(DOC_BASE_NAME).pdf
+
+CURRENT_TRACES_PDF := $(DOC_BASE_NAME).pdf
+CURRENT_TRACES_HTML := $(DOC_BASE_NAME).html
+
 
 OVERALL_DOCUMENT_TARGET = $(DOC_BASE_NAME).rst
 
-DOC_GENERATED_FILES = $(DOC_PDF_NAME) $(DOC_BASE_NAME).html
+DOC_GENERATED_FILES = $(CURRENT_TRACES_PDF) $(CURRENT_TRACES_HTML)
 
 DOC_FILES = $(DOC_GENERATED_FILES)
 
@@ -17,7 +20,7 @@ DOC_FILES = $(DOC_GENERATED_FILES)
 # The current, operational version of Traces:
 CURRENT_VERSION := 1.0
 
-CURRENT_TRACES_DOC := $(DOC_PDF_NAME)-$(CURRENT_VERSION).pdf
+CURRENT_TRACES_DOC := $(CURRENT_TRACES_PDF)-$(CURRENT_VERSION).pdf
 
 PROJECT_CSS := pygments-default.css,traces.css
 
@@ -45,7 +48,8 @@ all:
 doc:
 
 
-full-doc: $(DOC_BASE_NAME).pdf $(DOC_BASE_NAME).html
+full-doc:  $(DOC_GENERATED_FILES)
+	@/bin/cat $(CURRENT_TRACES_HTML) | sed 's|^</head>|<link href="traces-icon.png" rel="icon"></head>|1' > /tmp/.traces.tmp ; /bin/mv -f /tmp/.traces.tmp $(CURRENT_TRACES_HTML)
 
 
 # Creates a separate repository for the GitHub pages branch:
