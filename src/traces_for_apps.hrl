@@ -1,6 +1,6 @@
 % Copyright (C) 2003-2019 Olivier Boudeville
 %
-% This file is part of the Ceylan Erlang library.
+% This file is part of the Ceylan-Traces library.
 %
 % This library is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License or
@@ -45,7 +45,7 @@
 
 
 % To avoid warnings if not used:
--export([ app_receive/0, app_failed/1 ]).
+-export([ app_receive/0, app_receive/1, app_failed/1, app_failed/2 ]).
 
 
 % For notify_* and al:
@@ -126,15 +126,35 @@
 
 
 % Helper function to write receive clauses in applications which cannot
-% interfere with trace supervision.
+% interfere with trace supervision, as an application may also receive trace
+% control message the application code should remain unware of.
 %
 % Returns the received value.
 %
 % Ex: Pid ! { getBaz, [], self() }, MyBaz = app_receive(), ...
 %
+% to be used instead of:
+%
+% Pid ! { getBaz, [], self() },
+% receive
+%
+%   { wooper_result, V } ->
+%			V
+%
+% end,
+% ...
+%
 -spec app_receive() -> any().
 app_receive() ->
 	traces:receive_applicative_message().
+
+
+% Helper function to write receive clauses for specific messages in applications
+% while not interfering with trace supervision.
+%
+-spec app_receive( any() ) -> void().
+app_receive( Message ) ->
+	traces:receive_applicative_message( Message ).
 
 
 
@@ -147,19 +167,31 @@ app_receive() ->
 
 % Handles an application failure.
 %
--spec app_failed( string() ) -> no_return().
+-spec app_failed( text_utils:ustring() ) -> no_return().
 app_failed( Reason ) ->
 
 	% For some reason erlang:error is unable to interpret strings as strings,
 	% they are always output as unreadable lists.
 
-	Message = io_lib:format( "Application ~s failed, reason: ~s.~n",
-							 [ ?MODULE, Reason ] ),
+	Message = text_utils:format( "Application ~s failed, reason: ~s.",
+								 [ ?MODULE, Reason ] ),
 
-	error_logger:error_msg( Message ),
+	trace_utils:error( Message ),
+
 	?app_fatal( Message ),
 
 	% Needed, otherwise error_logger may not display anything:
 	system_utils:await_output_completion(),
 
 	erlang:error( "Application ~s failed.", [ ?MODULE ] ).
+
+
+
+% Handles an application failure, using specified first string as an advertised
+% reason with format characters (ex: '~w') and specified list as actual values
+% to be formatted.
+%
+-spec app_failed( text_utils:format_string(), text_utils:format_values() ) ->
+						 no_return().
+app_failed( FormatReason, FormatValues ) ->
+	app_failed( text_utils:format( FormatReason, FormatValues ) ).

@@ -34,13 +34,13 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 ===============================================
 
 
-:Organisation: Copyright (C) 2008-2018 Olivier Boudeville
+:Organisation: Copyright (C) 2008-2019 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation Date: Wednesday, August 11, 2010
-:Lastly Updated: Sunday, April 15, 2018
+:Lastly Updated: Tuesday, January 29, 2019
 
 :Status: Work in progress
-:Version: 0.0.6
+:Version: 0.0.7
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
@@ -72,9 +72,9 @@ For that, various components have been designed and implemented, such as trace a
 
 They collectively constitute the `Traces <http://traces.esperide.org/>`_ layer, whose prerequisites are the `WOOPER <http://wooper.esperide.org/>`_ layer (for object-oriented primitives) and the `Myriad <http://myriad.esperide.org/>`_ layer (for many lower-level services).
 
-The main purpose of this **Traces** layer is to provide adequate traces for distributed systems, and to ease their browsing. A few back-ends are available for that, from the direct reading of the (raw) trace files to considerably more user-friendly solutions, such as the generation of PDF reports or the use of a commercial tool named `LogMX <http://www.logmx.com/>`_.
+The main purpose of this **Traces** layer is to provide adequate traces for distributed systems, and to ease their browsing. A few back-ends are available for that, from the direct reading of the (raw) trace files to considerably more user-friendly solutions, such as the generation of PDF reports or the use of our more advanced trace format, which can be read by commercial tools such as `LogMX <http://www.logmx.com/>` [#]_.
 
-This layer defined a trace format of its own, supported by our Java-based parser for LogMX.
+.. [#] The Ceylan-Traces layer defined a trace format of its own, supported by our Java-based parser for LogMX.
 
 
 .. Note::
@@ -195,7 +195,7 @@ Traces may be browsed thanks to either of the following supervision solutions (s
  - ``text_only`` if wanting to have traces be directly written to disk as pure, yet human-readable, text
  - ``pdf``, if wanting to read finally the traces in a generated PDF file
 
-- ``log_mx_traces``, for LogMX-compliant traces (the default) and discussed below
+- ``advanced_traces``, for smarter log tools such as LogMX (the default), as discussed below
 
 Indeed the most usual tool that we use for trace browsing is `LogMX <http://www.logmx.com/>`_, which we integrated:
 

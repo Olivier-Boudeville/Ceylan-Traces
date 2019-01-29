@@ -1,6 +1,6 @@
 % Copyright (C) 2003-2019 Olivier Boudeville
 %
-% This file is part of the Ceylan Erlang library.
+% This file is part of the Ceylan-Traces library.
 %
 % This library is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License or
@@ -135,7 +135,7 @@
 
 % Helper function to write receive clauses in tests which cannot interfere with
 % trace supervision, as a test may also receive trace control message the test
-% code should be unware of.
+% code should remain unware of.
 %
 % Returns the received value.
 %
@@ -177,16 +177,17 @@ test_receive( Message ) ->
 
 % Handles a test failure, using specified string as advertised reason.
 %
--spec test_failed( string() ) -> no_return().
+-spec test_failed( text_utils:ustring() ) -> no_return().
 test_failed( Reason ) ->
 
 	% For some reason erlang:error is unable to interpret strings as strings,
 	% they are always output as unreadable lists.
 
-	Message = io_lib:format( "Test ~s failed, reason: ~s.~n",
-							 [ ?MODULE, Reason ] ),
+	Message = text_utils:format( "Test ~s failed, reason: ~s.~n",
+								 [ ?MODULE, Reason ] ),
 
-	error_logger:error_msg( Message ),
+	trace_utils:error( Message ),
+
 	?test_fatal( Message ),
 
 	% Needed, otherwise error_logger may not display anything:
@@ -200,7 +201,7 @@ test_failed( Reason ) ->
 % with format characters (ex: '~w') and specified list as actual values to be
 % formatted.
 %
--spec test_failed( text_utils:format_string(), [ any() ] ) ->
+-spec test_failed( text_utils:format_string(), text_utils:format_values() ) ->
 						 no_return().
-test_failed( Reason, FormattedValue ) ->
-	test_failed( io_lib:format( Reason, FormattedValue ) ).
+test_failed( FormatReason, FormatValues ) ->
+	test_failed( text_utils:format( FormatReason, FormatValues ) ).

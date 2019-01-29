@@ -26,33 +26,22 @@
 % Creation date: Tuesday, January 11, 2011
 
 
-
-% Defines all the macros and exports useful for trace-using tests.
+% This is a very simple trace-enabled application, to ensure defines, build
+% targets and all other elements support them correctly.
 %
-% Allows to define exports before functions: macros and functions have been
-% split so that overall header files can be defined which start with all macros
-% and finish with all function definitions.
+-module(trace_enabled_app).
+
+
+-include("traces_for_apps.hrl").
 
 
 
-% Define functions as late as possible.
-%
-% test_trace_disabled/{1,2} must be defined whether or not traces are enabled
-% (as void traces use them in all cases), but then they might be reported as
-% unused (depending on the user code).
-%
-% Hence this report is silenced here in all cases:
+-spec exec() -> no_return().
+exec() ->
 
+	?app_start,
 
--compile( [ { nowarn_unused_function, [ { test_trace_disabled, 1 },
-										{ test_trace_disabled, 2 } ] } ] ).
+	?notify_info( "This is one of the simplest trace-enabled "
+				  "applications possible!" ),
 
-
--spec test_trace_disabled( any() ) -> void().
-test_trace_disabled( _ ) ->
-	ok.
-
-
--spec test_trace_disabled( any(), any() ) -> void().
-test_trace_disabled( _, _ ) ->
-	ok.
+	?app_stop.

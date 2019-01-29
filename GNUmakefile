@@ -7,7 +7,7 @@ TRACES_TOP = .
 		info-traces
 
 
-MODULES_DIRS = src doc #conf
+MODULES_DIRS = src tests examples doc #conf
 
 # To override the 'all' default target with a parallel version:
 BASE_MAKEFILE = true

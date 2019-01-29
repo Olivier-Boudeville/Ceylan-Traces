@@ -1,6 +1,6 @@
 % Copyright (C) 2007-2019 Olivier Boudeville
 %
-% This file is part of the Ceylan Erlang library.
+% This file is part of the Ceylan-Traces library.
 %
 % This library is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License or
@@ -26,7 +26,7 @@
 % Creation date: July 1, 2007.
 
 
-% This module gathers all code that allows to lighten the trace macros for
+% This module gathers all the code that allows to lighten the trace macros for
 % applications.
 %
 -module(traces_for_apps).
@@ -53,6 +53,9 @@
 -include("traces_app_footer.hrl").
 
 
+% Shorthand:
+
+-type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
 
 
 % To be called from the counterpart macro.
@@ -66,7 +69,7 @@
 %
 % Returns TraceAggregatorPid.
 %
--spec app_start( basic_utils:module_name(), boolean() ) -> pid().
+-spec app_start( basic_utils:module_name(), boolean() ) -> aggregator_pid().
 app_start( ModuleName, _InitTraceSupervisor=true ) ->
 
 	% First jump to the other clause:
@@ -110,7 +113,7 @@ app_start( ModuleName, _InitTraceSupervisor=false ) ->
 
 
 % To be called from the counterpart macro.
--spec app_stop( basic_utils:module_name(), pid() ) -> no_return().
+-spec app_stop( basic_utils:module_name(), aggregator_pid() ) -> no_return().
 app_stop( ModuleName, TraceAggregatorPid ) ->
 
 	class_TraceSupervisor:wait_for(),
@@ -120,7 +123,8 @@ app_stop( ModuleName, TraceAggregatorPid ) ->
 
 
 % To be called from the counterpart macro.
--spec app_immediate_stop( basic_utils:module_name(), pid() ) -> no_return().
+-spec app_immediate_stop( basic_utils:module_name(), aggregator_pid() ) ->
+								no_return().
 app_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 
 	% Stop trace sent there:
@@ -131,7 +135,8 @@ app_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 
 
 % To be called from the counterpart macro.
--spec app_stop_on_shell( basic_utils:module_name(), pid() ) -> no_return().
+-spec app_stop_on_shell( basic_utils:module_name(), aggregator_pid() ) ->
+							   no_return().
 app_stop_on_shell( ModuleName, TraceAggregatorPid ) ->
 
 	?app_info_fmt( "Stopping application ~s.", [ ModuleName ] ),

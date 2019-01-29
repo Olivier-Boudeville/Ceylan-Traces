@@ -1,6 +1,6 @@
 % Copyright (C) 2003-2019 Olivier Boudeville
 %
-% This file is part of the Ceylan Erlang library.
+% This file is part of the Ceylan-Traces library.
 %
 % This library is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License or
@@ -26,64 +26,78 @@
 % Creation date: July 1, 2007.
 
 
-% Trace listener, similar to a remote supervisor.
+% Trace listener, similar to a remote trace supervisor.
 %
 % This version just uses LogMX (http://logmx.com) to track the default execution
 % trace file, which will be synchronized automatically: history will be
 % retrieved under a zipped form from the aggregator, and next traces will be
 % sent directly to this listener as well as to the aggregator.
 %
-% So the corresponding trace aggregator must have been run with the LogMX trace
-% type beforehand (log_mx_traces).
+% So the corresponding trace aggregator must have been run with the
+% LogMX-compliant trace type beforehand, i.e. advanced_traces.
 %
 -module(class_TraceListener).
 
 
 % Determines what are the mother classes of this class (if any):
--define( wooper_superclasses, [] ).
+-define( superclasses, [] ).
 
 
-% Parameters taken by the constructor ('construct').
--define( wooper_construct_parameters, TraceAggregatorPid, CloseListenerPid ).
+% Describes the class-specific attributes:
+-define( class_attributes, [
+
+	{ trace_filename, file_utils:file_path(),
+	  "the name of the file where traces are to be stored (ex: *.traces)" },
+
+	{ trace_file, file_utils:file_path(),
+	  "the actual file where traces are written" },
+
+	{ trace_aggregator_pid, aggregator_pid(),
+	  "the PID of the supervised trace aggregator" },
+
+	{ temp_dir, file_utils:directory_name(), "the name of the directory where "
+	  "the compressed trace archive will be stored" },
+
+	{ supervision_waiter_pid, maybe( pid() ),
+	  "the PID of the helper process (if any) in charge of waiting for the "
+	  "trace interface to be closed" },
+
+	{ close_listener_pid, maybe( pid() ),
+	  "the PID of the process (if any) to notify whenever this listener is "
+	  "to terminate (typically so that the calling application can itself "
+	  "terminate afterwards)" } ] ).
 
 
-% Declaring all variations of WOOPER standard life-cycle operations:
-% (template pasted, two replacements performed to update arities)
--define( wooper_construct_export, new/2, new_link/2,
-		 synchronous_new/2, synchronous_new_link/2,
-		 synchronous_timed_new/2, synchronous_timed_new_link/2,
-		 remote_new/3, remote_new_link/3, remote_synchronous_new/3,
-		 remote_synchronous_new_link/3, remote_synchronisable_new_link/3,
-		 remote_synchronous_timed_new/3, remote_synchronous_timed_new_link/3,
-		 construct/3, destruct/1 ).
+% The PID of a trace listener:
+-type listener_pid() :: pid().
 
+-export_type([ listener_pid/0 ]).
 
-
-% Method declarations.
--define( wooper_method_export, monitor/1, addTrace/2, onMonitoringOver/2 ).
-
-
-% Static method declarations (to be directly called from module):
--export([ create/1 ]).
 
 
 % Allows to define WOOPER base variables and methods for that class:
 -include("wooper.hrl").
 
 
--define(LogPrefix,"[Trace Listener]").
+-define( LogPrefix, "[Trace Listener]" ).
 
 
 %-define( LogOutput( Message, Format ), io:format( Message, Format ) ).
 -define( LogOutput( Message, Format ), void ).
 
 
+% Shorthand:
+
+-type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
+
+
 
 % Implementation notes:
 %
-% In some (presumably rare) cases, LogMX may display a message twice. To
-% compare traces for equality, one should preferably compare directly *.traces
-% files.
+% In some (presumably rare) cases, LogMX may display a message twice.
+%
+% To compare traces for equality, one should preferably compare directly
+% *.traces files.
 
 % We cannot block the listener process with a synchronous execution of LogMX, as
 % this would prevent the listener to receive new trace messages. So we shall
@@ -99,51 +113,40 @@
 
 
 
-% Class-specific attributes:
-%
-% - supervision_waiter_pid :: pid() allows to keep track of the process in
-% charge of waiting for the trace interface to be closed
-%
-% - close_listener_pid :: maybe( pid() ) corresponds to the process (if any) to
-% notify the listener is terminating (typically so that the calling application
-% can itself terminate afterwards)
-
-
-
 % Constructs a new trace listener.
 %
 % TraceAggregatorPid is the PID of the trace aggregator to which this listener
 % will be synchronized.
 %
--spec construct( wooper:state(), pid(), pid() ) -> wooper:state().
-construct( State, ?wooper_construct_parameters ) ->
+-spec construct( wooper:state(), aggregator_pid(), pid() ) -> wooper:state().
+construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 
-	io:format( "~s Creating a trace listener whose PID is ~w, "
-			   "synchronized on trace aggregator ~w.~n",
-			   [ ?LogPrefix, self(), TraceAggregatorPid ] ),
+	trace_utils:info_fmt( "~s Creating a trace listener whose PID is ~w, "
+						  "synchronized on trace aggregator ~w.",
+						  [ ?LogPrefix, self(), TraceAggregatorPid ] ),
 
-	% First the direct mother classes (none), then this class-specific actions:
-
-	io:format( "~s Requesting from aggregator a trace synchronization.~n",
-			   [ ?LogPrefix ] ),
+	trace_utils:debug_fmt(
+	  "~s Requesting from aggregator a trace synchronization.",
+	  [ ?LogPrefix ] ),
 
 	TraceAggregatorPid ! { addTraceListener, self() },
 
 	% We used to rely on basic ZIP sent over Erlang messages:
 	%receive
 	%
-	%	 { trace_zip, Bin, TraceFilename } ->
+	%	 { trace_sending, Bin, TraceFilename } ->
 	%
 	%			% Allows to run for the same directory as aggregator:
 	%			ListenerTraceFilename = "Listener-" ++ TraceFilename,
 	%
 	%           file_utils:zipped_term_to_unzipped_file( Bin,
 	%										 ListenerTraceFilename ),
-	%	{ trace_zip, ErrorReason } ->
+	%	{ trace_sending, ErrorReason } ->
 	%
-	%		io:format( "~s Trace listener cannot listen to current trace "
+	%		trace_utils:error_fmt(
+	%                  "~s Trace listener cannot listen to current trace "
 	%				   "aggregator, as this aggregator does not use "
-	%				   "LogMX-based traces.~n", [ ?LogPrefix ] ),
+	%				   "LogMX-based traces.", [ ?LogPrefix ] ),
 	%
 	%		throw( { cannot_listen_aggregator, TraceAggregatorPid,
 	%				 ErrorReason } )
@@ -163,14 +166,14 @@ construct( State, ?wooper_construct_parameters ) ->
 
 	file_utils:remove_file( CompressedFilename ),
 
-	io:format( "~s Received from aggregator a trace synchronization "
-			   "for file '~s', reused for later traces.~n",
-			   [ ?LogPrefix, TraceFilename ] ),
+	trace_utils:trace_fmt( "~s Received from aggregator a trace "
+						   "synchronization for file '~s', reused for "
+						   "later traces.", [ ?LogPrefix, TraceFilename ] ),
 
 	% Will write in it newly received traces (sent through messages):
-	%File = file_utils:open( TraceFilename,
-	%			[ append, raw, { delayed_write, _Size=1024, _Delay=200 } ] ),
-	File = file_utils:open( TraceFilename, [ append ] ),
+	File = file_utils:open( TraceFilename,
+				[ append, raw, { delayed_write, _Size=1024, _Delay=200 } ] ),
+	%File = file_utils:open( TraceFilename, [ append ] ),
 
 	NewState = setAttributes( State, [
 				{ trace_aggregator_pid, TraceAggregatorPid },
@@ -178,12 +181,11 @@ construct( State, ?wooper_construct_parameters ) ->
 				{ trace_file, File },
 				{ temp_dir, TempDir },
 				{ supervision_waiter_pid, undefined },
-				{ close_listener_pid, CloseListenerPid }
-									 ] ),
+				{ close_listener_pid, CloseListenerPid } ] ),
 
 	EndState = executeOneway( NewState, monitor ),
 
-	io:format( "~s Trace listener created.~n", [ ?LogPrefix ] ),
+	trace_utils:trace_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
 
 	EndState.
 
@@ -194,9 +196,7 @@ construct( State, ?wooper_construct_parameters ) ->
 -spec destruct( wooper:state() ) -> wooper:state().
 destruct( State ) ->
 
-	io:format( "~s Deleting trace listener.~n", [ ?LogPrefix ] ),
-
-	% Class-specific actions:
+	trace_utils:info_fmt( "~s Deleting trace listener.", [ ?LogPrefix ] ),
 
 	% Important message, to avoid loading the aggregator with sendings to
 	% defunct listeners:
@@ -209,19 +209,18 @@ destruct( State ) ->
 
 	file_utils:remove_directory( ?getAttr(temp_dir) ),
 
-
 	case ?getAttr(close_listener_pid) of
 
-		P when is_pid( P ) ->
-			%io:format( "Notifying close listener of deletion.~n" ),
-			P ! { trace_listening_finished, self() };
+		Pid when is_pid( Pid ) ->
+			%trace_utils:info( "Notifying close listener of deletion." ),
+			Pid ! { trace_listening_finished, self() };
 
 		_ ->
 			ok
 
 	end,
 
-	io:format( "~s Trace listener deleted.~n", [ ?LogPrefix ] ),
+	trace_utils:info_fmt( "~s Trace listener deleted.", [ ?LogPrefix ] ),
 
 	% Allow chaining:
 	State.
@@ -232,14 +231,13 @@ destruct( State ) ->
 % Methods section.
 
 
+
 % Triggers an asynchronous supervision (trace monitoring).
 %
 % Will return immediately.
 %
-% Note: directly inspired from class_TraceSupervisor.erl: monitor/1 and
+% Note: directly inspired from class_TraceSupervisor.erl, for monitor/1 and
 % blocking_monitor/1.
-%
-% (oneway)
 %
 -spec monitor( wooper:state() ) -> oneway_return().
 monitor( State ) ->
@@ -252,15 +250,16 @@ monitor( State ) ->
 			ok;
 
 		false ->
-			error_logger:error_msg( "class_TraceListener:monitor "
-									"unable to find trace file '~s'.~n",
-									[ Filename ] ),
+			trace_utils:error_fmt( "class_TraceListener:monitor/1 "
+								   "unable to find trace file '~s'.",
+								   [ Filename ] ),
 			trace_file_not_found
 
 	end,
 
-	io:format( "~s Trace listener will monitor file '~s' with LogMX now.~n",
-			   [ ?LogPrefix, Filename ] ),
+	trace_utils:info(
+	  "~s Trace listener will monitor file '~s' with LogMX now.",
+	  [ ?LogPrefix, Filename ] ),
 
 	Self = self(),
 
@@ -271,14 +270,15 @@ monitor( State ) ->
 			   executable_utils:get_default_trace_viewer_path() ++ " '"
 			   ++ Filename ++ "'" ) of
 
-				{ _ExitCode=0, _Output } ->
-					io:format( "~s Trace listener ended the monitoring "
-							   "of '~s'.~n", [ ?LogPrefix, Filename ] );
+			{ _ExitCode=0, _Output } ->
+				trace_utils:info_fmt(
+				  "~s Trace listener ended the monitoring of '~s'.",
+				  [ ?LogPrefix, Filename ] );
 
-				{ ExitCode, ErrorOutput } ->
-					error_logger:error_msg( "The trace listening failed "
-											"(error code: ~B): ~s.~n",
-											[ ExitCode, ErrorOutput ] )
+			{ ExitCode, ErrorOutput } ->
+				trace_utils:error_fmt( "The trace listening failed "
+									   "(error code: ~B): ~s.",
+									   [ ExitCode, ErrorOutput ] )
 
 		end,
 
@@ -287,33 +287,32 @@ monitor( State ) ->
 
 							end ),
 
-
 	SupState = setAttribute( State, supervision_waiter_pid, WaiterPid ),
 
-	?wooper_return_state_only( SupState ).
+	wooper:return_state( SupState ).
 
 
 
 % Registers a new pre-formatted trace in trace file.
+%
 % To be called by the trace aggregator.
 %
-% (oneway)
-%
--spec addTrace( wooper:state(), binary() ) -> oneway_return().
+-spec addTrace( wooper:state(), text_utils:bin_string() ) ->
+					  const_oneway_return().
 addTrace( State, NewTrace ) ->
 
-	io:format( ?getAttr(trace_file), "~s", [ binary_to_list( NewTrace ) ] ),
+	% Write to file:
+	io:format( ?getAttr(trace_file), "~s", [
+						text_utils:binary_to_string( NewTrace ) ] ),
 
-	?wooper_return_state_only( State ).
+	wooper:const_return().
 
 
 
 % Callback triggered when the waiter process detected that the supervision tool
 % has been closed.
 %
-% (oneway)
-%
--spec onMonitoringOver( wooper:state(), pid() ) -> oneway_return().
+-spec onMonitoringOver( wooper:state(), pid() ) -> const_oneway_return().
 onMonitoringOver( State, WaiterPid ) ->
 
 	% Check:
@@ -321,22 +320,22 @@ onMonitoringOver( State, WaiterPid ) ->
 
 	self() ! delete,
 
-	?wooper_return_state_only( State ).
+	wooper:const_return().
 
 
 
-% 'Static' methods (module functions):
+% Static section:
 
 
 % Creates the trace listener that will synchronize itself to the specified
 % aggregator.
 %
-% (static)
-%
--spec create( pid() ) -> pid().
+-spec create( aggregator_pid() ) -> static_return( listener_pid() ).
 create( AggregatorPid ) ->
 
 	% No link here, not wanting to take down the whole system because of a
 	% listener:
 	%
-	new( AggregatorPid, _CloseListenerPid=undefined ).
+	ListenerPid = new( AggregatorPid, _CloseListenerPid=undefined ),
+
+	wooper:return_static( ListenerPid ).
