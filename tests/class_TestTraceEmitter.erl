@@ -40,7 +40,7 @@
 
 
 % Used by the trace_categorize/1 macro to use the right emitter:
-%-define( trace_emitter_categorization, "TraceEmitter.Test" ).
+-define( trace_emitter_categorization, "TraceEmitter.Test" ).
 
 
 % Exported helpers:
@@ -94,8 +94,8 @@ construct( State, TraceEmitterName ) ->
 destruct( State ) ->
 
 	% Class-specific actions:
-	trace_utils:info( "~s Deleting test trace emitter ~s.",
-					  [ ?LogPrefix, ?getAttr(name) ] ),
+	trace_utils:info_fmt( "~s Deleting test trace emitter ~s.",
+						  [ ?LogPrefix, ?getAttr(name) ] ),
 
 	% Last moment to send traces:
 	?fatal(   "Goodbye fatal world!"   ),
@@ -106,8 +106,8 @@ destruct( State ) ->
 	?debug(   "Goodbye debug world!"   ),
 	?void(    "Goodbye void world!"   ),
 
-	trace_utils:info( "~s Test trace emitter ~s deleted.",
-					  [ ?LogPrefix, ?getAttr(name) ] ),
+	trace_utils:info_fmt( "~s Test trace emitter ~s deleted.",
+						  [ ?LogPrefix, ?getAttr(name) ] ),
 
 	% Allows chaining:
 	State.

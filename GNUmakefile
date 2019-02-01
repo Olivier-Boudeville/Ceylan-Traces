@@ -4,7 +4,7 @@ TRACES_TOP = .
 .PHONY: help help-intro help-traces                                   \
 		all register-version-in-header register-traces list-beam-dirs \
 		add-prerequisite-plts link-plt                                \
-		info-traces
+		stats info-traces
 
 
 MODULES_DIRS = src tests examples doc #conf
@@ -53,6 +53,10 @@ add-prerequisite-plts: link-plt
 # As upper layers may rely on the 'traces' naming:
 link-plt:
 	@/bin/ln -s $(PLT_FILE) $(TRACES_PLT_FILE)
+
+
+stats:
+	@$(MAKE_CODE_STATS) $(TRACES_TOP)
 
 
 info-traces:

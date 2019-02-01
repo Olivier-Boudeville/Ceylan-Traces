@@ -162,8 +162,8 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 	% Creates the trace file as soon as possible:
 	File = open_trace_file( AbsTraceFilename ),
 
-	% Increases the chances that this aggregator does not lag too much behind the
-	% current application state:
+	% Increases the chances that this aggregator does not lag too much behind
+	% the current application state:
 	%
 	erlang:process_flag( priority, _Level=high ),
 
@@ -186,13 +186,13 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 	PrivateState = case IsPrivate of
 
 		true ->
-			trace_utils:info( "~s Creating a private trace aggregator, "
-							  "whose PID is ~w.", [ ?LogPrefix, self() ] ),
+			trace_utils:info_fmt( "~s Creating a private trace aggregator, "
+								  "whose PID is ~w.", [ ?LogPrefix, self() ] ),
 			setAttribute( SetState, is_private, true );
 
 		false ->
-			%trace_utils:info( "~n~s Creating the trace aggregator, "
-			%   "whose PID is ~w.", [ ?LogPrefix, self() ] ),
+			%trace_utils:info_fmt( "~n~s Creating the trace aggregator, "
+			%					  "whose PID is ~w.", [ ?LogPrefix, self() ] ),
 
 			naming_utils:register_as( ?trace_aggregator_name,
 									  local_and_global ),
@@ -296,7 +296,7 @@ destruct( State ) ->
 				++ " '" ++ PdfTargetFilename ++ "' VIEW_PDF=no",
 
 			%trace_utils:info_fmt( "PDF generation command is '~s'.",
-			% [ GenerationCommand ] ),
+			%					  [ GenerationCommand ] ),
 
 			case system_utils:run_executable( GenerationCommand ) of
 
@@ -561,7 +561,7 @@ addTraceListener( State, ListenerPid ) ->
 			% So finally the server-side renaming is useless, and it will be
 			% done by the listener:
 
-			trace_utils:trace_fmt( "Sending '~s' to ~w.",
+			trace_utils:trace_fmt( "Sending '~s' to listener ~w.",
 								   [ XZFilename, ListenerPid ] ),
 
 			net_utils:send_file( XZFilename, ListenerPid ),
@@ -790,7 +790,7 @@ overload_monitor_main_loop( AggregatorPid ) ->
 	% Every 2s:
 	after 2000 ->
 
-			{ message_queue_len, QueueLen } = 
+			{ message_queue_len, QueueLen } =
 				erlang:process_info( AggregatorPid, message_queue_len ),
 
 			case QueueLen of
@@ -905,8 +905,8 @@ send_internal_immediate( MessageType, Message, State ) ->
 %
 % (helper)
 %
--spec send_internal_immediate( traces:message_type(), 
-		text_utils:format_string(), text_utils:format_values(), 
+-spec send_internal_immediate( traces:message_type(),
+		text_utils:format_string(), text_utils:format_values(),
 		wooper:state() ) -> wooper:state().
 send_internal_immediate( MessageType, MessageFormat, MessageValues, State ) ->
 	Message = text_utils:format( MessageFormat, MessageValues ),
@@ -1154,13 +1154,13 @@ format_full_lines( _Rows=[], Acc, RemainingLineCount, Res, CurrentLine ) ->
 					   [ CurrentLine ++ "|" | Res ], "" );
 
 % Here the corresponding column has no more content, just filling with spaces:
-format_full_lines( _Rows=[ { [], Width } | ColumnPairs ], Acc, 
+format_full_lines( _Rows=[ { [], Width } | ColumnPairs ], Acc,
 				   RemainingLineCount, Res, CurrentLine ) ->
 	format_full_lines( ColumnPairs, [ { [], Width } | Acc ], RemainingLineCount,
 		Res, CurrentLine ++ "|" ++ string:chars( $\ ,Width ) );
 
 % Here the corresponding column has content, just adding it:
-format_full_lines( _Rows=[ { [ Line | OtherLines ], Width } | ColumnPairs ], 
+format_full_lines( _Rows=[ { [ Line | OtherLines ], Width } | ColumnPairs ],
 				   Acc, RemainingLineCount, Res, CurrentLine ) ->
 	format_full_lines( ColumnPairs, [ { OtherLines, Width } | Acc ],
 					   RemainingLineCount, Res, CurrentLine ++ "|" ++ Line ).
@@ -1223,7 +1223,7 @@ inspect_fields( FieldsReceived ) ->
 			   "- Location: '~w', i.e. '~p' (~s)~n"
 			   "- MessageCategorization: '~w', i.e. '~p' (~s)~n"
 			   "- Priority: '~w', i.e. '~p' (~s)~n"
-			   "- Message: '~w', i.e. '~p' (~s)~n~n",
+			   "- Message: '~w', i.e. '~p' (~s)~n",
 			   AllVars ).
 
 

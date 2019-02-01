@@ -53,7 +53,7 @@
 % right emitter category).
 %
 % As a consequence, each trace-emitting class shall:
-
+%
 %  - define its emitter categorization, thanks to the
 %  trace_emitter_categorization define; for example:
 %      -define( trace_emitter_categorization, "vehicle.car.sedan" ).
@@ -67,8 +67,8 @@
 % Should this macro not be used in a constructor, the actual trace
 % categorization will be the first one (if any) set through the upstream
 % inheritance. If none of these classes ever set its
-% trace_emitter_categorization define, it will be default to
-% the default_trace_emitter_categorization define.
+% trace_emitter_categorization define, it will be default to the
+% default_trace_emitter_categorization one.
 %
 -define( trace_categorize( TracesInitialisationTermInternal ),
 

@@ -65,7 +65,7 @@
 % The class-specific trace_emitter_categorization define will be set in the
 % trace_categorization attribute of each child class when coming down the
 % inheritance hierarchy, so that the latest child class sets its targeted
-% trace_categorization value.)
+% trace_categorization value).
 
 
 % The name of a trace emitter.

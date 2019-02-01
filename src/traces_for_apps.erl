@@ -60,9 +60,9 @@
 
 % To be called from the counterpart macro.
 %
-% Here we disable explicitly the trapping of EXIT events, as a function run
+% Here we disable explicitly the trapping of EXIT signals, as a function run
 % through "erl -eval" (like our apps) or through "erl -run" will be executed in
-% a process which will silently trap EXIT events, which would mean that the
+% a process which will silently trap EXIT signals, which would mean that the
 % crash of any process created from the app, even thanks to spawn_link, would
 % most probably remain unnoticed (just leading to an EXIT message happily
 % sitting in the mailbox of the app process).

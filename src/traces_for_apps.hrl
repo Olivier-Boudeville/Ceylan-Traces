@@ -56,6 +56,16 @@
 
 
 % Start/stop section.
+%
+% Any application that is not using (directly on not) traces_for_apps:app_start/2
+% (like with the macros below) should then execute by itself:
+%
+%    erlang:process_flag( trap_exit, false )
+%
+% otherwise the application will silently trap EXIT signals, typically resulting in
+% having linked instances failing without notice.
+%
+% See the comment of traces_for_apps:app_start/2 for more details.
 
 
 -ifdef(tracing_activated).
@@ -64,8 +74,10 @@
 % TraceAggregatorPid voluntarily exported from app_start, for app_stop:
 
 -define( app_start,
-		 TraceAggregatorPid = traces_for_apps:app_start( ?MODULE,
-											   _InitTraceSupervisor=true )
+
+		 % true is for InitTraceSupervisor (not even binding a mute variable for
+		 % that)
+		 TraceAggregatorPid = traces_for_apps:app_start( ?MODULE, true )
 ).
 
 
@@ -87,9 +99,12 @@
 % may have been recompiled to be trace-enabled.
 %
 % However no trace supervisor is needed here.
+%
 -define( app_start,
-		 TraceAggregatorPid = traces_for_apps:app_start( ?MODULE,
-										   _InitTraceSupervisor=false ) ).
+
+		 % false is for InitTraceSupervisor (not even binding a mute variable
+		 % for that)
+		 TraceAggregatorPid = traces_for_apps:app_start( ?MODULE, false ) ).
 
 
 

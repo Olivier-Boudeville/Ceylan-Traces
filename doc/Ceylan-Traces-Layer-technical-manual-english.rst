@@ -44,7 +44,7 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
-	The role of the `Traces <http://traces.esperide.org/>`_ layer (part of the `Ceylan <https://github.com/Olivier-Boudeville/Ceylan>`_ project) is to provide trace services, so that the user can efficiently log, browse and search through detailed runtime messages that may be emitted concurrently (in parallel, and in a distributed way).
+	The role of the `Traces <http://traces.esperide.org/>`_ layer (part of the `Ceylan <https://github.com/Olivier-Boudeville/Ceylan>`_ project) is to provide Erlang applications with advanced trace services, so that the user can efficiently log, browse and search through detailed runtime messages that may be emitted concurrently (in parallel, and in a distributed way).
 
 	We present here a short overview of these services, to introduce them to newcomers.
 	The next level of information is to read the corresponding `source files <https://github.com/Olivier-Boudeville/Ceylan-Traces>`_, which are intensely commented and generally straightforward.
@@ -72,7 +72,7 @@ For that, various components have been designed and implemented, such as trace a
 
 They collectively constitute the `Traces <http://traces.esperide.org/>`_ layer, whose prerequisites are the `WOOPER <http://wooper.esperide.org/>`_ layer (for object-oriented primitives) and the `Myriad <http://myriad.esperide.org/>`_ layer (for many lower-level services).
 
-The main purpose of this **Traces** layer is to provide adequate traces for distributed systems, and to ease their browsing. A few back-ends are available for that, from the direct reading of the (raw) trace files to considerably more user-friendly solutions, such as the generation of PDF reports or the use of our more advanced trace format, which can be read by commercial tools such as `LogMX <http://www.logmx.com/>` [#]_.
+The main purpose of this **Traces** layer is to provide adequate traces for distributed systems (a rather critical feature in order to debug in these difficult contexts), and to ease their study and browsing. A few back-ends are available for that, from the direct reading of the (raw) trace files to considerably more user-friendly solutions, such as the generation of PDF reports or the use of our more advanced trace format, which can be read by commercial tools such as `LogMX <http://www.logmx.com/>`_ [#]_.
 
 .. [#] The Ceylan-Traces layer defined a trace format of its own, supported by our Java-based parser for LogMX.
 
@@ -80,17 +80,36 @@ The main purpose of this **Traces** layer is to provide adequate traces for dist
 .. Note::
   In some cases, it may be convenient to have one's lower-level, debugging traces be directly output on the console.
 
-  Then, once the basic bugs are fixed (ex: the program is not crashing anymore), the full power of this ``Traces`` layer can be best used, by switching these first, basic traces to the more advanced traces presented here.
+  Then, once the most basic bugs are fixed (ex: the program is not crashing anymore), the full power of this ``Traces`` layer can be best used, by switching these first, basic traces to the more advanced traces presented here.
 
   To output (basic) console traces, one may use the `trace_utils <https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/src/utils/trace_utils.erl>`_ module of the ``Myriad`` layer. For example:
 
   ``trace_utils:debug_fmt("Hello world #~B",[2])``
 
-  Then, to anticipate a bit, switching to the mainstream, more advanced traces discussed here is just a matter of replacing, for a trace type T (ex: ``debug``), ``trace_utils:T`` with ``?T``, like in:
+  Then, to anticipate a bit, switching to the mainstream, more advanced traces discussed here is just a matter of replacing, for a given trace type ``T`` (ex: ``debug``), ``trace_utils:T`` with ``?T``, like in:
 
   ``?debug_fmt("Hello world #~B",[2])``
   (with no further change in the trace parameters).
 
+
+Note that for example ``?debug(Message)`` is a macro that expands to:
+
+.. code:: erlang
+
+  class_TraceEmitter:send( debug, State, Message )
+
+As a result, the availability of a ``State`` variable in the scope of this macro is expected. Moreover, this WOOPER state variable shall be the one of a ``class_TraceEmitter`` instance (either directly or, more probably, through inheritance).
+
+This is not a problem for using traces in member methods (as by design they should be offering such a ``State``), yet in constructors the initial state is generally not the one of a trace emitter already.
+
+As a result, an instance will not be able to send traces until the completion of its ``class_TraceEmitter`` own constructor and then it shall rely on that resulting state (for example named ``TraceState``). Sending a trace from that point should be done using ``?send_debug(TraceState,Message)``.
+
+
+Finally, it should be noted that the ordering of the reported traces is the one seen by the trace aggregator, based on their receiving order by this process (not for example based on any sending order of the various emitters involved - there is hardly any available global time anyway).
+
+So, due to network and emitter latencies, it may happen (rather infrequently) that in a distributed setting a trace message associated to a cause ends up being listed, among the registered traces, *after* a trace message associated to a consequence thereof [#]_; nevertheless each trace includes a wall-clock timestamp corresponding to its sending (hence expressed according to the local time of its trace emitter).
+
+.. [#] A total, reproducible order on the distributed traces could be implemented, yet its runtime cost would be sufficiently high to have a far larger impact onto the executions that this trace system is to instrument than the current system (and such an impact would of course not be desirable).
 
 
 --------------
@@ -143,42 +162,28 @@ Its purpose is to provide another means of muting/unmuting some traces, instead 
 
 :raw-latex:`\pagebreak`
 
-Trace Format
-============
+-------------
+Trace Content
+-------------
 
-A set of traces is represented as an ordered stream of trace lines.
+The traces corresponding to an execution are represented as an wallclock-time ordered stream of trace messages.
 
 These traces are possibly exchanged over the network or stored in a file, whose extension is conventionally ``.traces``.
 
 For example the traces for a test named ``my_foobar_test`` are typically stored in a ``my_foobar_test.traces`` file, generated by the trace aggregator in the directory from which the corresponding test was launched.
 
-Each trace line is a raw text (hence not a binary content) made of a series of predefined fields, separated by the pipe (``|``) character.
-
-These fields are:
+Following data is associated to a given trace:
 
  #. **technical identifier of the emitter**, as a string (ex: ``<9097.51.0>`` for the PID of a distributed Erlang process)
  #. **name of the emitter** (ex: ``"Instance tracker"``)
- #. **dotted categorization of the emitter** (ex: ``"Core.Tracker.Instances"``); here for example the emitter is an element of the service in charge of the instances, which itself belongs to the tracker services, which themselves belong to the core services
- #. **application-level timestamp** (ex: operation count, relative tick, absolute timestep, or any complex, application-specific timestamp, etc.), possibly ``none`` or ``undefined`` if not applicable (ex: a simulation that would not be started yet)
- #. **wall-clock timestamp**, in the ``"Year/Month/Day Hour:Minute:Second"`` format (ex: ``"2016/6/10 15:43:31"``)
+ #. **dotted categorization of the emitter** (ex: ``"Core.Tracker.Instances"``); here for example the emitter is an element of the service in charge of the instances, which itself belongs to the tracker services, which themselves belong to the (even more general) core services
+ #. **application-level timestamp** (ex: operation count, relative tick, absolute timestep, or any complex, application-specific timestamp, etc.), possibly ``none``, or ``undefined`` if not applicable (ex: a simulation that would not be started yet)
+ #. **wall-clock timestamp**, in the ``"Year/Month/Day Hour:Minute:Second"`` format (ex: ``"2016/6/10 15:43:31"``); this is an emitter-side timestamp (hence not related to the wallclock time known of the trace aggregator)
  #. **emitter location**, as a string (ex: the name of the Erlang node, possibly including the name of the application use case, of the user and of the host; ex: ``my_foobar_test_john@hurricane.org``)
  #. **dotted categorization of the trace message** itself (ex: ``MyApp.MyTopic.MyTheme``)
  #. **severity of the trace message** (mapped to an integer level, as discussed above)
- #. the **trace message** itself, an arbitrary text of arbitrary length, possibly containing any number of instances of the field delimiter
+ #. the **trace message** itself, an arbitrary text of arbitrary length
 
-
-Example of trace line (end of lines added for readability)::
-
-  <0.45.0>|I am a test emitter of traces|TraceEmitter.Test|none|
-  2016/6/13 14:21:16|traceManagement_run-paul@hurricane.foobar.org|
-  MyTest.SomeCategory|6|Hello debug world!
-
-or::
-
-  <9097.51.0>|Instance tracker|Core.Tracker.Instances|14875|
-  2016/6/10 15:43:31|My_application_case-john@hurricane.foobar.org|
-  Execution.Uncategorized|4|Creating a new root instance tracker
-  whose troubleshooting mode is enabled.
 
 
 
@@ -193,7 +198,7 @@ Traces may be browsed thanks to either of the following supervision solutions (s
 - ``text_traces``, itself available in two variations:
 
  - ``text_only`` if wanting to have traces be directly written to disk as pure, yet human-readable, text
- - ``pdf``, if wanting to read finally the traces in a generated PDF file
+ - ``pdf``, if wanting to read finally the traces in a generated PDF file (hence the actual text includes a relevant mark-up, and as such is less readable directly)
 
 - ``advanced_traces``, for smarter log tools such as LogMX (the default), as discussed below
 
@@ -211,10 +216,10 @@ We implemented a Java-based parser of our trace format for LogMX (see ``CeylanTr
 
 Traces can be browsed with this tool:
 
-- **live** (i.e. during the execution of the program), either from its start or upon connection to the running program whilst it is already running [#]_ (see ``class_TraceListener.erl``)
-- **post mortem** (i.e. after the program terminated for any reason, based on the trace file it left)
+- **live** (i.e. during the execution of the program), either from its start or upon connection to the instrumented program whilst it is already running [#]_ (see ``class_TraceListener.erl``)
+- **post mortem** (i.e. after the program terminated for any reason, based on the trace file that it left)
 
-.. [#] In which case the trace supervisor will receive transactionally a compressed version of all past traces then all new ones, hence with none possibly lost.
+.. [#] In which case the trace supervisor will first receive, transactionally, a compressed version of all past traces; then all new ones will be sent to this new listener, resulting in no trace being possibly lost.
 
 
 The trace supervision solution can be switched at compile time (see the ``TraceType`` defined in ``traces/src/traces.hrl``); the ``Traces`` layer shall then be rebuilt.
@@ -235,7 +240,7 @@ General Mode of Operation
 
 All processes are able to emit traces, either by using standalone trace sending primitives (mostly for plain Erlang processes), or by inheriting from the ``TraceEmitter`` class, in the (general) case of `WOOPER <http://wooper.esperide.org>`_-based processes.
 
-In the vast majority of cases, all these emitters send their traces to a single trace aggregator, in charge of collecting them and storing them on-disk, according to an adequate trace format.
+In the vast majority of cases, all these emitters send their traces to a single trace aggregator, in charge of collecting them and storing them on-disk (for most uses, their memory footprint would be quickly too large for RAM), according to an adequate trace format.
 
 This trace format can be parsed by various trace supervisors, the most popular being `LogMX <http://www.logmx.com>`_.
 
@@ -252,6 +257,28 @@ Trace Emitters
 
 When sending a trace, an emitter relies on its ``trace_timestamp`` attribute, and sends a (binarised) string representation thereof (obtained thanks to the ``~p`` quantifier of ``io:format/2`` ). This allows the trace subsystem to support all kinds of application-specific traces (ex: integers, floats, tuples, strings, etc.).
 
+
+Internal Trace Format
+=====================
+
+(for the most curious users)
+
+Each trace line is a raw text (hence not a binary content) made of a series of predefined fields, separated by the pipe (``|``) delimiter character.
+
+The text message included in a trace can contain any number of instances of this field delimiter.
+
+Example of a raw trace line (end of lines added for readability)::
+
+  <0.45.0>|I am a test emitter of traces|TraceEmitter.Test|none|
+  2016/6/13 14:21:16|traceManagement_run-paul@hurricane.foobar.org|
+  MyTest.SomeCategory|6|Hello debug world!
+
+or::
+
+  <9097.51.0>|Instance tracker|Core.Tracker.Instances|14875|
+  2016/6/10 15:43:31|My_application_case-john@hurricane.foobar.org|
+  Execution.Uncategorized|4|Creating a new root instance tracker
+  whose troubleshooting mode is enabled.
 
 
 

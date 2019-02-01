@@ -260,7 +260,8 @@ monitor( State ) ->
 %
 % Will block until the viewer window is closed by the user.
 %
--spec blocking_monitor( wooper:state() ) -> const_request_return( 'monitor_ok' ).
+-spec blocking_monitor( wooper:state() ) ->
+							  const_request_return( 'monitor_ok' ).
 blocking_monitor( State ) ->
 
 	case ?getAttr(trace_type) of
@@ -445,8 +446,9 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 
 		true ->
 			% Option specified to disable the supervisor:
-			trace_utils:info_fmt( "Application trace file is '~s'; no interactive "
-								  "supervision requested.", [ TraceFilename ] ),
+			trace_utils:info_fmt( "Application trace file is '~s'; no "
+								  "interactive supervision requested.",
+								  [ TraceFilename ] ),
 			wooper:return_static( no_trace_supervisor_wanted );
 
 		false ->

@@ -170,10 +170,11 @@ construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 						   "synchronization for file '~s', reused for "
 						   "later traces.", [ ?LogPrefix, TraceFilename ] ),
 
-	% Will write in it newly received traces (sent through messages):
+	% Will write in it newly received traces (sent through messages); now
+	% preferring the (more efficient) raw mode:
+	%
 	File = file_utils:open( TraceFilename,
 				[ append, raw, { delayed_write, _Size=1024, _Delay=200 } ] ),
-	%File = file_utils:open( TraceFilename, [ append ] ),
 
 	NewState = setAttributes( State, [
 				{ trace_aggregator_pid, TraceAggregatorPid },
@@ -257,7 +258,7 @@ monitor( State ) ->
 
 	end,
 
-	trace_utils:info(
+	trace_utils:info_fmt(
 	  "~s Trace listener will monitor file '~s' with LogMX now.",
 	  [ ?LogPrefix, Filename ] ),
 
@@ -302,8 +303,19 @@ monitor( State ) ->
 addTrace( State, NewTrace ) ->
 
 	% Write to file:
-	io:format( ?getAttr(trace_file), "~s", [
-						text_utils:binary_to_string( NewTrace ) ] ),
+
+	% We used to rely on:
+
+	%io:format( ?getAttr(trace_file), "~s", [
+	%					text_utils:binary_to_string( NewTrace ) ] ),
+
+	% yet now the internal trace file is opened in raw mode (so there is no
+	% intermediate process handling the I/O protocol), so:
+
+	Content = text_utils:format( "~s",
+				[ text_utils:binary_to_string( NewTrace ) ] ),
+
+	file:write( ?getAttr(trace_file), Content ),
 
 	wooper:const_return().
 

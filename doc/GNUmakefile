@@ -1,8 +1,6 @@
 TRACES_TOP = ..
 
 
-DOCUTILS_TOP = $(TRACES_TOP)
-
 DOC_BASE_NAME := Ceylan-Traces-Layer-technical-manual-english
 
 DOC_PDF_NAME := $(DOC_BASE_NAME).pdf
