@@ -19,6 +19,7 @@ CURRENT_TRACES_DOC := $(DOC_PDF_NAME)-$(CURRENT_VERSION).pdf
 
 PROJECT_CSS := pygments-default.css,traces.css
 
+PROJECT_ICON := traces-icon.png
 
 WEB_CONTENT = *.html *.css *.png *.pdf
 
