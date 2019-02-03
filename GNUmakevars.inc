@@ -187,8 +187,18 @@ ifndef PREDECESSOR_PLT
 endif
 
 
-
-# WOOPER_TOP may be a symbolic link pointing to the actual WOOPER package to be
-# used.
+# We define the path to the WOOPER layer:
 #
-WOOPER_TOP = $(TRACES_TOP)/../wooper
+# (it may be a symbolic link pointing to the actual WOOPER package to be used,
+# which itself may be either a 'Ceylan-WOOPER' directory or a 'wooper' one)
+#
+ifneq ($(wildcard $(TRACES_TOP)/../wooper),)
+
+	WOOPER_TOP = $(TRACES_TOP)/../wooper
+
+else
+
+	# Default:
+	WOOPER_TOP = $(TRACES_TOP)/../Ceylan-WOOPER
+
+endif
