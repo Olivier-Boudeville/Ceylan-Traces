@@ -1,4 +1,4 @@
-% Copyright (C) 2003-2019 Olivier Boudeville
+% Copyright (C) 2007-2019 Olivier Boudeville
 %
 % This file is part of the Ceylan-Traces library.
 %
@@ -24,19 +24,17 @@
 %
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
-
-
-% Base class for all (WOOPER-based) emitters of traces.
-%
-% See class_TestTraceEmitter.erl and class_TraceEmitter_test.erl
 %
 -module(class_TraceEmitter).
 
 
+-define( class_description,
+		 "Base class for all (WOOPER-based) emitters of traces."
+		 "See class_TestTraceEmitter.erl and class_TraceEmitter_test.erl." ).
 
-% Determines what are the mother classes of this class (if any):
+
+% Determines what are the direct mother classes of this class (if any):
 -define( superclasses, [] ).
-
 
 
 % Describes the class-specific attributes:

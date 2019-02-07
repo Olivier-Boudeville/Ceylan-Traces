@@ -24,24 +24,24 @@
 %
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
-
-
-% Default, main trace aggregator.
-%
-% It just collects traces from emitters and stores them at once in a file, in a
-% relevant user-specified format.
-%
-% Trace listeners can connect at any time to the aggregator. In this case it
-% will stop and send first the full current trace file to them. From that
-% moment, incoming traces will be both written in file and sent to each trace
-% listener still connected, so that all of them have exactly all the traces
-% (once and only once).
 %
 -module(class_TraceAggregator).
 
 
+-define( class_description, " Default, main trace aggregator. "
 
-% Determines what are the mother classes of this class (if any):
+		 "It just collects traces from emitters and stores them at once in a "
+		 "file, in a relevant user-specified format."
+
+		 "Trace listeners can connect at any time to the aggregator. In this "
+		 "case it will stop and send first the full current trace file to "
+		 "them. From that moment, incoming traces will be both written in file "
+		 "and sent to each trace listener still connected, so that all of them "
+		 "have exactly all the traces % (once and only once)." ).
+
+
+
+% Determines what are the direct mother classes of this class (if any):
 % (the trace aggregator is not a trace emitter per se)
 -define( superclasses, [] ).
 

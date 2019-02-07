@@ -24,18 +24,17 @@
 %
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
-
-
-% Trace supervisor.
-%
-% This version relies on the advanced traces, often monitored thanks to LogMX
-% (http://logmx.com) to track the default execution trace file, expected to be
-% locally available on disk.
 %
 -module(class_TraceSupervisor).
 
 
-% Determines what are the mother classes of this class (if any):
+-define( class_description, "Trace supervisor; this version relies on the "
+		 "advanced traces, often monitored thanks to LogMX (http://logmx.com) "
+		 "to track the default execution trace file, expected to be locally "
+		 "available on disk." ).
+
+
+% Determines what are the direct mother classes of this class (if any):
 -define( superclasses, [] ).
 
 

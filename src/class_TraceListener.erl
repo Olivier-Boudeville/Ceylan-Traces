@@ -24,22 +24,22 @@
 %
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
-
-
-% Trace listener, similar to a remote trace supervisor.
-%
-% This version just uses LogMX (http://logmx.com) to track the default execution
-% trace file, which will be synchronized automatically: history will be
-% retrieved under a zipped form from the aggregator, and next traces will be
-% sent directly to this listener as well as to the aggregator.
-%
-% So the corresponding trace aggregator must have been run with the
-% LogMX-compliant trace type beforehand, i.e. advanced_traces.
 %
 -module(class_TraceListener).
 
 
-% Determines what are the mother classes of this class (if any):
+-define( class_description, "Trace listener, similar to a remote trace "
+		 "supervisor. "
+		 "This version just uses LogMX (http://logmx.com) to track the default "
+		 "execution trace file, which will be synchronized automatically: "
+		 "history will be retrieved under a zipped form from the aggregator, "
+		 "and next traces will be sent directly to this listener as well as to "
+		 "the aggregator."
+		 "So the corresponding trace aggregator must have been run with the "
+		 "LogMX-compliant trace type beforehand, i.e. advanced_traces.").
+
+
+% Determines what are the direct mother classes of this class (if any):
 -define( superclasses, [] ).
 
 

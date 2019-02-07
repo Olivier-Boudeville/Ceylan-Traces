@@ -26,15 +26,17 @@
 % Creation date: July 1, 2007.
 
 
-% Test of the TraceEmitter class.
-%
-% See class_TraceEmitter.hrl and class_TraceEmitter.erl.
-%
 -module(class_TestTraceEmitter).
 
 
-% Determines what are the mother classes of this class (if any):
+-define( class_description,
+		 "Trace emitter child class introduced for testing."
+		 "See class_TraceEmitter.hrl and class_TraceEmitter.erl." ).
+
+
+% Determines what are the direct mother classes of this class (if any):
 -define( superclasses, [ class_TraceEmitter ] ).
+
 
 -define( class_attributes, [] ).
 
