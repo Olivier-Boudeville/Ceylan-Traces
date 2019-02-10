@@ -20,7 +20,7 @@
 
 :raw-html:`<a name="traces_top"></a>`
 
-:raw-html:`<div class="banner"><p><em>Traces documentation</em> <a href="http://traces.esperide.org">browse latest</a> <a href="https://olivier-boudeville.github.io/Ceylan-Traces/traces.html">browse mirror</a> <a href="traces.pdf">get PDF</a> <a href="#traces_top">go to top</a> <a href="#traces_bottom">go to bottom</a> <a href="mailto:about(dash)traces(at)esperide(dot)com?subject=[Ceylan-Traces]%20Remark">email us</a></p></div>`
+:raw-html:`<div class="banner"><p><em>Traces documentation</em> <a href="http://traces.esperide.org">browse latest</a> <a href="https://olivier-boudeville.github.io/Ceylan-Traces/index.html">browse mirror</a> <a href="traces.pdf">get PDF</a> <a href="#traces_top">go to top</a> <a href="#traces_bottom">go to bottom</a> <a href="mailto:about(dash)traces(at)esperide(dot)com?subject=[Ceylan-Traces]%20Remark">email us</a></p></div>`
 
 
 
