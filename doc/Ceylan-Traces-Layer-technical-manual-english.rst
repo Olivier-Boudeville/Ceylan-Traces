@@ -34,13 +34,13 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 ===============================================
 
 
-:Organisation: Copyright (C) 2008-2019 Olivier Boudeville
+:Organisation: Copyright (C) 2010-2019 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
-:Creation Date: Wednesday, August 11, 2010
-:Lastly Updated: Sunday, February 10, 2019
+:Creation date: Sunday, August 15, 2010
+:Lastly updated: Wednesday, February 20, 2019
 
 :Status: Work in progress
-:Version: 0.9.3
+:Version: 0.9.4
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
@@ -479,6 +479,7 @@ Have fun with Ceylan-Traces!
 
 .. figure:: traces-title.png
    :alt: Traces logo
-   :scale: 25
+   :width: 50 %
+   :align: center
 
 :raw-html:`<a name="traces_bottom"></a>`
