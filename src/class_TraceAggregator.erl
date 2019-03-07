@@ -1,6 +1,6 @@
-% Copyright (C) 2003-2018 Olivier Boudeville
+% Copyright (C) 2003-2019 Olivier Boudeville
 %
-% This file is part of the Ceylan Erlang library.
+% This file is part of the Ceylan-Traces library.
 %
 % This library is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License or
@@ -24,56 +24,54 @@
 %
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
-
-
-% Default, main trace aggregator.
-%
-% It just collects traces from emitters and stores them at once in a file, in a
-% relevant user-specified format.
-%
-% Trace listeners can connect at any time to the aggregator. In this case it
-% will stop and send first the full current trace file to them. From that
-% moment, incoming traces will be both written in file and sent to each trace
-% listener still connected, so that all of them have exactly all the traces
-% (once and only once).
 %
 -module(class_TraceAggregator).
 
 
+-define( class_description, " Default, main trace aggregator. "
 
-% Determines what are the mother classes of this class (if any):
+		 "It just collects traces from emitters and stores them at once in a "
+		 "file, in a relevant user-specified format."
+
+		 "Trace listeners can connect at any time to the aggregator. In this "
+		 "case it will stop and send first the full current trace file to "
+		 "them. From that moment, incoming traces will be both written in file "
+		 "and sent to each trace listener still connected, so that all of them "
+		 "have exactly all the traces % (once and only once)." ).
+
+
+
+% Determines what are the direct mother classes of this class (if any):
 % (the trace aggregator is not a trace emitter per se)
--define( wooper_superclasses, [] ).
+-define( superclasses, [] ).
+
+
+% Describes the class-specific attributes:
+-define( class_attributes, [
+
+	{ trace_filename, file_utils:file_path(),
+	  "the name of the file where traces are to be stored (ex: *.traces)" },
+
+	{ trace_file, file_utils:file_path(),
+	  "the actual file where traces are written" },
+
+	{ trace_type, trace_type(),
+	  "the type of traces to be written (ex: advanced_traces)" },
+
+	{ trace_title, text_utils:title(),
+	  "the title assigned to the traces that will be stored" },
+
+	{ trace_listeners, [ listener_pid() ],
+	  "the known trace listeners, similar to remote supervisors" },
+
+	{ is_batch, boolean(),
+	  "tells whether the aggregator runs on batch (non-interactive) mode" } ] ).
 
 
 
-% Parameters taken by the constructor ('construct').
--define( wooper_construct_parameters, TraceFilename, TraceType, TraceTitle,
-		 IsPrivate, IsBatch ).
+-type aggregator_pid() :: pid().
 
-
-
-% Declaring all variations of WOOPER standard life-cycle operations:
-% (template pasted, two replacements performed to update arities)
--define( wooper_construct_export, new/5, new_link/5,
-		 synchronous_new/5, synchronous_new_link/5,
-		 synchronous_timed_new/5, synchronous_timed_new_link/5,
-		 remote_new/6, remote_new_link/6, remote_synchronous_new/6,
-		 remote_synchronous_new_link/6, remote_synchronisable_new_link/6,
-		 remote_synchronous_timed_new/6, remote_synchronous_timed_new_link/6,
-		 construct/6, destruct/1 ).
-
-
-
-% Member method declarations.
--define( wooper_method_export, send/10, sendSync/10, renameTraceFile/2,
-		 getTraceType/1,
-		 launchTraceSupervisor/3, addTraceListener/2, removeTraceListener/2,
-		 requestReadyNotification/1, sync/1 ).
-
-
-% Static method declarations (to be directly called from module):
--define( wooper_static_method_export, create/1, get_aggregator/1, remove/0 ).
+-export_type([ aggregator_pid/0 ]).
 
 
 % Helpers:
@@ -82,6 +80,8 @@
 
 
 -define( trace_emitter_categorization, "Traces" ).
+
+
 
 
 % Allows to define WOOPER base variables and methods for that class:
@@ -96,7 +96,7 @@
 -include("class_TraceAggregator.hrl").
 
 
--define(LogPrefix,"[Trace Aggregator]").
+-define( LogPrefix, "[Trace Aggregator]" ).
 
 
 % Use global:registered_names() to check aggregator presence.
@@ -108,18 +108,21 @@
 -define( LogOutput( Message, Format ), void ).
 
 
-% Shorthand:
+% Shorthands:
+
 -type trace_type() :: traces:trace_supervision_type().
+-type listener_pid() :: class_TraceListener:listener_pid().
+-type message() :: traces:message().
+-type emitter_pid() :: class_TraceEmitter:emitter_pid().
 
 
-
-% Implementation Notes.
+% Implementation notes:
 %
 % The aggregator could store per-emitter constant settings (ex: emitter name and
 % categorization) instead of having them sent to it each time, but more look-ups
 % would be involved.
 %
-% The aggregator is not a standard emitter.
+% The aggregator is not a standard trace emitter.
 
 
 
@@ -127,7 +130,7 @@
 %
 % - TraceFilename is the name of the file where traces should be written to
 %
-% - TraceType is either 'log_mx_traces', { 'text_traces', 'text_only' } or
+% - TraceType is either 'advanced_traces', { 'text_traces', 'text_only' } or
 % { 'text_traces', 'pdf' }, depending whether LogMX should be used to browse the
 % execution traces, or just a text viewer (possibly with a PDF displaying
 % thereof)
@@ -144,7 +147,7 @@
 % produced PDF when in batch mode
 %
 -spec construct( wooper:state(), file_utils:file_name(),
-				 traces:trace_supervision_type(), string(), boolean(),
+				 traces:trace_supervision_type(), text_utils:title(), boolean(),
 				 boolean() ) -> wooper:state().
 construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 
@@ -153,14 +156,15 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 
 	% First the direct mother classes (none here), then this class-specific
 	% actions:
-	%
+
 	AbsTraceFilename = file_utils:ensure_path_is_absolute( TraceFilename ),
 
 	% Creates the trace file as soon as possible:
 	File = open_trace_file( AbsTraceFilename ),
 
-	% Increases the chances that the aggregator does not lag too much behind the
-	% current simulation state:
+	% Increases the chances that this aggregator does not lag too much behind
+	% the current application state:
+	%
 	erlang:process_flag( priority, _Level=high ),
 
 	SetState = setAttributes( State, [
@@ -171,10 +175,10 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 		{ trace_listeners, [] },
 		{ is_batch, IsBatch } ] ),
 
-	% We do not display these information of the console now, as the
-	% appplication may have to change the trace filename (the best moment to
-	% display that file information on the console is when the filename is
-	% final, typically when the trace supervisor is started):
+	% We do not display these information on the console now, as the application
+	% may have to change the trace filename (the best moment to display that
+	% file information on the console is when the filename is final, typically
+	% when the trace supervisor is started):
 	%
 	%trace_utils:info_fmt( "~n~s ~s", [ ?LogPrefix, Message ] ),
 
@@ -182,13 +186,13 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 	PrivateState = case IsPrivate of
 
 		true ->
-			trace_utils:info( "~s Creating a private trace aggregator, "
-							  "whose PID is ~w.", [ ?LogPrefix, self() ] ),
+			trace_utils:info_fmt( "~s Creating a private trace aggregator, "
+								  "whose PID is ~w.", [ ?LogPrefix, self() ] ),
 			setAttribute( SetState, is_private, true );
 
 		false ->
-			%trace_utils:info( "~n~s Creating the trace aggregator, "
-			%   "whose PID is ~w.~n", [ ?LogPrefix, self() ] ),
+			%trace_utils:info_fmt( "~n~s Creating the trace aggregator, "
+			%					  "whose PID is ~w.", [ ?LogPrefix, self() ] ),
 
 			naming_utils:register_as( ?trace_aggregator_name,
 									  local_and_global ),
@@ -200,8 +204,8 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 	% Closure used to avoid exporting the function (beware of self()):
 	AggregatorPid = self(),
 
-	OverLoadMonitorPid = spawn_link( fun() ->
-					overload_monitor_main_loop( AggregatorPid ) end ),
+	OverLoadMonitorPid = spawn_link(
+		   fun() -> overload_monitor_main_loop( AggregatorPid ) end ),
 
 	OverloadState = setAttribute( PrivateState, overload_monitor_pid,
 								  OverLoadMonitorPid ),
@@ -259,19 +263,21 @@ destruct( State ) ->
 	% close may return an old write error and not even try to close the file. In
 	% that case we try to close it another time):
 	%
+	% (using here raw closes for more control)
+	%
 	case file:close( TraceFile ) of
 
 		{ error, _Reason } ->
 			file:close( TraceFile ) ;
 
-		ok  ->
+		ok ->
 			ok
 
 	end,
 
 	case ?getAttr(trace_type) of
 
-		log_mx_traces ->
+		advanced_traces ->
 			ok;
 
 		{ text_traces, text_only } ->
@@ -290,7 +296,7 @@ destruct( State ) ->
 				++ " '" ++ PdfTargetFilename ++ "' VIEW_PDF=no",
 
 			%trace_utils:info_fmt( "PDF generation command is '~s'.",
-			% [ GenerationCommand ] ),
+			%					  [ GenerationCommand ] ),
 
 			case system_utils:run_executable( GenerationCommand ) of
 
@@ -321,8 +327,6 @@ destruct( State ) ->
 
 	end,
 
-	% Then call the direct mother class counterparts: (none)
-
 	%trace_utils:info_fmt( "~s Aggregator deleted.", [ ?LogPrefix ] ),
 
 	% Allow chaining:
@@ -340,12 +344,10 @@ destruct( State ) ->
 %
 % The nine fields correspond to the ones defined in our trace format.
 %
-% (oneway)
-%
 -spec send( wooper:state(), pid(), traces:emitter_name(),
 			traces:emitter_categorization(), traces:app_timestamp(),
 			traces:time(), traces:location(), traces:message_categorization(),
-			traces:priority(), traces:message() ) -> oneway_return().
+			traces:priority(), traces:message() ) -> const_oneway_return().
 send( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 	  AppTimestamp, Time, Location, MessageCategorization, Priority,
 	  Message ) ->
@@ -363,7 +365,7 @@ send( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 
 	% Was: io:format( ?getAttr(trace_file), "~s", [ Trace ] ),
 	% but now we use faster raw writes:
-	%ok = file:write( ?getAttr(trace_file), io_lib:format( "~s", [ Trace ] ) ),
+	%ok = file:write( ?getAttr(trace_file), text_utils:format( "~s", [ Trace ] ) ),
 
 	file_utils:write( ?getAttr(trace_file), Trace ),
 
@@ -378,31 +380,23 @@ send( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 
 			BinTrace = text_utils:string_to_binary( Trace ),
 
-			lists:foreach(
-				fun( Listener ) ->
-
-					Listener ! { addTrace, BinTrace }
-
-				end,
-				Listeners )
+			[ L ! { addTrace, BinTrace } || L <- Listeners ]
 
 	end,
 
-	?wooper_return_state_only( State ).
+	wooper:const_return().
 
 
 
-% Same as the send/10 oneway, except a synchronisation message is sent to the
-% emitter.
-%
-% (request)
+% Same as the send/10 oneway, except a synchronisation message is sent back to
+% the caller.
 %
 -spec sendSync( wooper:state(), pid(), traces:emitter_name(),
 				traces:emitter_categorization(), traces:app_timestamp(),
 				traces:time(), traces:location(),
 				traces:message_categorization(), traces:priority(),
 				traces:message() ) ->
-					  request_return( 'trace_aggregator_synchronised' ).
+					  const_request_return( 'trace_aggregator_synchronised' ).
 sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 		  AppTimestamp, Time, Location, MessageCategorization, Priority,
 		  Message ) ->
@@ -420,7 +414,7 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 
 	% Was: io:format( ?getAttr(trace_file), "~s", [ Trace ] ),
 	% but now we use faster raw writes:
-	%ok = file:write( ?getAttr(trace_file), io_lib:format( "~s", [ Trace ] ) ),
+	%ok = file:write( ?getAttr(trace_file), text_utils:format( "~s", [ Trace ] ) ),
 	file_utils:write( ?getAttr(trace_file), Trace ),
 
 	Listeners = ?getAttr(trace_listeners),
@@ -434,31 +428,22 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 
 			BinTrace = text_utils:string_to_binary( Trace ),
 
-			lists:foreach(
-				fun( Listener ) ->
-
-					Listener ! { addTrace, BinTrace }
-
-				end,
-				Listeners )
+			[ L ! { addTrace, BinTrace } || L <- Listeners ]
 
 	end,
 
-	?wooper_return_state_result( State, trace_aggregator_synchronised ).
-
+	wooper:const_return_result( trace_aggregator_synchronised ).
 
 
 
 % Renames the trace file currently in use.
 %
 % Useful for example when the application requires an identifier to be included
-% in the trace filename to discriminate among different runs.
+% in the trace filename in order to discriminate among different runs.
 %
 % Note: if another process is reading that file (ex: a trace supervisor), an I/O
-% will be triggered at its level (hence this is not a solution to transparently
-% rename a file).
-%
-% (oneway)
+% error will be triggered at its level (hence this is not a solution to
+% transparently rename a file).
 %
 -spec renameTraceFile( wooper:state(), file_utils:file_name() ) ->
 							 oneway_return().
@@ -479,12 +464,12 @@ renameTraceFile( State, NewTraceFilename ) ->
 	%file_utils:close( ?getAttr(trace_file) ),
 	%File = open_trace_file( AbsNewTraceFilename ),
 	%
-	% Better yet still not sufficient for a transparent renaming:
+	% Better, yet still not sufficient for a transparent renaming:
 	file_utils:rename( TraceFilename, AbsNewTraceFilename ),
 
 	NewState = setAttribute( SentState, trace_filename, AbsNewTraceFilename ),
 
-	?wooper_return_state_only( NewState ).
+	wooper:return_state( NewState ).
 
 
 
@@ -492,44 +477,40 @@ renameTraceFile( State, NewTraceFilename ) ->
 %
 % Useful for example to launch a relevant trace supervision.
 %
-% (const request)
-%
 -spec getTraceType( wooper:state() ) ->
-				  request_return( { 'notify_trace_types', trace_type() } ).
+					  const_request_return( { 'notify_trace_types', trace_type() } ).
 getTraceType( State ) ->
 
 	Res = { notify_trace_type, ?getAttr(trace_type) },
 
-	?wooper_return_state_result( State, Res ).
+	wooper:const_return_result( Res ).
 
 
 
 % Launches the trace supervisor.
 %
-% Useful to do so once the final trace filename is known.
+% If possible, it is useful to do so only once the final trace filename is
+% known.
 %
 -spec launchTraceSupervisor( wooper:state(), traces:trace_supervision_type(),
-							 pid() ) -> oneway_return().
+							 aggregator_pid() ) -> const_oneway_return().
 launchTraceSupervisor( State, TraceType, TraceAggregatorPid ) ->
 
 	class_TraceSupervisor:init( ?getAttr(trace_filename), TraceType,
 								TraceAggregatorPid ),
 
-	?wooper_return_state_only( State ).
+	wooper:const_return().
 
 
 
-% Adds specified trace listener to this aggregator.
-%
-% (oneway)
-%
--spec addTraceListener( wooper:state(), pid() ) -> oneway_return().
+% Registers specified trace listener to this aggregator.
+-spec addTraceListener( wooper:state(), listener_pid() ) -> oneway_return().
 addTraceListener( State, ListenerPid ) ->
 
 	% Better log this events directly in the traces:
 	NewState = case ?getAttr(trace_type) of
 
-		log_mx_traces ->
+		advanced_traces ->
 
 			TraceFile = ?getAttr(trace_file),
 
@@ -555,7 +536,7 @@ addTraceListener( State, ListenerPid ) ->
 
 			% We used to rely on basic ZIP over Erlang carrier:
 			%Bin = file_utils:file_to_zipped_term( TraceFilename ),
-			%ListenerPid ! { trace_zip, Bin, TraceFilename },
+			%ListenerPid ! { trace_sending, Bin, TraceFilename },
 
 			% Now we prefer using xz over sendFile, which must be a lot more
 			% efficient:
@@ -564,23 +545,23 @@ addTraceListener( State, ListenerPid ) ->
 											  _CompressionFormat=xz ),
 
 			% If compressing 'traceManagement_test.traces' for example, we do
-			% not want to send 'traceManagement_test.traces.xz', as if the
-			% listener (ex: traceListening_test) happens to decompress the
-			% received file on the same directory, it will overwrite the first
-			% file.
-
-			% That way we would be producing
-			% "Listener-traceManagement_test.traces" for example:
+			% not want to specify as a filename, literally,
+			% 'traceManagement_test.traces.xz', as if the listener (ex:
+			% traceListening_test) happens to decompress the received file on
+			% the same directory, it will overwrite the first file.
 			%
-			% The client will have nevertheless to receive this file to a
+			% So we relied on a specifically named file (ex:
+			% "Listener-traceManagement_test.traces" for example).
+			%
+			% Yet, the client will have nevertheless to receive this file to a
 			% another (temporary) directory, as the same client-side overwriting
-			% could happen directly with the compressed file (which have to
-			% exist simultaneously on both ends).
+			% could happen directly with the compressed file (which has to exist
+			% simultaneously on both ends).
 			%
-			% So finally the server-side renaming is useless, it will be done by
-			% the listener:
+			% So finally the server-side renaming is useless, and it will be
+			% done by the listener:
 
-			trace_utils:trace_fmt( "Sending '~s' to ~w.~n",
+			trace_utils:trace_fmt( "Sending '~s' to listener ~w.",
 								   [ XZFilename, ListenerPid ] ),
 
 			net_utils:send_file( XZFilename, ListenerPid ),
@@ -597,26 +578,24 @@ addTraceListener( State, ListenerPid ) ->
 
 		OtherTraceType ->
 
-			Message = io_lib:format(
+			Message = text_utils:format(
 				"Trace aggregator not adding trace listener ~w, "
 				"as it requires LogMX traces, whereas the current trace "
 				"type is ~w.~n", [ ListenerPid, OtherTraceType ] ),
 
 			?notify_warning( Message ),
-			ListenerPid ! { trace_zip, incompatible_trace_type },
+			ListenerPid ! { trace_sending, incompatible_trace_type },
 			State
 
 	end,
 
-	?wooper_return_state_only( NewState ).
+	wooper:return_state( NewState ).
 
 
 
 % Removes specified trace listener from this aggregator.
 %
-% (oneway)
-%
--spec removeTraceListener( wooper:state(), pid() ) -> oneway_return().
+-spec removeTraceListener( wooper:state(), listener_pid() ) -> oneway_return().
 removeTraceListener( State, ListenerPid ) ->
 
 	trace_utils:info_fmt( "~s Removing trace listener ~w.",
@@ -629,23 +608,22 @@ removeTraceListener( State, ListenerPid ) ->
 	UnregisterState = deleteFromAttribute( SentState, trace_listeners,
 										   ListenerPid ),
 
-	?wooper_return_state_only( UnregisterState ).
+	wooper:return_state( UnregisterState ).
 
 
 
 % Requests this aggregator to send a notification as soon as it is ready,
-% i.e. as soon as its trace file was created and its first trace was written.
-%
-% (const request)
+% i.e. as soon as its trace file has been created and its first trace been
+% written.
 %
 -spec requestReadyNotification( wooper:state() ) ->
-									  request_return( 'trace_file_ready' ).
+								  const_request_return( 'trace_file_ready' ).
 requestReadyNotification( State ) ->
 
-	% Being able to answer means ready, as a first synchronised message is sent
-	% from the constructor:
+	% Being able to answer means being ready, as a first synchronised message is
+	% sent from the constructor:
 	%
-	?wooper_return_state_result( State, trace_file_ready ).
+	wooper:const_return_result( trace_file_ready ).
 
 
 
@@ -655,7 +633,7 @@ requestReadyNotification( State ) ->
 % that any next crash will not result in the loss of traces).
 %
 -spec sync( wooper:state() ) ->
-				  request_return( 'trace_aggregator_synchronised' ).
+				  const_request_return( 'trace_aggregator_synchronised' ).
 sync( State ) ->
 
 	% Still to be done, otherwise might sit in cache and be wiped out before the
@@ -665,41 +643,44 @@ sync( State ) ->
 
 	file:sync( TraceFile ),
 
-	?wooper_return_state_result( State, trace_aggregator_synchronised ).
+	wooper:const_return_result( trace_aggregator_synchronised ).
 
 
 
 
-% 'Static' methods (module functions):
+% Static section.
 
 
 % Creates the trace aggregator asynchronously, with default settings.
-%
-% (static)
-%
--spec create( boolean() ) -> pid().
+-spec create( boolean() ) -> static_return( aggregator_pid() ).
 create( UseSynchronousNew ) ->
-	create( UseSynchronousNew, _TraceType=log_mx_traces ).
+
+	AggregatorPid = create( UseSynchronousNew, _TraceType=advanced_traces ),
+
+	wooper:return_static( AggregatorPid ).
+
 
 
 
 % Creates the trace aggregator asynchronously, using specified trace type.
-%
-% (static)
-%
--spec create( boolean(), traces:trace_supervision_type() ) -> pid().
+-spec create( boolean(), traces:trace_supervision_type() ) ->
+											  static_return( aggregator_pid() ).
 create( _UseSynchronousNew=false, TraceType ) ->
-	new_link( ?trace_aggregator_filename, TraceType, ?TraceTitle,
-			  _IsPrivate=false, _IsBatch=false  );
+
+	AggregatorPid = new_link( ?trace_aggregator_filename, TraceType,
+							  ?TraceTitle, _IsPrivate=false, _IsBatch=false ),
+
+	wooper:return_static( AggregatorPid );
+
 
 % Creates the trace aggregator synchronously, using specified trace type.
-%
-% (static)
-%
-create( _UseSynchronousNew = true, TraceType ) ->
-	% Trace filename, isPrivate:
-	synchronous_new_link( ?trace_aggregator_filename, TraceType,
-						  ?TraceTitle, _IsPrivate=false, _IsBatch=false ).
+create( _UseSynchronousNew=true, TraceType ) ->
+
+	AggregatorPid = synchronous_new_link( ?trace_aggregator_filename, TraceType,
+						  ?TraceTitle, _IsPrivate=false, _IsBatch=false ),
+
+	wooper:return_static( AggregatorPid ).
+
 
 
 
@@ -718,10 +699,10 @@ create( _UseSynchronousNew = true, TraceType ) ->
 % Waits a bit before giving up: useful when client and aggregator processes are
 % launched almost simultaneously.
 %
-% (static)
-%
 -spec get_aggregator( boolean() ) ->
-	   'trace_aggregator_launch_failed' | 'trace_aggregator_not_found' | pid().
+			static_return( 'trace_aggregator_launch_failed'
+								  | 'trace_aggregator_not_found'
+								  | aggregator_pid() ).
 get_aggregator( CreateIfNotAvailable ) ->
 
 	% Only dealing with registered managers (instead of using directly their
@@ -733,7 +714,7 @@ get_aggregator( CreateIfNotAvailable ) ->
 	% the launch of trace aggregator, but second emitter might do the same if
 	% the aggregator is still being initialized:
 	%
-	try
+	AggRes = try
 
 		naming_utils:wait_for_global_registration_of( ?trace_aggregator_name )
 
@@ -768,25 +749,29 @@ get_aggregator( CreateIfNotAvailable ) ->
 
 		end
 
-	end.
+	end,
+
+	wooper:return_static( AggRes ).
 
 
 
 % Deletes synchronously the trace aggregator.
 %
-% (static)
-%
--spec remove() -> 'delete' | 'trace_aggregator_not_found'.
+-spec remove() ->
+		 static_return( 'deleted' | 'trace_aggregator_not_found' ).
 remove() ->
 
 	case global:whereis_name( ?trace_aggregator_name ) of
 
 		undefined ->
-			trace_aggregator_not_found;
+			wooper:return_static( trace_aggregator_not_found );
 
 		TraceAggregatorPid ->
+
 			% WOOPER convenience:
-			wooper:delete_synchronously_instance( TraceAggregatorPid )
+			wooper:delete_synchronously_instance( TraceAggregatorPid ),
+
+			wooper:return_static( deleted )
 
 	end.
 
@@ -799,21 +784,21 @@ overload_monitor_main_loop( AggregatorPid ) ->
 	receive
 
 		delete ->
-			%io:format( "(overload monitor deleted)~n" ),
+			%trace_utils:trace( "(overload monitor deleted)" ),
 			deleted
 
 	% Every 2s:
 	after 2000 ->
 
-			{ message_queue_len, QueueLen } = erlang:process_info(
-				AggregatorPid, message_queue_len ),
+			{ message_queue_len, QueueLen } =
+				erlang:process_info( AggregatorPid, message_queue_len ),
 
 			case QueueLen of
 
 				TooMany when TooMany > 5000 ->
-					io:format( "(warning: trace aggregator is overloaded, "
+					trace_utils:warning_fmt( "trace aggregator is overloaded, "
 							   "too many traces are being sent, ~B of them "
-							   "are still waiting to be processed)~n",
+							   "are still waiting to be processed.",
 							   [ TooMany ] );
 
 				_Other ->
@@ -881,20 +866,19 @@ overload_monitor_main_loop( AggregatorPid ) ->
 
 
 
-% Sends traces immediately from the aggregator itself (hence to itself); this is
-% done directly (ex: to write it, before any trace message that would be waiting
-% in the mailbox).
+% Sends specified trace immediately from the aggregator itself (hence to
+% itself); this is done directly, in order to write it before any trace message
+% that would be waiting in the mailbox.
 %
 % (helper)
 %
--spec send_internal_immediate( traces:message_type(), string(),
-					 wooper:state() ) -> wooper:state().
+-spec send_internal_immediate( traces:message_type(), message(),
+							   wooper:state() ) -> wooper:state().
 send_internal_immediate( MessageType, Message, State ) ->
 
 	TimestampText = text_utils:string_to_binary(
 					  time_utils:get_textual_timestamp() ),
 
-	% Not State available here:
 	EmitterNode = class_TraceEmitter:get_emitter_node_as_binary(),
 
 	MessageCategorization = text_utils:string_to_binary( "Trace Management" ),
@@ -909,7 +893,7 @@ send_internal_immediate( MessageType, Message, State ) ->
 		_Location=EmitterNode,
 		MessageCategorization,
 		_Priority=class_TraceEmitter:get_priority_for( MessageType ),
-								 Message ] ),
+		Message ] ),
 
 	trace_utils:echo( Message, MessageType ),
 
@@ -921,8 +905,9 @@ send_internal_immediate( MessageType, Message, State ) ->
 %
 % (helper)
 %
--spec send_internal_immediate( traces:message_type(), string(), [ any() ],
-					 wooper:state() ) -> wooper:state().
+-spec send_internal_immediate( traces:message_type(),
+		text_utils:format_string(), text_utils:format_values(),
+		wooper:state() ) -> wooper:state().
 send_internal_immediate( MessageType, MessageFormat, MessageValues, State ) ->
 	Message = text_utils:format( MessageFormat, MessageValues ),
 	send_internal_immediate( MessageType, Message, State ).
@@ -936,13 +921,12 @@ send_internal_immediate( MessageType, MessageFormat, MessageValues, State ) ->
 %
 % (helper)
 %
--spec send_internal_deferred( traces:message_type(), string() ) -> void().
+-spec send_internal_deferred( traces:message_type(), message() ) -> void().
 send_internal_deferred( MessageType, Message ) ->
 
 	TimestampText = text_utils:string_to_binary(
 					  time_utils:get_textual_timestamp() ),
 
-	% Not State available here:
 	EmitterNode = class_TraceEmitter:get_emitter_node_as_binary(),
 
 	MessageCategorization = text_utils:string_to_binary( "Trace Management" ),
@@ -968,8 +952,8 @@ send_internal_deferred( MessageType, Message ) ->
 %
 % (helper)
 %
--spec send_internal_deferred( traces:message_type(), string(), [ any() ] ) ->
-									void().
+-spec send_internal_deferred( traces:message_type(), text_utils:format_string(),
+							  text_utils:format_values() ) -> void().
 send_internal_deferred( MessageType, MessageFormat, MessageValues ) ->
 	Message = text_utils:format( MessageFormat, MessageValues ),
 	send_internal_deferred( MessageType, Message ).
@@ -981,16 +965,14 @@ send_internal_deferred( MessageType, MessageFormat, MessageValues ) ->
 
 % Takes care of any header in the trace header.
 %
-% Returns an updated state.
-%
-% (helper function)
+% (helper)
 %
 -spec manage_trace_header( wooper:state() ) -> wooper:state().
 manage_trace_header( State ) ->
 
 	case ?getAttr(trace_type) of
 
-		log_mx_traces ->
+		advanced_traces ->
 			State;
 
 		{ text_traces, _TargetFormat } ->
@@ -998,16 +980,16 @@ manage_trace_header( State ) ->
 			Title = ?getAttr(trace_title) ++ " Execution Trace Report",
 
 			% Builds a proper RST-compatible title layout:
-			TitleText = io_lib:format(
+			TitleText = text_utils:format(
 				   "~s~n.. _table:~n~n.. contents:: Table of Contents~n~n",
 				   [ text_utils:generate_title(Title,1) ] )
-				++ io_lib:format( "~s", [ text_utils:generate_title(
+				++ text_utils:format( "~s", [ text_utils:generate_title(
 												 "Execution Context", 2 ) ] )
-				++ io_lib:format( "Report generated on ~s, "
+				++ text_utils:format( "Report generated on ~s, "
 					"from trace file ``~s``, on host ``~s``.~n~n",
 					[ time_utils:get_textual_timestamp(),
 					  ?getAttr(trace_filename), net_adm:localhost() ] )
-				++ io_lib:format( "~s",
+				++ text_utils:format( "~s",
 					[ text_utils:generate_title( "Trace Begin", 2 ) ] ),
 
 			PidLines = text_utils:format_text_for_width(
@@ -1043,20 +1025,18 @@ manage_trace_header( State ) ->
 
 % Takes care of any header in the trace header.
 %
-% Returns an updated state.
-%
-% (helper function)
+% (helper)
 %
 -spec manage_trace_footer( wooper:state() ) -> wooper:state().
 manage_trace_footer( State ) ->
 
 	case ?getAttr(trace_type) of
 
-		log_mx_traces ->
+		advanced_traces ->
 			State;
 
 		{ text_traces, _TargetFormat } ->
-			file_utils:write( ?getAttr(trace_file), io_lib:format(
+			file_utils:write( ?getAttr(trace_file), text_utils:format(
 					   "~s~n~nEnd of execution traces.~n"
 					   "~nBack to the table_ of contents "
 					   "and to the beginning of traces.",
@@ -1088,18 +1068,15 @@ get_row_separator( DashType ) ->
 
 
 % Formats specified trace according to specified trace type.
-%
-% Returns a plain string.
-%
 -spec format_trace_for( traces:trace_supervision_type(),
-		 { pid(), traces:emitter_name(), traces:emitter_categorization(),
+		 { emitter_pid(), traces:emitter_name(), traces:emitter_categorization(),
 		  traces:app_timestamp(), traces:time(), traces:location(),
 		  traces:message_categorization(), traces:priority(),
-		  traces:message() } ) -> string().
-format_trace_for( log_mx_traces, { TraceEmitterPid,
+		  traces:message() } ) -> text_utils:ustring().
+format_trace_for( advanced_traces, { TraceEmitterPid,
 		TraceEmitterName, TraceEmitterCategorization, AppTimestamp, Time,
 		Location, MessageCategorization, Priority, Message } ) ->
-	lists:flatten( io_lib:format( "~w|~s|~s|~s|~s|~s|~s|~w|~s~n",
+	lists:flatten( text_utils:format( "~w|~s|~s|~s|~s|~s|~s|~w|~s~n",
 		[ TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 		  AppTimestamp, Time, Location, MessageCategorization, Priority,
 		  Message ] ) );
@@ -1114,25 +1091,25 @@ format_trace_for( { text_traces, _TargetFormat }, { TraceEmitterPid,
 	% - MessageCategorization
 
 	PidLines = text_utils:format_text_for_width(
-		io_lib:format( "~w", [ TraceEmitterPid ] ), ?PidWidth ),
+		text_utils:format( "~w", [ TraceEmitterPid ] ), ?PidWidth ),
 
 	EmitterNameLines = text_utils:format_text_for_width(
-		io_lib:format( "~s", [ TraceEmitterName ] ), ?EmitterNameWidth ),
+		text_utils:format( "~s", [ TraceEmitterName ] ), ?EmitterNameWidth ),
 
 	% Can be a tick, an atom like 'unknown' or anything alike:
 	AppTimestampLines = text_utils:format_text_for_width(
-		io_lib:format( "~s", [ AppTimestamp ] ), ?AppTimestampWidth ),
+		text_utils:format( "~s", [ AppTimestamp ] ), ?AppTimestampWidth ),
 
 	TimeLines = text_utils:format_text_for_width(
-		io_lib:format( "~s", [ Time ] ), ?TimeWidth ),
+		text_utils:format( "~s", [ Time ] ), ?TimeWidth ),
 
 	PriorityLines = text_utils:format_text_for_width(
-		io_lib:format( "~w", [
+		text_utils:format( "~w", [
 			class_TraceEmitter:get_channel_name_for_priority( Priority ) ] ),
 		?PriorityWidth ),
 
 	MessageLines = text_utils:format_text_for_width(
-		io_lib:format( "~s", [ Message ] ), ?MessageWidth ),
+		text_utils:format( "~s", [ Message ] ), ?MessageWidth ),
 
 	format_linesets( PidLines, EmitterNameLines, AppTimestampLines, TimeLines,
 					 PriorityLines, MessageLines ) ++ get_row_separator().
@@ -1156,7 +1133,7 @@ format_linesets( PidLines, EmitterNameLines, AppTimestampLines, TimeLines,
 					 { PriorityLines, ?PriorityWidth },
 					 { MessageLines, ?MessageWidth } ],
 
-	%io:format( "Column pairs:~n~p~n", [ColumnsPairs] ),
+	%trace_utils:debug_fmt( "Column pairs:~n~p", [ ColumnsPairs ] ),
 
 	FullLines = format_full_lines( ColumnsPairs, _Acc=[], TotalLineCount,
 								   _Res=[], _CurrentLine="" ),
@@ -1166,29 +1143,25 @@ format_linesets( PidLines, EmitterNameLines, AppTimestampLines, TimeLines,
 
 
 % Returns a list of full lines, made from the lines of each column.
-% Here we finished to handle all lines (none remaining):
 %
-format_full_lines( _Rows, [], 0, Res, CurrentLine ) ->
+% Here we finished to handle all lines (none remaining):
+format_full_lines( _Rows, _Acc=[], _RemainingLineCount=0, Res, CurrentLine ) ->
 	lists:reverse( [ CurrentLine | Res ] ) ;
 
 % Here we arrived at the end of a global line, preparing for next one:
-%
-format_full_lines( [], Acc, RemainingLineCount, Res, CurrentLine ) ->
-	format_full_lines( lists:reverse(Acc), [], RemainingLineCount-1,
+format_full_lines( _Rows=[], Acc, RemainingLineCount, Res, CurrentLine ) ->
+	format_full_lines( lists:reverse( Acc ), [], RemainingLineCount-1,
 					   [ CurrentLine ++ "|" | Res ], "" );
 
 % Here the corresponding column has no more content, just filling with spaces:
-%
-format_full_lines( [ { [], Width } | ColumnPairs ], Acc, RemainingLineCount,
-				   Res, CurrentLine ) ->
+format_full_lines( _Rows=[ { [], Width } | ColumnPairs ], Acc,
+				   RemainingLineCount, Res, CurrentLine ) ->
 	format_full_lines( ColumnPairs, [ { [], Width } | Acc ], RemainingLineCount,
 		Res, CurrentLine ++ "|" ++ string:chars( $\ ,Width ) );
 
 % Here the corresponding column has content, just adding it:
-%
-format_full_lines( [ { [ Line | OtherLines ], Width } | ColumnPairs ], Acc,
-				   RemainingLineCount, Res, CurrentLine ) ->
-
+format_full_lines( _Rows=[ { [ Line | OtherLines ], Width } | ColumnPairs ],
+				   Acc, RemainingLineCount, Res, CurrentLine ) ->
 	format_full_lines( ColumnPairs, [ { OtherLines, Width } | Acc ],
 					   RemainingLineCount, Res, CurrentLine ++ "|" ++ Line ).
 
@@ -1209,7 +1182,6 @@ open_trace_file( TraceFilename ) ->
 % (helper)
 %
 reopen_trace_file( TraceFilename ) ->
-
 	file_utils:open( TraceFilename,
 					 [ append | get_trace_file_base_options() ] ).
 
@@ -1231,7 +1203,7 @@ get_trace_file_base_options() ->
 % the network, hence must be of minimal size.
 %
 % Use with: make traceManagement_run $BATCH|grep '(list)' to ensure that
-% binaries are used whenever possible instead of strings.
+% binaries are used whenever possible, instead of strings.
 %
 % (helper)
 %
@@ -1242,7 +1214,7 @@ inspect_fields( FieldsReceived ) ->
 							 end,
 							 FieldsReceived ),
 
-	io:format( "~n"
+	trace_utils:info_fmt( "~n"
 			   "- TraceEmitterPid: '~w', i.e. '~p' (~s)~n"
 			   "- TraceEmitterName: '~w', i.e. '~p' (~s)~n"
 			   "- TraceEmitterCategorization: '~w', i.e. '~p' (~s)~n"
@@ -1251,7 +1223,7 @@ inspect_fields( FieldsReceived ) ->
 			   "- Location: '~w', i.e. '~p' (~s)~n"
 			   "- MessageCategorization: '~w', i.e. '~p' (~s)~n"
 			   "- Priority: '~w', i.e. '~p' (~s)~n"
-			   "- Message: '~w', i.e. '~p' (~s)~n~n",
+			   "- Message: '~w', i.e. '~p' (~s)~n",
 			   AllVars ).
 
 

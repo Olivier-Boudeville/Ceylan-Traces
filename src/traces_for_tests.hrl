@@ -1,6 +1,6 @@
-% Copyright (C) 2003-2018 Olivier Boudeville
+% Copyright (C) 2003-2019 Olivier Boudeville
 %
-% This file is part of the Ceylan Erlang library.
+% This file is part of the Ceylan-Traces library.
 %
 % This library is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License or
@@ -55,6 +55,16 @@
 
 
 % Start/stop section.
+%
+% Any test that is not using (directly on not) traces_for_tests:test_start/2
+% (like with the macros below) should then execute by itself:
+%
+%    erlang:process_flag( trap_exit, false )
+%
+% otherwise the test will silently trap EXIT signals, typically resulting in
+% having linked instances failing without notice.
+%
+% See the comment of traces_for_tests:test_start/2 for more details.
 
 
 -ifdef(tracing_activated).
@@ -63,8 +73,10 @@
 % TraceAggregatorPid voluntarily exported from test_start, for test_stop:
 
 -define( test_start,
-		 TraceAggregatorPid = traces_for_tests:test_start( ?MODULE,
-												   _InitTraceSupervisor=true )
+
+		 % true is for InitTraceSupervisor (not even binding a mute variable for
+		 % that)
+		 TraceAggregatorPid = traces_for_tests:test_start( ?MODULE, true )
 ).
 
 
@@ -81,9 +93,12 @@
 % may have been recompiled to be trace-enabled.
 %
 % However no trace supervisor is needed here.
+%
 -define( test_start,
-	TraceAggregatorPid = traces_for_tests:test_start( ?MODULE,
-											 _InitTraceSupervisor=false ) ).
+
+		 % false is for InitTraceSupervisor (not even binding a mute variable
+		 % for that)
+		 TraceAggregatorPid = traces_for_tests:test_start( ?MODULE, false ) ).
 
 
 -define( test_stop,
@@ -135,7 +150,7 @@
 
 % Helper function to write receive clauses in tests which cannot interfere with
 % trace supervision, as a test may also receive trace control message the test
-% code should be unware of.
+% code should remain unware of.
 %
 % Returns the received value.
 %
@@ -177,16 +192,17 @@ test_receive( Message ) ->
 
 % Handles a test failure, using specified string as advertised reason.
 %
--spec test_failed( string() ) -> no_return().
+-spec test_failed( text_utils:ustring() ) -> no_return().
 test_failed( Reason ) ->
 
 	% For some reason erlang:error is unable to interpret strings as strings,
 	% they are always output as unreadable lists.
 
-	Message = io_lib:format( "Test ~s failed, reason: ~s.~n",
-							 [ ?MODULE, Reason ] ),
+	Message = text_utils:format( "Test ~s failed, reason: ~s.~n",
+								 [ ?MODULE, Reason ] ),
 
-	error_logger:error_msg( Message ),
+	trace_utils:error( Message ),
+
 	?test_fatal( Message ),
 
 	% Needed, otherwise error_logger may not display anything:
@@ -200,7 +216,7 @@ test_failed( Reason ) ->
 % with format characters (ex: '~w') and specified list as actual values to be
 % formatted.
 %
--spec test_failed( text_utils:format_string(), [ any() ] ) ->
+-spec test_failed( text_utils:format_string(), text_utils:format_values() ) ->
 						 no_return().
-test_failed( Reason, FormattedValue ) ->
-	test_failed( io_lib:format( Reason, FormattedValue ) ).
+test_failed( FormatReason, FormatValues ) ->
+	test_failed( text_utils:format( FormatReason, FormatValues ) ).

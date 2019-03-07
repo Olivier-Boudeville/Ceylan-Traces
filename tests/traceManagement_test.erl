@@ -1,6 +1,6 @@
-% Copyright (C) 2003-2018 Olivier Boudeville
+% Copyright (C) 2003-2019 Olivier Boudeville
 %
-% This file is part of the Ceylan Erlang library.
+% This file is part of the Ceylan-Traces library.
 %
 % This library is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License or
@@ -46,7 +46,7 @@
 
 
 
-% Run the tests.
+% Runs the tests.
 %
 % Note: this test is among the only ones that do not use the trace
 % functionalities for their own behaviours (since it is the subject of these
@@ -131,12 +131,9 @@ run() ->
 	ExpectedFirstBinaryName = text_utils:string_to_binary( Name ),
 
 	MyTraceEmitter ! { getName, [], self() },
-	receive
+	ExpectedFirstBinaryName = test_receive(),
+	?test_info( "Correct name returned." ),
 
-		{ wooper_result, ExpectedFirstBinaryName } ->
-			?test_info( "Correct name returned." )
-
-	end,
 
 	NewName = "This is my new name",
 
@@ -145,12 +142,10 @@ run() ->
 	ExpectedSecondBinaryName = text_utils:string_to_binary( NewName ),
 
 	MyTraceEmitter ! { getName, [], self() },
-	receive
+	ExpectedSecondBinaryName = test_receive(),
 
-		{ wooper_result, ExpectedSecondBinaryName } ->
-			?test_info( "Correct new name returned." )
+	?test_info( "Correct name returned." ),
 
-	end,
 
 	test_facilities:display( "Deleting this TestTraceEmitter." ),
 

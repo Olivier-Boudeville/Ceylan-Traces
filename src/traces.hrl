@@ -1,6 +1,6 @@
-% Copyright (C) 2003-2018 Olivier Boudeville
+% Copyright (C) 2003-2019 Olivier Boudeville
 %
-% This file is part of the Ceylan Erlang library.
+% This file is part of the Ceylan-Traces library.
 %
 % This library is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License or
@@ -47,7 +47,7 @@
 
 % The trace type can be either:
 %
-% - log_mx_traces, for LogMX-compliant traces (the default): then the trace
+% - advanced_traces, for LogMX-compliant traces (the default): then the trace
 % aggregator will use a proper encoding so that the Ceylan Java trace parser,
 % plugged into LogMX, allows this tool to be used with Ceylan
 %
@@ -70,7 +70,7 @@
 % defined
 %
 -ifndef(TraceType).
-	-define( TraceType, log_mx_traces ).
+	-define( TraceType, advanced_traces ).
 	%-define( TraceType, { text_traces, pdf } ).
 	%-define( TraceType, { text_traces, text_only } ).
 

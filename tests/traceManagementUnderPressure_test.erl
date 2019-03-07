@@ -1,6 +1,6 @@
-% Copyright (C) 2003-2018 Olivier Boudeville
+% Copyright (C) 2003-2019 Olivier Boudeville
 %
-% This file is part of the Ceylan Erlang library.
+% This file is part of the Ceylan-Traces library.
 %
 % This library is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License or
@@ -35,8 +35,8 @@
 %
 % Note: trace services are among the most generic services offered, they are
 % used in the vast majority of tests but this one, as the purpose of this test
-% is actually to test traces by themselves (cannot use the trace system to test
-% the trace system!).
+% is actually to test traces by themselves (we cannot use the trace system to
+% test the trace system!).
 %
 -module(traceManagementUnderPressure_test).
 
@@ -75,7 +75,7 @@ run() ->
 	test_facilities:start( ?MODULE ),
 
 	test_facilities:display( "Starting Trace system, with a trace aggregator "
-		"and, if requested, a trace supervisor." ),
+							 "and, if requested, a trace supervisor." ),
 	?test_start,
 
 
@@ -118,21 +118,20 @@ run() ->
 
 	test_facilities:display( "All traces sent." ),
 
+	ExpectedFirstBinaryName = text_utils:string_to_binary( Name ),
+
 	MyTraceEmitter ! { getName, [], self() },
-
-	ExpectedName = list_to_binary( Name ),
-	ExpectedName = test_receive(),
-
+	ExpectedFirstBinaryName = test_receive(),
 	?test_info( "Correct name returned." ),
 
 	NewName = "This is my new name",
 
 	MyTraceEmitter ! { setName, [ NewName ] },
 
-	MyTraceEmitter ! { getName, [], self() },
+	ExpectedSecondBinaryName = text_utils:string_to_binary( NewName ),
 
-	ExpectedNewName = list_to_binary(NewName),
-	ExpectedNewName = test_receive(),
+	MyTraceEmitter ! { getName, [], self() },
+	ExpectedSecondBinaryName = test_receive(),
 
 	?test_info( "Correct new name returned." ),
 

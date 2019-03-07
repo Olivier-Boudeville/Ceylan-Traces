@@ -1,6 +1,6 @@
-% Copyright (C) 2003-2018 Olivier Boudeville
+% Copyright (C) 2003-2019 Olivier Boudeville
 %
-% This file is part of the Ceylan Erlang library.
+% This file is part of the Ceylan-Traces library.
 %
 % This library is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License or
@@ -26,49 +26,35 @@
 % Creation date: July 1, 2007.
 
 
-% Test of TraceEmitter class.
-%
-% See class_TraceEmitter.hrl and class_TraceEmitter.erl.
-%
 -module(class_TestTraceEmitter).
 
 
-% Determines what are the mother classes of this class (if any):
--define( wooper_superclasses, [ class_TraceEmitter ]).
+-define( class_description,
+		 "Trace emitter child class introduced for testing."
+		 "See class_TraceEmitter.hrl and class_TraceEmitter.erl." ).
 
 
-% Parameters taken by the constructor ('construct').
--define( wooper_construct_parameters, TraceEmitterName ).
+% Determines what are the direct mother classes of this class (if any):
+-define( superclasses, [ class_TraceEmitter ] ).
 
 
-% Declaring all variations of WOOPER standard life-cycle operations:
-% (template pasted, two replacements performed to update arities)
--define( wooper_construct_export, new/1, new_link/1,
-		 synchronous_new/1, synchronous_new_link/1,
-		 synchronous_timed_new/1, synchronous_timed_new_link/1,
-		 remote_new/2, remote_new_link/2, remote_synchronous_new/2,
-		 remote_synchronous_new_link/2, remote_synchronisable_new_link/2,
-		 remote_synchronous_timed_new/2, remote_synchronous_timed_new_link/2,
-		 construct/2, destruct/1 ).
-
-
-
-% Member method declarations.
--define( wooper_method_export, sendTraces/1, sendAsyncTraces/1 ).
-
--export([ send_traces/1, send_fatal_trace/1, send_debug_trace/1,
-		  send_traces_benchmark/1 ]).
+-define( class_attributes, [] ).
 
 
 % Used by the trace_categorize/1 macro to use the right emitter:
-%-define( trace_emitter_categorization, "TraceEmitter.Test" ).
+-define( trace_emitter_categorization, "TraceEmitter.Test" ).
+
+
+% Exported helpers:
+-export([ send_traces/1, send_fatal_trace/1, send_debug_trace/1 ]).
+
 
 % Allows to define WOOPER base variables and methods for that class:
 -include("wooper.hrl").
 
 
 % Only to test the trace system:
--define(LogPrefix,"[Test TraceEmitter]").
+-define( LogPrefix, "[Test TraceEmitter]" ).
 
 
 % Allows to use macros for trace sending:
@@ -82,15 +68,17 @@
 					   wooper:state().
 construct( State, TraceEmitterName ) ->
 
-	io:format( "~s Creating a new test trace emitter, whose name is ~p, "
-			   "whose PID is ~w.~n", [ ?LogPrefix, TraceEmitterName, self() ] ),
+	trace_utils:info_fmt( "~s Creating a new test trace emitter, "
+						  "whose name is ~p, whose PID is ~w.",
+						  [ ?LogPrefix, TraceEmitterName, self() ] ),
 
 	% First the direct mother classes, then this class-specific actions:
 	TraceState = class_TraceEmitter:construct( State,
 									   ?trace_categorize( TraceEmitterName ) ),
 
-	% From now on, traces can be sent (but from the constructor send_* traces
+	% From now on, traces can be sent (but, from the constructor, send_* traces
 	% only should be sent, to be able to refer to a trace-enabled state):
+
 	?send_fatal(   TraceState, "Hello fatal world!"   ),
 	?send_error(   TraceState, "Hello error world!"   ),
 	?send_warning( TraceState, "Hello warning world!" ),
@@ -108,8 +96,8 @@ construct( State, TraceEmitterName ) ->
 destruct( State ) ->
 
 	% Class-specific actions:
-	io:format( "~s Deleting test trace emitter ~s.~n",
-			   [ ?LogPrefix, ?getAttr(name) ] ),
+	trace_utils:info_fmt( "~s Deleting test trace emitter ~s.",
+						  [ ?LogPrefix, ?getAttr(name) ] ),
 
 	% Last moment to send traces:
 	?fatal(   "Goodbye fatal world!"   ),
@@ -120,8 +108,8 @@ destruct( State ) ->
 	?debug(   "Goodbye debug world!"   ),
 	?void(    "Goodbye void world!"   ),
 
-	io:format( "~s Test trace emitter ~s deleted.~n",
-			   [ ?LogPrefix, ?getAttr(name) ] ),
+	trace_utils:info_fmt( "~s Test trace emitter ~s deleted.",
+						  [ ?LogPrefix, ?getAttr(name) ] ),
 
 	% Allows chaining:
 	State.
@@ -132,26 +120,32 @@ destruct( State ) ->
 % Methods section.
 
 
-% (const request)
--spec sendTraces( wooper:state() ) -> request_return( 'ok' ).
+
+-spec sendTraces( wooper:state() ) -> const_request_return( 'ok' ).
 sendTraces( State ) ->
 
-	%io:format( "~s Sending some traces.~n", [ ?LogPrefix ] ),
-	%send_traces(State),
+	%trace_utils:info_fmt( "~s Sending some traces.", [ ?LogPrefix ] ),
+
+	%send_traces( State ),
+
 	send_traces_benchmark( State ),
-	?wooper_return_state_result( State, ok ).
+
+	wooper:const_return_result( ok ).
 
 
 
-% (const oneway)
--spec sendAsyncTraces( wooper:state() ) -> oneway_return().
+
+-spec sendAsyncTraces( wooper:state() ) -> const_oneway_return().
 sendAsyncTraces( State ) ->
 
-	%io:format( "~s Sending some asynchronous traces.~n", [ ?LogPrefix ] ),
-	%send_traces(State),
-	send_traces_benchmark( State ),
-	?wooper_return_state_only( State ).
+	%trace_utils:info_fmt( "~s Sending some asynchronous traces.",
+	%                      [ ?LogPrefix ] ),
 
+	%send_traces( State ),
+
+	send_traces_benchmark( State ),
+
+	wooper:const_return().
 
 
 
@@ -162,7 +156,7 @@ sendAsyncTraces( State ) ->
 -spec send_traces( wooper:state() ) -> void().
 send_traces( State ) ->
 
-	%io:format( "~s Sending some traces.~n", [ ?LogPrefix ] ),
+	%trace_utils:info_fmt( "~s Sending some traces.", [ ?LogPrefix ] ),
 
 	% We finally replaced fatal and error traces by warning, as the former two
 	% induce waitings (i.e. timer:sleep/1 calls):
@@ -256,7 +250,9 @@ send_traces( State ) ->
 send_fatal_trace( State ) ->
 
 	Message = "Unique ~w trace!",
+
 	Format = [ fatal ],
+
 	Categ = ?application_start,
 
 	?fatal_fmt_cat( Message, Format, Categ ).
@@ -270,7 +266,9 @@ send_fatal_trace( State ) ->
 send_debug_trace( State ) ->
 
 	Message = "Unique ~w trace!",
+
 	Format = [ debug ],
+
 	Categ = ?application_start,
 
 	?debug_fmt_cat( Message, Format, Categ ).
@@ -283,7 +281,7 @@ send_debug_trace( State ) ->
 -spec send_traces_benchmark( wooper:state() ) -> void().
 send_traces_benchmark( State ) ->
 
-	%io:format( "~s Sending some traces.~n", [ ?LogPrefix ] ),
+	%trace_utils:info_fmt( "~s Sending some traces.", [ ?LogPrefix ] ),
 
 	% We finally replaced fatal and error traces by warning, as the former two
 	% induce waitings (i.e. timer:sleep/1 calls):

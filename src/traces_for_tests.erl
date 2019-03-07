@@ -1,6 +1,6 @@
-% Copyright (C) 2007-2018 Olivier Boudeville
+% Copyright (C) 2007-2019 Olivier Boudeville
 %
-% This file is part of the Ceylan Erlang library.
+% This file is part of the Ceylan-Traces library.
 %
 % This library is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License or
@@ -53,20 +53,23 @@
 -include("traces_test_footer.hrl").
 
 
+% Shorthand:
+
+-type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
 
 
 % To be called from the counterpart macro.
 %
-% Here we disable explicitly the trapping of EXIT events, as a function run
+% Here we disable explicitly the trapping of EXIT signals, as a function run
 % through "erl -eval" (like our tests) or through "erl -run" will be executed in
-% a process which will silently trap EXIT events, which would mean that the
+% a process which will silently trap EXIT signals, which would mean that the
 % crash of any process created from the test, even thanks to spawn_link, would
 % most probably remain unnoticed (just leading to an EXIT message happily
 % sitting in the mailbox of the test process).
 %
 % Returns TraceAggregatorPid.
 %
--spec test_start( basic_utils:module_name(), boolean() ) -> pid().
+-spec test_start( basic_utils:module_name(), boolean() ) -> aggregator_pid().
 test_start( ModuleName, _InitTraceSupervisor=true ) ->
 
 	% First jump to the other clause:
@@ -110,7 +113,7 @@ test_start( ModuleName, _InitTraceSupervisor=false ) ->
 
 
 % To be called from the counterpart macro.
--spec test_stop( basic_utils:module_name(), pid() ) -> no_return().
+-spec test_stop( basic_utils:module_name(), aggregator_pid() ) -> no_return().
 test_stop( ModuleName, TraceAggregatorPid ) ->
 
 	class_TraceSupervisor:wait_for(),
@@ -121,17 +124,19 @@ test_stop( ModuleName, TraceAggregatorPid ) ->
 
 
 % To be called from the counterpart macro.
--spec test_immediate_stop( basic_utils:module_name(), pid() ) -> no_return().
+-spec test_immediate_stop( basic_utils:module_name(), aggregator_pid() ) ->
+								 no_return().
 test_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 
-	test_stop_on_shell(  ModuleName, TraceAggregatorPid ),
+	test_stop_on_shell( ModuleName, TraceAggregatorPid ),
 
 	test_facilities:finished().
 
 
 
 % To be called from the counterpart macro.
--spec test_stop_on_shell( basic_utils:module_name(), pid() ) -> no_return().
+-spec test_stop_on_shell( basic_utils:module_name(), aggregator_pid() ) ->
+								no_return().
 test_stop_on_shell( ModuleName, TraceAggregatorPid ) ->
 
 	?test_info_fmt( "Stopping test ~s.", [ ModuleName ] ),

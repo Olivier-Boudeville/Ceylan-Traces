@@ -1,6 +1,6 @@
-% Copyright (C) 2003-2018 Olivier Boudeville
+% Copyright (C) 2003-2019 Olivier Boudeville
 %
-% This file is part of the Ceylan Erlang library.
+% This file is part of the Ceylan-Traces library.
 %
 % This library is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License or
@@ -138,9 +138,6 @@
 
 
 % Here tracing_activated is not defined: non-critical traces are disabled.
-
-
-
 
 
 -define( test_info( Message ), test_trace_disabled( Message ) ).

@@ -1,6 +1,6 @@
-% Copyright (C) 2003-2018 Olivier Boudeville
+% Copyright (C) 2003-2019 Olivier Boudeville
 %
-% This file is part of the Ceylan Erlang library.
+% This file is part of the Ceylan-Traces library.
 %
 % This library is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License or
@@ -37,8 +37,8 @@
 		  check_pending_wooper_results/0 ]).
 
 
--type emitter_name() :: string().
--type emitter_categorization() :: string().
+-type emitter_name() :: text_utils:ustring().
+-type emitter_categorization() :: text_utils:ustring().
 
 -type emitter_info() :: { emitter_name(), emitter_categorization() }.
 
@@ -49,18 +49,18 @@
 %
 -type app_timestamp() :: any().
 
--type time() :: string().
+-type time() :: text_utils:ustring().
 
--type location() :: string().
+-type location() :: text_utils:ustring().
 
 
 % A message may or may not (which is the default) by categorized:
 %
--type message_categorization() :: string() | 'uncategorized'.
+-type message_categorization() :: text_utils:ustring() | 'uncategorized'.
 
 -type priority() :: 1..6.
 
--type message() :: string().
+-type message() :: text_utils:ustring().
 
 
 -type message_type() :: trace_utils:trace_severity().
@@ -76,16 +76,16 @@
 % A trace type must be selected so that, when the traces are aggregated, the
 % corresponding output is compliant with the tools to be used for supervision.
 %
-% So the trace type to select depends on whether LogMX should be used to browse
-% the execution traces, or just a text viewer (possibly with a PDF displaying
-% thereof); indeed it is:
+% So the trace type to select depends on whether a dedicated, advanced trace
+% tool should be used to browse the execution traces, or just a text viewer
+% (possibly with a PDF displaying thereof); indeed it is:
 %
-% - either 'log_mx_traces', for traces typically expected to be read from the
-% LogMX tool (relyong then on our parser); see http://logmx.com/
+% - either 'advanced_traces', for traces typically expected to be read from the
+% LogMX tool (relying then on our parser); see http://logmx.com/
 %
 % - or { 'text_traces', trace_text_type() }
 %
--type trace_supervision_type() :: 'log_mx_traces'
+-type trace_supervision_type() :: 'advanced_traces'
 								| { 'text_traces', trace_text_type() }.
 
 
@@ -182,7 +182,6 @@ receive_applicative_message( Message=monitor_ok ) ->
 	throw( { invalid_applicative_message, Message } );
 
 receive_applicative_message( Message ) ->
-
 	receive
 
 		{ wooper_result, Message } ->
