@@ -247,7 +247,6 @@ getName( State ) ->
 
 
 % Sets the name of this trace emitter from the specified plain string.
-%
 -spec setName( wooper:state(), emitter_name() ) -> oneway_return().
 setName( State, NewName ) ->
 
@@ -276,7 +275,6 @@ setCategorization( State, TraceCategorization ) ->
 
 
 % Displays the state in the console.
-%
 -spec display( wooper:state() ) -> const_oneway_return().
 display( State ) ->
 	wooper:display_instance( State ),
@@ -284,7 +282,6 @@ display( State ) ->
 
 
 % Returns a textual description of this trace emitter.
-%
 -spec toString( wooper:state() ) -> const_request_return( text_utils:ustring() ).
 toString( State ) ->
 	wooper:const_return_result( wooper:state_to_string( State ) ).
@@ -303,10 +300,10 @@ toString( State ) ->
 % registered.
 %
 -spec send_from_test( traces:message_type(), traces:message() ) ->
-							static_return( void() ).
+							static_void_return().
 send_from_test( TraceType, Message ) ->
 	send_from_test( TraceType, Message, ?default_test_emitter_categorization ),
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
@@ -318,7 +315,7 @@ send_from_test( TraceType, Message ) ->
 %
 -spec send_from_test( traces:message_type(), traces:message(),
 					  traces:emitter_categorization() ) ->
-							static_return( void() ).
+							static_void_return().
 send_from_test( TraceType, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
@@ -356,7 +353,7 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 				 _Message=text_utils:string_to_binary( Message ) ] }
 
 	end,
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
@@ -368,10 +365,10 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 % registered.
 %
 -spec send_from_case( traces:message_type(), traces:message() ) ->
-							static_return( void() ).
+							static_void_return().
 send_from_case( TraceType, Message ) ->
 	send_from_case( TraceType, Message, ?default_case_emitter_categorization ),
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
@@ -383,7 +380,7 @@ send_from_case( TraceType, Message ) ->
 %
 -spec send_from_case( traces:message_type(), traces:message(),
 					  traces:emitter_categorization() ) ->
-							static_return( void() ).
+							static_void_return().
 send_from_case( TraceType, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
@@ -421,7 +418,7 @@ send_from_case( TraceType, Message, EmitterCategorization ) ->
 				 _Message=text_utils:string_to_binary( Message ) ] }
 
 	end,
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
@@ -431,11 +428,11 @@ send_from_case( TraceType, Message, EmitterCategorization ) ->
 % registered.
 %
 -spec send_standalone( traces:message_type(), traces:message() ) ->
-							 static_return( void() ).
+							 static_void_return().
 send_standalone( TraceType, Message ) ->
 	send_standalone( TraceType, Message,
 					 ?default_standalone_emitter_categorization ),
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
@@ -446,7 +443,7 @@ send_standalone( TraceType, Message ) ->
 %
 -spec send_standalone( traces:message_type(), traces:message(),
 					   traces:emitter_categorization() ) ->
-							 static_return( void() ).
+							 static_void_return().
 send_standalone( TraceType, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
@@ -488,7 +485,7 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 				 _Message=text_utils:string_to_binary( Message ) ] }
 
 	end,
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
@@ -499,11 +496,11 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 %
 -spec send_standalone( traces:message_type(), traces:message(),
 		   traces:emitter_name(), traces:emitter_categorization() ) ->
-							 static_return( void() ).
+							 static_void_return().
 send_standalone( TraceType, Message, EmitterName, EmitterCategorization ) ->
 	send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 					 _MessageCategorization=uncategorized ),
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
@@ -515,7 +512,7 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization ) ->
 -spec send_standalone( traces:message_type(), traces:message(),
 					   traces:emitter_name(), traces:emitter_categorization(),
 					   traces:message_categorization() ) ->
-							 static_return( void() ).
+							 static_void_return().
 send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 				 MessageCategorization ) ->
 
@@ -563,7 +560,7 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 				 _Message=text_utils:string_to_binary( Message ) ] }
 
 	end,
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
@@ -574,7 +571,7 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 % registered.
 %
 -spec send_standalone_safe( traces:message_type(), traces:message() ) ->
-								  static_return( void() ).
+								  static_void_return().
 send_standalone_safe( TraceType, Message ) ->
 
 	EmitterCategorization = ?trace_emitter_categorization,
@@ -584,7 +581,7 @@ send_standalone_safe( TraceType, Message ) ->
 	send_standalone_safe( TraceType, Message, EmitterCategorization,
 						  ApplicationTimestamp ),
 
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
@@ -596,7 +593,7 @@ send_standalone_safe( TraceType, Message ) ->
 %
 -spec send_standalone_safe( traces:message_type(), traces:message(),
 							traces:emitter_categorization() ) ->
-								  static_return( void() ).
+								  static_void_return().
 send_standalone_safe( TraceType, Message, EmitterCategorization ) ->
 
 	ApplicationTimestamp = time_utils:get_textual_timestamp(),
@@ -604,7 +601,7 @@ send_standalone_safe( TraceType, Message, EmitterCategorization ) ->
 	send_standalone_safe( TraceType, Message, EmitterCategorization,
 						  ApplicationTimestamp ),
 
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
@@ -616,7 +613,7 @@ send_standalone_safe( TraceType, Message, EmitterCategorization ) ->
 %
 -spec send_standalone_safe( traces:message_type(), traces:message(),
 			traces:emitter_categorization(), traces:app_timestamp() ) ->
-								  static_return( void() ).
+								  static_void_return().
 send_standalone_safe( TraceType, Message, EmitterCategorization,
 					  ApplicationTimestamp ) ->
 
@@ -628,7 +625,7 @@ send_standalone_safe( TraceType, Message, EmitterCategorization,
 						  EmitterCategorization, MessageCategorization,
 						  ApplicationTimestamp ),
 
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
@@ -641,7 +638,7 @@ send_standalone_safe( TraceType, Message, EmitterCategorization,
 %
 -spec send_standalone_safe( traces:message_type(), traces:message(),
 				   traces:emitter_name(), traces:emitter_categorization(),
-				   traces:message_categorization() ) -> static_return( void() ).
+				   traces:message_categorization() ) -> static_void_return().
 send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 					  MessageCategorization ) ->
 
@@ -651,7 +648,7 @@ send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 						  EmitterCategorization, MessageCategorization,
 						  ApplicationTimestamp ),
 
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
@@ -662,12 +659,10 @@ send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 % Uses default trace aggregator, supposed to be already available and
 % registered.
 %
-% (static)
-%
 -spec send_standalone_safe( traces:message_type(), traces:message(),
 		   traces:emitter_name(), traces:emitter_categorization(),
 		   traces:message_categorization(), traces:app_timestamp() ) ->
-								  static_return( void() ).
+								  static_void_return().
 send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 					  MessageCategorization, ApplicationTimestamp ) ->
 
@@ -721,13 +716,12 @@ send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 			wait_aggregator_sync()
 
 	end,
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
 
 % Returns the name of the node this emitter is on, as a binary string.
-%
 -spec get_emitter_node_as_binary() -> static_return( text_utils:bin_string() ).
 get_emitter_node_as_binary() ->
 	Bin = erlang:atom_to_binary( net_utils:localnode(), _Encoding=latin1 ),
@@ -825,7 +819,7 @@ get_emitter_name_from_pid() ->
 % Returns the default message categorization.
 %
 % (helper)
-
+%
 -spec get_default_standalone_message_categorization() ->
 								 emitter_categorization().
 get_default_standalone_message_categorization() ->
@@ -1022,10 +1016,10 @@ send_synchronisable( TraceType, State, Message, MessageCategorization,
 
 	?getAttr(trace_aggregator_pid) ! { sendSync,
 
-	%io:format( "Sending trace: PID=~w, emitter name='~p', "
+	%trace_utils:trace_fmt( "Sending trace: PID=~w, emitter name='~p', "
 	%		   "emitter categorization='~p', "
 	%		   "app timestamp='~p', user time='~p', location='~p', "
-	%		   "message categorization='~p', trace type='~w', message='~p'~n",
+	%		   "message categorization='~p', trace type='~w', message='~p'.",
 
 		[
 		 _TraceEmitterPid=self(),

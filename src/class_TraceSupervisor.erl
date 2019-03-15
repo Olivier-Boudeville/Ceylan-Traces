@@ -466,7 +466,7 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 % Waits, usually at the end of a test, for any trace supervisor to be closed by
 % the user.
 %
--spec wait_for() -> static_return( void() ).
+-spec wait_for() -> static_void_return().
 wait_for() ->
 
 	case executable_utils:is_batch() of
@@ -494,7 +494,7 @@ wait_for() ->
 
 	end,
 
-	wooper:return_static( void ).
+	wooper:return_static_void().
 
 
 
