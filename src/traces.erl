@@ -32,7 +32,7 @@
 -module(traces).
 
 
--export([ get_trace_filename/1, get_attribute_pairs/1,
+-export([ get_trace_filename/1,
 		  receive_applicative_message/0, receive_applicative_message/1,
 		  check_pending_wooper_results/0 ]).
 
@@ -55,7 +55,6 @@
 
 
 % A message may or may not (which is the default) by categorized:
-%
 -type message_categorization() :: text_utils:ustring() | 'uncategorized'.
 
 -type priority() :: 1..6.
@@ -68,7 +67,6 @@
 
 
 % Text traces are either in pure, raw text, or in PDF:
-%
 -type trace_text_type() :: 'text_only' | 'pdf'.
 
 
@@ -107,53 +105,6 @@ get_trace_filename( ModuleName ) ->
 
 
 
-% Returns the (user-level) attributes known of Traces for the specified state
-% (i.e. all attributes except the ones used internally by Traces and WOOPER).
-%
-% (helper)
-%
--spec get_attribute_pairs( wooper:state() ) -> [ wooper:attribute_entry() ].
-get_attribute_pairs( State ) ->
-
-	AllAttrs = wooper:get_all_attributes( State ),
-
-	ReservedAttrs = get_traces_reserved_attribute_names(),
-
-	% Remove Traces internals:
-	filter_traces_attributes( AllAttrs, ReservedAttrs, _Acc=[] ).
-
-
-
-% Removes from the specified atttributes the ones used internally by TRACES (so
-% that only class-specific ones remain).
-%
-% (internal helper)
-%
-filter_traces_attributes( _AttrPairs=[], _ReservedAttrs, Acc ) ->
-	Acc;
-
-filter_traces_attributes( _AttrPairs=[ AttrEntry={ Name, _Value } | T ],
-						  ReservedAttrs, Acc ) ->
-
-	case lists:member( Name, ReservedAttrs ) of
-
-		true ->
-			filter_traces_attributes( T, ReservedAttrs, Acc );
-
-		false ->
-			filter_traces_attributes( T, ReservedAttrs, [ AttrEntry | Acc ] )
-
-	end.
-
-
-
-% Returns a list of the attribute names that are used internally by TRACES.
-%
--spec get_traces_reserved_attribute_names() -> [ wooper:attribute_name() ].
-get_traces_reserved_attribute_names() ->
-	[ emitter_node, name, trace_aggregator_pid, trace_categorization,
-	  trace_timestamp ].
-
 
 
 % Receives an applicative, non-trace message, to protect user messages from the
@@ -175,7 +126,7 @@ receive_applicative_message() ->
 % from the trace ones.
 %
 % Used for synchronization purpose.
-
+%
 -spec receive_applicative_message( any() ) -> void().
 receive_applicative_message( Message=monitor_ok ) ->
 	% Would interfere with the monitoring system:

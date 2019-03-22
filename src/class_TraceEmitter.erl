@@ -292,6 +292,21 @@ toString( State ) ->
 % Static section.
 
 
+% Returns the names of all the base state attributes (be they defined by this
+% class or inherited).
+%
+-spec get_all_base_attribute_names() ->
+				static_return( [ wooper_info:attribute_name() ] ).
+get_all_base_attribute_names() ->
+
+	AttrNames =
+		wooper_introspection:get_class_specific_attribute_names( ?MODULE )
+		++ list_utils:flatten_once(
+			 [ wooper_introspection:get_class_specific_attribute_names( C )
+			   || C <- ?superclasses ] ),
+
+	wooper:return_static( AttrNames ).
+
 
 % Sends all types of traces on behalf of a test, thus without requiring a
 % class_TraceEmitter state.
