@@ -61,7 +61,7 @@
 
 
 % Sends (as fast as possible) the specified number of traces:
-%
+
 send_traces( _Count=0 ) ->
 	ok;
 
@@ -117,9 +117,9 @@ test_actual_body() ->
 			ok;
 
 		pang ->
-			test_facilities:display( "Error, the trace management test "
-				"should already be running.~nFor example, execute "
-				"'make traceManagement_run' in another terminal." ),
+			trace_utils:error( "the trace management test should already be "
+				"running. For example, execute 'make traceManagement_run' "
+				"in another terminal before running this test." ),
 
 			throw( { no_trace_aggregator_to_listen, TargetNodeName } )
 
@@ -157,8 +157,8 @@ test_actual_body() ->
 
 	send_timed_traces( _TimedCount=20 ),
 
-	?test_info( "Last trace sent from test (note: the trace listener will "
-				"be deleted just afterwards, so it may miss the last traces)." ),
+	?test_info( "Last trace sent from test (note: the trace listener will be "
+				"deleted just afterwards, so it may miss the last traces)." ),
 
 	% Could wait here for any event before stopping.
 
