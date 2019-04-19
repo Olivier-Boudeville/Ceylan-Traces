@@ -7,7 +7,11 @@ DOC_PDF_NAME := $(DOC_BASE_NAME).pdf
 
 OVERALL_DOCUMENT_TARGET = $(DOC_BASE_NAME).rst
 
-DOC_GENERATED_FILES = $(DOC_PDF_NAME) $(DOC_BASE_NAME).html
+CURRENT_TRACES_HTML = $(DOC_BASE_NAME).html
+
+HTML_TARGET = $(CURRENT_TRACES_HTML)
+
+DOC_GENERATED_FILES = $(DOC_PDF_NAME) $(HTML_TARGET)
 
 DOC_FILES = $(DOC_GENERATED_FILES)
 
@@ -45,6 +49,9 @@ doc:
 
 
 full-doc: $(DOC_BASE_NAME).pdf $(DOC_BASE_NAME).html
+
+
+html: clean-doc $(HTML_TARGET)
 
 
 # Creates a separate repository for the GitHub pages branch:

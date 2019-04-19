@@ -407,7 +407,6 @@
 %
 -define( notify_info( Message ),
 		 class_TraceEmitter:send_standalone( info, Message )
-
 ).
 
 

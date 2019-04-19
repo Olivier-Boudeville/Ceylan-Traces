@@ -196,17 +196,20 @@ construct( State, EmitterName ) ->
 
 % Checks the emitter name, and, if needed, returns a binary version thereof.
 %
+% Note: we used to fail should at one dot be found, now we convert the string
+% name so that it becomes legit.
+%
 % (helper)
 %
 -spec check_and_binarise_name( emitter_name() ) -> text_utils:bin_string().
 check_and_binarise_name( StringName ) when is_list( StringName ) ->
-	check_string_name( StringName ),
-	text_utils:string_to_binary( StringName );
+	LegitStringName = check_string_name( StringName ),
+	text_utils:string_to_binary( LegitStringName );
 
 check_and_binarise_name( BinName ) when is_binary( BinName ) ->
 	StringName = text_utils:binary_to_string( BinName ),
-	check_string_name( StringName ),
-	BinName.
+	check_and_binarise_name( StringName ).
+
 
 
 % Helper:
@@ -215,16 +218,20 @@ check_string_name( Name ) ->
 	% Can be an io_list():
 	FlatName = text_utils:format( "~s", [ Name ] ),
 
-	% No dot allowed, as is used as a naming separator:
-	case text_utils:split_at_first( _Marker=$., Name ) of
+	% Dots are not allowed in emitter names (as they are interpreted as
+	% subcategories), whereas for example FQDNs have such characters:
 
-		none_found ->
-			ok;
+	%case text_utils:split_at_first( _Marker=$., Name ) of
+	%
+	%	none_found ->
+	%		ok;
+	%
+	%	_ ->
+	%		throw( { no_dot_allowed_in_emitter_name, FlatName } )
+	%
+	%end.
 
-		_ ->
-			throw( { no_dot_allowed_in_emitter_name, FlatName } )
-
-	end.
+	text_utils:substitute( _Source=$., _Target=$:, FlatName ).
 
 
 
