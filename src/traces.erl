@@ -172,13 +172,20 @@ check_pending_wooper_results() ->
 %
 % Note:
 %
-% - the code_utils.beam module of Ceylan-Myriad and the wooper.beam module of
-% Ceylan-WOOPER must be available from the current code path
+% - the code_utils.beam module of Ceylan-Myriad must be available from the
+% current code path
+%
+% - the CEYLAN_MYRIAD, CEYLAN_WOOPER and CEYLAN_TRACES environment variables
+% must be defined and must point to the respective root directories
 %
 % - the determined directories are not specifically checked for existence,
-% and are added at the end of the code path.
+% and are added at the end of the code path
 %
 -spec declare_beam_dirs_for_traces() -> void().
 declare_beam_dirs_for_traces() ->
-	wooper:declare_beam_dirs_for_wooper(),
+
+	% Not wanting to depend also on wooper.beam:
+	%wooper:declare_beam_dirs_for_wooper(),
+	code_utils:declare_beam_dirs_for( "CEYLAN_WOOPER" ),
+
 	code_utils:declare_beam_dirs_for( "CEYLAN_TRACES" ).
