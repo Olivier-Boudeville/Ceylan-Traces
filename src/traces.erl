@@ -34,7 +34,7 @@
 
 -export([ get_trace_filename/1,
 		  receive_applicative_message/0, receive_applicative_message/1,
-		  check_pending_wooper_results/0 ]).
+		  check_pending_wooper_results/0, declare_beam_dirs_for_traces/0 ]).
 
 
 -type emitter_name() :: text_utils:ustring().
@@ -164,3 +164,21 @@ check_pending_wooper_results() ->
 			ok
 
 	end.
+
+
+
+% Declares automatically the relevant BEAM directories in the code path, so that
+% Ceylan-Traces can be fully usable from then on.
+%
+% Note:
+%
+% - the code_utils.beam module of Ceylan-Myriad and the wooper.beam module of
+% Ceylan-WOOPER must be available from the current code path
+%
+% - the determined directories are not specifically checked for existence,
+% and are added at the end of the code path.
+%
+-spec declare_beam_dirs_for_traces() -> void().
+declare_beam_dirs_for_traces() ->
+	wooper:declare_beam_dirs_for_wooper(),
+	code_utils:declare_beam_dirs_for( "CEYLAN_TRACES" ).
