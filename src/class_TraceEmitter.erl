@@ -52,7 +52,6 @@
 
 
 % Helper functions:
-%
 -export([ init/1, set_categorization/2,
 		  send/3, send_safe/3, send/4, send_safe/4, send/5, send_safe/5,
 		  send_synchronised/5,

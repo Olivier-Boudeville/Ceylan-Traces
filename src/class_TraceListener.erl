@@ -74,6 +74,9 @@
 -export_type([ listener_pid/0 ]).
 
 
+% For myriad_spawn*:
+-include("spawn_utils.hrl").
+
 
 % Allows to define WOOPER base variables and methods for that class:
 -include("wooper.hrl").
@@ -264,7 +267,7 @@ monitor( State ) ->
 
 	Self = self(),
 
-	WaiterPid = spawn_link( fun() ->
+	WaiterPid = ?myriad_spawn_link( fun() ->
 
 		% Blocking this waiter process (logmx.sh must be found in the PATH):
 		case system_utils:run_executable(
@@ -286,7 +289,7 @@ monitor( State ) ->
 		% Unblock the listener:
 		Self ! { onMonitoringOver, self() }
 
-							end ),
+									end ),
 
 	SupState = setAttribute( State, supervision_waiter_pid, WaiterPid ),
 

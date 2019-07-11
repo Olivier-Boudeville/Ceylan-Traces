@@ -82,6 +82,9 @@
 -define( trace_emitter_categorization, "Traces" ).
 
 
+% For myriad_spawn*:
+-include("spawn_utils.hrl").
+
 
 
 % Allows to define WOOPER base variables and methods for that class:
@@ -204,8 +207,9 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 	% Closure used to avoid exporting the function (beware of self()):
 	AggregatorPid = self(),
 
-	OverLoadMonitorPid = spawn_link(
-		   fun() -> overload_monitor_main_loop( AggregatorPid ) end ),
+	OverLoadMonitorPid = ?myriad_spawn_link( fun() ->
+								overload_monitor_main_loop( AggregatorPid )
+											 end ),
 
 	OverloadState = setAttribute( PrivateState, overload_monitor_pid,
 								  OverLoadMonitorPid ),
