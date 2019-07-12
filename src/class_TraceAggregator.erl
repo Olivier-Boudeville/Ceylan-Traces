@@ -28,11 +28,10 @@
 -module(class_TraceAggregator).
 
 
--define( class_description, " Default, main trace aggregator. "
-
+-define( class_description,
+		 "Default, main trace aggregator."
 		 "It just collects traces from emitters and stores them at once in a "
 		 "file, in a relevant user-specified format."
-
 		 "Trace listeners can connect at any time to the aggregator. In this "
 		 "case it will stop and send first the full current trace file to "
 		 "them. From that moment, incoming traces will be both written in file "
@@ -69,7 +68,7 @@
 
 
 
--type aggregator_pid() :: pid().
+-type aggregator_pid() :: instance_pid().
 
 -export_type([ aggregator_pid/0 ]).
 
@@ -339,7 +338,6 @@ destruct( State ) ->
 
 
 
-
 % Methods section.
 
 
@@ -369,7 +367,8 @@ send( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 
 	% Was: io:format( ?getAttr(trace_file), "~s", [ Trace ] ),
 	% but now we use faster raw writes:
-	%ok = file:write( ?getAttr(trace_file), text_utils:format( "~s", [ Trace ] ) ),
+	%ok = file:write( ?getAttr(trace_file),
+	%                 text_utils:format( "~s", [ Trace ] ) ),
 
 	file_utils:write( ?getAttr(trace_file), Trace ),
 
@@ -418,7 +417,8 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 
 	% Was: io:format( ?getAttr(trace_file), "~s", [ Trace ] ),
 	% but now we use faster raw writes:
-	%ok = file:write( ?getAttr(trace_file), text_utils:format( "~s", [ Trace ] ) ),
+	%ok = file:write( ?getAttr(trace_file),
+	%                 text_utils:format( "~s", [ Trace ] ) ),
 	file_utils:write( ?getAttr(trace_file), Trace ),
 
 	Listeners = ?getAttr(trace_listeners),
@@ -482,7 +482,7 @@ renameTraceFile( State, NewTraceFilename ) ->
 % Useful for example to launch a relevant trace supervision.
 %
 -spec getTraceType( wooper:state() ) ->
-					  const_request_return( { 'notify_trace_types', trace_type() } ).
+			  const_request_return( { 'notify_trace_types', trace_type() } ).
 getTraceType( State ) ->
 
 	Res = { notify_trace_type, ?getAttr(trace_type) },
@@ -598,7 +598,6 @@ addTraceListener( State, ListenerPid ) ->
 
 
 % Removes specified trace listener from this aggregator.
-%
 -spec removeTraceListener( wooper:state(), listener_pid() ) -> oneway_return().
 removeTraceListener( State, ListenerPid ) ->
 
@@ -760,7 +759,6 @@ get_aggregator( CreateIfNotAvailable ) ->
 
 
 % Deletes synchronously the trace aggregator.
-%
 -spec remove() ->
 		 static_return( 'deleted' | 'trace_aggregator_not_found' ).
 remove() ->
@@ -782,7 +780,6 @@ remove() ->
 
 
 % Code of the process that monitors the aggregator, overloading-wise.
-%
 overload_monitor_main_loop( AggregatorPid ) ->
 
 	receive
@@ -1052,7 +1049,6 @@ manage_trace_footer( State ) ->
 
 
 % Returns the typical separator between array rows.
-%
 get_row_separator() ->
 	get_row_separator( $- ).
 
@@ -1073,14 +1069,22 @@ get_row_separator( DashType ) ->
 
 % Formats specified trace according to specified trace type.
 -spec format_trace_for( traces:trace_supervision_type(),
-		 { emitter_pid(), traces:emitter_name(), traces:emitter_categorization(),
-		  traces:app_timestamp(), traces:time(), traces:location(),
+		 { emitter_pid(), traces:emitter_name(),
+		   traces:emitter_categorization(), traces:app_timestamp(),
+		   traces:time(), traces:location(),
 		  traces:message_categorization(), traces:priority(),
 		  traces:message() } ) -> text_utils:ustring().
 format_trace_for( advanced_traces, { TraceEmitterPid,
 		TraceEmitterName, TraceEmitterCategorization, AppTimestamp, Time,
 		Location, MessageCategorization, Priority, Message } ) ->
-	lists:flatten( text_utils:format( "~w|~s|~s|~s|~s|~s|~s|~w|~s~n",
+   lists:flatten(
+
+	 % For debugging, use io_lib:format/2 if wanting to crash on abnormal
+	 % input:
+	 %
+	 %io_lib:format(
+	 text_utils:format(
+	   "~w|~s|~s|~s|~s|~s|~s|~w|~s~n",
 		[ TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 		  AppTimestamp, Time, Location, MessageCategorization, Priority,
 		  Message ] ) );
@@ -1121,7 +1125,6 @@ format_trace_for( { text_traces, _TargetFormat }, { TraceEmitterPid,
 
 
 % Formats specified list of linesets.
-%
 format_linesets( PidLines, EmitterNameLines, AppTimestampLines, TimeLines,
 				 PriorityLines, MessageLines ) ->
 

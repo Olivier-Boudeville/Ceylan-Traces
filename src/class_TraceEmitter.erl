@@ -52,6 +52,7 @@
 
 
 % Helper functions:
+%
 -export([ init/1, set_categorization/2,
 		  send/3, send_safe/3, send/4, send_safe/4, send/5, send_safe/5,
 		  send_synchronised/5,
@@ -169,6 +170,8 @@
 -spec construct( wooper:state(), { emitter_name(), emitter_categorization() } )
 			   -> wooper:state().
 construct( State, _EmitterInit={ EmitterName, EmitterCategorization } ) ->
+  % Useless, as checks done just afterwards:
+  % when is_list( EmitterName ) andalso is_list( EmitterCategorization ) ->
 
 	%trace_utils:debug_fmt( "~s Creating a trace emitter whose name is '~s', "
 	%						"whose PID is ~w and whose categorization is '~s'.",
@@ -188,8 +191,14 @@ construct( State, _EmitterInit={ EmitterName, EmitterCategorization } ) ->
 
 % Should no mother class have set it:
 construct( State, EmitterName ) ->
+		% Useless, as checked afterwards: when is_list( EmitterName ) ->
 	construct( State, _EmitterInit={ EmitterName,
 									 ?default_trace_emitter_categorization } ).
+
+% Useless, as already checked:
+%construct( _State, InvalidEmitterName ) ->
+%	throw( { invalid_emitter_name, InvalidEmitterName } ).
+
 
 
 
@@ -957,6 +966,8 @@ send_safe( TraceType, State, Message, MessageCategorization ) ->
 
 % Sends all types of (unsynchronised) traces.
 %
+% By far the main sending primitive.
+%
 % (helper)
 %
 -spec send( traces:message_type(), wooper:state(), traces:message(),
@@ -979,18 +990,46 @@ send( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
 	AppTimestampString = text_utils:term_to_binary( AppTimestamp ),
 
 	% Follows the order of our trace format; oneway call:
-	% (toggle the comment for the two blocks below to debug)
 
-	?getAttr(trace_aggregator_pid) ! { send,
+	TraceEmitterName = ?getAttr(name),
+
+	% (this debug printout shall match the actual message sending)
 
 	%trace_utils:debug_fmt( "Sending trace: PID=~w, emitter name='~p', "
 	%		   "emitter categorization='~p', "
 	%		   "app timestamp='~p', user time='~p', location='~p', "
-	%		   "message categorization='~p', trace type='~w', message='~p'",
+	%		   "message categorization='~p', trace type='~w', message='~p'~n",
+	%	[
+	%	 _TraceEmitterPid=self(),
+	%	 TraceEmitterName,
+	%	 _TraceEmitterCategorization=?getAttr(trace_categorization),
+	%	 AppTimestampString,
+	%	 _Time=TimestampText,
+	%	 _Location=?getAttr(emitter_node),
+	%	 _MessageCategorization=MsgCateg,
+	%	 _Priority=get_priority_for( TraceType ),
+	%	 _Message=text_utils:string_to_binary( Message )
+	%	] ),
 
+	% Just for extra debugging; typically usuful should a child class set again
+	% its 'name' attribute, moreover with a faulty value (typically with the
+	% name provided to its constructor - whereas it might not be a proper name
+	% but a pair with the trace categorization)
+	%
+	cond_utils:if_debug( case text_utils:is_bin_string( TraceEmitterName ) of
+
+				  true ->
+					  ok;
+
+				  false ->
+					  throw( { invalid_emitter_name, TraceEmitterName } )
+
+			  end ),
+
+	?getAttr(trace_aggregator_pid) ! { send,
 		[
 		 _TraceEmitterPid=self(),
-		 _TraceEmitterName=?getAttr(name),
+		 TraceEmitterName,
 		 _TraceEmitterCategorization=?getAttr(trace_categorization),
 		 AppTimestampString,
 		 _Time=TimestampText,
@@ -999,7 +1038,6 @@ send( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
 		 _Priority=get_priority_for( TraceType ),
 		 _Message=text_utils:string_to_binary( Message )
 		]
-	% ).
 	}.
 
 
