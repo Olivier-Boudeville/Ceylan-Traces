@@ -61,7 +61,6 @@
 
 
 % Sends (as fast as possible) the specified number of traces:
-
 send_traces( _Count=0 ) ->
 	ok;
 
@@ -191,7 +190,6 @@ test_actual_body() ->
 
 
 % Runs the test.
-%
 -spec run() -> no_return().
 run() ->
 
@@ -199,6 +197,9 @@ run() ->
 	% traces_for_apps:test_start/2 for a detailed explanation):
 	%
 	erlang:process_flag( trap_exit, false ),
+
+	% Allows to support both OTP conventions and ad hoc, automatic ones:
+	wooper_utils:start_for_test(),
 
 	test_facilities:display( "Testing module ~w. 'make traceManagement_run' "
 							 "supposed to be already executed.", [ ?MODULE ] ),

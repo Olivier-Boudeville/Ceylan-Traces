@@ -50,9 +50,9 @@ list-beam-dirs:
 add-prerequisite-plts: link-plt
 
 
-# As upper layers may rely on the 'traces' naming:
+# As upper layers may rely on the 'Traces' naming:
 link-plt:
-	@/bin/ln -s $(PLT_FILE) $(TRACES_PLT_FILE)
+	@/bin/ln -s --force $(PLT_FILE) $(TRACES_PLT_FILE)
 
 
 stats:

@@ -57,6 +57,9 @@ run() ->
 
 	test_facilities:start( ?MODULE ),
 
+	% Allows to support both OTP conventions and ad hoc, automatic ones:
+	wooper_utils:start_for_test(),
+
 	case executable_utils:is_batch() of
 
 		true ->

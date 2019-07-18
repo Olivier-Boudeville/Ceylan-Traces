@@ -297,7 +297,8 @@ display( State ) ->
 
 
 % Returns a textual description of this trace emitter.
--spec toString( wooper:state() ) -> const_request_return( text_utils:ustring() ).
+-spec toString( wooper:state() ) ->
+					  const_request_return( text_utils:ustring() ).
 toString( State ) ->
 	wooper:const_return_result( wooper:state_to_string( State ) ).
 
@@ -311,7 +312,7 @@ toString( State ) ->
 % class or inherited).
 %
 -spec get_all_base_attribute_names() ->
-				static_return( [ wooper_info:attribute_name() ] ).
+							   static_return( [ wooper:attribute_name() ] ).
 get_all_base_attribute_names() ->
 
 	AttrNames =
@@ -1037,8 +1038,7 @@ send( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
 		 _MessageCategorization=MsgCateg,
 		 _Priority=get_priority_for( TraceType ),
 		 _Message=text_utils:string_to_binary( Message )
-		]
-	}.
+		] }.
 
 
 

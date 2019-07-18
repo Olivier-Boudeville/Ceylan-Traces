@@ -433,9 +433,12 @@ create( Blocking, MonitorNow, TraceFilename, TraceType, TraceAggregatorPid ) ->
 % MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
 %
 -spec init( file_utils:file_name(), traces:trace_supervision_type(),
-		aggregator_pid() ) ->
-			static_return( 'no_trace_supervisor_wanted' | supervisor_pid() ).
+			aggregator_pid() ) ->
+		static_return( 'no_trace_supervisor_wanted' | supervisor_pid() ).
 init( TraceFilename, TraceType, TraceAggregatorPid ) ->
+
+	%trace_utils:trace_fmt( "Initializing trace supervisor for file '~s' and "
+	%						"trace type ~p.", [ TraceFilename, TraceType ] ),
 
 	% By default (with no specific option) a synchronous supervisor is wanted
 	% (wait for its launch to complete):
