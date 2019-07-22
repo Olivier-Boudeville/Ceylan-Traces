@@ -5,11 +5,17 @@
 
 # PROJECT_NAME should be defined on a per-project basis.
 ifndef PROJECT_NAME
-	PROJECT_NAME = Traces
+	PROJECT_NAME = Ceylan-Traces
 endif
 
 
-TRACES_VERSION := 0.3
+# REBAR3_PROJECT_NAME should be defined on a per-project basis.
+ifndef REBAR3_PROJECT_NAME
+	REBAR3_PROJECT_NAME := traces
+endif
+
+
+TRACES_VERSION := 0.3.0
 
 # PROJECT_VERSION should be defined on a per-project basis.
 ifndef PROJECT_VERSION
