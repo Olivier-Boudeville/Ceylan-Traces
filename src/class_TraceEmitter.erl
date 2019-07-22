@@ -100,7 +100,7 @@
 % See also the trace_categorize/1 macro.
 %
 -type emitter_init() :: emitter_name()
-						| { emitter_name(), emitter_categorization() }.
+					  | { emitter_name(), emitter_categorization() }.
 
 
 % PID of a trace emitter:
