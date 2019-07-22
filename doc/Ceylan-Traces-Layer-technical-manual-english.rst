@@ -37,10 +37,9 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2019 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Sunday, March 17, 2019
-
+:Lastly updated: Saturday, July 20, 2019
 :Status: Work in progress
-:Version: 0.9.5
+:Version: 0.9.6
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
@@ -413,14 +412,20 @@ We hope that enhancements will be back-contributed (ex: thanks to merge requests
 
 
 
---------------------------------
-Installation of the Traces Layer
---------------------------------
+---------------------------------
+Current Stable Version & Download
+---------------------------------
 
-As mentioned, the single, direct prerequisite of `Ceylan-Traces <https://github.com/Olivier-Boudeville/Ceylan-Traces>`_ is `Ceylan-WOOPER <https://github.com/Olivier-Boudeville/Ceylan-WOOPER>`_, which implies in turn `Ceylan-Myriad <https://github.com/Olivier-Boudeville/Ceylan-Myriad>`_ and `Erlang <http://erlang.org>`_, version 21.0 or more recent [#]_.
+As mentioned, the single, direct prerequisite of `Ceylan-Traces <https://github.com/Olivier-Boudeville/Ceylan-Traces>`_ is `Ceylan-WOOPER <https://github.com/Olivier-Boudeville/Ceylan-WOOPER>`_, which implies in turn `Ceylan-Myriad <https://github.com/Olivier-Boudeville/Ceylan-Myriad>`_ and `Erlang <http://erlang.org>`_, version 22.0 or more recent [#]_.
 
 .. [#] Note that, in the Ceylan-Myriad repository, we have a script to streamline the installation of Erlang, see `install-erlang.sh <https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/conf/install-erlang.sh>`_; use ``install-erlang.sh --help`` for guidance.
 
+
+
+Using Cutting-Edge GIT
+======================
+
+This is the installation method that we use and recommend; the Traces ``master`` branch is meant to stick to the latest stable version: we try to ensure that this main line always stays functional (sorry for the pun). Evolutions are to take place in feature branches and to be merged only when ready.
 
 Once Erlang is available, it should be just a matter of executing:
 
@@ -436,7 +441,6 @@ Once Erlang is available, it should be just a matter of executing:
  $ cd Ceylan-Traces && make all
 
 
-
 Running a corresponding test just then boils down to:
 
 .. code:: bash
@@ -449,6 +453,18 @@ Should LogMX be installed and available in the PATH, the test may simply become:
 .. code:: bash
 
  $ make traceManagement_run
+
+
+:raw-html:`<a name="otp"></a>`
+
+.. _`otp-build`:
+
+Using OTP-Related Build/Runtime Conventions
+===========================================
+
+As discussed in these sections of `Myriad <http://myriad.esperide.org/myriad.html#otp>`_ and `WOOPER <http://wooper.esperide.org/index.html#otp>`_, we added the (optional) possibility of generating a Traces *OTP application* out of the build tree (obtained thanks to the method described in the section above), ready to be integrated into an *(OTP) release*. For that we rely on `rebar3 <https://www.rebar3.org/>`_, `relx <https://github.com/erlware/relx>`_ and `hex <https://hex.pm/>`_.
+
+Unlike Myriad (which is an OTP *library* application), Traces, like WOOPER, is an OTP *active* application, meaning the reliance on an application that can be started/stopped (``traces_app``) and a root supervisor (``traces_sup``); unlike WOOPER this time - whose main server (the class manager) is a ``gen_server`` - Traces relies on a trace aggregator that is a background server process yet does not implement the ``gen_server`` behaviour but the `supervisor_bridge <http://erlang.org/doc/man/supervisor_bridge.html>`_ one: the trace aggregator is indeed `a WOOPER instance <http://wooper.esperide.org/index.html#otp_for_instances>`_.
 
 
 -------
