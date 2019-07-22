@@ -65,7 +65,7 @@ export-doc: clean-doc full-doc export-to-official export-to-mirror
 
 
 export-to-official:
-	@echo "   Exporting Traces documentation to official website"
+	@echo "   Exporting Traces documentation to official website ($(WEB_SRV))"
 	@/bin/scp $(SP) $(WEB_CONTENT) $(WEB_SRV):$(WEB_ROOT)/Traces/
 
 
