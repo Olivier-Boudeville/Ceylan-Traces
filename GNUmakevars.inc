@@ -15,7 +15,7 @@ ifndef REBAR3_PROJECT_NAME
 endif
 
 
-TRACES_VERSION := 0.3.0
+TRACES_VERSION := 1.0.0
 
 # PROJECT_VERSION should be defined on a per-project basis.
 ifndef PROJECT_VERSION
@@ -58,6 +58,15 @@ TRACES_INC = -I$(TRACES_SRC)
 WOOPER_OTP_INC := -I$(TRACES_TOP)/../wooper/include/
 
 INC += $(TRACES_INC) $(WOOPER_OTP_INC)
+
+
+# In an OTP/rebar3-style application layout, at compilation time, modules
+# compiled (directly or not) by the WOOPER parse transform will expect its
+# module to be located in:
+#
+WOOPER_OTP_BEAM_DIR := $(TRACES_TOP)/../wooper/ebin/
+
+BEAM_DIRS += $(WOOPER_OTP_BEAM_DIR)
 
 
 DOC_ROOT = $(TRACES_TOP)/../../../doc
@@ -156,6 +165,41 @@ ERLANG_COMPILER_OPT_BASE += $(ENABLE_TRACE_OPT)
 # (same for {test,app}_trace_disabled/{1,2} and al)
 #
 #ERLANG_COMPILER_OPT_BASE += "+{nowarn_unused_function,[{trace_disabled,1},{trace_disabled,2},{trace_disabled,3},{trace_disabled,4},{trace_disabled,5},{test_trace_disabled,1},{test_trace_disabled,2}]}"
+
+
+# Not wanting to trigger WOOPER-specific settings (ex: the modules bootstrapped
+# for it, like wooper_info), hence we define the corresponding Make variables
+# with an empty value (otherwise if using 'MY_VAR= ', MY_VAR would be deemed not
+# defined); however of course most rules/variables still apply.
+
+
+#ifndef ERLANG_COMPILER_PARSE_TRANSFORM_OPT_FOR_STANDARD_MODULES
+#
+#	ERLANG_COMPILER_PARSE_TRANSFORM_OPT_FOR_STANDARD_MODULES = $(empty)
+#
+#endif
+
+
+ifndef PARSE_TRANSFORM_DIRS
+
+	PARSE_TRANSFORM_DIRS = $(empty)
+
+endif
+
+
+#ifndef ERLANG_COMPILER_PARSE_TRANSFORM_OPT
+#
+#	ERLANG_COMPILER_PARSE_TRANSFORM_OPT = $(empty)
+#
+#endif
+
+
+ifndef BOOTSTRAP_MODULES
+
+	BOOTSTRAP_MODULES = $(empty)
+
+endif
+
 
 
 TRACES_FILES = $(wildcard *.traces)
