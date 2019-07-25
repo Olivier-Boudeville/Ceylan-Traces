@@ -50,10 +50,17 @@ TRACES_BEAM := $(TRACES_TOP)
 TRACES_INC = -I$(TRACES_SRC)
 
 
+# In an OTP/rebar3-style application layout, at compilation time, libraries
+# making use of WOOPER will expect its includes to be located in:
+#
+# (Myriad already taken care of, at the WOOPER level)
+#
+WOOPER_OTP_INC := -I$(TRACES_TOP)/../wooper/include/
+
+INC += $(TRACES_INC) $(WOOPER_OTP_INC)
+
+
 DOC_ROOT = $(TRACES_TOP)/../../../doc
-
-
-INC += $(TRACES_INC)
 
 
 
