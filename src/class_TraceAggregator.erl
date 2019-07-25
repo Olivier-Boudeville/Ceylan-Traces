@@ -28,6 +28,10 @@
 -module(class_TraceAggregator).
 
 
+% See documentation at http://traces.esperide.org.
+
+
+
 -define( class_description,
 		 "Default, main trace aggregator."
 		 "It just collects traces from emitters and stores them at once in a "
@@ -118,6 +122,7 @@
 -type emitter_pid() :: class_TraceEmitter:emitter_pid().
 
 
+
 % Implementation notes:
 %
 % The aggregator could store per-emitter constant settings (ex: emitter name and
@@ -125,6 +130,9 @@
 % would be involved.
 %
 % The aggregator is not a standard trace emitter.
+%
+% The aggregator can be (optionally) plugged to an OTP supervision tree, thanks
+% to the Traces supervisor bridge (see the traces_sup module).
 
 
 
@@ -206,12 +214,12 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 	% Closure used to avoid exporting the function (beware of self()):
 	AggregatorPid = self(),
 
-	OverLoadMonitorPid = ?myriad_spawn_link( fun() ->
+	OverloadMonitorPid = ?myriad_spawn_link( fun() ->
 								overload_monitor_main_loop( AggregatorPid )
 											 end ),
 
 	OverloadState = setAttribute( PrivateState, overload_monitor_pid,
-								  OverLoadMonitorPid ),
+								  OverloadMonitorPid ),
 
 	HeaderState = manage_trace_header( OverloadState ),
 
@@ -864,7 +872,6 @@ overload_monitor_main_loop( AggregatorPid ) ->
 
 
 % Helper functions.
-
 
 
 % Sends specified trace immediately from the aggregator itself (hence to
