@@ -1,6 +1,9 @@
 % This is a (manually crafted) configuration file of rebar3, so that
 % Ceylan-Traces can better integrate in the current OTP ecosystem, despite its
 % (more complex) build based on GNU make.
+%
+% This is also a template, so that version numbers can be updated from a
+% centralized place (namely GNUmakevars.inc).
 
 
 % Base layout was obtained thanks to: 'rebar3 new app traces', as Traces is an
@@ -13,6 +16,7 @@
 % - http://erlang.org/doc/design_principles/release_structure.html
 % - https://www.rebar3.org/docs/releases
 % - https://learnyousomeerlang.com/release-is-the-word
+
 
 
 
@@ -37,13 +41,16 @@
 % hex-compile-hook-script.sh, to compensate for the GNUmake* root files that the
 % package archive will not include at their location)
 %
-{deps, [ {wooper, "2.0.2"} ] }.
+{deps, [ {wooper, "WOOPER_VERSION_FOR_REBAR"} ] }.
 
 
 
 % We need to rely on our dedicated build procedure (ex: for the parse transforms
 % involved):
 %
+% Could not set REBAR_PROFILE=$(REBAR_PROFILE):
+%
+%{pre_hooks, [ {compile, "make -s rebar3-info"} ]}.
 {pre_hooks, [ {compile, "make -s rebar3-compile"} ]}.
 
 %{post_hooks, [
@@ -61,8 +68,8 @@
 {relx, [
 
   {release, {traces_release, {cmd, "cat GNUmakevars.inc | grep 'TRACES_VERSION := '| sed 's|^TRACES_VERSION := ||1' | tr -d '\n'"}},
-		 % myriad and wooper thus implied:
-		 [sasl, traces]},
+			% myriad and wooper thus implied:
+			[sasl, traces]},
 
   %{sys_config, "./config/sys.config"},
   %{vm_args, "./config/vm.args"},
@@ -105,6 +112,6 @@
 
 % For packages:
 %
-% (use 'rebar3 update' to enable the plugin)
+% (use 'rebar3 update' to enable the hex plugin)
 %
 {plugins, [rebar3_hex]}.

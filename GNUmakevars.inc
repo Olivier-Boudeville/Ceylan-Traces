@@ -1,6 +1,14 @@
 # Prerequisite: TRACES_TOP must be set.
 
 
+# Useful to target for example the root of the current layer (ex: to locate the
+# relevant, layer-local '_build' directory):
+#
+ifndef LAYER_TOP
+	   LAYER_TOP := $(TRACES_TOP)
+endif
+
+
 # Project section.
 
 # PROJECT_NAME should be defined on a per-project basis.
@@ -15,7 +23,9 @@ ifndef REBAR3_PROJECT_NAME
 endif
 
 
-TRACES_VERSION := 1.0.0
+# The uniquely-defined version of this layer, for all uses including rebar:
+TRACES_VERSION := 1.0.1
+
 
 # PROJECT_VERSION should be defined on a per-project basis.
 ifndef PROJECT_VERSION
@@ -60,13 +70,24 @@ WOOPER_OTP_INC := -I$(TRACES_TOP)/../wooper/include/
 INC += $(TRACES_INC) $(WOOPER_OTP_INC)
 
 
+# When building Traces in an OTP context from its usual, GIT root (ex: with 'make
+# rebar3-application'), the BEAMs of WOOPER are to be found in
+# the OTP build tree - rather than in a supposedly fully-built usual root for
+# WOOPER:
+#
+WOOPER_OTP_BEAM_DIR_FROM_USUAL = $(LAYER_TOP)/$(WOOPER_REBAR_BUILD_BASE)/ebin
+
+
 # In an OTP/rebar3-style application layout, at compilation time, modules
 # compiled (directly or not) by the WOOPER parse transform will expect its
 # module to be located in:
 #
-WOOPER_OTP_BEAM_DIR := $(TRACES_TOP)/../wooper/ebin/
+WOOPER_OTP_BEAM_DIR_FROM_OTP = $(LAYER_TOP)/../wooper/ebin/
 
-BEAM_DIRS += $(WOOPER_OTP_BEAM_DIR)
+
+# We rely on WOOPER (and Myriad) as well:
+BEAM_DIRS += $(WOOPER_OTP_BEAM_DIR_FROM_USUAL) \
+			 $(WOOPER_OTP_BEAM_DIR_FROM_OTP)
 
 
 DOC_ROOT = $(TRACES_TOP)/../../../doc

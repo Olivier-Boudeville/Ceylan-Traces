@@ -2,9 +2,12 @@
 % an hex package* (ex: in this case only src/ is packaged, and none of the root
 % GNUmake* files), so that Ceylan-WOOPER can better integrate in the current OTP
 % ecosystem, despite its (more complex) build based on GNU make.
+%
+% This is also a template, so that version numbers can be updated from a
+% centralized place (namely GNUmakevars.inc).
 
 
-% Base layout was obtained thanks to: 'rebar3 new app traces', as Traces an
+% Base layout was obtained thanks to: 'rebar3 new app traces', as Traces is an
 % active OTP application (not a mere library).
 
 % To be run from the library root as 'rebar3 compile' or 'rebar3 release'.
@@ -43,11 +46,13 @@
 % hex-compile-hook-script.sh, to compensate for the GNUmake* root files that the
 % package archive will not include at their location)
 %
-{deps, [ {wooper, "2.0.2"} ] }.
+{deps, [ {wooper, "WOOPER_VERSION_FOR_REBAR"} ] }.
 
 
 % We need to rely on our dedicated build procedure (ex: for the parse transforms
 % involved):
+%
+% Could not set REBAR_PROFILE=$(REBAR_PROFILE):
 %
 {pre_hooks, [ {compile, "priv/hex-packaging/hex-compile-hook-script.sh"} ]}.
 
