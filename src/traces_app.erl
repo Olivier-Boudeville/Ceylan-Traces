@@ -50,17 +50,19 @@ start( Type, StartArgs ) ->
 	trace_utils:debug_fmt( "Starting Traces application (type: ~w, "
 						   "start arguments: ~w).", [ Type, StartArgs ] ),
 
-	% Previously, no specific root supervisor was to launch, but:
+	% Previously, no specific root supervisor bridge was to launch, but:
 	%class_TraceAggregator:start().
 
-	case traces_sup:start_link() of
+	TraceSupervisorWanted = not executable_utils:is_batch(),
 
-		R={ ok, _RootSupervisorPid } ->
+	case traces_sup:start_link( TraceSupervisorWanted ) of
+
+		R={ ok, _RootSupervisorBridgePid } ->
 			R;
 
 		Other ->
 			trace_utils:error_fmt( "The Traces root supervisor did not start "
-								   "properly: ~w.", [ Other ] ),
+								   "properly:~n  ~p.", [ Other ] ),
 			{ error, Other }
 
 	end.

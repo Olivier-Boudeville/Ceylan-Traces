@@ -37,9 +37,9 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2019 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Saturday, July 20, 2019
+:Lastly updated: Tuesday, August 6, 2019
 :Status: Work in progress
-:Version: 0.9.6
+:Version: 0.9.7
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
@@ -189,7 +189,7 @@ An example of some class ``Foobar`` inheriting directly from ``TraceEmitter`` wi
 
    construct(State,TraceEmitterName) ->
 	 TraceState = class_TraceEmitter:construct(State,TraceEmitterName),
-	 % Cannot use ?trace("Hello!), as it would use 'State',
+	 % Cannot use here ?trace("Hello!), as it would use 'State',
 	 % which is not a trace emitter yet! So:
 	 ?send_trace(TraceState,"Hello!"),
 	 [...]

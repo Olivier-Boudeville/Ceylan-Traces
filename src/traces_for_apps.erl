@@ -73,7 +73,8 @@
 app_start( ModuleName, _InitTraceSupervisor=true ) ->
 
 	% First jump to the other clause:
-	TraceAggregatorPid = app_start( ModuleName, false ),
+	TraceAggregatorPid = app_start( ModuleName,
+							  _DoNotInitTraceSupervisor=false ),
 
 	class_TraceSupervisor:init( traces:get_trace_filename( ModuleName ),
 								?TraceType, TraceAggregatorPid ),
@@ -87,7 +88,7 @@ app_start( ModuleName, _InitTraceSupervisor=false ) ->
 	erlang:process_flag( trap_exit, false ),
 
 	% Create first, synchronously (to avoid race conditions), a trace aggregator
-	% (false is to specify a non-private i.e. global aggregator).
+	% (false is to specify a non-private, i.e. global, aggregator).
 	%
 	% Race conditions could occur at least with trace emitters (they would
 	% create their own aggregator, should none by found) and with trace

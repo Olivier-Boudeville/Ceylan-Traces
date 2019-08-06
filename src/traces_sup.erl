@@ -29,14 +29,14 @@
 % Module implementing the root supervisor of Traces.
 %
 % In practice, it will supervise a single process, the one of the (singleton)
-% WOOPER class manager .
+% trace aggregator.
 %
 -module(traces_sup).
 
 
 % The trace aggregator is not a gen_server but a WOOPER instance, therefore a
-% supervisor bridge is needed to connect this aggregator to an OTP supervision
-% tree.
+% supervisor bridge (provided by this module) is needed in order to connect this
+% aggregator to an OTP supervision tree.
 %
 % As a result, the process whose code is defined in the current module behaves
 % like a real supervisor to its own supervisor, but has a different interface
@@ -50,7 +50,7 @@
 
 
 % User API:
--export([ start_link/0 ]).
+-export([ start_link/1 ]).
 
 
 % Callback of the supervisor_bridge behaviour:
@@ -65,24 +65,25 @@
 
 
 
-% Starts and links the WOOPER root supervisor.
-start_link() ->
+% Starts and links the Traces root supervisor bridge.
+-spec start_link( boolean() ) -> term().
+start_link( TraceSupervisorWanted ) ->
 
-	trace_utils:debug( "Starting the WOOPER root supervisor." ),
+	trace_utils:debug( "Starting the Traces root supervisor." ),
 
-	supervisor:start_link( { local, ?supervisor_name },
-						   _Module=?MODULE, _Args=[] ).
+	supervisor_bridge:start_link( { local, ?supervisor_name },
+						  _Module=?MODULE, _Args=[ TraceSupervisorWanted ] ).
 
 
 % Callback to initialise this supervisor bridge.
-init( Args ) ->
+init( [ TraceSupervisorWanted ] ) ->
 
-	trace_utils:trace_fmt(
-	  "Initializing the Traces supervisor bridge (args: ~p).", [ Args ] ),
+	trace_utils:trace_fmt( "Initializing the Traces supervisor bridge "
+		"(trace supervisor wanted: ~s).", [ TraceSupervisorWanted ] ),
 
 	% Not trapping EXITs explicitly:
 	TraceAggregatorPid = traces_for_apps:app_start(
-		_ModuleName=?application_module_name, _InitTraceSupervisor=false ),
+		_ModuleName=?application_module_name, TraceSupervisorWanted ),
 
 	{ ok, TraceAggregatorPid, _State=TraceAggregatorPid }.
 

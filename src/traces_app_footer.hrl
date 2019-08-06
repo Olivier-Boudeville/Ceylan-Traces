@@ -23,7 +23,7 @@
 % <http://www.mozilla.org/MPL/>.
 %
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
-% Creation date: Tuesday, January 11, 2011
+% Creation date: Tuesday, January 11, 2011.
 
 
 

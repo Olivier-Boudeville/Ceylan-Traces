@@ -73,7 +73,8 @@
 test_start( ModuleName, _InitTraceSupervisor=true ) ->
 
 	% First jump to the other clause:
-	TraceAggregatorPid = test_start( ModuleName, _InitTraceSupervisor=false ),
+	TraceAggregatorPid = test_start( ModuleName,
+									 _DoNotInitTraceSupervisor=false ),
 
 	class_TraceSupervisor:init( traces:get_trace_filename( ModuleName ),
 								?TraceType, TraceAggregatorPid ),

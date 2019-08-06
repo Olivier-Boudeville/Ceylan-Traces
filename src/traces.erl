@@ -34,7 +34,8 @@
 
 -export([ get_trace_filename/1,
 		  receive_applicative_message/0, receive_applicative_message/1,
-		  check_pending_wooper_results/0, declare_beam_dirs_for_traces/0 ]).
+		  check_pending_wooper_results/0, declare_beam_dirs_for_traces/0,
+		  manage_supervision/0 ]).
 
 
 -type emitter_name() :: text_utils:ustring().
@@ -189,3 +190,46 @@ declare_beam_dirs_for_traces() ->
 	code_utils:declare_beam_dirs_for( "CEYLAN_WOOPER" ),
 
 	code_utils:declare_beam_dirs_for( "CEYLAN_TRACES" ).
+
+
+
+% Manages the supervision of traces, typically in an OTP context, where:
+% - the trace aggregator is expected to be already running
+% - by default no specific trace file can be defined by the user, as
+% applications are just started or not
+%
+% Note: currently not useful, as implicitly managed by traces_app:start/2.
+%
+-spec manage_supervision() -> maybe( class_TraceSupervisor:supervisor_pid() ).
+manage_supervision() ->
+
+	case executable_utils:is_batch() of
+
+		true ->
+			trace_utils:debug( "In batch mode, no trace supervisor launched." ),
+			undefined;
+
+		false ->
+			trace_utils:debug(
+			  "In interactive mode, so launching trace supervisor." ),
+
+			% Expected to be already created:
+			TraceAggregatorPid = class_TraceAggregator:get_aggregator(
+								   _CreateIfNotAvailable=false ),
+
+			% Not blocking the calling process until the supervision is over:
+			TraceAggregatorPid !
+				{ launchTraceSupervisor, [], self() },
+
+			% test_receive/1 not appropriate here (would filter the atom that we
+			% expect):
+			%
+			receive
+
+				{ wooper_result,
+				  { trace_supervisor_launched, TraceSupervisorPid } } ->
+					TraceSupervisorPid
+
+			end
+
+	end.

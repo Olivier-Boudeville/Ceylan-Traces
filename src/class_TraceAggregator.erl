@@ -499,19 +499,36 @@ getTraceType( State ) ->
 
 
 
-% Launches the trace supervisor.
+% Returns to the caller the current trace settings in use.
+%
+% Useful for example to launch a relevant trace supervision.
+%
+-spec getTraceSettings( wooper:state() ) -> const_request_return(
+	  { 'notify_trace_settings', file_utils:bin_file_name(), trace_type() } ).
+getTraceSettings( State ) ->
+
+	BinFilename = text_utils:string_to_binary( ?getAttr(trace_filename) ),
+
+	Res = { notify_trace_settings, BinFilename, ?getAttr(trace_type) },
+
+	wooper:const_return_result( Res ).
+
+
+
+% Launches the trace supervisor, with settings that are by design relevant.
 %
 % If possible, it is useful to do so only once the final trace filename is
 % known.
 %
--spec launchTraceSupervisor( wooper:state(), traces:trace_supervision_type(),
-							 aggregator_pid() ) -> const_oneway_return().
-launchTraceSupervisor( State, TraceType, TraceAggregatorPid ) ->
+-spec launchTraceSupervisor( wooper:state() ) ->
+		   const_request_return( class_TraceSupervisor:supervisor_pid() ).
+launchTraceSupervisor( State ) ->
 
-	class_TraceSupervisor:init( ?getAttr(trace_filename), TraceType,
-								TraceAggregatorPid ),
+	SupervisorPid = class_TraceSupervisor:create( _IsBlocking=false,
+		?getAttr(trace_filename), ?getAttr(trace_type),
+		_TraceAggregatorPid=self() ),
 
-	wooper:const_return().
+	wooper:const_return_result( SupervisorPid ).
 
 
 
@@ -748,7 +765,7 @@ get_aggregator( CreateIfNotAvailable ) ->
 				catch { global_registration_waiting_timeout, _Name } ->
 
 						error_logger:error_msg(
-						  "class_TraceAggregator:get_aggregatorunable to "
+						  "class_TraceAggregator:get_aggregator unable to "
 						  "launch successfully the aggregator.~n" ),
 						trace_aggregator_launch_failed
 
@@ -763,7 +780,6 @@ get_aggregator( CreateIfNotAvailable ) ->
 	end,
 
 	wooper:return_static( AggRes ).
-
 
 
 % Deletes synchronously the trace aggregator.

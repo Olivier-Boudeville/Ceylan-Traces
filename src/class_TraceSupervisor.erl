@@ -53,7 +53,9 @@
 
 -type supervisor_pid() :: pid().
 
--export_type([ supervisor_pid/0 ]).
+-type supervisor_outcome() :: 'no_trace_supervisor_wanted' | supervisor_pid().
+
+-export_type([ supervisor_pid/0, supervisor_outcome/0 ]).
 
 
 % Allows to define WOOPER base variables and methods for that class:
@@ -101,7 +103,8 @@
 %
 %   - TraceType the type of traces to expect (ex: advanced_traces, text_traces)
 %
-%   - TraceAggregatorPid is the PID of the trace aggregator, or undefined
+%   - MaybeTraceAggregatorPid is the PID of the trace aggregator to wait for, or
+%   'undefined'
 %
 % - MonitorNow tells whether the supervision should begin immediately (if true)
 % or only when the monitor method is called (if false)
@@ -112,25 +115,28 @@
 % meaning iff MonitorNow is true
 %
 -spec construct( wooper:state(), { file_utils:file_name(),
-		 traces:trace_supervision_type(), aggregator_pid() },
+		 traces:trace_supervision_type(), maybe( aggregator_pid() ) },
 			 boolean(), 'none' | pid() ) -> wooper:state().
-construct( State, { TraceFilename, TraceType, TraceAggregatorPid }, MonitorNow,
-		   Blocking ) ->
+construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
+		   MonitorNow, Blocking ) ->
 
-	%trace_utils:debug_fmt( "~s Creating a trace supervisor, whose PID is ~w.",
-	%						[ ?LogPrefix, self() ] ),
+	trace_utils:debug_fmt( "~s Creating a trace supervisor, whose PID is ~w "
+						   "(trace filename: '~s', trace type: '~s', "
+						   "monitor now: ~w, blocking: ~w",
+						   [ ?LogPrefix, self(), TraceFilename, TraceType,
+							 MonitorNow, Blocking ] ),
 
 	NewState = setAttributes( State, [
 		{ trace_filename, TraceFilename },
 		{ trace_type, TraceType },
-		{ trace_aggregator_pid, TraceAggregatorPid } ] ),
+		{ trace_aggregator_pid, MaybeTraceAggregatorPid } ] ),
 
-	case TraceAggregatorPid of
+	case MaybeTraceAggregatorPid of
 
 		AggPid when is_pid( AggPid ) ->
-			% We have a PID, avoid the race condition that could happen if LogMX
-			% was launched before a first trace was written by the aggregator in
-			% the trace file:
+			% We have a PID, avoid the race condition that could happen if the
+			% trace viewer (ex: LogMX) was launched before a first trace was
+			% written by the aggregator in the trace file:
 
 			%trace_utils:trace(
 			%	   "(trace supervisor waiting for the trace aggregator)" ),
@@ -179,6 +185,7 @@ construct( State, { TraceFilename, TraceType, TraceAggregatorPid }, MonitorNow,
 
 							% If needing to ignore a non-significant error from
 							% the supervision tool:
+							%
 							CallerPid ! { wooper_result, monitor_ok },
 							self() ! delete,
 							AnyState
@@ -361,8 +368,6 @@ create( Blocking ) ->
 %
 % See create/5 for a more in-depth explanation of the parameters.
 %
--spec create( boolean(), file_utils:file_name() ) ->
-					static_return( supervisor_pid() ).
 create( Blocking, TraceFilename ) ->
 
 	SupervisorPid = create( Blocking, TraceFilename, _TraceType=advanced_traces,
@@ -383,8 +388,8 @@ create( Blocking, TraceFilename ) ->
 					static_return( supervisor_pid() ).
 create( Blocking, TraceFilename, TraceType, TraceAggregatorPid ) ->
 
-	SupervisorPid = create( Blocking, _MonitorNow=true, TraceFilename, TraceType,
-							TraceAggregatorPid ),
+	SupervisorPid = create( Blocking, _MonitorNow=true, TraceFilename,
+							TraceType, TraceAggregatorPid ),
 
 	wooper:return_static( SupervisorPid ).
 
@@ -403,13 +408,17 @@ create( Blocking, TraceFilename, TraceType, TraceAggregatorPid ) ->
 %
 % - TraceType the expected type of the traces (ex: advanced_traces, text_traces)
 %
-% - TraceAggregatorPid is either the PID of the trace aggregator, or the
+% - MaybeTraceAggregatorPid is either the PID of the trace aggregator, or the
 % 'undefined' atom
 %
+% Returns either the PID of the created supervisor or, if blocking (hence the
+% supervisor being dead by design when this creation returns), 'undefined'.
+%
 -spec create( boolean(), boolean(), file_utils:file_name(),
-			 traces:trace_supervision_type(), maybe( supervisor_pid() ) ) ->
-					static_return( supervisor_pid() ).
-create( Blocking, MonitorNow, TraceFilename, TraceType, TraceAggregatorPid ) ->
+			 traces:trace_supervision_type(), maybe( aggregator_pid() ) ) ->
+					static_return( maybe( supervisor_pid() ) ).
+create( Blocking, MonitorNow, TraceFilename, TraceType,
+		MaybeTraceAggregatorPid ) ->
 
 	BlockingParam = case Blocking of
 
@@ -421,21 +430,51 @@ create( Blocking, MonitorNow, TraceFilename, TraceType, TraceAggregatorPid ) ->
 
 	end,
 
-	SupervisorPid = new_link( { TraceFilename, TraceType, TraceAggregatorPid },
+	SupervisorPid = new_link( { TraceFilename, TraceType,
+								MaybeTraceAggregatorPid },
 							  MonitorNow, BlockingParam ),
 
-	wooper:return_static( SupervisorPid ).
+	MaybeSupervisorPid = case Blocking of
+
+		% Then by design the process is terminated:
+		true ->
+			undefined;
+
+		false ->
+			SupervisorPid
+
+	end,
+
+	wooper:return_static( MaybeSupervisorPid ).
 
 
 
-
+% Inits a trace supervisor; especially useful when the trace supervisor cannot
+% be created at the same time as the trace aggregator (ex: if the trace filename
+% is to change at runtime).
+%
 % Use the --batch option (ex: erl --batch, or with the make system 'make
 % MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
 %
 -spec init( file_utils:file_name(), traces:trace_supervision_type(),
-			aggregator_pid() ) ->
-		static_return( 'no_trace_supervisor_wanted' | supervisor_pid() ).
+			aggregator_pid() ) -> static_return( supervisor_outcome() ).
 init( TraceFilename, TraceType, TraceAggregatorPid ) ->
+	SupOutcome = init( TraceFilename, TraceType, TraceAggregatorPid,
+					   _BlockingSupervisor=true ),
+	wooper:return_static( SupOutcome ).
+
+
+
+% Inits a trace supervisor; especially useful when the trace supervisor cannot
+% be created at the same time as the trace aggregator (ex: if the trace filename
+% is to change at runtime).
+%
+% Use the --batch option (ex: erl --batch, or with the make system 'make
+% MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
+%
+-spec init( file_utils:file_name(), traces:trace_supervision_type(),
+		aggregator_pid(), boolean() ) -> static_return( supervisor_outcome() ).
+init( TraceFilename, TraceType, TraceAggregatorPid, BlockingSupervisor ) ->
 
 	%trace_utils:trace_fmt( "Initializing trace supervisor for file '~s' and "
 	%						"trace type ~p.", [ TraceFilename, TraceType ] ),
@@ -443,7 +482,6 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 	% By default (with no specific option) a synchronous supervisor is wanted
 	% (wait for its launch to complete):
 
-	% One '-' already eaten:
 	case executable_utils:is_batch() of
 
 		true ->
@@ -456,7 +494,7 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 		false ->
 			% Default: a trace supervisor is used.
 			%trace_utils:info( "Supervisor enabled." ),
-			SupervisorPid = create( _BlockingSupervisor=true, TraceFilename,
+			SupervisorPid = create( BlockingSupervisor, TraceFilename,
 									TraceType, TraceAggregatorPid ),
 			%trace_utils:debug( "Waiting for trace supervisor to be closed." )
 
@@ -480,24 +518,32 @@ wait_for() ->
 			system_utils:await_output_completion();
 
 		false ->
-			% A supervisor must be waited for:
-			trace_utils:info(
-			  "(waiting for the user to stop the trace supervision)" ),
-
-			receive
-
-				{ wooper_result, monitor_ok } ->
-					%trace_utils:info(
-					%    "Notification received from supervisor." ),
-					% Not {test,app}_info, as used in both contexts:
-					class_TraceEmitter:send_standalone( info,
-						"Traces successfully monitored." )
-
-			end
+			actual_wait_for()
 
 	end,
 
 	wooper:return_static_void().
+
+
+% (helper)
+-spec actual_wait_for() -> void().
+actual_wait_for() ->
+
+	% A supervisor must be waited for here:
+	trace_utils:info(
+	  "(waiting for the user to stop the trace supervision)" ),
+
+	receive
+
+		{ wooper_result, monitor_ok } ->
+
+			%trace_utils:info(
+			%    "Notification received from supervisor." ),
+			% Not {test,app}_info, as used in both contexts:
+			class_TraceEmitter:send_standalone( info,
+				"Traces successfully monitored." )
+
+	end.
 
 
 
