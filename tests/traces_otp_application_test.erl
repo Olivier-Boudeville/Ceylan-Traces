@@ -96,7 +96,8 @@ run() ->
 
 		true ->
 
-			MyriadEBinPath = file_utils:join( BaseEBinPath ++ [ "myriad", "ebin" ] ),
+			MyriadEBinPath =
+				file_utils:join( BaseEBinPath ++ [ "myriad", "ebin" ] ),
 
 			case file_utils:is_existing_directory_or_link( MyriadEBinPath ) of
 
@@ -117,8 +118,8 @@ run() ->
 							  "No build directory found for the WOOPER parent "
 							  "application (searched for '~s'), "
 							  "stopping this test (run beforehand "
-							  "'make rebar3-compile' at the root of the "
-							  "WOOPER source tree for a more relevant testing).",
+							  "'make rebar3-application' at the root of this "
+							  "source tree for a more relevant testing).",
 							  [ WOOPEREBinPath ] )
 
 					end;
@@ -127,8 +128,8 @@ run() ->
 					trace_utils:warning_fmt(
 					  "No build directory found for the Myriad parent "
 					  "application (searched for '~s'), stopping this test "
-					  "(run beforehand 'make rebar3-compile' at the root "
-					  "of the Myriad source tree for a more relevant testing).",
+					  "(run beforehand 'make rebar3-application' at the root "
+					  "of this source tree for a more relevant testing).",
 					  [ MyriadEBinPath ] )
 
 			end;
@@ -138,7 +139,8 @@ run() ->
 			trace_utils:warning_fmt( "No build directory found for the Traces "
 				"application (searched for '~s'), stopping this test "
 				"(run beforehand 'make rebar3-compile' at the root of the "
-				"source tree for a more relevant testing).", [ TracesEBinPath ] )
+				"source tree for a more relevant testing).",
+				[ TracesEBinPath ] )
 
 	end,
 
