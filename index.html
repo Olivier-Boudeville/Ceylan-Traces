@@ -20,7 +20,7 @@
 <p><span class="raw-html"><center><img src="traces-title.png" width="70%"></img></center></span>
 </p>
 <div class="section" id="technical-manual-of-the-ceylan-traces-layer">
-<h1><a class="toc-backref" href="#id21">Technical Manual of the <tt class="docutils literal"><span class="pre">Ceylan-Traces</span></tt> Layer</a></h1>
+<h1><a class="toc-backref" href="#id23">Technical Manual of the <tt class="docutils literal"><span class="pre">Ceylan-Traces</span></tt> Layer</a></h1>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -34,13 +34,13 @@
 <tr class="field"><th class="field-name">Creation date:</th><td class="field-body"><p class="first">Sunday, August 15, 2010</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Sunday, March 17, 2019</p>
+<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Wednesday, August 7, 2019</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Status:</th><td class="field-body"><p class="first">Work in progress</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">0.9.5</p>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">0.9.8</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Dedication:</th><td class="field-body"><p class="first">Users and maintainers of the <tt class="docutils literal">Traces</tt> layer.</p>
@@ -57,39 +57,43 @@ The next level of information is to read the corresponding <a class="reference e
 <div class="contents topic" id="table-of-contents">
 <p class="topic-title first">Table of Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#technical-manual-of-the-ceylan-traces-layer" id="id21">Technical Manual of the <tt class="docutils literal"><span class="pre">Ceylan-Traces</span></tt> Layer</a><ul>
-<li><a class="reference internal" href="#overview" id="id22">Overview</a></li>
-<li><a class="reference internal" href="#trace-levels" id="id23">Trace Levels</a></li>
-<li><a class="reference internal" href="#id4" id="id24">Trace Content</a></li>
-<li><a class="reference internal" href="#trace-emission" id="id25">Trace Emission</a><ul>
-<li><a class="reference internal" href="#from-member-methods" id="id26">From member methods</a></li>
-<li><a class="reference internal" href="#from-constructors" id="id27">From constructors</a></li>
-<li><a class="reference internal" href="#trace-categorisation" id="id28">Trace Categorisation</a></li>
-<li><a class="reference internal" href="#activation-desactivation" id="id29">Activation / Desactivation</a></li>
-<li><a class="reference internal" href="#switching-from-basic-console-traces" id="id30">Switching from basic Console Traces</a></li>
+<li><a class="reference internal" href="#technical-manual-of-the-ceylan-traces-layer" id="id23">Technical Manual of the <tt class="docutils literal"><span class="pre">Ceylan-Traces</span></tt> Layer</a><ul>
+<li><a class="reference internal" href="#overview" id="id24">Overview</a></li>
+<li><a class="reference internal" href="#trace-levels" id="id25">Trace Levels</a></li>
+<li><a class="reference internal" href="#id4" id="id26">Trace Content</a></li>
+<li><a class="reference internal" href="#trace-emission" id="id27">Trace Emission</a><ul>
+<li><a class="reference internal" href="#from-member-methods" id="id28">From member methods</a></li>
+<li><a class="reference internal" href="#from-constructors" id="id29">From constructors</a></li>
+<li><a class="reference internal" href="#trace-categorisation" id="id30">Trace Categorisation</a></li>
+<li><a class="reference internal" href="#activation-desactivation" id="id31">Activation / Desactivation</a></li>
+<li><a class="reference internal" href="#switching-from-basic-console-traces" id="id32">Switching from basic Console Traces</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#trace-ordering" id="id31">Trace Ordering</a></li>
-<li><a class="reference internal" href="#trace-output-generation" id="id32">Trace Output Generation</a></li>
-<li><a class="reference internal" href="#trace-browsing" id="id33">Trace Browsing</a></li>
-<li><a class="reference internal" href="#trace-implementation" id="id34">Trace Implementation</a><ul>
-<li><a class="reference internal" href="#general-mode-of-operation" id="id35">General Mode of Operation</a></li>
-<li><a class="reference internal" href="#trace-emitters" id="id36">Trace Emitters</a></li>
-<li><a class="reference internal" href="#internal-trace-format" id="id37">Internal Trace Format</a></li>
+<li><a class="reference internal" href="#trace-ordering" id="id33">Trace Ordering</a></li>
+<li><a class="reference internal" href="#trace-output-generation" id="id34">Trace Output Generation</a></li>
+<li><a class="reference internal" href="#trace-browsing" id="id35">Trace Browsing</a></li>
+<li><a class="reference internal" href="#trace-implementation" id="id36">Trace Implementation</a><ul>
+<li><a class="reference internal" href="#general-mode-of-operation" id="id37">General Mode of Operation</a></li>
+<li><a class="reference internal" href="#trace-emitters" id="id38">Trace Emitters</a></li>
+<li><a class="reference internal" href="#internal-trace-format" id="id39">Internal Trace Format</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#licence" id="id38">Licence</a></li>
-<li><a class="reference internal" href="#installation-of-the-traces-layer" id="id39">Installation of the Traces Layer</a></li>
-<li><a class="reference internal" href="#support" id="id40">Support</a></li>
-<li><a class="reference internal" href="#please-react" id="id41">Please React!</a></li>
-<li><a class="reference internal" href="#ending-word" id="id42">Ending Word</a></li>
+<li><a class="reference internal" href="#licence" id="id40">Licence</a></li>
+<li><a class="reference internal" href="#current-stable-version-download" id="id41">Current Stable Version &amp; Download</a><ul>
+<li><a class="reference internal" href="#using-cutting-edge-git" id="id42">Using Cutting-Edge GIT</a></li>
+<li><a class="reference internal" href="#using-otp-related-build-runtime-conventions" id="id43">Using OTP-Related Build/Runtime Conventions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#support" id="id44">Support</a></li>
+<li><a class="reference internal" href="#please-react" id="id45">Please React!</a></li>
+<li><a class="reference internal" href="#ending-word" id="id46">Ending Word</a></li>
 </ul>
 </li>
 </ul>
 </div>
 <p></p>
 <div class="section" id="overview">
-<h2><a class="toc-backref" href="#id22">Overview</a></h2>
+<h2><a class="toc-backref" href="#id24">Overview</a></h2>
 <p>This layer is in charge of providing <a class="reference external" href="http://erlang.org">Erlang</a> programs with the means of emitting, collecting, storing and browsing <em>applicative traces</em> (i.e. logs).</p>
 <p>For that, various components have been designed and implemented, such as trace aggregator, emitter, listener, supervisor, etc.</p>
 <p>They collectively constitute the <a class="reference external" href="http://traces.esperide.org/">Traces</a> layer, whose prerequisites are the <a class="reference external" href="http://wooper.esperide.org/">WOOPER</a> layer (for object-oriented primitives) and the <a class="reference external" href="http://myriad.esperide.org/">Myriad</a> layer (for many lower-level services; itself a prerequisite of WOOPER).</p>
@@ -102,7 +106,7 @@ The next level of information is to read the corresponding <a class="reference e
 </table>
 </div>
 <div class="section" id="trace-levels">
-<span id="trace-severity"></span><h2><a class="toc-backref" href="#id23">Trace Levels</a></h2>
+<span id="trace-severity"></span><h2><a class="toc-backref" href="#id25">Trace Levels</a></h2>
 <p>There are six built-in levels for trace channels, of increasing severity:</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -140,7 +144,7 @@ The next level of information is to read the corresponding <a class="reference e
 <p></p>
 </div>
 <div class="section" id="id4">
-<span id="trace-content"></span><h2><a class="toc-backref" href="#id24">Trace Content</a></h2>
+<span id="trace-content"></span><h2><a class="toc-backref" href="#id26">Trace Content</a></h2>
 <p>The traces corresponding to an execution are represented as an wallclock-time ordered stream of trace messages.</p>
 <p>These traces are possibly exchanged over the network or stored in a file, whose extension is conventionally <tt class="docutils literal">.traces</tt>.</p>
 <p>For example the traces for a test named <tt class="docutils literal">my_foobar_test</tt> are typically stored in a <tt class="docutils literal">my_foobar_test.traces</tt> file, generated by the trace aggregator in the directory from which the corresponding test was launched.</p>
@@ -160,14 +164,14 @@ The next level of information is to read the corresponding <a class="reference e
 </blockquote>
 </div>
 <div class="section" id="trace-emission">
-<h2><a class="toc-backref" href="#id25">Trace Emission</a></h2>
+<h2><a class="toc-backref" href="#id27">Trace Emission</a></h2>
 <p>The following header is to be included so that an Erlang process can send traces:</p>
 <pre class="literal-block">
 -include(&quot;class_TraceEmitter.hrl&quot;).
 </pre>
 <p>This process can be a standalone module (ex: a test or an application launcher, see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/tests/traceManagement_test.erl">traceManagement_test.erl</a>) or, more frequently, it might correspond to a WOOPER (active) instance, in which case it shall inherit, directly or not, from <tt class="docutils literal">class_TraceEmitter</tt> (see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/tests/class_TestTraceEmitter.erl">class_TestTraceEmitter.erl</a> for a complete example of it).</p>
 <div class="section" id="from-member-methods">
-<h3><a class="toc-backref" href="#id26">From member methods</a></h3>
+<h3><a class="toc-backref" href="#id28">From member methods</a></h3>
 <p>Then sending-primitives can be used, such as:</p>
 <pre class="literal-block">
 ?info(&quot;Hello world!&quot;)
@@ -179,7 +183,7 @@ The next level of information is to read the corresponding <a class="reference e
 <p>Many API variations exist (see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/src/class_TraceEmitter.hrl">class_TraceEmitter.hrl</a>), to account for the various <a class="reference internal" href="#trace-content">trace content</a>, contexts, etc., but <tt class="docutils literal"><span class="pre">?T(Message)</span></tt> and <tt class="docutils literal"><span class="pre">?T_fmt(MessageFormat,MessageValues)</span></tt>, for <tt class="docutils literal">T</tt> corresponding to a <a class="reference internal" href="#trace-severity">trace severity</a>, are by far the most frequently used.</p>
 </div>
 <div class="section" id="from-constructors">
-<h3><a class="toc-backref" href="#id27">From constructors</a></h3>
+<h3><a class="toc-backref" href="#id29">From constructors</a></h3>
 <p>Note that for example <tt class="docutils literal"><span class="pre">?debug(Message)</span></tt> is a macro that expands (literally) to:</p>
 <pre class="code erlang literal-block">
 <span class="nn">class_TraceEmitter</span><span class="p">:</span><span class="nb">send</span><span class="p">(</span><span class="n">debug</span><span class="p">,</span><span class="nv">State</span><span class="p">,</span><span class="nv">Message</span><span class="p">)</span>
@@ -193,7 +197,7 @@ The next level of information is to read the corresponding <a class="reference e
 
 <span class="nf">construct</span><span class="p">(</span><span class="nv">State</span><span class="p">,</span><span class="nv">TraceEmitterName</span><span class="p">)</span> <span class="o">-&gt;</span>
   <span class="nv">TraceState</span> <span class="o">=</span> <span class="nn">class_TraceEmitter</span><span class="p">:</span><span class="nf">construct</span><span class="p">(</span><span class="nv">State</span><span class="p">,</span><span class="nv">TraceEmitterName</span><span class="p">),</span>
-  <span class="c">% Cannot use ?trace(&quot;Hello!), as it would use 'State',
+  <span class="c">% Cannot use here ?trace(&quot;Hello!), as it would use 'State',
 </span>  <span class="c">% which is not a trace emitter yet! So:
 </span>  <span class="o">?</span><span class="n">send_trace</span><span class="p">(</span><span class="nv">TraceState</span><span class="p">,</span><span class="s">&quot;Hello!&quot;</span><span class="p">),</span>
   <span class="p">[...]</span>
@@ -201,7 +205,7 @@ The next level of information is to read the corresponding <a class="reference e
 </pre>
 </div>
 <div class="section" id="trace-categorisation">
-<h3><a class="toc-backref" href="#id28">Trace Categorisation</a></h3>
+<h3><a class="toc-backref" href="#id30">Trace Categorisation</a></h3>
 <p>In addition to browsing the produced traces per emitter, origin, theme, wallclock or applicative timestamps, etc. it is often useful to be able to sort them per <strong>emitter categorisation</strong>, such a categorisation allowing to encompass multiple emitter instances of multiples emitter types.</p>
 <p>Categories are arbitrary, and are to be nested from the most general ones to the least (a bit like directories), knowing that subcategories are to be delimited by a dot character, like in: <tt class="docutils literal">Art.Painting.Hopper</tt>. As a consequence, any string can account for a category, keeping in mind dots have a specific meaning.</p>
 <p>Hierarchical categorisation allows to select more easily a scope of interest for the traces to be browsed.</p>
@@ -248,14 +252,14 @@ The next level of information is to read the corresponding <a class="reference e
 </table>
 </div>
 <div class="section" id="activation-desactivation">
-<h3><a class="toc-backref" href="#id29">Activation / Desactivation</a></h3>
+<h3><a class="toc-backref" href="#id31">Activation / Desactivation</a></h3>
 <p>The trace macros used above can be fully toggled at build-time, on a per-module basis (if disabled, they incur zero runtime overhead, and no source change is required).</p>
 <p>See the <tt class="docutils literal">ENABLE_TRACES</tt> make variable in <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/GNUmakevars.inc">GNUmakevars.inc</a> for that, and do not forget to recompile all classes and modules that shall observe this newer setting.</p>
 <p>Note that the <tt class="docutils literal">warning</tt>, <tt class="docutils literal">error</tt> and <tt class="docutils literal">fatal</tt> trace severities will not be impacted by this setting, as they shall remain always available (never muted).</p>
 <p>Doing so incurs a very low runtime overhead anyway (supposing of course that sending these failure-related messages happens rather infrequently), as the cost of a mostly idle trace aggregator (which is spawned in all cases) is mostly negligible - knowing that runtime resource consumption happens only when/if emitting traces for good.</p>
 </div>
 <div class="section" id="switching-from-basic-console-traces">
-<h3><a class="toc-backref" href="#id30">Switching from basic Console Traces</a></h3>
+<h3><a class="toc-backref" href="#id32">Switching from basic Console Traces</a></h3>
 <p>In some cases, it may be convenient to have first one's lower-level, debugging traces be directly output on the console.</p>
 <p>Then, once the most basic bugs are fixed (ex: the program is not crashing anymore), the full power of this <tt class="docutils literal">Traces</tt> layer can be best used, by switching these first, basic traces to the more advanced traces presented here.</p>
 <p>To output (basic) console traces, one may use the <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/src/utils/trace_utils.erl">trace_utils</a> module of the <tt class="docutils literal">Myriad</tt> layer. For example:</p>
@@ -268,7 +272,7 @@ The next level of information is to read the corresponding <a class="reference e
 </div>
 </div>
 <div class="section" id="trace-ordering">
-<h2><a class="toc-backref" href="#id31">Trace Ordering</a></h2>
+<h2><a class="toc-backref" href="#id33">Trace Ordering</a></h2>
 <p>It should be noted that the ordering of the reported traces is the one seen by the trace aggregator, based on their receiving order by this process (not for example based on any sending order of the various emitters involved - there is hardly any distributed global time available anyway).</p>
 <p>So, due to network and emitter latencies, it may happen (rather infrequently) that in a distributed setting a trace message associated to a cause ends up being listed, among the registered traces, <em>after</em> a trace message associated to a consequence thereof <a class="footnote-reference" href="#id10" id="id9">[4]</a>; nevertheless each trace includes a wall-clock timestamp corresponding to its sending (hence expressed according to the local time of its trace emitter).</p>
 <table class="docutils footnote" frame="void" id="id10" rules="none">
@@ -279,7 +283,7 @@ The next level of information is to read the corresponding <a class="reference e
 </table>
 </div>
 <div class="section" id="trace-output-generation">
-<h2><a class="toc-backref" href="#id32">Trace Output Generation</a></h2>
+<h2><a class="toc-backref" href="#id34">Trace Output Generation</a></h2>
 <p>Traces may be browsed thanks to either of the following supervision solutions (see <tt class="docutils literal">class_TraceSupervisor.erl</tt>):</p>
 <ul class="simple">
 <li><tt class="docutils literal">text_traces</tt>, itself available in two variations:</li>
@@ -294,12 +298,12 @@ The next level of information is to read the corresponding <a class="reference e
 <li><tt class="docutils literal">advanced_traces</tt>, for smarter log tools such as LogMX (the default), as discussed below</li>
 </ul>
 <p>Indeed the most usual tool that we use for trace browsing is <a class="reference external" href="http://www.logmx.com/">LogMX</a>, which we integrated:</p>
-<img alt="logmx-interface.png" src="logmx-interface.png" />
+<img alt="logmx-interface.png" src="logmx-interface.png" style="width: 495.0px; height: 282.6px;" />
 <p>We implemented a Java-based parser of our trace format for LogMX (see <tt class="docutils literal">CeylanTraceParser.java</tt>):</p>
-<img alt="logmx-levels.png" src="logmx-levels.png" />
+<img alt="logmx-levels.png" src="logmx-levels.png" style="width: 484.25px; height: 271.7px;" />
 </div>
 <div class="section" id="trace-browsing">
-<h2><a class="toc-backref" href="#id33">Trace Browsing</a></h2>
+<h2><a class="toc-backref" href="#id35">Trace Browsing</a></h2>
 <p>Traces can be browsed with this tool:</p>
 <ul class="simple">
 <li><strong>live</strong> (i.e. during the execution of the program), either from its start or upon connection to the instrumented program whilst it is already running <a class="footnote-reference" href="#id13" id="id12">[5]</a> (see <tt class="docutils literal">class_TraceListener.erl</tt>)</li>
@@ -314,9 +318,9 @@ The next level of information is to read the corresponding <a class="reference e
 <p>The trace supervision solution can be switched at compile time (see the <tt class="docutils literal">TraceType</tt> defined in <tt class="docutils literal">traces/src/traces.hrl</tt>); the <tt class="docutils literal">Traces</tt> layer shall then be rebuilt.</p>
 </div>
 <div class="section" id="trace-implementation">
-<h2><a class="toc-backref" href="#id34">Trace Implementation</a></h2>
+<h2><a class="toc-backref" href="#id36">Trace Implementation</a></h2>
 <div class="section" id="general-mode-of-operation">
-<h3><a class="toc-backref" href="#id35">General Mode of Operation</a></h3>
+<h3><a class="toc-backref" href="#id37">General Mode of Operation</a></h3>
 <p>All processes are able to emit traces, either by using standalone trace sending primitives (mostly for plain Erlang processes), or by inheriting from the <tt class="docutils literal">TraceEmitter</tt> class, in the (general) case of <a class="reference external" href="http://wooper.esperide.org">WOOPER</a>-based processes.</p>
 <p>In the vast majority of cases, all these emitters send their traces to a single trace aggregator, in charge of collecting them and storing them on-disk (for most uses, their memory footprint would be quickly too large for RAM), according to an adequate trace format.</p>
 <p>This trace format can be parsed by various trace supervisors, the most popular being <a class="reference external" href="http://www.logmx.com">LogMX</a>.</p>
@@ -330,11 +334,11 @@ The next level of information is to read the corresponding <a class="reference e
 </table>
 </div>
 <div class="section" id="trace-emitters">
-<h3><a class="toc-backref" href="#id36">Trace Emitters</a></h3>
+<h3><a class="toc-backref" href="#id38">Trace Emitters</a></h3>
 <p>When sending a trace, an emitter relies on its <tt class="docutils literal">trace_timestamp</tt> attribute, and sends a (binarised) string representation thereof (obtained thanks to the <tt class="docutils literal">~p</tt> quantifier of <tt class="docutils literal">io:format/2</tt> ). This allows the trace subsystem to support all kinds of application-specific traces (ex: integers, floats, tuples, strings, etc.).</p>
 </div>
 <div class="section" id="internal-trace-format">
-<h3><a class="toc-backref" href="#id37">Internal Trace Format</a></h3>
+<h3><a class="toc-backref" href="#id39">Internal Trace Format</a></h3>
 <p>(for the most curious users)</p>
 <p>Each trace line is a raw text (hence not a binary content) made of a series of predefined fields, separated by the pipe (<tt class="docutils literal">|</tt>) delimiter character.</p>
 <p>The text message included in a trace can contain any number of instances of this field delimiter.</p>
@@ -355,7 +359,7 @@ whose troubleshooting mode is enabled.
 </div>
 </div>
 <div class="section" id="licence">
-<span id="free-software"></span><h2><a class="toc-backref" href="#id38">Licence</a></h2>
+<span id="free-software"></span><h2><a class="toc-backref" href="#id40">Licence</a></h2>
 <p>Ceylan-Traces is licensed by its author (Olivier Boudeville) under a disjunctive tri-license giving you the choice of one of the three following sets of free software/open source licensing terms:</p>
 <ul class="simple">
 <li><a class="reference external" href="http://www.mozilla.org/MPL/MPL-1.1.html">Mozilla Public License</a> (MPL), version 1.1 or later (very close to the former <a class="reference external" href="http://www.erlang.org/EPLICENSE">Erlang Public License</a>, except aspects regarding Ericsson and/or the Swedish law)</li>
@@ -366,15 +370,18 @@ whose troubleshooting mode is enabled.
 <p>Being triple-licensed means that someone (the licensee) who modifies and/or distributes it can choose which of the available sets of licence terms he is operating under.</p>
 <p>We hope that enhancements will be back-contributed (ex: thanks to merge requests), so that everyone will be able to benefit from them.</p>
 </div>
-<div class="section" id="installation-of-the-traces-layer">
-<h2><a class="toc-backref" href="#id39">Installation of the Traces Layer</a></h2>
-<p>As mentioned, the single, direct prerequisite of <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces">Ceylan-Traces</a> is <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-WOOPER">Ceylan-WOOPER</a>, which implies in turn <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Myriad">Ceylan-Myriad</a> and <a class="reference external" href="http://erlang.org">Erlang</a>, version 21.0 or more recent <a class="footnote-reference" href="#id20" id="id19">[7]</a>.</p>
+<div class="section" id="current-stable-version-download">
+<h2><a class="toc-backref" href="#id41">Current Stable Version &amp; Download</a></h2>
+<p>As mentioned, the single, direct prerequisite of <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces">Ceylan-Traces</a> is <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-WOOPER">Ceylan-WOOPER</a>, which implies in turn <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Myriad">Ceylan-Myriad</a> and <a class="reference external" href="http://erlang.org">Erlang</a>, version 22.0 or more recent <a class="footnote-reference" href="#id20" id="id19">[7]</a>.</p>
 <table class="docutils footnote" frame="void" id="id20" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id19">[7]</a></td><td>Note that, in the Ceylan-Myriad repository, we have a script to streamline the installation of Erlang, see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/conf/install-erlang.sh">install-erlang.sh</a>; use <tt class="docutils literal"><span class="pre">install-erlang.sh</span> <span class="pre">--help</span></tt> for guidance.</td></tr>
 </tbody>
 </table>
+<div class="section" id="using-cutting-edge-git">
+<h3><a class="toc-backref" href="#id42">Using Cutting-Edge GIT</a></h3>
+<p>This is the installation method that we use and recommend; the Traces <tt class="docutils literal">master</tt> branch is meant to stick to the latest stable version: we try to ensure that this main line always stays functional (sorry for the pun). Evolutions are to take place in feature branches and to be merged only when ready.</p>
 <p>Once Erlang is available, it should be just a matter of executing:</p>
 <pre class="code bash literal-block">
 $ git clone https://github.com/Olivier-Boudeville/Ceylan-Myriad
@@ -394,17 +401,31 @@ $ <span class="nb">cd</span> tests <span class="o">&amp;&amp;</span> make traceM
 <pre class="code bash literal-block">
 $ make traceManagement_run
 </pre>
+<p><span class="raw-html"><a name="otp"></a></span></p>
+</div>
+<div class="section" id="using-otp-related-build-runtime-conventions">
+<span id="otp-build"></span><h3><a class="toc-backref" href="#id43">Using OTP-Related Build/Runtime Conventions</a></h3>
+<p>As discussed in these sections of <a class="reference external" href="http://myriad.esperide.org/myriad.html#otp">Myriad</a> and <a class="reference external" href="http://wooper.esperide.org/index.html#otp">WOOPER</a>, we added the (optional) possibility of generating a Traces <em>OTP application</em> out of the build tree, ready to be integrated into an <em>(OTP) release</em>. For that we rely on <a class="reference external" href="https://www.rebar3.org/">rebar3</a>, <a class="reference external" href="https://github.com/erlware/relx">relx</a> and <a class="reference external" href="https://hex.pm/">hex</a>.</p>
+<p>Unlike Myriad (which is an OTP <em>library</em> application), Traces is (like WOOPER) an OTP <em>active</em> application, meaning the reliance on an application that can be started/stopped (<tt class="docutils literal">traces_app</tt>) and a root supervisor (<tt class="docutils literal">traces_sup</tt>); unlike WOOPER this time - whose main server (the class manager) is a <tt class="docutils literal">gen_server</tt> - Traces relies on a trace aggregator that is a background server process yet that does not implement the <tt class="docutils literal">gen_server</tt> behaviour but the <a class="reference external" href="http://erlang.org/doc/man/supervisor_bridge.html">supervisor_bridge</a> one: the trace aggregator is indeed <a class="reference external" href="http://wooper.esperide.org/index.html#otp_for_instances">a WOOPER instance</a>.</p>
+<p>As for Myriad and WOOPER, most versions of Traces are also published as <a class="reference external" href="https://hex.pm/packages/traces">Hex packages</a>.</p>
+<p>For more details, one may have a look at:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar.config.template">rebar.config.template</a>, the general rebar configuration file used when generating the Traces OTP application and release (implying the automatic management of Myriad and WOOPER)</li>
+<li><a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar-for-hex.config.template">rebar-for-hex.config.template</a>, to generate a corresponding Hex package for Traces (whose structure and conventions is quite different from the previous OTP elements)</li>
+<li><a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar-for-testing.config.template">rebar-for-testing.config.template</a>, the simplest test of the previous Hex package: an empty rebar project having for sole dependency that Hex package</li>
+</ul>
+</div>
 </div>
 <div class="section" id="support">
-<h2><a class="toc-backref" href="#id40">Support</a></h2>
+<h2><a class="toc-backref" href="#id44">Support</a></h2>
 <p>Bugs, questions, remarks, patches, requests for enhancements, etc. are to be reported to the <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces">project interface</a> (typically <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/issues">issues</a>) or directly at the email address mentioned at the beginning of this document.</p>
 </div>
 <div class="section" id="please-react">
-<h2><a class="toc-backref" href="#id41">Please React!</a></h2>
+<h2><a class="toc-backref" href="#id45">Please React!</a></h2>
 <p>If you have information more detailed or more recent than those presented in this document, if you noticed errors, neglects or points insufficiently discussed, drop us a line! (for that, follow the <a class="reference internal" href="#support">Support</a> guidelines).</p>
 </div>
 <div class="section" id="ending-word">
-<h2><a class="toc-backref" href="#id42">Ending Word</a></h2>
+<h2><a class="toc-backref" href="#id46">Ending Word</a></h2>
 <p>Have fun with Ceylan-Traces!</p>
 <div class="figure align-center">
 <img alt="Traces logo" src="traces-title.png" style="width: 50%;" />
