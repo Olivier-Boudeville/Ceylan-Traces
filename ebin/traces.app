@@ -1,0 +1,47 @@
+% Description of the Traces OTP active application, typically used by rebar3.
+
+% Note: if this file is named traces.app, it is a *generated* file, whose source
+% is conf/traces.app.src.
+
+% See also:
+% - http://erlang.org/doc/man/app.html
+% - https://learnyousomeerlang.com/building-otp-applications
+
+
+{application, traces,
+ [{description, "Ceylan-Traces, an advanced trace service, so that the user of an Erlang application can efficiently log, browse and search through detailed runtime messages that may be emitted concurrently (see http://traces.esperide.org)"},
+  {vsn, "1.0.2"},
+
+  % See class_TraceAggregator.hrl:
+  {registered, [ceylan_trace_aggregator]},
+
+  % Regarding:
+  %  - WOOPER, see http://wooper.esperide.org/wooper.html#otp
+  %  - Myriad, see http://myriad.esperide.org/myriad.html#otp
+  %
+  % myriad is a dependency of wooper, and as such is not listed here:
+  {applications, [kernel, stdlib, wooper]},
+
+  {env,[]},
+
+  % Flat hierarchy in ebin here:
+  {modules, [class_TraceSupervisor, traces, traces_sup, traces_for_apps, class_TraceAggregator, traces_app, class_TraceListener, traces_for_tests, class_TraceEmitter]},
+
+  {licenses, ["Ceylan-Traces is licensed by its author (Olivier Boudeville) under a disjunctive tri-license, giving you the choice of one of the three following sets of free software/open source licensing terms:
+	- the Mozilla Public License (MPL), version 1.1 or later (very close to the former Erlang Public License, except aspects regarding Ericsson and/or the Swedish law)
+	- the GNU General Public License (GPL), version 3.0 or later
+	- the GNU Lesser General Public License (LGPL), version 3.0 or later"]},
+
+  % Active application (yet would still work without thanks to automatic launch
+  % of the trace aggregator):
+  %
+  % (no specific relevant startup argument to specify here)
+  %
+  {mod, {traces_app, []}},
+
+  { links, [ {"Official website", "http://traces.esperide.org" },
+			 {"Github", "https://github.com/Olivier-Boudeville/Ceylan-Traces"} ]}
+
+  %{exclude_files, []}
+
+ ]}.
