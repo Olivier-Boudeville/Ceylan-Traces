@@ -176,7 +176,7 @@ else
 endif
 
 
-
+# We rely on Myriad and WOOPER as well:
 BEAM_DIRS += $(TRACES_BEAM_DIRS)
 
 
