@@ -35,10 +35,10 @@
 % (not working properly, as the hex plugin expects a flat source tree
 % apparently, so the build of the dependency fails)
 %
-{deps, [ {myriad, {git, "git://github.com/Olivier-Boudeville/Ceylan-Myriad",
-					{branch, "master"}}},
-		 {wooper, {git, "git://github.com/Olivier-Boudeville/Ceylan-WOOPER",
-					{branch, "master"} } } ] }.
+%{deps, [ {myriad, {git, "git://github.com/Olivier-Boudeville/Ceylan-Myriad",
+%					{branch, "master"}}},
+%		 {wooper, {git, "git://github.com/Olivier-Boudeville/Ceylan-WOOPER",
+%					{branch, "master"} } } ] }.
 
 
 % As an hex-package dependency:
@@ -60,8 +60,8 @@
 {erl_first_files, [ FIRST_FILES_FOR_REBAR ]}.
 
 % Could not set REBAR_PROFILE=$(REBAR_PROFILE):
-{pre_hooks,  [ {compile, "make -s rebar3-compile-pre-hook"} ]}.
-{post_hooks, [ {compile, "make -s rebar3-compile-post-hook"} ]}.
+%{pre_hooks,  [ {compile, "make -s rebar3-compile-pre-hook"} ]}.
+%{post_hooks, [ {compile, "make -s rebar3-compile-post-hook"} ]}.
 
 
 % No release section, only present in the base rebar.config.
