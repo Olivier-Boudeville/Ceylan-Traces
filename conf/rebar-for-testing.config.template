@@ -1,10 +1,12 @@
 % This is a configuration file of rebar3, so that Ceylan-Traces can be directly
 % tested separately (i.e. without needing to install upper layers, i.e. software
 % depending on it): emulates a user of the Traces library.
-
+%
 % If the name of this file is 'rebar.config', then it is a generated file,
-% otherwise it is a template (in conf/rebar-for-testing.config.template), meant
-% to be filled by information coming from GNUmakevars.inc.
+% otherwise it is a template (located in conf/rebar.config.template), meant to
+% be filled by information determined at build time or coming from
+% GNUmakevars.inc.
+
 
 % To be run through the 'test-hex-package' make target.
 
@@ -15,6 +17,8 @@
 
 
 % Settings for the 'default' profile follow.
+
+% As an hex-package dependency:
 %
 % Implied:
 % - {myriad, "MYRIAD_VERSION_FOR_REBAR"}
@@ -40,9 +44,13 @@
 % With relx, only direct dependencies need to be listed, and version constraints
 % can be used, instead of exact, specific versions.
 %
+% Probably that these releases are superfluous, in the sense that they are
+% defined the same as the ones already included in WOOPER's
+% rebar.config.template.
+%
 {relx, [
 
-  {release, {traces_release, "VERSION_FOR_REBAR3"},
+  {release, {traces_test_release, "VERSION_FOR_REBAR3"},
 			[sasl, traces]},
 
   %{sys_config, "./config/sys.config"},
@@ -59,31 +67,33 @@
 
 {profiles, [
 
-  % Production mode:
-  {prod, [ {relx, [
+  % Production mode (the default one when used as a dependency):
+  {prod, [
 
-	% Same as default profile:
-	{release, {traces_release, "VERSION_FOR_REBAR3"},
-			  [sasl, traces]},
+	% No specific erl_opts.
 
 	% For the build makefiles:
 	{env, [ { 'REBAR_PROFILE', "prod" } ] },
 
-	% Not wanting the release to contain symlinks to applications:
-	{dev_mode, false},
+	{relx, [
 
-	% Creating a full target system:
-	{include_erts, true},
+	  % Not wanting the release to contain symlinks to applications:
+	  {dev_mode, false},
 
-	{extended_start_script, true},
-	{include_src, false}
+	  % Creating a full target system:
+	  {include_erts, true},
 
-	]}]
+	  {extended_start_script, true},
+	  {include_src, false}
 
-}] }.
+ ]} ] }
+
+ % No test profile currently needed.
+
+]}.
 
 
-% For packages:
+% For Hex packages (see https://hex.pm/):
 %
 % (use 'rebar3 update' to enable the hex plugin)
 %
