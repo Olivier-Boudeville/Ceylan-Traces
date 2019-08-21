@@ -10,7 +10,7 @@
 
 {application, traces,
  [{description, "Ceylan-Traces, an advanced trace service, so that the user of an Erlang application can efficiently log, browse and search through detailed runtime messages that may be emitted concurrently (see http://traces.esperide.org)"},
-  {vsn, "1.0.2"},
+  {vsn, "1.0.3"},
 
   % See class_TraceAggregator.hrl:
   {registered, [ceylan_trace_aggregator]},
@@ -22,7 +22,7 @@
   % myriad is a dependency of wooper, and as such is not listed here:
   {applications, [kernel, stdlib, wooper]},
 
-  {env,[]},
+  %{env,[]},
 
   % Flat hierarchy in ebin here:
   {modules, [traces_app, class_TraceEmitter, traces_sup, class_TraceSupervisor, class_TraceAggregator, traces_for_tests, class_TraceListener, traces_for_apps, traces]},
@@ -39,8 +39,8 @@
   %
   {mod, {traces_app, []}},
 
-  { links, [ {"Official website", "http://traces.esperide.org" },
-			 {"Github", "https://github.com/Olivier-Boudeville/Ceylan-Traces"} ]}
+  {links, [ {"Official website", "http://traces.esperide.org" },
+			{"Github", "https://github.com/Olivier-Boudeville/Ceylan-Traces"} ]}
 
   %{exclude_files, []}
 
