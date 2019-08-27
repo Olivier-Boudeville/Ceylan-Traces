@@ -1239,7 +1239,7 @@ get_trace_file_base_options() ->
 inspect_fields( FieldsReceived ) ->
 
 	AllVars = lists:flatmap( fun( F ) ->
-									 [ F, F, meta_utils:get_type_of( F ) ]
+									 [ F, F, type_utils:get_type_of( F ) ]
 							 end,
 							 FieldsReceived ),
 
