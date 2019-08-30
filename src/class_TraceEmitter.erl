@@ -174,8 +174,8 @@ construct( State, _EmitterInit={ EmitterName, EmitterCategorization } ) ->
   % when is_list( EmitterName ) andalso is_list( EmitterCategorization ) ->
 
 	%trace_utils:debug_fmt( "~s Creating a trace emitter whose name is '~s', "
-	%						"whose PID is ~w and whose categorization is '~s'.",
-	%			   [ ?LogPrefix, EmitterName, self(), EmitterCategorization ] ),
+	%			"whose PID is ~w and whose categorization is '~s'.",
+	%			[ ?LogPrefix, EmitterName, self(), EmitterCategorization ] ),
 
 	InitState = init( State ),
 
@@ -1015,30 +1015,32 @@ send( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
 	% Just for extra debugging; typically usuful should a child class set again
 	% its 'name' attribute, moreover with a faulty value (typically with the
 	% name provided to its constructor - whereas it might not be a proper name
-	% but a pair with the trace categorization)
+	% but a pair with the trace categorization, or it may be a string whereas we
+	% expect now a binary string)
 	%
 	cond_utils:if_debug( case text_utils:is_bin_string( TraceEmitterName ) of
 
-				  true ->
-					  ok;
+		true ->
+			ok;
 
-				  false ->
-					  throw( { invalid_emitter_name, TraceEmitterName } )
+		false ->
+			trace_utils:info( "Hint: did you set the 'name' attribute "
+				"after the construction of mother classes to, for example, "
+				"a value of type string (instead of binary string)?" ),
+			throw( { non_binary_string_emitter_name, TraceEmitterName } )
 
-			  end ),
+						 end ),
 
 	?getAttr(trace_aggregator_pid) ! { send,
-		[
-		 _TraceEmitterPid=self(),
-		 TraceEmitterName,
-		 _TraceEmitterCategorization=?getAttr(trace_categorization),
-		 AppTimestampString,
-		 _Time=TimestampText,
-		 _Location=?getAttr(emitter_node),
-		 _MessageCategorization=MsgCateg,
-		 _Priority=get_priority_for( TraceType ),
-		 _Message=text_utils:string_to_binary( Message )
-		] }.
+		[ _TraceEmitterPid=self(),
+		  TraceEmitterName,
+		  _TraceEmitterCategorization=?getAttr(trace_categorization),
+		  AppTimestampString,
+		  _Time=TimestampText,
+		  _Location=?getAttr(emitter_node),
+		  _MessageCategorization=MsgCateg,
+		  _Priority=get_priority_for( TraceType ),
+		  _Message=text_utils:string_to_binary( Message ) ] }.
 
 
 

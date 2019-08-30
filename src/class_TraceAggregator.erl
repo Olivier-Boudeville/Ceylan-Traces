@@ -225,7 +225,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 	% Writes the very first trace after this header, returns an updated state:
 	TraceState = send_internal_immediate( info, "Trace aggregator created, "
 								"trace filename is '~s', trace type is '~w', "
-								"and trace title is '~s'.~n",
+								"and trace title is '~s'.",
 				   [ AbsTraceFilename, TraceType, TraceTitle ], HeaderState ),
 
 	case is_tracing_activated() of
