@@ -37,7 +37,7 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2019 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Wednesday, August 21, 2019
+:Lastly updated: Sunday, September 22, 2019
 :Status: Work in progress
 :Version: 0.9.9
 :Dedication: Users and maintainers of the ``Traces`` layer.
@@ -142,10 +142,13 @@ Trace Emission
 
 The following header is to be included so that an Erlang process can send traces::
 
-  -include("class_TraceEmitter.hrl").
+ -include("class_TraceEmitter.hrl").
 
+or, better, in an OTP-compliant fashion::
 
-This process can be a standalone module (ex: a test or an application launcher, see `traceManagement_test.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/tests/traceManagement_test.erl>`_) or, more frequently, it might correspond to a WOOPER (active) instance, in which case it shall inherit, directly or not, from ``class_TraceEmitter`` (see `class_TestTraceEmitter.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/tests/class_TestTraceEmitter.erl>`_ for a complete example of it).
+ -include_lib("traces/include/class_TraceEmitter.hrl").
+
+This process can be a standalone module (ex: a test or an application launcher, see `traceManagement_test.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/traceManagement_test.erl>`_) or, more frequently, it might correspond to a WOOPER (active) instance, in which case it shall inherit, directly or not, from ``class_TraceEmitter`` (see `class_TestTraceEmitter.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/class_TestTraceEmitter.erl>`_ for a complete example of it).
 
 
 
@@ -161,7 +164,7 @@ or::
   ?info_fmt("The value ~B is the answer.",[MyValue])
 
 
-Many API variations exist (see `class_TraceEmitter.hrl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/src/class_TraceEmitter.hrl>`_), to account for the various `trace content`_, contexts, etc., but ``?T(Message)`` and ``?T_fmt(MessageFormat,MessageValues)``, for ``T`` corresponding to a `trace severity`_, are by far the most frequently used.
+Many API variations exist (see `class_TraceEmitter.hrl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/include/class_TraceEmitter.hrl>`_), to account for the various `trace content`_, contexts, etc., but ``?T(Message)`` and ``?T_fmt(MessageFormat,MessageValues)``, for ``T`` corresponding to a `trace severity`_, are by far the most frequently used.
 
 
 
@@ -328,7 +331,7 @@ Traces can be browsed with this tool:
 .. [#] In which case the trace supervisor will first receive, transactionally, a compressed version of all past traces; then all new ones will be sent to this new listener, resulting in no trace being possibly lost.
 
 
-The trace supervision solution can be switched at compile time (see the ``TraceType`` defined in ``traces/src/traces.hrl``); the ``Traces`` layer shall then be rebuilt.
+The trace supervision solution can be switched at compile time (see the ``TraceType`` defined in ``traces/include/traces.hrl``); the ``Traces`` layer shall then be rebuilt.
 
 
 
@@ -416,7 +419,7 @@ We hope that enhancements will be back-contributed (ex: thanks to merge requests
 Current Stable Version & Download
 ---------------------------------
 
-As mentioned, the single, direct prerequisite of `Ceylan-Traces <https://github.com/Olivier-Boudeville/Ceylan-Traces>`_ is `Ceylan-WOOPER <https://github.com/Olivier-Boudeville/Ceylan-WOOPER>`_, which implies in turn `Ceylan-Myriad <https://github.com/Olivier-Boudeville/Ceylan-Myriad>`_ and `Erlang <http://erlang.org>`_, version 22.0 or more recent [#]_.
+As mentioned, the single, direct prerequisite of `Ceylan-Traces <https://github.com/Olivier-Boudeville/Ceylan-Traces>`_ is `Ceylan-WOOPER <https://github.com/Olivier-Boudeville/Ceylan-WOOPER>`_, which implies in turn `Ceylan-Myriad <https://github.com/Olivier-Boudeville/Ceylan-Myriad>`_ and `Erlang <http://erlang.org>`_, version 22.1 or more recent [#]_.
 
 .. [#] Note that, in the Ceylan-Myriad repository, we have a script to streamline the installation of Erlang, see `install-erlang.sh <https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/conf/install-erlang.sh>`_; use ``install-erlang.sh --help`` for guidance.
 
@@ -431,21 +434,21 @@ Once Erlang is available, it should be just a matter of executing:
 
 .. code:: bash
 
- $ git clone https://github.com/Olivier-Boudeville/Ceylan-Myriad
- $ cd Ceylan-Myriad && make all && cd ..
+ $ git clone https://github.com/Olivier-Boudeville/Ceylan-Myriad myriad
+ $ cd myriad && make all && cd ..
 
- $ git clone https://github.com/Olivier-Boudeville/Ceylan-WOOPER
- $ cd Ceylan-WOOPER && make all && cd ..
+ $ git clone https://github.com/Olivier-Boudeville/Ceylan-WOOPER wooper
+ $ cd wooper && make all && cd ..
 
- $ git clone https://github.com/Olivier-Boudeville/Ceylan-Traces
- $ cd Ceylan-Traces && make all
+ $ git clone https://github.com/Olivier-Boudeville/Ceylan-Traces traces
+ $ cd traces && make all
 
 
 Running a corresponding test just then boils down to:
 
 .. code:: bash
 
- $ cd tests && make traceManagement_run CMD_LINE_OPT="--batch"
+ $ cd test && make traceManagement_run CMD_LINE_OPT="--batch"
 
 
 Should LogMX be installed and available in the PATH, the test may simply become:
