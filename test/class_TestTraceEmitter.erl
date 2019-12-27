@@ -63,7 +63,6 @@
 
 
 % Constructs a new test trace emitter.
-%
 -spec construct( wooper:state(), class_TraceEmitter:emitter_init() ) ->
 					   wooper:state().
 construct( State, TraceEmitterName ) ->
