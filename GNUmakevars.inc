@@ -5,7 +5,7 @@
 # relevant, layer-local '_build' directory):
 #
 ifndef LAYER_TOP
-	   LAYER_TOP := $(TRACES_TOP)
+	LAYER_TOP := $(TRACES_TOP)
 endif
 
 
@@ -34,7 +34,7 @@ endif
 
 
 ifndef PACKAGE_NAME
-	PACKAGE_NAME = Ceylan-Traces
+	PACKAGE_NAME = $(PROJECT_NAME)
 endif
 
 
