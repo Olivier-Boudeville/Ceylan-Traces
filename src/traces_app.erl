@@ -47,13 +47,16 @@
 % Starts the Traces services.
 start( Type, StartArgs ) ->
 
+	% See our conf/sys.config (or override with --batch):
+	TraceSupervisorWanted = not executable_utils:is_batch(),
+
 	trace_utils:debug_fmt( "Starting Traces application (type: ~w, "
-						   "start arguments: ~w).", [ Type, StartArgs ] ),
+						   "start arguments: ~w, supervisor wanted: ~s).",
+						   [ Type, StartArgs ] ),
 
 	% Previously, no specific root supervisor bridge was to launch, but:
 	%class_TraceAggregator:start().
 
-	TraceSupervisorWanted = not executable_utils:is_batch(),
 
 	case traces_sup:start_link( TraceSupervisorWanted ) of
 
