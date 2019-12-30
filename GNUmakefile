@@ -4,7 +4,7 @@ TRACES_TOP = .
 .PHONY: help help-intro help-traces                                   \
 		all register-version-in-header register-traces list-beam-dirs \
 		add-prerequisite-plts link-plt                                \
-		stats info-traces
+		stats info-traces info-deps
 
 
 MODULES_DIRS = src doc conf test examples
@@ -62,6 +62,11 @@ stats:
 
 info-traces:
 	@echo "ENABLE_TRACE_OPT = $(ENABLE_TRACE_OPT)"
+
+
+info-deps:
+	@echo "MYRIAD_TOP = $(MYRIAD_TOP)"
+	@echo "WOOPER_TOP = $(WOOPER_TOP)"
 
 
 include $(TRACES_TOP)/GNUmakesettings.inc
