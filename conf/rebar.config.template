@@ -61,8 +61,8 @@
 			% myriad and wooper thus implied:
 			[sasl, traces]},
 
-  %{sys_config, "./config/sys.config"},
-  %{vm_args, "./config/vm.args"},
+  {sys_config, "./conf/sys.config"},
+  %{vm_args, "./conf/vm.args"},
 
   {dev_mode, true},
   {include_erts, false},
