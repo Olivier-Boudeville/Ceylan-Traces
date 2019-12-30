@@ -52,7 +52,7 @@ start( Type, StartArgs ) ->
 
 	trace_utils:debug_fmt( "Starting Traces application (type: ~w, "
 						   "start arguments: ~w, supervisor wanted: ~s).",
-						   [ Type, StartArgs ] ),
+						   [ Type, StartArgs, TraceSupervisorWanted ] ),
 
 	% Previously, no specific root supervisor bridge was to launch, but:
 	%class_TraceAggregator:start().
