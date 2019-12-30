@@ -42,8 +42,8 @@
 % like a real supervisor to its own supervisor, but has a different interface
 % than a real supervisor to the Traces subsystem.
 %
-% For (optional) OTP compliance (see
-% http://erlang.org/doc/man/supervisor_bridge.html):
+% Hence used for (optional) OTP compliance (see
+% http://erlang.org/doc/man/supervisor_bridge.html).
 %
 -behaviour(supervisor_bridge).
 
