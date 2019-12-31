@@ -30,6 +30,9 @@
 % This testing just targets to trigger the build of Traces (and its Myriad and
 % WOOPER dependencies), not of specific tests making use of it.
 
+% Include directories found in INC:
+{erl_opts, [ {d,myriad_debug_mode}, {d,wooper_debug_mode}, {d,traces_debug_mode}, {d,tracing_activated}, debug_info, {debug_info_key,"DEBUG_KEY_FOR_REBAR"}, report_warnings, warn_export_all, warn_export_vars, warn_shadow_vars, warn_obsolete_guards, warn_unused_import, warnings_as_errors, {parse_transform,wooper_parse_transform}, INCS_FOR_REBAR ]}.
+
 {pre_hooks, [ {compile, "echo 'Traces testing pre-compile hook!'"} ]}.
 
 {post_hooks, [
@@ -53,8 +56,8 @@
   {release, {traces_test_release, "VERSION_FOR_REBAR3"},
 			[sasl, traces]},
 
-  %{sys_config, "./config/sys.config"},
-  %{vm_args, "./config/vm.args"},
+  %{sys_config, "conf/sys.config"},
+  %{vm_args, "conf/vm.args"},
 
   {dev_mode, true},
   {include_erts, false},
