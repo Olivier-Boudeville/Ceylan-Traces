@@ -25,7 +25,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Organisation:</th><td class="field-body"><p class="first">Copyright (C) 2010-2019 Olivier Boudeville</p>
+<tr class="field"><th class="field-name">Organisation:</th><td class="field-body"><p class="first">Copyright (C) 2010-2020 Olivier Boudeville</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Contact:</th><td class="field-body"><p class="first">about (dash) traces (at) esperide (dot) com</p>
@@ -34,13 +34,13 @@
 <tr class="field"><th class="field-name">Creation date:</th><td class="field-body"><p class="first">Sunday, August 15, 2010</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Sunday, September 22, 2019</p>
+<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Thursday, January 2, 2020</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Status:</th><td class="field-body"><p class="first">Work in progress</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">0.9.9</p>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">0.9.10</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Dedication:</th><td class="field-body"><p class="first">Users and maintainers of the <tt class="docutils literal">Traces</tt> layer.</p>
@@ -173,7 +173,7 @@ The next level of information is to read the corresponding <a class="reference e
 <pre class="literal-block">
 -include_lib(&quot;traces/include/class_TraceEmitter.hrl&quot;).
 </pre>
-<p>This process can be a standalone module (ex: a test or an application launcher, see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/tests/traceManagement_test.erl">traceManagement_test.erl</a>) or, more frequently, it might correspond to a WOOPER (active) instance, in which case it shall inherit, directly or not, from <tt class="docutils literal">class_TraceEmitter</tt> (see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/tests/class_TestTraceEmitter.erl">class_TestTraceEmitter.erl</a> for a complete example of it).</p>
+<p>This process can be a standalone module (ex: a test or an application launcher, see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/traceManagement_test.erl">traceManagement_test.erl</a>) or, more frequently, it might correspond to a WOOPER (active) instance, in which case it shall inherit, directly or not, from <tt class="docutils literal">class_TraceEmitter</tt> (see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/class_TestTraceEmitter.erl">class_TestTraceEmitter.erl</a> for a complete example of it).</p>
 <div class="section" id="from-member-methods">
 <h3><a class="toc-backref" href="#id28">From member methods</a></h3>
 <p>Then sending-primitives can be used, such as:</p>
@@ -184,7 +184,7 @@ The next level of information is to read the corresponding <a class="reference e
 <pre class="literal-block">
 ?info_fmt(&quot;The value ~B is the answer.&quot;,[MyValue])
 </pre>
-<p>Many API variations exist (see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/src/class_TraceEmitter.hrl">class_TraceEmitter.hrl</a>), to account for the various <a class="reference internal" href="#trace-content">trace content</a>, contexts, etc., but <tt class="docutils literal"><span class="pre">?T(Message)</span></tt> and <tt class="docutils literal"><span class="pre">?T_fmt(MessageFormat,MessageValues)</span></tt>, for <tt class="docutils literal">T</tt> corresponding to a <a class="reference internal" href="#trace-severity">trace severity</a>, are by far the most frequently used.</p>
+<p>Many API variations exist (see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/include/class_TraceEmitter.hrl">class_TraceEmitter.hrl</a>), to account for the various <a class="reference internal" href="#trace-content">trace content</a>, contexts, etc., but <tt class="docutils literal"><span class="pre">?T(Message)</span></tt> and <tt class="docutils literal"><span class="pre">?T_fmt(MessageFormat,MessageValues)</span></tt>, for <tt class="docutils literal">T</tt> corresponding to a <a class="reference internal" href="#trace-severity">trace severity</a>, are by far the most frequently used.</p>
 </div>
 <div class="section" id="from-constructors">
 <h3><a class="toc-backref" href="#id29">From constructors</a></h3>
@@ -319,7 +319,7 @@ The next level of information is to read the corresponding <a class="reference e
 <tr><td class="label"><a class="fn-backref" href="#id12">[5]</a></td><td>In which case the trace supervisor will first receive, transactionally, a compressed version of all past traces; then all new ones will be sent to this new listener, resulting in no trace being possibly lost.</td></tr>
 </tbody>
 </table>
-<p>The trace supervision solution can be switched at compile time (see the <tt class="docutils literal">TraceType</tt> defined in <tt class="docutils literal">traces/src/traces.hrl</tt>); the <tt class="docutils literal">Traces</tt> layer shall then be rebuilt.</p>
+<p>The trace supervision solution can be switched at compile time (see the <tt class="docutils literal">TraceType</tt> defined in <tt class="docutils literal">traces/include/traces.hrl</tt>); the <tt class="docutils literal">Traces</tt> layer shall then be rebuilt.</p>
 </div>
 <div class="section" id="trace-implementation">
 <h2><a class="toc-backref" href="#id36">Trace Implementation</a></h2>
