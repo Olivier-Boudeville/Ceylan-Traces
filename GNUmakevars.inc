@@ -23,8 +23,10 @@ ifndef REBAR3_PROJECT_NAME
 endif
 
 
-# The uniquely-defined version of this layer, for all uses including rebar:
-TRACES_VERSION := 1.0.3
+# The uniquely-defined version of this layer, for all uses (including rebar and
+# hex):
+#
+TRACES_VERSION := 1.0.4
 
 
 # PROJECT_VERSION should be defined on a per-project basis.
