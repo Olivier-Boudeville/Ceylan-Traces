@@ -10,7 +10,7 @@
 
 {application, traces,
  [{description, "Ceylan-Traces, an advanced trace service, so that the user of an Erlang application can efficiently log, browse and search through detailed runtime messages that may be emitted concurrently (see http://traces.esperide.org)"},
-  {vsn, "1.0.3"},
+  {vsn, "1.0.4"},
 
   % See class_TraceAggregator.hrl:
   {registered, [ceylan_trace_aggregator]},
