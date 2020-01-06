@@ -165,7 +165,7 @@
 
 -ifndef(trace_emitter_categorization).
 
-	-define( trace_emitter_categorization, "NotCategorized" ).
+	-define( trace_emitter_categorization, "Traces.Uncategorized" ).
 
 -endif. % trace_emitter_categorization
 
