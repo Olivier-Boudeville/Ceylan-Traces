@@ -282,15 +282,21 @@ blocking_monitor( State ) ->
 
 			{ Command, ActualFilename } = get_viewer_settings( State ),
 
+			CurrentDir = file_utils:get_current_directory(),
+
 			case file_utils:is_existing_file( ActualFilename ) of
 
 				true ->
+					%trace_utils:debug_fmt(
+					%  "Found actual trace filename '~s' from '~s'.",
+					%  [ ActualFilename, CurrentDir ] ),
 					ok;
 
 				false ->
 					trace_utils:error_fmt(
-					  "class_TraceSupervisor:blocking_monitor "
-					  "unable to find trace file '~s'.", [ ActualFilename ] ),
+					  "class_TraceSupervisor:blocking_monitor unable to find "
+					  "trace file '~s' (while current directory is '~s').",
+					  [ ActualFilename, CurrentDir ] ),
 					throw( { trace_file_not_found, ActualFilename } )
 
 			end,
@@ -301,7 +307,9 @@ blocking_monitor( State ) ->
 
 			% Blocking:
 			case system_utils:run_executable(
-				   Command ++ " '" ++ ActualFilename ++ "'" ) of
+				   Command ++ " '" ++ ActualFilename ++ "'",
+				   system_utils:get_standard_environment(),
+				   _WorkingDir=CurrentDir ) of
 
 				{ _ExitStatus=0, _Output } ->
 					trace_utils:info_fmt(
