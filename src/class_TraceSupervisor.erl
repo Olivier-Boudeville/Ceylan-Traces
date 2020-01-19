@@ -41,8 +41,9 @@
 % Describes the class-specific attributes:
 -define( class_attributes, [
 
-	{ trace_filename, file_utils:file_path(),
-	  "the name of the file where traces are to be stored (ex: *.traces)" },
+	{ trace_filename, file_utils:bin_file_path(),
+	  "the name of the file in which traces are to be read "
+	  "(ex: <<\"foobar.traces\">>" },
 
 	{ trace_type, trace_type(),
 	  "the type of traces to be written (ex: advanced_traces)" },
@@ -99,7 +100,7 @@
 %
 % - {TraceFilename,TraceType,TraceAggregatorPid}:
 %
-%   - TraceFilename is the name of the file where traces should be read from
+%   - TraceFilename is the name of the file whence traces should be read
 %
 %   - TraceType the type of traces to expect (ex: advanced_traces, text_traces)
 %
@@ -114,7 +115,7 @@
 % parameter should be the PID of the caller to be notified. This parameter has a
 % meaning iff MonitorNow is true
 %
--spec construct( wooper:state(), { file_utils:file_name(),
+-spec construct( wooper:state(), { file_utils:bin_file_name(),
 		 traces:trace_supervision_type(), maybe( aggregator_pid() ) },
 			 boolean(), 'none' | pid() ) -> wooper:state().
 construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
@@ -376,6 +377,8 @@ create( Blocking ) ->
 %
 % See create/5 for a more in-depth explanation of the parameters.
 %
+-spec create( boolean(), file_utils:any_file_path() ) ->
+					static_return( supervisor_pid() ).
 create( Blocking, TraceFilename ) ->
 
 	SupervisorPid = create( Blocking, TraceFilename, _TraceType=advanced_traces,
@@ -391,7 +394,7 @@ create( Blocking, TraceFilename ) ->
 %
 % See create/5 for a more in-depth explanation of the parameters.
 %
--spec create( boolean(), file_utils:file_name(),
+-spec create( boolean(), file_utils:any_file_path(),
 			  traces:trace_supervision_type(), maybe( aggregator_pid() ) ) ->
 					static_return( supervisor_pid() ).
 create( Blocking, TraceFilename, TraceType, TraceAggregatorPid ) ->
@@ -422,7 +425,7 @@ create( Blocking, TraceFilename, TraceType, TraceAggregatorPid ) ->
 % Returns either the PID of the created supervisor or, if blocking (hence the
 % supervisor being dead by design when this creation returns), 'undefined'.
 %
--spec create( boolean(), boolean(), file_utils:file_name(),
+-spec create( boolean(), boolean(), file_utils:any_file_path(),
 			 traces:trace_supervision_type(), maybe( aggregator_pid() ) ) ->
 					static_return( maybe( supervisor_pid() ) ).
 create( Blocking, MonitorNow, TraceFilename, TraceType,
@@ -438,7 +441,9 @@ create( Blocking, MonitorNow, TraceFilename, TraceType,
 
 	end,
 
-	SupervisorPid = new_link( { TraceFilename, TraceType,
+	BinTraceFilename = text_utils:ensure_binary( TraceFilename ),
+
+	SupervisorPid = new_link( { BinTraceFilename, TraceType,
 								MaybeTraceAggregatorPid },
 							  MonitorNow, BlockingParam ),
 
@@ -567,7 +572,7 @@ actual_wait_for() ->
 					{ file_utils:path(), file_utils:file_name() }.
 get_viewer_settings( State ) ->
 
-	Filename = ?getAttr(trace_filename),
+	Filename = text_utils:binary_to_string( ?getAttr(trace_filename) ),
 
 	case ?getAttr(trace_type) of
 
