@@ -52,11 +52,12 @@
 % Describes the class-specific attributes:
 -define( class_attributes, [
 
-	{ trace_filename, file_utils:file_path(),
-	  "the name of the file where traces are to be stored (ex: *.traces)" },
+	{ trace_filename, file_utils:bin_file_path(),
+	  "the path of the file in which traces are to be stored, as a binary "
+	  "(ex: <<\"/tmp/foobar.traces\">>)" },
 
-	{ trace_file, file_utils:file_path(),
-	  "the actual file where traces are written" },
+	{ trace_file, file_utils:file(),
+	  "the actual file in which traces are written" },
 
 	{ trace_type, trace_type(),
 	  "the type of traces to be written (ex: advanced_traces)" },
@@ -68,7 +69,13 @@
 	  "the known trace listeners, similar to remote supervisors" },
 
 	{ is_batch, boolean(),
-	  "tells whether the aggregator runs on batch (non-interactive) mode" } ] ).
+	  "tells whether the aggregator runs on batch (non-interactive) mode" },
+
+	{ init_supervision, initialize_supervision(),
+	  "tells whether/when the trace supervisor shall be launched" },
+
+	{ supervisor_pid, maybe( class_TraceSupervisor:supervisor_pid() ),
+	  "the PID of the associated trace supervisor (if any)" } ] ).
 
 
 
@@ -80,6 +87,13 @@
 % Helpers:
 -export([ send_internal_immediate/3, send_internal_immediate/4,
 		  inspect_fields/1 ]).
+
+
+% Tells whether/when the trace supervision shall be initialized:
+-type initialize_supervision() :: boolean() | 'later'.
+
+-export_type([ initialize_supervision/0 ]).
+
 
 
 -define( trace_emitter_categorization, "Traces" ).
@@ -137,7 +151,7 @@
 
 % Constructs a new trace aggregator:
 %
-% - TraceFilename is the name of the file where traces should be written to
+% - TraceFilename is the path of the file in which traces should be written to
 %
 % - TraceType is either 'advanced_traces', { 'text_traces', 'text_only' } or
 % { 'text_traces', 'pdf' }, depending whether LogMX should be used to browse the
@@ -157,8 +171,40 @@
 %
 -spec construct( wooper:state(), file_utils:file_name(),
 				 traces:trace_supervision_type(), text_utils:title(), boolean(),
-				 boolean() ) -> wooper:state().
+				 initialize_supervision() ) -> wooper:state().
 construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
+	construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
+			   _InitSupervision=false ).
+
+
+% Constructs a new trace aggregator:
+%
+% - TraceFilename is the path of the file in which traces should be written to
+%
+% - TraceType is either 'advanced_traces', { 'text_traces', 'text_only' } or
+% { 'text_traces', 'pdf' }, depending whether LogMX should be used to browse the
+% execution traces, or just a text viewer (possibly with a PDF displaying
+% thereof)
+%
+% - TraceTitle is the title that should be used for traces; mostly used for the
+% PDF output
+%
+% - IsPrivate tells whether this trace aggregator will be privately held (hence
+% should not be registered in naming service) or if it is a (registered)
+% singleton
+%
+% - IsBatch tells whether the aggregator is run in a batch context; useful when
+% trace type is {text_traces,pdf}, so that this aggregator does not display the
+% produced PDF when in batch mode
+%
+% - InitSupervision tells whether the trace supervisor shall be created (now or
+% later, i.e. at the first renaming of the trace file) or not
+%
+-spec construct( wooper:state(), file_utils:file_name(),
+				 traces:trace_supervision_type(), text_utils:title(), boolean(),
+				 initialize_supervision() ) -> wooper:state().
+construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
+		   InitSupervision ) ->
 
 	%trace_utils:debug_fmt( "Starting trace aggregator, with initial trace "
 	%					   "filename '~s'.", [ TraceFilename ] ),
@@ -168,8 +214,10 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 
 	AbsTraceFilename = file_utils:ensure_path_is_absolute( TraceFilename ),
 
+	AbsBinTraceFilename = text_utils:string_to_binary( AbsTraceFilename ),
+
 	% Creates the trace file as soon as possible:
-	File = open_trace_file( AbsTraceFilename ),
+	File = open_trace_file( AbsBinTraceFilename ),
 
 	% Increases the chances that this aggregator does not lag too much behind
 	% the current application state:
@@ -177,12 +225,14 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 	erlang:process_flag( priority, _Level=high ),
 
 	SetState = setAttributes( State, [
-		{ trace_filename, AbsTraceFilename },
+		{ trace_filename, AbsBinTraceFilename },
 		{ trace_file, File },
 		{ trace_type, TraceType },
 		{ trace_title, TraceTitle },
 		{ trace_listeners, [] },
-		{ is_batch, IsBatch } ] ),
+		{ is_batch, IsBatch },
+		{ init_supervision, InitSupervision },
+		{ supervisor_pid, undefined } ] ),
 
 	% We do not display these information on the console now, as the application
 	% may have to change the trace filename (the best moment to display that
@@ -224,9 +274,18 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 
 	% Writes the very first trace after this header, returns an updated state:
 	TraceState = send_internal_immediate( info, "Trace aggregator created, "
-								"trace filename is '~s', trace type is '~w', "
-								"and trace title is '~s'.",
-				   [ AbsTraceFilename, TraceType, TraceTitle ], HeaderState ),
+		"trace filename is '~s', trace type is '~w', and trace title is '~s'.",
+		[ AbsBinTraceFilename, TraceType, TraceTitle ], HeaderState ),
+
+	case InitSupervision of
+
+		true ->
+			initialize_supervision( TraceState );
+
+		IS when IS =:= false orelse IS =:= later ->
+			TraceState
+
+	end,
 
 	case is_tracing_activated() of
 
@@ -456,19 +515,25 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 % error will be triggered at its level (hence this is not a solution to
 % transparently rename a file).
 %
--spec renameTraceFile( wooper:state(), file_utils:file_name() ) ->
+-spec renameTraceFile( wooper:state(), file_utils:any_file_name() ) ->
 							 oneway_return().
-renameTraceFile( State, NewTraceFilename ) ->
+renameTraceFile( State, NewTraceFilename ) when is_binary( NewTraceFilename ) ->
+	RenamedState = renameTraceFile( State,
+						 text_utils:binary_to_string( NewTraceFilename ) ),
+	wooper:return_state( RenamedState );
 
-	TraceFilename = ?getAttr(trace_filename),
+
+renameTraceFile( State, NewTraceFilename ) ->
 
 	AbsNewTraceFilename = file_utils:ensure_path_is_absolute(
 							NewTraceFilename ),
 
+	BinTraceFilename = ?getAttr(trace_filename),
+
 	SentState = send_internal_immediate( info,
 							   "Trace aggregator renaming atomically trace "
 							   "file from '~s' to '~s'.~n",
-							   [ TraceFilename, AbsNewTraceFilename ],
+							   [ BinTraceFilename, AbsNewTraceFilename ],
 							   State ),
 
 	% Switching:
@@ -476,11 +541,22 @@ renameTraceFile( State, NewTraceFilename ) ->
 	%File = open_trace_file( AbsNewTraceFilename ),
 	%
 	% Better, yet still not sufficient for a transparent renaming:
-	file_utils:rename( TraceFilename, AbsNewTraceFilename ),
+	file_utils:rename( BinTraceFilename, AbsNewTraceFilename ),
 
-	NewState = setAttribute( SentState, trace_filename, AbsNewTraceFilename ),
+	RenState = setAttribute( SentState, trace_filename,
+					 text_utils:string_to_binary( AbsNewTraceFilename ) ),
 
-	wooper:return_state( NewState ).
+	SupState = case ?getAttr(init_supervision) of
+
+		later ->
+			initialize_supervision( RenState );
+
+		IS when is_boolean( IS ) ->
+			RenState
+
+	end,
+
+	wooper:return_state( SupState ).
 
 
 
@@ -506,9 +582,8 @@ getTraceType( State ) ->
 	  { 'notify_trace_settings', file_utils:bin_file_name(), trace_type() } ).
 getTraceSettings( State ) ->
 
-	BinFilename = text_utils:string_to_binary( ?getAttr(trace_filename) ),
-
-	Res = { notify_trace_settings, BinFilename, ?getAttr(trace_type) },
+	Res = { notify_trace_settings, ?getAttr(trace_filename),
+			?getAttr(trace_type) },
 
 	wooper:const_return_result( Res ).
 
@@ -560,7 +635,9 @@ addTraceListener( State, ListenerPid ) ->
 									[ ListenerPid ] ),
 
 			% Transfers file:
-			TraceFilename = ?getAttr(trace_filename),
+			BinTraceFilename = ?getAttr(trace_filename),
+
+			TraceFilename = text_utils:binary_to_string( BinTraceFilename ),
 
 			% We used to rely on basic ZIP over Erlang carrier:
 			%Bin = file_utils:file_to_zipped_term( TraceFilename ),
@@ -728,8 +805,8 @@ create( _UseSynchronousNew=true, TraceType ) ->
 %
 -spec get_aggregator( boolean() ) ->
 			static_return( 'trace_aggregator_launch_failed'
-								  | 'trace_aggregator_not_found'
-								  | aggregator_pid() ).
+						   | 'trace_aggregator_not_found'
+						   | aggregator_pid() ).
 get_aggregator( CreateIfNotAvailable ) ->
 
 	% Only dealing with registered managers (instead of using directly their
@@ -889,6 +966,25 @@ overload_monitor_main_loop( AggregatorPid ) ->
 % Helper functions.
 
 
+-spec initialize_supervision( wooper:state() ) -> wooper:state().
+initialize_supervision( State ) ->
+
+	% Check:
+	undefined = ?getAttr(supervisor_pid),
+
+	TraceFilename = ?getAttr(trace_filename),
+
+	SentState = send_internal_immediate( trace,
+		text_utils:format( "Initializing now trace supervision for '~s'.",
+						   [ TraceFilename ] ), State ),
+
+	SupervPid = class_TraceSupervisor:create( _BlockingSupervisor=false,
+						TraceFilename, ?getAttr(trace_type), self() ),
+
+	setAttribute( SentState, supervisor_pid, SupervPid ).
+
+
+
 % Sends specified trace immediately from the aggregator itself (hence to
 % itself); this is done directly, in order to write it before any trace message
 % that would be waiting in the mailbox.
@@ -908,7 +1004,7 @@ send_internal_immediate( MessageType, Message, State ) ->
 
 	SelfSentState = executeOneway( State, send, [
 		_TraceEmitterPid=self(),
-		_TraceEmitterName=text_utils:string_to_binary( "Trace Aggregator" ),
+		_TraceEmitterName= <<"Trace Aggregator">>,
 		_TraceEmitterCategorization=text_utils:string_to_binary(
 									  ?trace_emitter_categorization ),
 		_AppTimestamp=none,
@@ -952,11 +1048,11 @@ send_internal_deferred( MessageType, Message ) ->
 
 	EmitterNode = class_TraceEmitter:get_emitter_node_as_binary(),
 
-	MessageCategorization = text_utils:string_to_binary( "Trace Management" ),
+	MessageCategorization = <<"Trace Management">>,
 
 	self() ! { send, [
 		_TraceEmitterPid=self(),
-		_TraceEmitterName=text_utils:string_to_binary( "Trace Aggregator" ),
+		_TraceEmitterName= <<"Trace Aggregator">>,
 		_TraceEmitterCategorization=text_utils:string_to_binary(
 									  ?trace_emitter_categorization ),
 		_AppTimestamp=none,
@@ -1221,9 +1317,7 @@ reopen_trace_file( TraceFilename ) ->
 % (helper)
 %
 get_trace_file_base_options() ->
-
 	% Writes to file, as soon as 32KB or 0.5s is reached:
-	%
 	[ raw, { delayed_write, _Size=32*1024, _Delay=500 } ].
 
 
