@@ -66,24 +66,48 @@
 
 
 % Starts and links the Traces root supervisor bridge.
+%
+% Note: typically called by traces_app:start/2, hence generally triggered by the
+% release initialisation.
+%
 -spec start_link( boolean() ) -> term().
 start_link( TraceSupervisorWanted ) ->
 
+	% Apparently not displaying, yet executed:
 	trace_utils:debug( "Starting the Traces root supervisor." ),
 
 	supervisor_bridge:start_link( { local, ?supervisor_name },
 						  _Module=?MODULE, _Args=[ TraceSupervisorWanted ] ).
 
 
-% Callback to initialise this supervisor bridge.
+
+% Callback to initialise this supervisor bridge, typically in answer to
+% start_link/1 above being executed.
+%
 init( [ TraceSupervisorWanted ] ) ->
 
 	trace_utils:trace_fmt( "Initializing the Traces supervisor bridge "
 		"(trace supervisor wanted: ~s).", [ TraceSupervisorWanted ] ),
 
-	% Not trapping EXITs explicitly:
+	% OTP blind start will need a renaming once the configuration will be read:
+	InitTraceSupervisor = case TraceSupervisorWanted of
+
+		true ->
+			later;
+
+		false ->
+			false
+
+	end,
+
+	% Not trapping EXITs explicitly. Not initializing either the trace
+	% supervisor now, as we may have to adopt a non-default trace filename
+	% afterwards (ex: after any parent applications read its own configuration
+	% file to select a specific name/path), and any already running trace
+	% supervisor would not be able to cope with it. Thus:
+	%
 	TraceAggregatorPid = traces_for_apps:app_start(
-		_ModuleName=?application_module_name, TraceSupervisorWanted ),
+		_ModuleName=?application_module_name, InitTraceSupervisor ),
 
 	{ ok, TraceAggregatorPid, _State=TraceAggregatorPid }.
 
