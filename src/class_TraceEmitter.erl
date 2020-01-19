@@ -46,6 +46,12 @@
 	{ trace_categorization, text_utils:bin_string(),
 	  "categorization of this trace emitter" },
 
+	{ emitter_node, net_utils:bin_node_name(),
+	  "the name of the Erlang node of this emitter" },
+
+	{ trace_aggregator_pid, class_TraceAggregator:aggregator_pid(),
+	  "the PID of the trace aggregator collecting the traces emitted" },
+
 	{ trace_timestamp, maybe( app_timestamp() ),
 	  "current application-specific timestamp" } ] ).
 
@@ -552,12 +558,10 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 											  global ) of
 
 		undefined ->
-
 			trace_utils:error( "class_TraceEmitter:send_standalone/5: "
 							   "trace aggregator not found." ),
 
 			throw( trace_aggregator_not_found );
-
 
 		AggregatorPid ->
 
@@ -753,7 +757,8 @@ send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 
 
 % Returns the name of the node this emitter is on, as a binary string.
--spec get_emitter_node_as_binary() -> static_return( text_utils:bin_string() ).
+-spec get_emitter_node_as_binary() ->
+										static_return( net_utils:bin_node_name() ).
 get_emitter_node_as_binary() ->
 	Bin = erlang:atom_to_binary( net_utils:localnode(), _Encoding=latin1 ),
 	wooper:return_static( Bin ).
