@@ -29,8 +29,8 @@
 % Module implementing the Traces (active) application behaviour.
 %
 % Note that, thanks to the automatic creation of the class manager, Traces will
-% still work flawlessly even if not specifically started (typically out of any
-% OTP context).
+% still work flawlessly even if not specifically started (typically then out of
+% any OTP context).
 %
 -module(traces_app).
 
@@ -48,7 +48,7 @@
 start( Type, StartArgs ) ->
 
 	% See any { is_batch, boolean() } entry for the 'traces' application in any
-	% conf/sys.config defined for the current OTP release (or override with
+	% conf/sys.config defined for the current OTP release (or override it with
 	% --batch on the command-line):
 	%
 	TraceSupervisorWanted = not executable_utils:is_batch(),
