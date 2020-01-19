@@ -53,12 +53,17 @@
 -include("traces_app_footer.hrl").
 
 
+
 % Shorthand:
 
 -type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
 
 
 % To be called from the counterpart macro.
+%
+% The trace supervisor can be requested to be initialized now or not at all, or
+% later (typically only once the desired filename for the traces file will be
+% known for good, i.e. at its first renaming).
 %
 % Here we disable explicitly the trapping of EXIT signals, as a function run
 % through "erl -eval" (like our apps) or through "erl -run" will be executed in
@@ -67,22 +72,11 @@
 % most probably remain unnoticed (just leading to an EXIT message happily
 % sitting in the mailbox of the app process).
 %
-% Returns TraceAggregatorPid.
-%
--spec app_start( basic_utils:module_name(), boolean() ) -> aggregator_pid().
-app_start( ModuleName, _InitTraceSupervisor=true ) ->
-
-	% First jump to the other clause:
-	TraceAggregatorPid = app_start( ModuleName,
-							  _DoNotInitTraceSupervisor=false ),
-
-	class_TraceSupervisor:init( traces:get_trace_filename( ModuleName ),
-								?TraceType, TraceAggregatorPid ),
-
-	TraceAggregatorPid;
-
-
-app_start( ModuleName, _InitTraceSupervisor=false ) ->
+-spec app_start( basic_utils:module_name(),
+				 class_TraceAggregator:initialize_supervision() ) ->
+					   aggregator_pid().
+% All values possible for InitTraceSupervisor here:
+app_start( ModuleName, InitTraceSupervisor ) ->
 
 	% See comments above about:
 	erlang:process_flag( trap_exit, false ),
@@ -104,12 +98,11 @@ app_start( ModuleName, _InitTraceSupervisor=false ) ->
 
 	TraceAggregatorPid = class_TraceAggregator:synchronous_new_link(
 		TraceFilename, ?TraceType, ?TraceTitle, _TraceIsPrivate=false,
-		AppIsBatch ),
+		AppIsBatch, InitTraceSupervisor ),
 
 	?app_info_fmt( "Starting application ~s.", [ ModuleName ] ),
 
 	TraceAggregatorPid.
-
 
 
 
@@ -142,6 +135,9 @@ app_stop_on_shell( ModuleName, TraceAggregatorPid ) ->
 
 	?app_info_fmt( "Stopping application ~s.", [ ModuleName ] ),
 
+	% Also possible: class_TraceAggregator:remove(),
+
+	% Variable shared through macro use:
 	TraceAggregatorPid ! { synchronous_delete, self() },
 
 	receive
