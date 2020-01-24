@@ -224,6 +224,25 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 	%
 	erlang:process_flag( priority, _Level=high ),
 
+	ShouldInitSupervision = case InitSupervision of
+
+		false ->
+			false;
+
+		IS when IS =:= true orelse IS =:= later ->
+			case IsBatch of
+
+				% Batch mode silences supervision in all cases:
+				true ->
+					false;
+
+				false ->
+					IS
+
+			end
+
+	end,
+
 	SetState = setAttributes( State, [
 		{ trace_filename, AbsBinTraceFilename },
 		{ trace_file, File },
@@ -231,7 +250,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 		{ trace_title, TraceTitle },
 		{ trace_listeners, [] },
 		{ is_batch, IsBatch },
-		{ init_supervision, InitSupervision },
+		{ init_supervision, ShouldInitSupervision },
 		{ supervisor_pid, undefined } ] ),
 
 	% We do not display these information on the console now, as the application
@@ -277,12 +296,12 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 		"trace filename is '~s', trace type is '~w', and trace title is '~s'.",
 		[ AbsBinTraceFilename, TraceType, TraceTitle ], HeaderState ),
 
-	case InitSupervision of
+	case ShouldInitSupervision of
 
 		true ->
 			initialize_supervision( TraceState );
 
-		IS when IS =:= false orelse IS =:= later ->
+		_FalseOrLater ->
 			TraceState
 
 	end,
