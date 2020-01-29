@@ -642,7 +642,7 @@ addTraceListener( State, ListenerPid ) ->
 			% Not sufficient by itself...
 			file:sync( TraceFile ),
 
-			% ...so we have also to close and re-open:
+			% ...so we have also to close and re-open later:
 			file_utils:close( TraceFile ),
 
 			% Not a trace emitter but still able to send traces (to itself);
@@ -704,8 +704,8 @@ addTraceListener( State, ListenerPid ) ->
 
 			Message = text_utils:format(
 				"Trace aggregator not adding trace listener ~w, "
-				"as it requires LogMX traces, whereas the current trace "
-				"type is ~w.~n", [ ListenerPid, OtherTraceType ] ),
+				"as it requires advanced (LogMX) traces, whereas the current "
+				"trace type is ~w.~n", [ ListenerPid, OtherTraceType ] ),
 
 			?notify_warning( Message ),
 			ListenerPid ! { trace_sending, incompatible_trace_type },
