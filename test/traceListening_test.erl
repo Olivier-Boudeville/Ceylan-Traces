@@ -116,7 +116,7 @@ test_actual_body() ->
 			ok;
 
 		pang ->
-			trace_utils:error( "the trace management test should already be "
+			trace_utils:error( "The trace management test should already be "
 				"running. For example, execute 'make traceManagement_run' "
 				"in another terminal before running this test." ),
 
@@ -208,7 +208,6 @@ run() ->
 	case executable_utils:is_batch() of
 
 		true ->
-
 			test_facilities:display(
 				"Running in batch mode, no traceManagement_test "
 				"supposed to be running, nothing done." ),
@@ -216,8 +215,8 @@ run() ->
 			% Nothing was started here:
 			test_facilities:finished();
 
-		false ->
 
+		false ->
 			test_facilities:display( "Running in interactive mode, "
 				"'make traceManagement_run' supposed to be already running." ),
 
