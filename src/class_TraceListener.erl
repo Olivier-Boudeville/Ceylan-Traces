@@ -163,6 +163,71 @@ construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 
 	CompressedFilename = net_utils:receive_file( TraceAggregatorPid, TempDir ),
 
+	ManagedState = manage_send_traces( CompressedFilename, State ),
+
+	SetState = setAttributes( ManagedState, [
+				{ trace_aggregator_pid, TraceAggregatorPid },
+				{ temp_dir, TempDir },
+				{ supervision_waiter_pid, undefined },
+				{ close_listener_pid, CloseListenerPid } ] ),
+
+	EndState = executeOneway( SetState, monitor ),
+
+	trace_utils:trace_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
+
+	EndState.
+
+
+
+% Constructs a new trace listener, whose listening sockets will have to be
+% elected within the specified range of TCP ports.
+%
+% TraceAggregatorPid is the PID of the trace aggregator to which this listener
+% will be synchronized.
+%
+-spec construct( wooper:state(), aggregator_pid(), net_utils:tcp_port(),
+				 net_utils:tcp_port(), pid() ) -> wooper:state().
+construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
+		   CloseListenerPid ) ->
+
+	trace_utils:info_fmt( "~s Creating a trace listener whose PID is ~w, "
+		"synchronized on trace aggregator ~w, using a listening TCP port "
+		" in the [~B,~B[ range.",
+		[ ?LogPrefix, self(), TraceAggregatorPid, MinTCPPort, MaxTCPPort ] ),
+
+	trace_utils:debug_fmt(
+	  "~s Requesting from aggregator a trace synchronization.",
+	  [ ?LogPrefix ] ),
+
+	TraceAggregatorPid ! { addTraceListener, self() },
+
+	% See comments in construct/3/
+
+	TempDir = file_utils:create_temporary_directory(),
+
+	CompressedFilename = net_utils:receive_file( TraceAggregatorPid, TempDir,
+												 MinTCPPort, MaxTCPPort ),
+
+	ManagedState = manage_send_traces( CompressedFilename, State ),
+
+	SetState = setAttributes( ManagedState, [
+				{ trace_aggregator_pid, TraceAggregatorPid },
+				{ temp_dir, TempDir },
+				{ supervision_waiter_pid, undefined },
+				{ close_listener_pid, CloseListenerPid } ] ),
+
+	EndState = executeOneway( SetState, monitor ),
+
+	trace_utils:trace_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
+
+	EndState.
+
+
+
+
+% (construction helper)
+manage_send_traces( CompressedFilename, State ) ->
+
 	TraceFilename = file_utils:decompress( CompressedFilename,
 										   _CompressionFormat=xz ),
 
@@ -178,19 +243,8 @@ construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 	File = file_utils:open( TraceFilename,
 				[ append, raw, { delayed_write, _Size=1024, _Delay=200 } ] ),
 
-	NewState = setAttributes( State, [
-				{ trace_aggregator_pid, TraceAggregatorPid },
-				{ trace_filename, TraceFilename },
-				{ trace_file, File },
-				{ temp_dir, TempDir },
-				{ supervision_waiter_pid, undefined },
-				{ close_listener_pid, CloseListenerPid } ] ),
-
-	EndState = executeOneway( NewState, monitor ),
-
-	trace_utils:trace_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
-
-	EndState.
+	setAttributes( State, [ { trace_filename, TraceFilename },
+							{ trace_file, File } ] ).
 
 
 
@@ -227,7 +281,6 @@ destruct( State ) ->
 
 	% Allow chaining:
 	State.
-
 
 
 
