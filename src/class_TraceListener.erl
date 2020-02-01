@@ -173,7 +173,7 @@ construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 
 	EndState = executeOneway( SetState, monitor ),
 
-	trace_utils:trace_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
+	%trace_utils:trace_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
 
 	EndState.
 
@@ -218,7 +218,7 @@ construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
 
 	EndState = executeOneway( SetState, monitor ),
 
-	trace_utils:trace_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
+	%trace_utils:trace_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
 
 	EndState.
 
@@ -233,9 +233,9 @@ manage_send_traces( CompressedFilename, State ) ->
 
 	file_utils:remove_file( CompressedFilename ),
 
-	trace_utils:trace_fmt( "~s Received from aggregator a trace "
-						   "synchronization for file '~s', reused for "
-						   "later traces.", [ ?LogPrefix, TraceFilename ] ),
+	%trace_utils:trace_fmt( "~s Received from aggregator a trace "
+	%					   "synchronization for file '~s', reused for "
+	%					   "later traces.", [ ?LogPrefix, TraceFilename ] ),
 
 	% Will write in it newly received traces (sent through messages); now
 	% preferring the (more efficient) raw mode:
