@@ -688,17 +688,32 @@ addTraceListener( State, ListenerPid ) ->
 			trace_utils:trace_fmt( "Sending '~s' to listener ~w.",
 								   [ XZFilename, ListenerPid ] ),
 
-			net_utils:send_file( XZFilename, ListenerPid ),
+			SentState = try
 
-			file_utils:remove_file( XZFilename ),
+				net_utils:send_file( XZFilename, ListenerPid ),
 
-			NewListeners = [ ListenerPid | ?getAttr(trace_listeners) ],
+				NewListeners = [ ListenerPid | ?getAttr(trace_listeners) ],
 
+				setAttribute( State, trace_listeners, NewListeners )
+
+			catch
+
+				throw:Exception:Stacktrace ->
+					Message = text_utils:format( "Adding trace listener ~w "
+					   "failed, hence has been ignored: exception '~w' was "
+					   "raised.~nStacktrace was: ~s", [ ListenerPid, Exception,
+						 code_utils:interpret_stacktrace( Stacktrace ) ] ),
+					% Will be duplicated on the console anyway:
+					%trace_utils:error( Message ),
+					send_internal_deferred( error, Message ),
+					State
+
+			end,
+
+			% Not in an 'after' clause, as its result is ignored:
+			file_utils:remove_file_if_existing( XZFilename ),
 			NewFile = reopen_trace_file( TraceFilename ),
-
-			setAttributes( State, [ { trace_listeners, NewListeners },
-									{ trace_file, NewFile } ] );
-
+			setAttribute( SentState, trace_file, NewFile );
 
 		OtherTraceType ->
 
