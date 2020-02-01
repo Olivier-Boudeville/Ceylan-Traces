@@ -191,8 +191,8 @@ construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
 		   CloseListenerPid ) ->
 
 	trace_utils:info_fmt( "~s Creating a trace listener whose PID is ~w, "
-		"synchronized on trace aggregator ~w, using a listening TCP port "
-		" in the [~B,~B[ range.",
+		"synchronized on trace aggregator ~w, using a TCP listening port "
+		"in the [~B,~B[ range.",
 		[ ?LogPrefix, self(), TraceAggregatorPid, MinTCPPort, MaxTCPPort ] ),
 
 	trace_utils:debug_fmt(
