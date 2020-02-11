@@ -214,6 +214,32 @@ public class CeylanTraceParser extends LogFileParser
 	}
 
 
+	/* Called by LogMX to get a textual description of the given user-defined
+	 * field (see getUserDefinedFields()).
+	 *
+	 * The default implementation for this class returns null, which means that
+	 * the given field doesn't have any description.
+	 *
+	 * The returned description, if any, will be used to display a tooltip in
+	 * the GUI when the mouse is hovering the field column's header (on the log
+	 * entries table).
+	 *
+	 * Defined mostly to avoid: "Cannot find description for 'Emitter
+	 * Location':java.lang.NoSuchMethodException:
+	 * ceylan.parser.CeylanTraceParser.getUserDefinedFieldDesription(
+	 * java.lang.String)".
+	 *
+	 */
+	// LogMx 7.9 or more recent only: @Override
+	public String getUserDefinedFieldDesription( String pField )
+	{
+
+		return "Ceylan-Traces " + pField ;
+
+	}
+
+
+
 	/**
 	 * Returns the relative timestamp (execution time) of given entry.
 	 *
