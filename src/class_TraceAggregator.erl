@@ -219,6 +219,9 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 	% Creates the trace file as soon as possible:
 	File = open_trace_file( AbsBinTraceFilename ),
 
+	% Apparently not needed:
+	%system_utils:force_unicode_support(),
+
 	% Increases the chances that this aggregator does not lag too much behind
 	% the current application state:
 	%
@@ -500,10 +503,14 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 		  TraceEmitterCategorization, AppTimestamp, Time, Location,
 		  MessageCategorization, Priority, Message } ),
 
+	%trace_utils:debug_fmt( "Writing sync trace '~s'.", [ Trace ] ),
+
 	% Was: io:format( ?getAttr(trace_file), "~s", [ Trace ] ),
 	% but now we use faster raw writes:
+	%
 	%ok = file:write( ?getAttr(trace_file),
 	%                 text_utils:format( "~s", [ Trace ] ) ),
+
 	file_utils:write( ?getAttr(trace_file), Trace ),
 
 	Listeners = ?getAttr(trace_listeners),
@@ -1331,6 +1338,7 @@ format_full_lines( _Rows=[ { [ Line | OtherLines ], Width } | ColumnPairs ],
 % (helper)
 %
 open_trace_file( TraceFilename ) ->
+	% 'exclusive' not needed:
 	file_utils:open( TraceFilename,
 					 [ write | get_trace_file_base_options() ] ).
 
@@ -1341,6 +1349,7 @@ open_trace_file( TraceFilename ) ->
 % (helper)
 %
 reopen_trace_file( TraceFilename ) ->
+	% 'exclusive' not wanted:
 	file_utils:open( TraceFilename,
 					 [ append | get_trace_file_base_options() ] ).
 
@@ -1351,8 +1360,10 @@ reopen_trace_file( TraceFilename ) ->
 % (helper)
 %
 get_trace_file_base_options() ->
-	% Writes to file, as soon as 32KB or 0.5s is reached:
-	[ raw, { delayed_write, _Size=32*1024, _Delay=500 } ].
+	% Writes to file, as soon as 32KB or 0.5s is reached, with Unicode support
+	% (apparently not specifically needed, however):
+	%
+	[ raw, { encoding, utf8 }, { delayed_write, _Size=32*1024, _Delay=500 } ].
 
 
 

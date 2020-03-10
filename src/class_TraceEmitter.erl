@@ -731,6 +731,11 @@ send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 
 			end,
 
+			BinMessage = text_utils:string_to_binary( Message ),
+
+			%trace_utils:debug_fmt( "Sending in sync message '~s'.",
+			%					   [ BinMessage ] ),
+
 			AggregatorPid ! { sendSync,
 				[
 				 _TraceEmitterPid=self(),
@@ -742,8 +747,7 @@ send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 				 _Location=EmitterNode,
 				 _MessageCategorization=ActualMsgCateg,
 				 _Priority=get_priority_for( TraceType ),
-				 _Message=text_utils:string_to_binary( Message )
-				], self() },
+				 BinMessage ], self() },
 
 			trace_utils:echo( Message, TraceType, MessageCategorization,
 							  TimestampText ),

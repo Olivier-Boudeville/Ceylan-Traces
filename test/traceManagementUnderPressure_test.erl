@@ -109,6 +109,9 @@ run() ->
 	?test_debug(   "This is a test of the debug priority for tests." ),
 	?test_void(    "This is a test of the void priority for tests." ),
 
+	?test_debug(   "This is an additional test with some special characters: "
+				   "àéèïîôùû." ),
+
 	test_facilities:display(
 		"Requesting the TestTraceEmitter to send some traces." ),
 
