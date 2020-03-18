@@ -67,7 +67,7 @@
 %
 % Here we disable explicitly the trapping of EXIT signals, as a function run
 % through "erl -eval" (like our apps) or through "erl -run" will be executed in
-% a process which will silently trap EXIT signals, which would mean that the
+% a process that will silently trap EXIT signals, which would mean that the
 % crash of any process created from the app, even thanks to spawn_link, would
 % most probably remain unnoticed (just leading to an EXIT message happily
 % sitting in the mailbox of the app process).
@@ -81,7 +81,8 @@ test_start( ModuleName, InitTraceSupervisor ) ->
 	erlang:process_flag( trap_exit, false ),
 
 	% Create first, synchronously (to avoid race conditions), a trace aggregator
-	% (false is to specify a non-private, i.e. global, aggregator).
+	% (TraceIsPrivate=false is to specify a non-private, i.e. global,
+	% aggregator).
 	%
 	% Race conditions could occur at least with trace emitters (they would
 	% create their own aggregator, should none by found) and with trace
@@ -97,9 +98,25 @@ test_start( ModuleName, InitTraceSupervisor ) ->
 
 	TraceAggregatorPid = class_TraceAggregator:synchronous_new_link(
 		TraceFilename, ?TraceType, ?TraceTitle, _TraceIsPrivate=false,
-		AppIsBatch, InitTraceSupervisor ),
+		AppIsBatch, _NoInitTraceSupervisor=false ),
 
 	?test_info_fmt( "Starting test ~s.", [ ModuleName ] ),
+
+	case ( not AppIsBatch ) andalso InitTraceSupervisor of
+
+		true ->
+			TraceAggregatorPid ! { launchTraceSupervisor, [], self() },
+			receive
+
+				{ wooper_result, _SupervisorPid } ->
+					ok
+
+			end;
+
+		false ->
+			ok
+
+	end,
 
 	TraceAggregatorPid.
 
@@ -109,7 +126,12 @@ test_start( ModuleName, InitTraceSupervisor ) ->
 -spec test_stop( basic_utils:module_name(), aggregator_pid() ) -> no_return().
 test_stop( ModuleName, TraceAggregatorPid ) ->
 
+	%trace_utils:trace_fmt( "Stopping: waiting for trace aggregator ~w.",
+	%					   [ TraceAggregatorPid ] ),
+
 	class_TraceSupervisor:wait_for(),
+
+	%trace_utils:trace( "Going for immediate stop." ),
 
 	% Stop trace sent there:
 	test_immediate_stop( ModuleName, TraceAggregatorPid ).
@@ -121,7 +143,11 @@ test_stop( ModuleName, TraceAggregatorPid ) ->
 								 no_return().
 test_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 
+	%trace_utils:trace( "Immediate stop." ),
+
 	test_stop_on_shell( ModuleName, TraceAggregatorPid ),
+
+	%trace_utils:trace( "Finishing." ),
 
 	test_facilities:finished().
 

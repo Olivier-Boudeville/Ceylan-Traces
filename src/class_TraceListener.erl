@@ -240,8 +240,9 @@ manage_send_traces( CompressedFilename, State ) ->
 	% Will write in it newly received traces (sent through messages); now
 	% preferring the (more efficient) raw mode:
 	%
-	File = file_utils:open( TraceFilename,
-				[ append, raw, { delayed_write, _Size=1024, _Delay=200 } ] ),
+	File = file_utils:open( TraceFilename, [ append, raw,
+				{ delayed_write, _Size=1024, _Delay=200 },
+				file_utils:get_default_encoding_option() ] ),
 
 	setAttributes( State, [ { trace_filename, TraceFilename },
 							{ trace_file, File } ] ).

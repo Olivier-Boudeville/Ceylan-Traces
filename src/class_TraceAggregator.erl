@@ -74,7 +74,7 @@
 	{ init_supervision, initialize_supervision(),
 	  "tells whether/when the trace supervisor shall be launched" },
 
-	{ supervisor_pid, maybe( class_TraceSupervisor:supervisor_pid() ),
+	{ supervisor_pid, maybe( supervisor_pid() ),
 	  "the PID of the associated trace supervisor (if any)" } ] ).
 
 
@@ -133,6 +133,7 @@
 -type listener_pid() :: class_TraceListener:listener_pid().
 -type message() :: traces:message().
 -type emitter_pid() :: class_TraceEmitter:emitter_pid().
+-type supervisor_pid() :: class_TraceSupervisor:supervisor_pid().
 
 
 
@@ -174,7 +175,7 @@
 				 initialize_supervision() ) -> wooper:state().
 construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 	construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
-			   _InitSupervision=false ).
+			   _InitTraceSupervisor=false ).
 
 
 % Constructs a new trace aggregator:
@@ -197,14 +198,14 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 % trace type is {text_traces,pdf}, so that this aggregator does not display the
 % produced PDF when in batch mode
 %
-% - InitSupervision tells whether the trace supervisor shall be created (now or
+% - InitTraceSupervisor tells whether the trace supervisor shall be created (now or
 % later, i.e. at the first renaming of the trace file) or not
 %
 -spec construct( wooper:state(), file_utils:file_name(),
 				 traces:trace_supervision_type(), text_utils:title(), boolean(),
 				 initialize_supervision() ) -> wooper:state().
 construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
-		   InitSupervision ) ->
+		   InitTraceSupervisor ) ->
 
 	%trace_utils:debug_fmt( "Starting trace aggregator, with initial trace "
 	%					   "filename '~s'.", [ TraceFilename ] ),
@@ -227,7 +228,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 	%
 	erlang:process_flag( priority, _Level=high ),
 
-	ShouldInitSupervision = case InitSupervision of
+	ShouldInitTraceSupervisor = case InitTraceSupervisor of
 
 		false ->
 			false;
@@ -253,7 +254,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 		{ trace_title, TraceTitle },
 		{ trace_listeners, [] },
 		{ is_batch, IsBatch },
-		{ init_supervision, ShouldInitSupervision },
+		{ init_supervision, ShouldInitTraceSupervisor },
 		{ supervisor_pid, undefined } ] ),
 
 	% We do not display these information on the console now, as the application
@@ -299,7 +300,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 		"trace filename is '~s', trace type is '~w', and trace title is '~s'.",
 		[ AbsBinTraceFilename, TraceType, TraceTitle ], HeaderState ),
 
-	case ShouldInitSupervision of
+	case ShouldInitTraceSupervisor of
 
 		true ->
 			initialize_supervision( TraceState );
@@ -312,6 +313,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 	case is_tracing_activated() of
 
 		true ->
+			%trace_utils:trace( "Aggregator ready." ),
 			TraceState;
 
 		false ->
@@ -621,10 +623,10 @@ getTraceSettings( State ) ->
 % known.
 %
 -spec launchTraceSupervisor( wooper:state() ) ->
-		   const_request_return( class_TraceSupervisor:supervisor_pid() ).
+		   const_request_return( supervisor_pid() ).
 launchTraceSupervisor( State ) ->
 
-	SupervisorPid = class_TraceSupervisor:create( _IsBlocking=false,
+	SupervisorPid = class_TraceSupervisor:create( _MaybeWaitingPid=?getSender(),
 		?getAttr(trace_filename), ?getAttr(trace_type),
 		_TraceAggregatorPid=self() ),
 
@@ -764,6 +766,8 @@ removeTraceListener( State, ListenerPid ) ->
 -spec requestReadyNotification( wooper:state() ) ->
 								  const_request_return( 'trace_file_ready' ).
 requestReadyNotification( State ) ->
+
+	%trace_utils:trace( "Requested for a ready notification." ),
 
 	% Being able to answer means being ready, as a first synchronised message is
 	% sent from the constructor:
@@ -938,10 +942,10 @@ overload_monitor_main_loop( AggregatorPid ) ->
 			case QueueLen of
 
 				TooMany when TooMany > 5000 ->
-					trace_utils:warning_fmt( "trace aggregator is overloaded, "
-							   "too many traces are being sent, ~B of them "
-							   "are still waiting to be processed.",
-							   [ TooMany ] );
+					trace_utils:warning_fmt( "The trace aggregator ~w is "
+						"overloaded, too many traces are being sent, "
+						"~B of them are still waiting to be processed.",
+						[ AggregatorPid, TooMany ] );
 
 				_Other ->
 					ok
@@ -1019,10 +1023,12 @@ initialize_supervision( State ) ->
 		text_utils:format( "Initializing now trace supervision for '~s'.",
 						   [ TraceFilename ] ), State ),
 
-	SupervPid = class_TraceSupervisor:create( _BlockingSupervisor=false,
+	MaybeSupervPid = class_TraceSupervisor:create( _BlockingSupervisor=true,
 						TraceFilename, ?getAttr(trace_type), self() ),
 
-	setAttribute( SentState, supervisor_pid, SupervPid ).
+	%trace_utils:debug_fmt( "Created supervisor: ~w.", [ MaybeSupervPid ] ),
+
+	setAttribute( SentState, supervisor_pid, MaybeSupervPid ).
 
 
 
@@ -1360,11 +1366,17 @@ reopen_trace_file( TraceFilename ) ->
 % (helper)
 %
 get_trace_file_base_options() ->
+
 	% Writes to file, as soon as 32KB or 0.5s is reached, with Unicode support
 	% (apparently not specifically needed, however):
 	%
-	[ raw, { encoding, utf8 }, { delayed_write, _Size=32*1024, _Delay=500 } ].
-
+	% Note: do *not* add 'raw' here, otherwise, at least in some cases, strings
+	% such as "àéèïîôùû." will not be written correctly, in the sense that the
+	% overall encoding of the file will not be UTF-8 as expected, but
+	% ISO-8859...
+	%
+	[ { delayed_write, _Size=32*1024, _Delay=500 },
+	  file_utils:get_default_encoding_option() ].
 
 
 % Allows inspecting the trace messages, which are often copied and/or sent over
@@ -1378,7 +1390,7 @@ get_trace_file_base_options() ->
 inspect_fields( FieldsReceived ) ->
 
 	AllVars = lists:flatmap( fun( F ) ->
-									 [ F, F, type_utils:get_type_of( F ) ]
+								[ F, F, type_utils:get_type_of( F ) ]
 							 end,
 							 FieldsReceived ),
 

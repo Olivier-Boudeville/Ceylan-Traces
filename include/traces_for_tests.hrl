@@ -76,6 +76,7 @@
 
 		 % true is for InitTraceSupervisor (not even binding a mute variable for
 		 % that)
+		 %
 		 TraceAggregatorPid = traces_for_tests:test_start( ?MODULE, true )
 ).
 
@@ -98,6 +99,7 @@
 
 		 % false is for InitTraceSupervisor (not even binding a mute variable
 		 % for that)
+		 %
 		 TraceAggregatorPid = traces_for_tests:test_start( ?MODULE, false ) ).
 
 
@@ -191,7 +193,6 @@ test_receive( Message ) ->
 
 
 % Handles a test failure, using specified string as advertised reason.
-%
 -spec test_failed( text_utils:ustring() ) -> no_return().
 test_failed( Reason ) ->
 

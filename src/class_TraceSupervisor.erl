@@ -48,6 +48,9 @@
 	{ trace_type, trace_type(),
 	  "the type of traces to be written (ex: advanced_traces)" },
 
+	% Needed if wanting to wait for the trace file to exist before launching the
+	% supervision tool:
+	%
 	{ trace_aggregator_pid, aggregator_pid(),
 	  "the PID of the supervised trace aggregator" } ] ).
 
@@ -98,34 +101,34 @@
 
 % Constructs a new trace supervisor:
 %
-% - {TraceFilename,TraceType,TraceAggregatorPid}:
+% - {TraceFilename,TraceType,MaybeTraceAggregatorPid}:
 %
 %   - TraceFilename is the name of the file whence traces should be read
 %
 %   - TraceType the type of traces to expect (ex: advanced_traces, text_traces)
 %
-%   - MaybeTraceAggregatorPid is the PID of the trace aggregator to wait for, or
-%   'undefined'
+%   - MaybeTraceAggregatorPid is the PID of the trace aggregator to wait for (if
+%   any)
 %
 % - MonitorNow tells whether the supervision should begin immediately (if true)
 % or only when the monitor method is called (if false)
 %
-% - Blocking tells whether the monitoring should be non-blocking (if equal to
-% 'none'); otherwise the monitoring should be blocking, and this Blocking
-% parameter should be the PID of the caller to be notified. This parameter has a
-% meaning iff MonitorNow is true
+% - MaybeWaitingPid tells whether the monitoring should be blocking: if set to a
+% PID, this supervisor will notify the corresponding process whenever the
+% monitoring will be done; otherwise (if set to 'undefined') nothing will be
+% done then
 %
 -spec construct( wooper:state(), { file_utils:bin_file_name(),
 		 traces:trace_supervision_type(), maybe( aggregator_pid() ) },
-			 boolean(), 'none' | pid() ) -> wooper:state().
+			 boolean(), maybe( pid() ) ) -> wooper:state().
 construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
-		   MonitorNow, Blocking ) ->
+		   MonitorNow, MaybeWaitingPid ) ->
 
 	trace_utils:debug_fmt( "~s Creating a trace supervisor, whose PID is ~w "
 						   "(trace filename: '~s', trace type: '~s', "
 						   "monitor now: ~w, blocking: ~w",
 						   [ ?LogPrefix, self(), TraceFilename, TraceType,
-							 MonitorNow, Blocking ] ),
+							 MonitorNow, MaybeWaitingPid ] ),
 
 	NewState = setAttributes( State, [
 		{ trace_filename, TraceFilename },
@@ -135,7 +138,8 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 	case MaybeTraceAggregatorPid of
 
 		AggPid when is_pid( AggPid ) ->
-			% We have a PID, avoid the race condition that could happen if the
+
+			% We have a PID; avoid the race condition that could happen if the
 			% trace viewer (ex: LogMX) was launched before a first trace was
 			% written by the aggregator in the trace file:
 
@@ -162,32 +166,43 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 
 	end,
 
+	%trace_utils:debug_fmt( "Supervisor associated to aggregator ~w.",
+	%					   [ MaybeTraceAggregatorPid ] ),
 
 	EndState = case MonitorNow of
 
 		true ->
 
-			case Blocking of
+			case MaybeWaitingPid of
 
-				CallerPid when is_pid( CallerPid ) ->
+				WaitingPid when is_pid( WaitingPid ) ->
+
 					% Pattern-match the result of in-place invocation:
+					%
 					% ('monitor_ok' used to be temporarily replaced by '_' due
 					% to the LogMX issue with java_security_PrivilegedAction)
 					%
 					case executeRequest( NewState, blocking_monitor ) of
 
 						{ RequestState, monitor_ok } ->
+
+							%trace_utils:debug(
+							%  "Blocking supervisor received monitor_ok." ),
+
 							% Sends back to the caller:
-							CallerPid ! { wooper_result, monitor_ok },
+							WaitingPid ! { wooper_result, monitor_ok },
 							self() ! delete,
 							RequestState;
 
 						{ AnyState, monitor_failed } ->
 
+							trace_utils:warning(
+							  "Blocking supervisor received monitor_failed." ),
+
 							% If needing to ignore a non-significant error from
 							% the supervision tool:
 							%
-							CallerPid ! { wooper_result, monitor_ok },
+							WaitingPid ! { wooper_result, monitor_ok },
 							self() ! delete,
 							AnyState
 
@@ -195,14 +210,16 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 
 					end;
 
-				none ->
+				undefined ->
 					% Non-blocking, handled after the constructor:
+					%trace_utils:debug( "Non-blocking supervisor." ),
 					self() ! monitor,
 					NewState
 
 			end;
 
 		false ->
+			%trace_utils:debug( "Supervisor not monitoring now." ),
 			NewState
 
 	end,
@@ -348,58 +365,62 @@ blocking_monitor( State ) ->
 -spec create() -> static_return( supervisor_pid() ).
 create() ->
 
-	SupervisorPid = create( _Blocking=true ),
+	SupervisorPid = create( _MaybeWaitingPid=undefined ),
 
 	wooper:return_static( SupervisorPid ).
 
 
 
-% Creates the trace supervisor, then blocks iff Blocking is true, with default
-% settings regarding trace filename, start mode (immediate here, not deferred)
-% and trace type (advanced ones here, not text based), with no PID specified for
-% the trace aggregator.
+% Creates the trace supervisor with default settings regarding trace
+% filename, start mode (immediate here, not deferred) and trace type (advanced
+% ones here, not text based), with no PID specified for the trace aggregator.
+%
+% Once the trace monitoring is over, will notify any specified waiting process.
 %
 % See create/5 for a more in-depth explanation of the parameters.
 %
--spec create( boolean() ) -> static_return( supervisor_pid() ).
-create( Blocking ) ->
+-spec create( maybe( pid() ) ) -> static_return( supervisor_pid() ).
+create( MaybeWaitingPid ) ->
 
-	SupervisorPid = create( Blocking, ?trace_aggregator_filename ),
+	SupervisorPid = create( MaybeWaitingPid, ?trace_aggregator_filename ),
 
 	wooper:return_static( SupervisorPid ).
 
 
 
-% Creates the trace supervisor, then blocks iff Blocking is true, with default
-% settings regarding start mode (immediate here, not deferred) and trace type
-% (advanced ones here, not text based), with no PID specified for the trace
-% aggregator.
+% Creates the trace supervisor with default settings regarding start mode
+% (immediate here, not deferred) and trace type (advanced ones here, not text
+% based), with no PID specified for the trace aggregator.
+%
+% Once the trace monitoring is over, will notify any specified waiting process.
 %
 % See create/5 for a more in-depth explanation of the parameters.
 %
--spec create( boolean(), file_utils:any_file_path() ) ->
+-spec create( maybe( pid() ), file_utils:any_file_path() ) ->
 					static_return( supervisor_pid() ).
-create( Blocking, TraceFilename ) ->
+create( MaybeWaitingPid, TraceFilename ) ->
 
-	SupervisorPid = create( Blocking, TraceFilename, _TraceType=advanced_traces,
-							_TraceAggregatorPid=undefined ),
+	SupervisorPid = create( MaybeWaitingPid, TraceFilename,
+		 _TraceType=advanced_traces, _TraceAggregatorPid=undefined ),
 
 	wooper:return_static( SupervisorPid ).
 
 
 
 
-% Creates the trace supervisor, then blocks iff Blocking is true, with default
-% settings regarding start mode (immediate here, not deferred).
+% Creates the trace supervisor, with default settings regarding start mode
+% (immediate here, not deferred).
+%
+% Once the trace monitoring is over, will notify any specified waiting process.
 %
 % See create/5 for a more in-depth explanation of the parameters.
 %
--spec create( boolean(), file_utils:any_file_path(),
+-spec create( maybe( pid() ), file_utils:any_file_path(),
 			  traces:trace_supervision_type(), maybe( aggregator_pid() ) ) ->
 					static_return( supervisor_pid() ).
-create( Blocking, TraceFilename, TraceType, TraceAggregatorPid ) ->
+create( MaybeWaitingPid, TraceFilename, TraceType, TraceAggregatorPid ) ->
 
-	SupervisorPid = create( Blocking, _MonitorNow=true, TraceFilename,
+	SupervisorPid = create( MaybeWaitingPid, _MonitorNow=true, TraceFilename,
 							TraceType, TraceAggregatorPid ),
 
 	wooper:return_static( SupervisorPid ).
@@ -409,8 +430,8 @@ create( Blocking, TraceFilename, TraceType, TraceAggregatorPid ) ->
 
 % Creates a trace supervisor:
 %
-% - Blocking tells whether the monitoring should be blocking (if true) or not
-% (the supervisor tool is then launched in the background)
+% - MaybeWaitingPid, if set to a PID, will notify the corresponding process once
+% the trace monitoring is over
 %
 % - MonitorNow tells whether the monitoring should start immediately or only
 % when a monitor/blocking_monitor method is called
@@ -425,36 +446,26 @@ create( Blocking, TraceFilename, TraceType, TraceAggregatorPid ) ->
 % Returns either the PID of the created supervisor or, if blocking (hence the
 % supervisor being dead by design when this creation returns), 'undefined'.
 %
--spec create( boolean(), boolean(), file_utils:any_file_path(),
+-spec create( maybe( pid() ), boolean(), file_utils:any_file_path(),
 			 traces:trace_supervision_type(), maybe( aggregator_pid() ) ) ->
 					static_return( maybe( supervisor_pid() ) ).
-create( Blocking, MonitorNow, TraceFilename, TraceType,
+create( MaybeWaitingPid, MonitorNow, TraceFilename, TraceType,
 		MaybeTraceAggregatorPid ) ->
-
-	BlockingParam = case Blocking of
-
-		true ->
-			self() ;
-
-		false ->
-			none
-
-	end,
 
 	BinTraceFilename = text_utils:ensure_binary( TraceFilename ),
 
 	SupervisorPid = new_link( { BinTraceFilename, TraceType,
 								MaybeTraceAggregatorPid },
-							  MonitorNow, BlockingParam ),
+							  MonitorNow, MaybeWaitingPid ),
 
-	MaybeSupervisorPid = case Blocking of
+	MaybeSupervisorPid = case MaybeWaitingPid of
+
+		undefined ->
+			SupervisorPid;
 
 		% Then by design the process is terminated:
-		true ->
-			undefined;
-
-		false ->
-			SupervisorPid
+		_Pid ->
+			undefined
 
 	end,
 
@@ -472,8 +483,10 @@ create( Blocking, MonitorNow, TraceFilename, TraceType,
 -spec init( file_utils:file_name(), traces:trace_supervision_type(),
 			aggregator_pid() ) -> static_return( supervisor_outcome() ).
 init( TraceFilename, TraceType, TraceAggregatorPid ) ->
+
 	SupOutcome = init( TraceFilename, TraceType, TraceAggregatorPid,
-					   _BlockingSupervisor=true ),
+					   _MaybeWaitingPid=undefined ),
+
 	wooper:return_static( SupOutcome ).
 
 
@@ -486,8 +499,9 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 % MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
 %
 -spec init( file_utils:file_name(), traces:trace_supervision_type(),
-		aggregator_pid(), boolean() ) -> static_return( supervisor_outcome() ).
-init( TraceFilename, TraceType, TraceAggregatorPid, BlockingSupervisor ) ->
+			aggregator_pid(), maybe( pid() ) ) ->
+				  static_return( supervisor_outcome() ).
+init( TraceFilename, TraceType, TraceAggregatorPid, MaybeWaitingPid ) ->
 
 	%trace_utils:trace_fmt( "Initializing trace supervisor for file '~s' and "
 	%						"trace type ~p.", [ TraceFilename, TraceType ] ),
@@ -507,7 +521,7 @@ init( TraceFilename, TraceType, TraceAggregatorPid, BlockingSupervisor ) ->
 		false ->
 			% Default: a trace supervisor is used.
 			%trace_utils:info( "Supervisor enabled." ),
-			SupervisorPid = create( BlockingSupervisor, TraceFilename,
+			SupervisorPid = create( MaybeWaitingPid, TraceFilename,
 									TraceType, TraceAggregatorPid ),
 			%trace_utils:debug( "Waiting for trace supervisor to be closed." )
 
@@ -538,6 +552,7 @@ wait_for() ->
 	wooper:return_static_void().
 
 
+
 % (helper)
 -spec actual_wait_for() -> void().
 actual_wait_for() ->
@@ -552,7 +567,8 @@ actual_wait_for() ->
 
 			%trace_utils:info(
 			%    "Notification received from supervisor." ),
-			% Not {test,app}_info, as used in both contexts:
+
+			% Not {test,app}_info, as this function is used in both contexts:
 			class_TraceEmitter:send_standalone( info,
 				"Traces successfully monitored." )
 

@@ -48,7 +48,10 @@ all:
 doc:
 
 
-full-doc: $(DOC_BASE_NAME).pdf $(DOC_BASE_NAME).html
+full-doc: $(DOC_BASE_NAME).pdf $(HTML_TARGET)
+	@/bin/ln -s $(HTML_TARGET) traces.html
+	@/bin/ln -s traces.html index.html
+	@/bin/ln -s $(DOC_PDF_NAME) traces.pdf
 
 
 html: clean-doc $(HTML_TARGET)
@@ -78,6 +81,11 @@ clean: clean-doc
 clean-doc:
 	-@/bin/rm -f *.aux *.log *.maf *.mtc* *.stc* *.tex *.toc \
 	$(CURRENT_TRACES_DOC) $(DOC_GENERATED_FILES)
+
+
+# These three elements are symbolic links:
+real-clean: clean
+	-@/bin/rm -f index.html traces.html traces.pdf
 
 
 info-web:
