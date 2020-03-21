@@ -67,14 +67,13 @@
 %
 % Here we disable explicitly the trapping of EXIT signals, as a function run
 % through "erl -eval" (like our apps) or through "erl -run" will be executed in
-% a process which will silently trap EXIT signals, which would mean that the
+% a process that will silently trap EXIT signals, which would mean that the
 % crash of any process created from the app, even thanks to spawn_link, would
 % most probably remain unnoticed (just leading to an EXIT message happily
 % sitting in the mailbox of the app process).
 %
 -spec app_start( basic_utils:module_name(),
-				 class_TraceAggregator:initialize_supervision() ) ->
-					   aggregator_pid().
+	class_TraceAggregator:initialize_supervision() ) -> aggregator_pid().
 % All values possible for InitTraceSupervisor here:
 app_start( ModuleName, InitTraceSupervisor ) ->
 
@@ -82,7 +81,8 @@ app_start( ModuleName, InitTraceSupervisor ) ->
 	erlang:process_flag( trap_exit, false ),
 
 	% Create first, synchronously (to avoid race conditions), a trace aggregator
-	% (false is to specify a non-private, i.e. global, aggregator).
+	% (TraceIsPrivate=false is to specify a non-private, i.e. global,
+	% aggregator).
 	%
 	% Race conditions could occur at least with trace emitters (they would
 	% create their own aggregator, should none by found) and with trace
@@ -98,9 +98,25 @@ app_start( ModuleName, InitTraceSupervisor ) ->
 
 	TraceAggregatorPid = class_TraceAggregator:synchronous_new_link(
 		TraceFilename, ?TraceType, ?TraceTitle, _TraceIsPrivate=false,
-		AppIsBatch, InitTraceSupervisor ),
+		AppIsBatch, _NoInitTraceSupervisor=false ),
 
 	?app_info_fmt( "Starting application ~s.", [ ModuleName ] ),
+
+	case ( not AppIsBatch ) andalso InitTraceSupervisor of
+
+		true ->
+			TraceAggregatorPid ! { launchTraceSupervisor, [], self() },
+			receive
+
+				{ wooper_result, _SupervisorPid } ->
+					ok
+
+			end;
+
+		false ->
+			ok
+
+	end,
 
 	TraceAggregatorPid.
 

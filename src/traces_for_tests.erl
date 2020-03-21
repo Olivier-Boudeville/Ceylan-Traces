@@ -26,7 +26,7 @@
 % Creation date: July 1, 2007.
 
 
-% This module gathers all code that allows to lighten the trace macros for
+% This module gathers all the code that allows to lighten the trace macros for
 % tests.
 %
 -module(traces_for_tests).
@@ -92,17 +92,17 @@ test_start( ModuleName, InitTraceSupervisor ) ->
 	%
 	io:format( "~n" ),
 
-	AppIsBatch = executable_utils:is_batch(),
+	TestIsBatch = executable_utils:is_batch(),
 
 	TraceFilename = traces:get_trace_filename( ModuleName ),
 
 	TraceAggregatorPid = class_TraceAggregator:synchronous_new_link(
 		TraceFilename, ?TraceType, ?TraceTitle, _TraceIsPrivate=false,
-		AppIsBatch, _NoInitTraceSupervisor=false ),
+		TestIsBatch, _NoInitTraceSupervisor=false ),
 
 	?test_info_fmt( "Starting test ~s.", [ ModuleName ] ),
 
-	case ( not AppIsBatch ) andalso InitTraceSupervisor of
+	case ( not TestIsBatch ) andalso InitTraceSupervisor of
 
 		true ->
 			TraceAggregatorPid ! { launchTraceSupervisor, [], self() },
@@ -174,4 +174,4 @@ test_stop_on_shell( ModuleName, TraceAggregatorPid ) ->
 
 	traces:check_pending_wooper_results(),
 
-	test_facilities:display( "End of test ~s", [ ModuleName ] ).
+	test_facilities:display( "End of test ~s.", [ ModuleName ] ).
