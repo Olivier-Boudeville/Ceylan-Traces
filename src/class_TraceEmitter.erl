@@ -37,13 +37,19 @@
 -define( superclasses, [] ).
 
 
+% Shorthands:
+
+-type ustring() :: text_utils:ustring().
+-type bin_string() :: text_utils:bin_string().
+
+
 % Describes the class-specific attributes:
 -define( class_attributes, [
 
-	{ name, text_utils:bin_string(), "name of this trace emitter (not named "
+	{ name, bin_string(), "name of this trace emitter (not named "
 	  "trace_name in order to be more versatile)" },
 
-	{ trace_categorization, text_utils:bin_string(),
+	{ trace_categorization, bin_string(),
 	  "categorization of this trace emitter" },
 
 	{ emitter_node, net_utils:bin_node_name(),
@@ -58,7 +64,6 @@
 
 
 % Helper functions:
-%
 -export([ init/1, set_categorization/2,
 		  send/3, send_safe/3, send/4, send_safe/4, send/5, send_safe/5,
 		  send_synchronised/5,
@@ -81,7 +86,7 @@
 %
 % Ex: "MyObject 16", or <<"First Talker">>.
 %
--type emitter_name() :: text_utils:ustring() | text_utils:bin_string().
+-type emitter_name() :: ustring() | bin_string().
 
 
 
@@ -92,8 +97,8 @@
 %
 % Ex: "topics.sports.basketball"
 %
--type emitter_categorization() :: text_utils:ustring()
-								| text_utils:bin_string().
+-type emitter_categorization() :: ustring()
+								| bin_string().
 
 
 
@@ -173,8 +178,8 @@
 % Note: this constructor should be idempotent, as a given instance might very
 % well inherit (directly or not) from that class more than once.
 %
--spec construct( wooper:state(), { emitter_name(), emitter_categorization() } )
-			   -> wooper:state().
+-spec construct( wooper:state(),
+			 { emitter_name(), emitter_categorization() } ) -> wooper:state().
 construct( State, _EmitterInit={ EmitterName, EmitterCategorization } ) ->
   % Useless, as checks done just afterwards:
   % when is_list( EmitterName ) andalso is_list( EmitterCategorization ) ->
@@ -215,7 +220,7 @@ construct( State, EmitterName ) ->
 %
 % (helper)
 %
--spec check_and_binarise_name( emitter_name() ) -> text_utils:bin_string().
+-spec check_and_binarise_name( emitter_name() ) -> bin_string().
 check_and_binarise_name( StringName ) when is_list( StringName ) ->
 	LegitStringName = check_string_name( StringName ),
 	text_utils:string_to_binary( LegitStringName );
@@ -260,8 +265,7 @@ check_string_name( Name ) ->
 %
 % Note: use text_utils:binary_to_string/1 to get back a plain string.
 %
--spec getName( wooper:state() ) ->
-					 const_request_return( text_utils:bin_string() ).
+-spec getName( wooper:state() ) -> const_request_return( bin_string() ).
 getName( State ) ->
 	wooper:const_return_result( ?getAttr(name) ).
 
@@ -303,8 +307,7 @@ display( State ) ->
 
 
 % Returns a textual description of this trace emitter.
--spec toString( wooper:state() ) ->
-					  const_request_return( text_utils:ustring() ).
+-spec toString( wooper:state() ) -> const_request_return( ustring() ).
 toString( State ) ->
 	wooper:const_return_result( wooper:state_to_string( State ) ).
 
@@ -941,7 +944,6 @@ send_safe( TraceType, State, Message ) ->
 
 
 
-
 % Message is a plain string, MessageCategorization as well unless it is the
 % 'uncategorized' atom.
 
@@ -1181,8 +1183,7 @@ get_trace_timestamp( State ) ->
 %
 % (helper)
 %
--spec get_trace_timestamp_as_binary( wooper:state() ) ->
-										   text_utils:bin_string().
+-spec get_trace_timestamp_as_binary( wooper:state() ) -> bin_string().
 get_trace_timestamp_as_binary( State ) ->
 	text_utils:term_to_binary( ?getAttr(trace_timestamp) ).
 
