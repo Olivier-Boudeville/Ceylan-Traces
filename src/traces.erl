@@ -35,7 +35,7 @@
 -export([ get_trace_filename/1,
 		  receive_applicative_message/0, receive_applicative_message/1,
 		  check_pending_wooper_results/0, declare_beam_dirs_for_traces/0,
-		  manage_supervision/0 ]).
+		  manage_supervision/0, get_execution_target/0 ]).
 
 
 -type emitter_name() :: text_utils:ustring().
@@ -233,3 +233,27 @@ manage_supervision() ->
 			end
 
 	end.
+
+
+
+% Returns the execution target this module (hence, probably, that layer as a
+% whole) was compiled with, i.e. either the atom 'development' or 'production'.
+
+% Dispatched in actual clauses, otherwise Dialyzer will detect an
+% underspecification:
+%
+% -spec get_execution_target() -> execution_target().
+
+-ifdef(exec_target_is_production).
+
+-spec get_execution_target() -> 'production'.
+get_execution_target() ->
+	production.
+
+-else. % exec_target_is_production
+
+-spec get_execution_target() -> 'development'.
+get_execution_target() ->
+	development.
+
+-endif. % exec_target_is_production
