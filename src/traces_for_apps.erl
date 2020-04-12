@@ -113,6 +113,9 @@ app_start( ModuleName, InitTraceSupervisor ) ->
 
 			end;
 
+		later ->
+			ok;
+
 		false ->
 			ok
 
