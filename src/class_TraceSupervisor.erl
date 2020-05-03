@@ -335,6 +335,15 @@ blocking_monitor( State ) ->
 					  [ ?LogPrefix, ActualFilename ] ),
 					wooper:const_return_result( monitor_ok );
 
+				{ ExitStatus, _ErrorOutput="" } ->
+					trace_utils:error_fmt( "The monitoring of trace supervisor "
+						"failed (error ~B).", [ ExitStatus ] ),
+
+					% Must not be a blocking error:
+					%wooper:const_return_result( monitor_failed )
+					%throw( trace_supervision_failed )
+					wooper:const_return_result( monitor_ok );
+
 				{ ExitStatus, ErrorOutput } ->
 					trace_utils:error_fmt(
 						"The monitoring of trace supervisor failed "
