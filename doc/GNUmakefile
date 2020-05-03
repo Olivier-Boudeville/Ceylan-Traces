@@ -4,28 +4,22 @@ TRACES_TOP = ..
 DOC_BASE_NAME := Ceylan-Traces-Layer-technical-manual-english
 
 
-OVERALL_DOCUMENT_TARGET = $(DOC_BASE_NAME).rst
+OVERALL_DOCUMENT_SOURCE := $(DOC_BASE_NAME).rst
 
 
-CURRENT_TRACES_HTML = $(DOC_BASE_NAME).html
+CURRENT_TRACES_HTML := $(DOC_BASE_NAME).html
 
 HTML_TARGET = $(CURRENT_TRACES_HTML)
 
 
 CURRENT_TRACES_PDF := $(DOC_BASE_NAME).pdf
 
-PDF_TARGET = $(CURRENT_TRACES_PDF)
+PDF_TARGET := $(CURRENT_TRACES_PDF)
 
 
 DOC_GENERATED_FILES = $(HTML_TARGET) $(PDF_TARGET)
 
-DOC_FILES = $(DOC_GENERATED_FILES)
 
-
-# The current, operational version of Traces:
-CURRENT_VERSION := 1.0
-
-CURRENT_TRACES_DOC := $(CURRENT_TRACES_PDF)-$(CURRENT_VERSION).pdf
 
 PROJECT_CSS := pygments-default.css,traces.css
 
@@ -37,27 +31,25 @@ WEB_CONTENT = *.html *.css *.png *.pdf
 GITHUB_PAGES_BASE := $(shell basename "$(TRACES_WEB_MIRROR_BRANCH)")
 
 
-OVERALL_DOCUMENT_SOURCE = $(DOC_BASE_NAME).rst
 
-
-.PHONY: all doc full-doc html pdf clone-mirror           \
-		export-doc export-to-official export-to-mirror   \
-		info-web clean clean-doc test uml-diagram-test
+.PHONY: doc all full-doc html pdf clone-mirror         \
+		export-doc export-to-official export-to-mirror \
+		clean clean-doc info info-web
 
 
 
 # Default do-nothing target:
+doc:
+
 all:
 	@echo "  Run 'make full-doc' to generate the manual of the 'Traces' layer."
 
 
-doc:
 
-
-full-doc: $(DOC_BASE_NAME).pdf $(HTML_TARGET)
-	@/bin/ln -s $(HTML_TARGET) traces.html
-	@/bin/ln -s traces.html index.html
-	@/bin/ln -s $(CURRENT_TRACES_PDF) traces.pdf
+full-doc: $(DOC_GENERATED_FILES)
+	@/bin/ln -sf $(CURRENT_TRACES_HTML) traces.html
+	@/bin/ln -sf traces.html index.html
+	@/bin/ln -sf $(CURRENT_TRACES_PDF) traces.pdf
 
 
 html: clean-doc $(HTML_TARGET)
@@ -75,6 +67,12 @@ clone-mirror:
 export-doc: clean-doc full-doc export-to-official export-to-mirror
 
 
+# Drawback: scp will not preserve symlinks, it will duplicate files instead.
+#
+# rsync would not, but requires a different source layout (copies a full tree,
+# not a set of files), so currently not used:
+# rsync -avze "ssh $(SP)" $(SOME_WEB_TREE) $(WEB_SRV):$(WEB_ROOT)/Traces/
+#
 export-to-official: $(DOC_GENERATED_FILES)
 	@echo "   Exporting Traces documentation to official website ($(WEB_SRV))"
 	@/bin/scp $(SP) $(WEB_CONTENT) $(WEB_SRV):$(WEB_ROOT)/Traces/
@@ -84,16 +82,22 @@ export-to-mirror: $(DOC_GENERATED_FILES)
 	@echo "   Exporting Traces documentation to mirror website in $(TRACES_WEB_MIRROR_BRANCH)"
 	@/bin/cp -f $(WEB_CONTENT) $(TRACES_WEB_MIRROR_BRANCH) && cd $(TRACES_WEB_MIRROR_BRANCH) && git add . && git merge -s ours && git commit -m "Traces doc updated." && git push && git pull --ff-only
 
+
+
 clean: clean-doc
 
+
 clean-doc:
-	-@/bin/rm -f *.aux *.log *.maf *.mtc* *.stc* *.tex *.toc \
-	$(CURRENT_TRACES_DOC) $(DOC_GENERATED_FILES)
+	@echo "     Cleaning documentation"
+	-@/bin/rm -f *.aux *.log *.maf *.mtc* *.stc* *.tex *.toc $(DOC_GENERATED_FILES)
 
 
-# These three elements are symbolic links:
-real-clean: clean
-	-@/bin/rm -f index.html traces.html traces.pdf
+info: info-doc info-web
+
+
+info-doc:
+	@echo "OVERALL_DOCUMENT_SOURCE = $(OVERALL_DOCUMENT_SOURCE)"
+	@echo "DOC_TRACKER = $(DOC_TRACKER)"
 
 
 info-web:
