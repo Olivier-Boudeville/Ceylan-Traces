@@ -3,15 +3,21 @@ TRACES_TOP = ..
 
 DOC_BASE_NAME := Ceylan-Traces-Layer-technical-manual-english
 
-DOC_PDF_NAME := $(DOC_BASE_NAME).pdf
 
 OVERALL_DOCUMENT_TARGET = $(DOC_BASE_NAME).rst
+
 
 CURRENT_TRACES_HTML = $(DOC_BASE_NAME).html
 
 HTML_TARGET = $(CURRENT_TRACES_HTML)
 
-DOC_GENERATED_FILES = $(DOC_PDF_NAME) $(HTML_TARGET)
+
+CURRENT_TRACES_PDF := $(DOC_BASE_NAME).pdf
+
+PDF_TARGET = $(CURRENT_TRACES_PDF)
+
+
+DOC_GENERATED_FILES = $(HTML_TARGET) $(PDF_TARGET)
 
 DOC_FILES = $(DOC_GENERATED_FILES)
 
@@ -19,7 +25,7 @@ DOC_FILES = $(DOC_GENERATED_FILES)
 # The current, operational version of Traces:
 CURRENT_VERSION := 1.0
 
-CURRENT_TRACES_DOC := $(DOC_PDF_NAME)-$(CURRENT_VERSION).pdf
+CURRENT_TRACES_DOC := $(CURRENT_TRACES_PDF)-$(CURRENT_VERSION).pdf
 
 PROJECT_CSS := pygments-default.css,traces.css
 
@@ -34,7 +40,7 @@ GITHUB_PAGES_BASE := $(shell basename "$(TRACES_WEB_MIRROR_BRANCH)")
 OVERALL_DOCUMENT_SOURCE = $(DOC_BASE_NAME).rst
 
 
-.PHONY: all doc full-doc clone-mirror                    \
+.PHONY: all doc full-doc html pdf clone-mirror           \
 		export-doc export-to-official export-to-mirror   \
 		info-web clean clean-doc test uml-diagram-test
 
@@ -51,10 +57,12 @@ doc:
 full-doc: $(DOC_BASE_NAME).pdf $(HTML_TARGET)
 	@/bin/ln -s $(HTML_TARGET) traces.html
 	@/bin/ln -s traces.html index.html
-	@/bin/ln -s $(DOC_PDF_NAME) traces.pdf
+	@/bin/ln -s $(CURRENT_TRACES_PDF) traces.pdf
 
 
 html: clean-doc $(HTML_TARGET)
+
+pdf: clean-doc $(PDF_TARGET)
 
 
 # Creates a separate repository for the GitHub pages branch:
