@@ -37,7 +37,7 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2020 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Thursday, January 2, 2020
+:Lastly updated: Monday, May 4, 2020
 :Status: Work in progress
 :Version: 0.9.10
 :Dedication: Users and maintainers of the ``Traces`` layer.
