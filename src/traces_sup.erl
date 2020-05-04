@@ -29,24 +29,25 @@
 % Module implementing the root supervisor of Traces.
 %
 % In practice, it will supervise a single process, the one of the (singleton)
-% trace aggregator.
+% trace aggregator, through a dedicated supervision bridge (defined in this
+% module as well).
 %
 -module(traces_sup).
 
 
 % The trace aggregator is not a gen_server but a WOOPER instance, therefore a
-% supervisor bridge (provided by this module) is needed in order to connect this
-% aggregator to an OTP supervision tree.
+% supervisor bridge (also provided by this module, besides the Traces root
+% supervisor) is needed in order to connect this aggregator to an OTP
+% supervision tree.
 %
-% As a result, the process whose code is defined in the current module behaves
-% like a real supervisor to its own supervisor, but has a different interface
-% than a real supervisor to the Traces subsystem.
+% As a result, the process whose code is defined in the current module, being a
+% supervisor bridge, behaves like a real supervisor to its own supervisor, but
+% has a different interface than a real supervisor to the Traces subsystem.
 %
 % Hence used for (optional) OTP compliance (see
 % http://erlang.org/doc/man/supervisor_bridge.html).
 %
 -behaviour(supervisor_bridge).
-
 
 
 % User API:
@@ -65,10 +66,11 @@
 
 
 
-% Starts and links the Traces root supervisor bridge.
+% Starts and links the Traces root supervisor, creating in turn a proper
+% supervision bridge.
 %
 % Note: typically called by traces_app:start/2, hence generally triggered by the
-% release initialisation.
+% application initialisation.
 %
 -spec start_link( boolean() ) -> term().
 start_link( TraceSupervisorWanted ) ->

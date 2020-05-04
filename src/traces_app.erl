@@ -57,12 +57,12 @@ start( Type, StartArgs ) ->
 						   "start arguments: ~w, supervisor wanted: ~s).",
 						   [ Type, StartArgs, TraceSupervisorWanted ] ),
 
-	% Previously, no specific root supervisor bridge was to launch, but:
+	% Previously, no specific root supervisor was to launch, but:
 	%class_TraceAggregator:start().
 
 	case traces_sup:start_link( TraceSupervisorWanted ) of
 
-		R={ ok, _RootSupervisorBridgePid } ->
+		R={ ok, _RootSupervisorPid } ->
 			R;
 
 		Other ->
