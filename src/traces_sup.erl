@@ -29,41 +29,27 @@
 % Module implementing the root supervisor of Traces.
 %
 % In practice, it will supervise a single process, the one of the (singleton)
-% trace aggregator, through a dedicated supervision bridge (defined in this
-% module as well).
+% trace aggregator, through a dedicated supervision bridge, defined in the
+% traces_bridge_sup module.
 %
 -module(traces_sup).
 
 
-% The trace aggregator is not a gen_server but a WOOPER instance, therefore a
-% supervisor bridge (also provided by this module, besides the Traces root
-% supervisor) is needed in order to connect this aggregator to an OTP
-% supervision tree.
-%
-% As a result, the process whose code is defined in the current module, being a
-% supervisor bridge, behaves like a real supervisor to its own supervisor, but
-% has a different interface than a real supervisor to the Traces subsystem.
-%
-% Hence used for (optional) OTP compliance (see
-% http://erlang.org/doc/man/supervisor_bridge.html).
-%
--behaviour(supervisor_bridge).
+% The root supervisor is a supervisor per se:
+-behaviour(supervisor).
 
 
-% User API:
+% User API, typically triggered from traces_app:
 -export([ start_link/1 ]).
 
 
-% Callback of the supervisor_bridge behaviour:
--export([ init/1, terminate/2 ]).
+% Callback of the supervisor behaviour:
+% (see https://erlang.org/doc/design_principles/sup_princ.html)
+%
+-export([ init/1 ]).
 
 
-
--define( supervisor_name, ?MODULE ).
-
-
--define( application_module_name, traces_via_otp ).
-
+-define( root_supervisor_name, ?MODULE ).
 
 
 % Starts and links the Traces root supervisor, creating in turn a proper
@@ -72,57 +58,49 @@
 % Note: typically called by traces_app:start/2, hence generally triggered by the
 % application initialisation.
 %
--spec start_link( boolean() ) -> term().
+-spec start_link( boolean() ) -> supervisor:startlink_ret().
 start_link( TraceSupervisorWanted ) ->
 
-	% Apparently not displaying, yet executed:
+	% Apparently not displayed, yet executed:
 	trace_utils:debug( "Starting the Traces root supervisor." ),
 
-	supervisor_bridge:start_link( { local, ?supervisor_name },
-						  _Module=?MODULE, _Args=[ TraceSupervisorWanted ] ).
+	% Local better, in order to avoid clashes:
+	supervisor:start_link( _Reg={ local, ?root_supervisor_name },
+						   _Mod=?MODULE, _Args=TraceSupervisorWanted ).
 
 
 
-% Callback to initialise this supervisor bridge, typically in answer to
-% start_link/1 above being executed.
+% Callback to initialise this Traces root supervisor bridge, typically in answer
+% to start_link/1 above being executed.
 %
-init( [ TraceSupervisorWanted ] ) ->
+-spec init( boolean() ) -> { 'ok',
+	   { supervisor:sup_flags(), [ supervisor:child_spec() ] } } | 'ignore'.
+init( TraceSupervisorWanted ) ->
 
-	trace_utils:trace_fmt( "Initializing the Traces supervisor bridge "
+	trace_utils:trace_fmt( "Initializing the Traces root supervisor "
 		"(trace supervisor wanted: ~s).", [ TraceSupervisorWanted ] ),
 
-	% OTP blind start will need a renaming once the configuration will be read:
-	InitTraceSupervisor = case TraceSupervisorWanted of
+	% Same as used by kernel module in safe mode:
+	RestartStrategy = #{ strategy => one_for_one,
+						 intensity => _MaxRestarts=4,
+						 period => _WithinSeconds=3600 },
 
-		true ->
-			later;
+	% Once child, a bridge in charge of the trace aggregator:
+	BridgeChildSpec = #{
 
-		false ->
-			false
+	  id => traces_bridge_id,
 
-	end,
+	  start => { _Mod=traces_bridge_sup, _Fun=start_link,
+				 _Args=[ TraceSupervisorWanted ] },
 
-	% Not trapping EXITs explicitly. Not initializing either the trace
-	% supervisor now, as we may have to adopt a non-default trace filename
-	% afterwards (ex: after any parent applications read its own configuration
-	% file to select a specific name/path), and any already running trace
-	% supervisor would not be able to cope with it. Thus:
-	%
-	TraceAggregatorPid = traces_for_apps:app_start(
-		_ModuleName=?application_module_name, InitTraceSupervisor ),
+	  % Always restarted:
+	  restart => temporary,
 
-	{ ok, TraceAggregatorPid, _State=TraceAggregatorPid }.
+	  % 2-second termination allowed before brutal killing:
+	  shutdown => 2000,
 
+	  type => supervisor,
 
+	  modules => [ traces_bridge_sup ] },
 
-% Callback to terminate this supervisor bridge.
-terminate( Reason, _State=TraceAggregatorPid )
-  when is_pid( TraceAggregatorPid ) ->
-
-	trace_utils:trace_fmt(
-	  "Terminating the Traces supervisor bridge (reason: ~w, "
-	  "trace aggregator: ~w).", [ Reason, TraceAggregatorPid ] ),
-
-	% Works whether or not a trace supervisor is used:
-	traces_for_apps:app_stop( _ModuleName=?application_module_name,
-							  TraceAggregatorPid ).
+	{ ok, { RestartStrategy, [ BridgeChildSpec ] } }.
