@@ -44,6 +44,7 @@
 
 
 % Callback of the supervisor behaviour:
+%
 % (see https://erlang.org/doc/design_principles/sup_princ.html)
 %
 -export([ init/1 ]).
@@ -64,7 +65,7 @@ start_link( TraceSupervisorWanted ) ->
 	% Apparently not displayed, yet executed:
 	trace_utils:debug( "Starting the Traces root supervisor." ),
 
-	% Local better, in order to avoid clashes:
+	% Local registration is better to avoid clashes:
 	supervisor:start_link( _Reg={ local, ?root_supervisor_name },
 						   _Mod=?MODULE, _Args=TraceSupervisorWanted ).
 
@@ -80,12 +81,15 @@ init( TraceSupervisorWanted ) ->
 	trace_utils:trace_fmt( "Initializing the Traces root supervisor "
 		"(trace supervisor wanted: ~s).", [ TraceSupervisorWanted ] ),
 
+	% Restart only children that terminate.
+	%
 	% Same as used by kernel module in safe mode:
-	RestartStrategy = #{ strategy => one_for_one,
+	%
+	RestartStrategy = #{ strategy  => one_for_one,
 						 intensity => _MaxRestarts=4,
-						 period => _WithinSeconds=3600 },
+						 period    => _WithinSeconds=3600 },
 
-	% Once child, a bridge in charge of the trace aggregator:
+	% One child, a bridge in charge of the trace aggregator:
 	BridgeChildSpec = #{
 
 	  id => traces_bridge_id,
@@ -94,7 +98,7 @@ init( TraceSupervisorWanted ) ->
 				 _Args=[ TraceSupervisorWanted ] },
 
 	  % Always restarted:
-	  restart => temporary,
+	  restart => permanent,
 
 	  % 2-second termination allowed before brutal killing:
 	  shutdown => 2000,
