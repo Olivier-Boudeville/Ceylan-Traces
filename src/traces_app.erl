@@ -36,6 +36,9 @@
 
 
 % Implementing the (active, OTP) application behaviour:
+%
+% (see https://erlang.org/doc/design_principles/applications.html)
+%
 -behaviour(application).
 
 
@@ -45,6 +48,8 @@
 
 
 % Starts the Traces services.
+-spec start( application:start_type(), StartArgs :: term() ) -> { 'ok', pid() }
+		| { 'ok', pid(), State :: term() } | { 'error', Reason :: term() }.
 start( Type, StartArgs ) ->
 
 	% See any { is_batch, boolean() } entry for the 'traces' application in any
@@ -75,6 +80,7 @@ start( Type, StartArgs ) ->
 
 
 % Stops the Traces services.
+-spec stop( State :: term() ) -> void().
 stop( State ) ->
 
 	trace_utils:debug_fmt( "Stopping Traces application (state: ~w).",
