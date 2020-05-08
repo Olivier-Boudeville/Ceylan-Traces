@@ -37,7 +37,7 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2020 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Thursday, May 7, 2020
+:Lastly updated: Friday, May 8, 2020
 :Status: Work in progress
 :Version: 0.9.10
 :Dedication: Users and maintainers of the ``Traces`` layer.
@@ -148,7 +148,7 @@ or, better, in an OTP-compliant fashion::
 
  -include_lib("traces/include/class_TraceEmitter.hrl").
 
-This process can be a standalone module (ex: a test or an application launcher, see `traceManagement_test.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/traceManagement_test.erl>`_) or, more frequently, it might correspond to a WOOPER (active) instance, in which case it shall inherit, directly or not, from ``class_TraceEmitter`` (see `class_TestTraceEmitter.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/class_TestTraceEmitter.erl>`_ for a complete example of it).
+This process can be a standalone module (ex: a test or an application launcher, see `trace_management_test.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/trace_management_test.erl>`_) or, more frequently, it might correspond to a WOOPER (active) instance, in which case it shall inherit, directly or not, from ``class_TraceEmitter`` (see `class_TestTraceEmitter.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/class_TestTraceEmitter.erl>`_ for a complete example of it).
 
 
 
@@ -325,7 +325,7 @@ Trace Browsing
 
 Traces can be browsed with this tool:
 
-- **live** (i.e. during the execution of the program), either from its start or upon connection to the instrumented program whilst it is already running [#]_ (see ``class_TraceListener.erl``)
+- **live** (i.e. during the execution of the program), either from its start or upon connection to the instrumented program whilst it is already running [#]_ (see ``class_TraceListener.erl`` and ``trace_listening_test.erl``)
 - **post mortem** (i.e. after the program terminated for any reason, based on the trace file that it left)
 
 .. [#] In which case the trace supervisor will first receive, transactionally, a compressed version of all past traces; then all new ones will be sent to this new listener, resulting in no trace being possibly lost.
@@ -385,7 +385,7 @@ The text message included in a trace can contain any number of instances of this
 Example of a raw trace line (end of lines added for readability)::
 
   <0.45.0>|I am a test emitter of traces|TraceEmitter.Test|none|
-  2016/6/13 14:21:16|traceManagement_run-paul@hurricane.foobar.org|
+  2016/6/13 14:21:16|trace_management_run-paul@hurricane.foobar.org|
   MyTest.SomeCategory|6|Hello debug world!
 
 or::
@@ -459,22 +459,25 @@ Running a corresponding test just then boils down to:
 
 .. code:: bash
 
- $ cd test && make traceManagement_run CMD_LINE_OPT="--batch"
+ $ cd test && make trace_management_run CMD_LINE_OPT="--batch"
 
 
 Should LogMX be installed and available in the PATH, the test may simply become:
 
 .. code:: bash
 
- $ make traceManagement_run
+ $ make trace_management_run
 
 
 :raw-html:`<a name="otp"></a>`
 
 .. _`otp-build`:
 
-Using OTP-Related Build/Runtime Conventions
-===========================================
+Using OTP-Related Conventions
+=============================
+
+Build Conventions
+-----------------
 
 As discussed in these sections of `Myriad <http://myriad.esperide.org/myriad.html#otp>`_ and `WOOPER <http://wooper.esperide.org/index.html#otp>`_, we added the (optional) possibility of generating a Traces *OTP application* out of the build tree, ready to be integrated into an *(OTP) release*. For that we rely on `rebar3 <https://www.rebar3.org/>`_, `relx <https://github.com/erlware/relx>`_ and `hex <https://hex.pm/>`_.
 
@@ -487,6 +490,12 @@ For more details, one may have a look at:
 - `rebar.config.template <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar.config.template>`_, the general rebar configuration file used when generating the Traces OTP application and release (implying the automatic management of Myriad and WOOPER)
 - `rebar-for-hex.config.template <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar-for-hex.config.template>`_, to generate a corresponding Hex package for Traces (whose structure and conventions is quite different from the previous OTP elements)
 - `rebar-for-testing.config.template <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar-for-testing.config.template>`_, the simplest test of the previous Hex package: an empty rebar project having for sole dependency that Hex package
+
+
+Runtime Conventions
+-------------------
+
+Whether or not a graphical trace supervisor is launched depends on the batch mode, which can be set through the ``is_batch`` key in the ``traces`` section of the release's ``sys.config`` file.
 
 
 -------
