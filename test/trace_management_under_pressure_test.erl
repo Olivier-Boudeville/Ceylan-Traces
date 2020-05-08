@@ -38,7 +38,7 @@
 % is actually to test traces by themselves (we cannot use the trace system to
 % test the trace system!).
 %
--module(traceManagementUnderPressure_test).
+-module(trace_management_under_pressure_test).
 
 
 

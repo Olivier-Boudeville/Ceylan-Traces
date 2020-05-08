@@ -35,12 +35,12 @@
 
 
 
-% The mode of operation is to execute this test while the traceManagement_test
+% The mode of operation is to execute this test while the trace_mManagement_test
 % is running:
 %
-% - run on a first terminal: 'make traceManagement_run'
+% - run on a first terminal: 'make trace_management_run'
 %
-% - then run on a second terminal: 'make traceListening_run'
+% - then run on a second terminal: 'make trace_listening_run'
 %
 % A new trace supervisor window should appear and allow to catch up all the past
 % traces.
@@ -48,7 +48,7 @@
 % One may check that the aggregator and the listener have exactly the same
 % messages (ex: at least counts must match of both interfaces).
 %
--module(traceListening_test).
+-module(trace_listening_test).
 
 
 % For trace facilities:
@@ -105,7 +105,7 @@ test_actual_body() ->
 	%
 	[ _TestModuleName, NodeSuffix ] = string:tokens( NodeStringName, "@" ),
 
-	TargetNodeName = text_utils:format( "traceManagement_run-~s@~s",
+	TargetNodeName = text_utils:format( "trace_management_run-~s@~s",
 						[ system_utils:get_user_name(), NodeSuffix ] ),
 
 	test_facilities:display( "Connecting to node '~s'.", [ TargetNodeName ] ),
@@ -117,7 +117,7 @@ test_actual_body() ->
 
 		pang ->
 			trace_utils:error( "The trace management test should already be "
-				"running. For example, execute 'make traceManagement_run' "
+				"running. For example, execute 'make trace_management_run' "
 				"in another terminal before running this test." ),
 
 			throw( { no_trace_aggregator_to_listen, TargetNodeName } )
@@ -147,7 +147,7 @@ test_actual_body() ->
 	send_traces( _Count=40 ),
 
 	% No ?test_start: we want to use the aggregator from the node named
-	% 'traceManagement_run'.
+	% 'trace_management_run'.
 
 	test_facilities:display( "Creating now a test trace local listener." ),
 
@@ -163,9 +163,9 @@ test_actual_body() ->
 
 	test_facilities:display( "Deleting this test trace listener." ),
 
-	% In a real test, we do not wait for traceManagement_run to finish until
+	% In a real test, we do not wait for trace_management_run to finish until
 	% launching the listener; however we do not want either that this listener
-	% terminates *before* traceManagement_run terminates, otherwise of course
+	% terminates *before* trace_management_run terminates, otherwise of course
 	% the listener trace file will this time have *more* entries that the
 	% aggregator one:
 	%
@@ -201,7 +201,7 @@ run() ->
 	% Allows to support both OTP conventions and ad hoc, automatic ones:
 	wooper_utils:start_for_test(),
 
-	test_facilities:display( "Testing module ~w. 'make traceManagement_run' "
+	test_facilities:display( "Testing module ~w. 'make trace_management_run' "
 							 "supposed to be already executed.", [ ?MODULE ] ),
 
 
@@ -209,7 +209,7 @@ run() ->
 
 		true ->
 			test_facilities:display(
-				"Running in batch mode, no traceManagement_test "
+				"Running in batch mode, no trace_management_test "
 				"supposed to be running, nothing done." ),
 
 			% Nothing was started here:
@@ -218,7 +218,7 @@ run() ->
 
 		false ->
 			test_facilities:display( "Running in interactive mode, "
-				"'make traceManagement_run' supposed to be already running." ),
+				"'make trace_management_run' supposed to be already running." ),
 
 			test_actual_body()
 
