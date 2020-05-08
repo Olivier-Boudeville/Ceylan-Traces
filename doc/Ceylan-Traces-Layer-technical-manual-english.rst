@@ -37,7 +37,7 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2020 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Monday, May 4, 2020
+:Lastly updated: Thursday, May 7, 2020
 :Status: Work in progress
 :Version: 0.9.10
 :Dedication: Users and maintainers of the ``Traces`` layer.
@@ -307,7 +307,7 @@ Traces may be browsed thanks to either of the following supervision solutions (s
 
 - ``advanced_traces``, for smarter log tools such as LogMX (the default), as discussed below
 
-Indeed the most usual tool that we use for trace browsing is `LogMX <http://www.logmx.com/>`_, which we integrated:
+Indeed the tool that generally we use for trace browsing is `LogMX <http://www.logmx.com/>`_, which we integrated:
 
 .. image:: logmx-interface.png
 		   :scale: 45 %
@@ -363,6 +363,16 @@ Trace Emitters
 When sending a trace, an emitter relies on its ``trace_timestamp`` attribute, and sends a (binarised) string representation thereof (obtained thanks to the ``~p`` quantifier of ``io:format/2`` ). This allows the trace subsystem to support all kinds of application-specific traces (ex: integers, floats, tuples, strings, etc.).
 
 
+
+LogMX-related Hints
+===================
+
+One can find `here <https://github.com/Olivier-Boudeville/Ceylan-Traces/tree/master/conf/logmx>`_ various elements in order to better integrate LogMX (ex: parser, configuration files, etc.).
+
+An important setting is how much memory (RAM) is allowed for that tool (see the ``MAX_MEMORY`` entry in `startup.conf <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/logmx/startup.conf>`_).
+
+
+
 Internal Trace Format
 =====================
 
@@ -384,6 +394,7 @@ or::
   2016/6/10 15:43:31|My_application_case-john@hurricane.foobar.org|
   Execution.Uncategorized|4|Creating a new root instance tracker
   whose troubleshooting mode is enabled.
+
 
 
 
