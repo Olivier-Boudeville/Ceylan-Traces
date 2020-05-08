@@ -34,7 +34,7 @@
 <tr class="field"><th class="field-name">Creation date:</th><td class="field-body"><p class="first">Sunday, August 15, 2010</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Thursday, May 7, 2020</p>
+<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Friday, May 8, 2020</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Status:</th><td class="field-body"><p class="first">Work in progress</p>
@@ -82,7 +82,7 @@ The next level of information is to read the corresponding <a class="reference e
 <li><a class="reference internal" href="#licence" id="id41">Licence</a></li>
 <li><a class="reference internal" href="#current-stable-version-download" id="id42">Current Stable Version &amp; Download</a><ul>
 <li><a class="reference internal" href="#using-cutting-edge-git" id="id43">Using Cutting-Edge GIT</a></li>
-<li><a class="reference internal" href="#using-otp-related-build-runtime-conventions" id="id44">Using OTP-Related Build/Runtime Conventions</a></li>
+<li><a class="reference internal" href="#using-otp-related-conventions" id="id44">Using OTP-Related Conventions</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#support" id="id45">Support</a></li>
@@ -174,7 +174,7 @@ The next level of information is to read the corresponding <a class="reference e
 <pre class="literal-block">
 -include_lib(&quot;traces/include/class_TraceEmitter.hrl&quot;).
 </pre>
-<p>This process can be a standalone module (ex: a test or an application launcher, see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/traceManagement_test.erl">traceManagement_test.erl</a>) or, more frequently, it might correspond to a WOOPER (active) instance, in which case it shall inherit, directly or not, from <tt class="docutils literal">class_TraceEmitter</tt> (see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/class_TestTraceEmitter.erl">class_TestTraceEmitter.erl</a> for a complete example of it).</p>
+<p>This process can be a standalone module (ex: a test or an application launcher, see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/trace_management_test.erl">trace_management_test.erl</a>) or, more frequently, it might correspond to a WOOPER (active) instance, in which case it shall inherit, directly or not, from <tt class="docutils literal">class_TraceEmitter</tt> (see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/class_TestTraceEmitter.erl">class_TestTraceEmitter.erl</a> for a complete example of it).</p>
 <div class="section" id="from-member-methods">
 <h3><a class="toc-backref" href="#id28">From member methods</a></h3>
 <p>Then sending-primitives can be used, such as:</p>
@@ -311,7 +311,7 @@ The next level of information is to read the corresponding <a class="reference e
 <h2><a class="toc-backref" href="#id35">Trace Browsing</a></h2>
 <p>Traces can be browsed with this tool:</p>
 <ul class="simple">
-<li><strong>live</strong> (i.e. during the execution of the program), either from its start or upon connection to the instrumented program whilst it is already running <a class="footnote-reference" href="#id13" id="id12">[5]</a> (see <tt class="docutils literal">class_TraceListener.erl</tt>)</li>
+<li><strong>live</strong> (i.e. during the execution of the program), either from its start or upon connection to the instrumented program whilst it is already running <a class="footnote-reference" href="#id13" id="id12">[5]</a> (see <tt class="docutils literal">class_TraceListener.erl</tt> and <tt class="docutils literal">trace_listening_test.erl</tt>)</li>
 <li><strong>post mortem</strong> (i.e. after the program terminated for any reason, based on the trace file that it left)</li>
 </ul>
 <table class="docutils footnote" frame="void" id="id13" rules="none">
@@ -355,7 +355,7 @@ The next level of information is to read the corresponding <a class="reference e
 <p>Example of a raw trace line (end of lines added for readability):</p>
 <pre class="literal-block">
 &lt;0.45.0&gt;|I am a test emitter of traces|TraceEmitter.Test|none|
-2016/6/13 14:21:16|traceManagement_run-paul&#64;hurricane.foobar.org|
+2016/6/13 14:21:16|trace_management_run-paul&#64;hurricane.foobar.org|
 MyTest.SomeCategory|6|Hello debug world!
 </pre>
 <p>or:</p>
@@ -405,16 +405,18 @@ $ <span class="nb">cd</span> traces <span class="o">&amp;&amp;</span> make all
 </pre>
 <p>Running a corresponding test just then boils down to:</p>
 <pre class="code bash literal-block">
-$ <span class="nb">cd</span> <span class="nb">test</span> <span class="o">&amp;&amp;</span> make traceManagement_run <span class="nv">CMD_LINE_OPT</span><span class="o">=</span><span class="s2">&quot;--batch&quot;</span>
+$ <span class="nb">cd</span> <span class="nb">test</span> <span class="o">&amp;&amp;</span> make trace_management_run <span class="nv">CMD_LINE_OPT</span><span class="o">=</span><span class="s2">&quot;--batch&quot;</span>
 </pre>
 <p>Should LogMX be installed and available in the PATH, the test may simply become:</p>
 <pre class="code bash literal-block">
-$ make traceManagement_run
+$ make trace_management_run
 </pre>
 <p><span class="raw-html"><a name="otp"></a></span></p>
 </div>
-<div class="section" id="using-otp-related-build-runtime-conventions">
-<span id="otp-build"></span><h3><a class="toc-backref" href="#id44">Using OTP-Related Build/Runtime Conventions</a></h3>
+<div class="section" id="using-otp-related-conventions">
+<span id="otp-build"></span><h3><a class="toc-backref" href="#id44">Using OTP-Related Conventions</a></h3>
+<div class="section" id="build-conventions">
+<h4>Build Conventions</h4>
 <p>As discussed in these sections of <a class="reference external" href="http://myriad.esperide.org/myriad.html#otp">Myriad</a> and <a class="reference external" href="http://wooper.esperide.org/index.html#otp">WOOPER</a>, we added the (optional) possibility of generating a Traces <em>OTP application</em> out of the build tree, ready to be integrated into an <em>(OTP) release</em>. For that we rely on <a class="reference external" href="https://www.rebar3.org/">rebar3</a>, <a class="reference external" href="https://github.com/erlware/relx">relx</a> and <a class="reference external" href="https://hex.pm/">hex</a>.</p>
 <p>Unlike Myriad (which is an OTP <em>library</em> application), Traces is (like WOOPER) an OTP <em>active</em> application, meaning the reliance on an application that can be started/stopped (<tt class="docutils literal">traces_app</tt>) and a root supervisor (<tt class="docutils literal">traces_sup</tt>); unlike WOOPER this time - whose main server (the class manager) is a <tt class="docutils literal">gen_server</tt> - Traces relies on a trace aggregator that is a background server process yet that does not implement the <tt class="docutils literal">gen_server</tt> behaviour but the <a class="reference external" href="http://erlang.org/doc/man/supervisor_bridge.html">supervisor_bridge</a> one: the trace aggregator is indeed <a class="reference external" href="http://wooper.esperide.org/index.html#otp_for_instances">a WOOPER instance</a>.</p>
 <p>As for Myriad and WOOPER, most versions of Traces are also published as <a class="reference external" href="https://hex.pm/packages/traces">Hex packages</a>.</p>
@@ -424,6 +426,11 @@ $ make traceManagement_run
 <li><a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar-for-hex.config.template">rebar-for-hex.config.template</a>, to generate a corresponding Hex package for Traces (whose structure and conventions is quite different from the previous OTP elements)</li>
 <li><a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar-for-testing.config.template">rebar-for-testing.config.template</a>, the simplest test of the previous Hex package: an empty rebar project having for sole dependency that Hex package</li>
 </ul>
+</div>
+<div class="section" id="runtime-conventions">
+<h4>Runtime Conventions</h4>
+<p>Whether or not a graphical trace supervisor is launched depends on the batch mode, which can be set through the <tt class="docutils literal">is_batch</tt> key in the <tt class="docutils literal">traces</tt> section of the release's <tt class="docutils literal">sys.config</tt> file.</p>
+</div>
 </div>
 </div>
 <div class="section" id="support">
