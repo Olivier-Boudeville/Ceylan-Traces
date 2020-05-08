@@ -26,7 +26,10 @@
 % Creation date: Tuesday, August 6, 2019.
 
 
-% Testing of Traces as an OTP active application.
+% Testing of Traces as an OTP active application, directly from within its code
+% base (hence without needing to create a separate, mock-up test release for
+% that).
+%
 -module(traces_otp_application_test).
 
 
@@ -39,21 +42,11 @@
 
 
 % Actual test:
-test_traces_application( TracesEBinPath, WOOPEREBinPath, MyriadEBinPath ) ->
+test_traces_application( OrderedAppNames ) ->
 
-	code_utils:declare_beam_directories( [ TracesEBinPath, WOOPEREBinPath,
-										   MyriadEBinPath ] ),
+	test_facilities:display( "Starting the Traces OTP active application." ),
+	otp_utils:start_applications( OrderedAppNames ),
 
-	test_facilities:display( "Starting the Traces application." ),
-
-	% Was expecting that starting the dependencies would be automatic,
-	% apparently it is not the case (as without an explicit starting, we have:
-	% '{error,{not_started,wooper}}'); moreover it visibly should be done before
-	% entering traces_app:start/2, so:
-	%
-	ok = application:start( myriad ),
-	ok = application:start( wooper ),
-	ok = application:start( traces ),
 
 	test_facilities:display( "Traces version: ~p.",
 				 [ system_utils:get_application_version( traces ) ] ),
@@ -64,83 +57,39 @@ test_traces_application( TracesEBinPath, WOOPEREBinPath, MyriadEBinPath ) ->
 
 	%traces:manage_supervision(),
 
-	test_facilities:display( "Stopping the Traces application." ),
 
-	ok = application:stop( traces ),
-	ok = application:stop( wooper ),
-	ok = application:stop( myriad ),
+	test_facilities:display( "Stopping the Traces application." ),
+	otp_utils:stop_applications( OrderedAppNames ),
 
 	test_facilities:display(
-	  "Successful end of test of the Traces application." ).
+	  "Successful end of test of the Traces OTP application." ).
 
 
 
-% Note that the ebin application directory must be in the code path for the
-% traces.app file to be found and used, and for this test to succeed.
+% Note that the traces.app, wooper.app and myriad.app files will have to be
+% found and used for this test to succeed: Traces, WOOPER and Myriad must be
+% already available as prerequisite, fully-built OTP applications.
 %
 -spec run() -> no_return().
 run() ->
 
 	test_facilities:start( ?MODULE ),
 
-	% Supposing here that all Ceylan applications are built, in the usual _build
-	% directory of Traces (not in their respective usual directories such as
-	% ../../Ceylan-{Myriad,WOOPER}), with the default rebar3 profile (hence
-	% typically after a 'make rebar3-application'):
-	%
-	BaseEBinPath = [ "..", "_build", "default", "lib" ],
+	% Build root directory from which prerequisite applications may be found:
+	BuildRootDir = "..",
 
-	TracesEBinPath = file_utils:join( BaseEBinPath ++ [ "traces", "ebin" ] ),
+	OrderedAppNames = [ myriad, wooper, traces ],
 
-	case file_utils:is_existing_directory_or_link( TracesEBinPath ) of
+	case otp_utils:prepare_for_test( OrderedAppNames, BuildRootDir ) of
 
-		true ->
+		ready ->
+			test_traces_application( OrderedAppNames ) ;
 
-			MyriadEBinPath =
-				file_utils:join( BaseEBinPath ++ [ "myriad", "ebin" ] ),
-
-			case file_utils:is_existing_directory_or_link( MyriadEBinPath ) of
-
-				true ->
-
-					WOOPEREBinPath = file_utils:join( BaseEBinPath
-													  ++ [ "wooper", "ebin" ] ),
-
-					case file_utils:is_existing_directory_or_link(
-						   WOOPEREBinPath ) of
-
-						true ->
-							test_traces_application( TracesEBinPath,
-											WOOPEREBinPath, MyriadEBinPath ) ;
-
-						false ->
-							trace_utils:warning_fmt(
-							  "No build directory found for the WOOPER parent "
-							  "application (searched for '~s'), "
-							  "stopping this test (run beforehand "
-							  "'make rebar3-application' at the root of this "
-							  "source tree for a more relevant testing).",
-							  [ WOOPEREBinPath ] )
-
-					end;
-
-				false ->
-					trace_utils:warning_fmt(
-					  "No build directory found for the Myriad parent "
-					  "application (searched for '~s'), stopping this test "
-					  "(run beforehand 'make rebar3-application' at the root "
-					  "of this source tree for a more relevant testing).",
-					  [ MyriadEBinPath ] )
-
-			end;
-
-
-		false ->
-			trace_utils:warning_fmt( "No build directory found for the Traces "
-				"application (searched for '~s'), stopping this test "
-				"(run beforehand 'make rebar3-compile' at the root of the "
-				"source tree for a more relevant testing).",
-				[ TracesEBinPath ] )
+		{ lacking_app, _App } ->
+			% (a detailed warning message has been issued by
+			% otp_utils:prepare_for_test/2)
+			%
+			ok
 
 	end,
 
