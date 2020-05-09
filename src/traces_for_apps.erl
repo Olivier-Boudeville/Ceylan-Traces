@@ -73,7 +73,7 @@
 % sitting in the mailbox of the app process).
 %
 -spec app_start( basic_utils:module_name(),
-	class_TraceAggregator:initialize_supervision() ) -> aggregator_pid().
+		  class_TraceAggregator:initialize_supervision() ) -> aggregator_pid().
 % All values possible for InitTraceSupervisor here:
 app_start( ModuleName, InitTraceSupervisor ) ->
 
@@ -81,29 +81,33 @@ app_start( ModuleName, InitTraceSupervisor ) ->
 	erlang:process_flag( trap_exit, false ),
 
 	% Create first, synchronously (to avoid race conditions), a trace aggregator
-	% (TraceIsPrivate=false is to specify a non-private, i.e. global,
-	% aggregator).
 	%
 	% Race conditions could occur at least with trace emitters (they would
 	% create their own aggregator, should none by found) and with trace
 	% supervisor (which expects a trace file to be already created at start-up).
-	%
+
 	% Goes back to the beginning of line:
-	%
 	io:format( "~n" ),
 
 	AppIsBatch = executable_utils:is_batch(),
 
 	TraceFilename = traces:get_trace_filename( ModuleName ),
 
-	% If InitTraceSupervisor is 'true' or 'later', will be still silenced if
-	% AppIsBatch is true:
-	%
 	TraceAggregatorPid = class_TraceAggregator:synchronous_new_link(
-		TraceFilename, ?TraceType, ?TraceTitle, _TraceIsPrivate=false,
-		AppIsBatch, InitTraceSupervisor ),
+		TraceFilename, ?TraceType, ?TraceTitle,
+		_MaybeRegistrationScope=global_only, AppIsBatch,
+		InitTraceSupervisor ),
 
-	?app_info_fmt( "Starting application ~s.", [ ModuleName ] ),
+	case ModuleName of
+
+		traces_via_otp ->
+			?app_info( "Starting the Ceylan-Traces application from an "
+					   "OTP context." );
+
+		_ ->
+			?app_info_fmt( "Starting application ~s.", [ ModuleName ] )
+
+	end,
 
 	TraceAggregatorPid.
 

@@ -73,7 +73,7 @@
 % sitting in the mailbox of the app process).
 %
 -spec test_start( basic_utils:module_name(),
-	class_TraceAggregator:initialize_supervision() ) -> aggregator_pid().
+		  class_TraceAggregator:initialize_supervision() ) -> aggregator_pid().
 % All values possible for InitTraceSupervisor here:
 test_start( ModuleName, InitTraceSupervisor ) ->
 
@@ -81,15 +81,12 @@ test_start( ModuleName, InitTraceSupervisor ) ->
 	erlang:process_flag( trap_exit, false ),
 
 	% Create first, synchronously (to avoid race conditions), a trace aggregator
-	% (TraceIsPrivate=false is to specify a non-private, i.e. global,
-	% aggregator).
 	%
 	% Race conditions could occur at least with trace emitters (they would
 	% create their own aggregator, should none by found) and with trace
 	% supervisor (which expects a trace file to be already created at start-up).
-	%
+
 	% Goes back to the beginning of line:
-	%
 	io:format( "~n" ),
 
 	TestIsBatch = executable_utils:is_batch(),
@@ -97,24 +94,18 @@ test_start( ModuleName, InitTraceSupervisor ) ->
 	TraceFilename = traces:get_trace_filename( ModuleName ),
 
 	TraceAggregatorPid = class_TraceAggregator:synchronous_new_link(
-		TraceFilename, ?TraceType, ?TraceTitle, _TraceIsPrivate=false,
-		TestIsBatch, _NoInitTraceSupervisor=false ),
+		TraceFilename, ?TraceType, ?TraceTitle,
+		_MaybeRegistrationScope=global_only, TestIsBatch,
+		InitTraceSupervisor ),
 
-	?test_info_fmt( "Starting test ~s.", [ ModuleName ] ),
+	case ModuleName of
 
-	case ( not TestIsBatch ) andalso InitTraceSupervisor of
+		traces_via_otp ->
+			?test_info( "Starting the Ceylan-Traces test from an "
+					   "OTP context." );
 
-		true ->
-			TraceAggregatorPid ! { launchTraceSupervisor, [], self() },
-			receive
-
-				{ wooper_result, _SupervisorPid } ->
-					ok
-
-			end;
-
-		false ->
-			ok
+		_ ->
+			?test_info_fmt( "Starting test ~s.", [ ModuleName ] )
 
 	end,
 

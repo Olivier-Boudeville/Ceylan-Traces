@@ -68,6 +68,10 @@
 	{ trace_listeners, [ listener_pid() ],
 	  "the known trace listeners, similar to remote supervisors" },
 
+	{ registration_scope, maybe( registration_scope() ),
+	  "tells whether this aggregator shall be registered in the "
+	  "naming service and, if yes, for which scope(s)" },
+
 	{ is_batch, boolean(),
 	  "tells whether the aggregator runs on batch (non-interactive) mode" },
 
@@ -129,6 +133,8 @@
 
 % Shorthands:
 
+-type registration_scope() :: naming_utils:registration_scope().
+
 -type trace_type() :: traces:trace_supervision_type().
 -type listener_pid() :: class_TraceListener:listener_pid().
 -type message() :: traces:message().
@@ -162,20 +168,21 @@
 % - TraceTitle is the title that should be used for traces; mostly used for the
 % PDF output
 %
-% - IsPrivate tells whether this trace aggregator will be privately held (hence
-% should not be registered in naming service) or if it is a (registered)
-% singleton
+% - MaybeRegistrationScope tells whether this trace aggregator will be privately
+% held (hence should not be registered in naming service) - if set to
+% 'undefined', or if it is a registered (locally and/or globally) singleton
 %
 % - IsBatch tells whether the aggregator is run in a batch context; useful when
 % trace type is {text_traces, pdf}, so that this aggregator does not display the
 % produced PDF when in batch mode
 %
 -spec construct( wooper:state(), file_utils:file_name(),
-				 traces:trace_supervision_type(), text_utils:title(), boolean(),
-				 boolean() ) -> wooper:state().
-construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
-	construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
-			   _InitTraceSupervisor=false ).
+				 traces:trace_supervision_type(), text_utils:title(),
+				 maybe( registration_scope() ), boolean() ) -> wooper:state().
+construct( State, TraceFilename, TraceType, TraceTitle, MaybeRegistrationScope,
+		   IsBatch ) ->
+	construct( State, TraceFilename, TraceType, TraceTitle,
+			   MaybeRegistrationScope, IsBatch, _InitTraceSupervisor=false ).
 
 
 % Constructs a new trace aggregator:
@@ -190,9 +197,9 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 % - TraceTitle is the title that should be used for traces; mostly used for the
 % PDF output
 %
-% - IsPrivate tells whether this trace aggregator will be privately held (hence
-% should not be registered in naming service) or if it is a (registered)
-% singleton
+% - MaybeRegistrationScope tells whether this trace aggregator will be privately
+% held (hence should not be registered in naming service) - if set to
+% 'undefined', or if it is a registered (locally and/or globally) singleton
 %
 % - IsBatch tells whether the aggregator is run in a batch context; useful when
 % trace type is {text_traces,pdf}, so that this aggregator does not display the
@@ -204,8 +211,8 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 -spec construct( wooper:state(), file_utils:file_name(),
 				 traces:trace_supervision_type(), text_utils:title(), boolean(),
 				 initialize_supervision() ) -> wooper:state().
-construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
-		   InitTraceSupervisor ) ->
+construct( State, TraceFilename, TraceType, TraceTitle, MaybeRegistrationScope,
+		   IsBatch, InitTraceSupervisor ) ->
 
 	%trace_utils:debug_fmt( "Starting trace aggregator, with initial trace "
 	%	"filename '~s' (init supervisor: ~w).",
@@ -254,6 +261,10 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 		{ trace_type, TraceType },
 		{ trace_title, TraceTitle },
 		{ trace_listeners, [] },
+
+		% Checked just below:
+		{ registration_scope, MaybeRegistrationScope },
+
 		{ is_batch, IsBatch },
 		{ init_supervision, ShouldInitTraceSupervisor },
 		{ supervisor_pid, undefined } ] ),
@@ -265,23 +276,22 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 	%
 	%trace_utils:info_fmt( "~n~s ~s", [ ?LogPrefix, Message ] ),
 
+	case MaybeRegistrationScope of
 
-	PrivateState = case IsPrivate of
-
-		true ->
+		undefined ->
 			trace_utils:info_fmt( "~s Creating a private trace aggregator, "
-								  "whose PID is ~w.", [ ?LogPrefix, self() ] ),
-			setAttribute( SetState, is_private, true );
+								  "whose PID is ~w.", [ ?LogPrefix, self() ] );
 
-		false ->
-			%trace_utils:info_fmt( "~n~s Creating the trace aggregator, "
-			%					  "whose PID is ~w.", [ ?LogPrefix, self() ] ),
+		RegScope ->
 
-			% Maybe local_only would be more convenient:
-			naming_utils:register_as( ?trace_aggregator_name,
-									  local_and_global ),
+			RegName = ?trace_aggregator_name,
 
-			setAttribute( SetState, is_private, false )
+			% Implicit check of scope:
+			naming_utils:register_as( RegName, RegScope ),
+
+			trace_utils:info_fmt( "~n~s Creating a trace aggregator, "
+				"whose PID is ~w, with name '~s' and registration scope ~s.",
+				[ ?LogPrefix, self(), RegName, RegScope ] )
 
 	end,
 
@@ -292,7 +302,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 								overload_monitor_main_loop( AggregatorPid )
 											 end ),
 
-	OverloadState = setAttribute( PrivateState, overload_monitor_pid,
+	OverloadState = setAttribute( SetState, overload_monitor_pid,
 								  OverloadMonitorPid ),
 
 	HeaderState = manage_trace_header( OverloadState ),
@@ -338,13 +348,13 @@ destruct( State ) ->
 	?getAttr(overload_monitor_pid) ! delete,
 
 	% Class-specific actions:
-	case ?getAttr(is_private) of
+	case ?getAttr(registration_scope) of
 
-		true ->
+		undefined ->
 			ok;
 
-		false ->
-			naming_utils:unregister( ?trace_aggregator_name, local_and_global )
+		RegScope ->
+			naming_utils:unregister( ?trace_aggregator_name, RegScope )
 
 	end,
 
@@ -661,10 +671,9 @@ addTraceListener( State, ListenerPid ) ->
 			% Not a trace emitter but still able to send traces (to itself);
 			% will be read from mailbox as first live-forwarded message:
 			%
-			send_internal_deferred( info,
-									"Trace aggregator adding trace listener "
-									"~w, and sending it previous traces.~n",
-									[ ListenerPid ] ),
+			send_internal_deferred( info, "Trace aggregator adding trace "
+				"listener ~w, and sending it previous traces.~n",
+				[ ListenerPid ] ),
 
 			% Transfers file:
 			BinTraceFilename = ?getAttr(trace_filename),
@@ -804,7 +813,9 @@ sync( State ) ->
 % Static section.
 
 
-% Creates the trace aggregator asynchronously, with default settings.
+% Creates the trace aggregator asynchronously, with default settings (advanced
+% traces, global registration and not in batch mode).
+%
 -spec create( boolean() ) -> static_return( aggregator_pid() ).
 create( UseSynchronousNew ) ->
 
@@ -815,22 +826,28 @@ create( UseSynchronousNew ) ->
 
 
 
-% Creates the trace aggregator asynchronously, using specified trace type.
+% Creates the trace aggregator asynchronously, using specified trace type, and
+% registered globally.
+%
 -spec create( boolean(), traces:trace_supervision_type() ) ->
 											  static_return( aggregator_pid() ).
 create( _UseSynchronousNew=false, TraceType ) ->
 
+	% For registration scope, see also get_aggregator/1:
 	AggregatorPid = new_link( ?trace_aggregator_filename, TraceType,
-							  ?TraceTitle, _IsPrivate=false, _IsBatch=false ),
+		?TraceTitle, _MaybeRegistrationScope=global_only, _IsBatch=false ),
 
 	wooper:return_static( AggregatorPid );
 
 
-% Creates the trace aggregator synchronously, using specified trace type.
+% Creates the trace aggregator synchronously, using specified trace type, and
+% registered globally.
+%
 create( _UseSynchronousNew=true, TraceType ) ->
 
+	% For registration scope, see also get_aggregator/1:
 	AggregatorPid = synchronous_new_link( ?trace_aggregator_filename, TraceType,
-						  ?TraceTitle, _IsPrivate=false, _IsBatch=false ),
+		?TraceTitle, _MaybeRegistrationScope=global_only, _IsBatch=false ),
 
 	wooper:return_static( AggregatorPid ).
 
@@ -852,10 +869,10 @@ create( _UseSynchronousNew=true, TraceType ) ->
 % Waits a bit before giving up: useful when client and aggregator processes are
 % launched almost simultaneously.
 %
--spec get_aggregator( boolean() ) ->
-			static_return( 'trace_aggregator_launch_failed'
-						   | 'trace_aggregator_not_found'
-						   | aggregator_pid() ).
+-spec get_aggregator( boolean() ) -> static_return(
+										 'trace_aggregator_launch_failed'
+									   | 'trace_aggregator_not_found'
+									   | aggregator_pid() ).
 get_aggregator( CreateIfNotAvailable ) ->
 
 	% Only dealing with registered managers (instead of using directly their
@@ -907,14 +924,17 @@ get_aggregator( CreateIfNotAvailable ) ->
 	wooper:return_static( AggRes ).
 
 
-% Deletes synchronously the trace aggregator.
--spec remove() ->
-		 static_return( 'deleted' | 'trace_aggregator_not_found' ).
+
+% Deletes synchronously the trace aggregator, expected to be registered
+% globally.
+%
+-spec remove() -> static_return( 'deleted' | 'trace_aggregator_not_found' ).
 remove() ->
 
-	case global:whereis_name( ?trace_aggregator_name ) of
+	case naming_utils:is_registered( ?trace_aggregator_name,
+									 _LookUpScope=global ) of
 
-		undefined ->
+		not_registered ->
 			wooper:return_static( trace_aggregator_not_found );
 
 		TraceAggregatorPid ->
@@ -1028,7 +1048,7 @@ initialize_supervision( State ) ->
 						   [ TraceFilename ] ), State ),
 
 	MaybeSupervPid = class_TraceSupervisor:create( _MaybeWaitingPid=self(),
-						TraceFilename, ?getAttr(trace_type), self() ),
+		TraceFilename, ?getAttr(trace_type), _TraceAggregatorPid=self() ),
 
 	%trace_utils:debug_fmt( "Created supervisor: ~w.", [ MaybeSupervPid ] ),
 
@@ -1117,7 +1137,6 @@ send_internal_deferred( MessageType, Message ) ->
 
 
 
-
 % Sends format-based traces from the aggregator itself (hence to itself).
 %
 % (helper)
@@ -1127,8 +1146,6 @@ send_internal_deferred( MessageType, Message ) ->
 send_internal_deferred( MessageType, MessageFormat, MessageValues ) ->
 	Message = text_utils:format( MessageFormat, MessageValues ),
 	send_internal_deferred( MessageType, Message ).
-
-
 
 
 
@@ -1178,7 +1195,7 @@ manage_trace_header( State ) ->
 															  ?PriorityWidth ),
 
 			MessageLines = text_utils:format_text_for_width(
-				"Trace Message", ?MessageWidth ),
+							 "Trace Message", ?MessageWidth ),
 
 			HeaderLine = format_linesets( PidLines, EmitterNameLines,
 				AppTimestampLines, TimeLines, PriorityLines, MessageLines ) ,
