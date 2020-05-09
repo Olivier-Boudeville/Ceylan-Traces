@@ -255,6 +255,10 @@ construct( State, TraceFilename, TraceType, TraceTitle, MaybeRegistrationScope,
 
 	end,
 
+	%trace_utils:debug_fmt( "InitTraceSupervisor=~s, IsBatch=~s, "
+	%	"ShouldInitTraceSupervisor=~s.",
+	%	[ InitTraceSupervisor, IsBatch, ShouldInitTraceSupervisor ] ),
+
 	SetState = setAttributes( State, [
 		{ trace_filename, AbsBinTraceFilename },
 		{ trace_file, File },
@@ -274,7 +278,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, MaybeRegistrationScope,
 	% file information on the console is when the filename is final, typically
 	% when the trace supervisor is started):
 	%
-	%trace_utils:info_fmt( "~n~s ~s", [ ?LogPrefix, Message ] ),
+	%trace_utils:info_fmt( "~s ~s", [ ?LogPrefix, Message ] ),
 
 	case MaybeRegistrationScope of
 
@@ -289,7 +293,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, MaybeRegistrationScope,
 			% Implicit check of scope:
 			naming_utils:register_as( RegName, RegScope ),
 
-			trace_utils:info_fmt( "~n~s Creating a trace aggregator, "
+			trace_utils:info_fmt( "~s Creating a trace aggregator, "
 				"whose PID is ~w, with name '~s' and registration scope ~s.",
 				[ ?LogPrefix, self(), RegName, RegScope ] )
 
@@ -566,8 +570,8 @@ renameTraceFile( State, NewTraceFilename ) when is_binary( NewTraceFilename ) ->
 
 renameTraceFile( State, NewTraceFilename ) ->
 
-	AbsNewTraceFilename = file_utils:ensure_path_is_absolute(
-							NewTraceFilename ),
+	AbsNewTraceFilename =
+		file_utils:ensure_path_is_absolute( NewTraceFilename ),
 
 	BinTraceFilename = ?getAttr(trace_filename),
 
@@ -575,7 +579,7 @@ renameTraceFile( State, NewTraceFilename ) ->
 
 	SentState = send_internal_immediate( info,
 		"Trace aggregator renaming atomically trace file from '~s' to '~s' "
-		"(init supervision: ~w).~n",
+		"(init supervision: ~s).",
 		[ BinTraceFilename, AbsNewTraceFilename, InitSupervision ], State ),
 
 	% Switching:
@@ -594,6 +598,8 @@ renameTraceFile( State, NewTraceFilename ) ->
 			initialize_supervision( RenState );
 
 		IS when is_boolean( IS ) ->
+			trace_utils:debug_fmt( "No initializing trace supervision (~s).",
+								   [ IS ] ),
 			RenState
 
 	end,

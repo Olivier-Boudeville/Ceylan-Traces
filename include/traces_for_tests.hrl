@@ -40,7 +40,7 @@
 -include("traces_test_header.hrl").
 
 
-% For export of run/0:
+% For the export of run/0:
 -include("test_facilities.hrl").
 
 
@@ -75,14 +75,15 @@
 -define( test_start,
 
 		 % true is for InitTraceSupervisor (not even binding a mute variable for
-		 % that)
+		 % that); test_stop/2 to be consistent with it.
 		 %
 		 TraceAggregatorPid = traces_for_tests:test_start( ?MODULE, true )
 ).
 
 
 -define( test_stop,
-		 traces_for_tests:test_stop( ?MODULE, TraceAggregatorPid )
+		 % true is for WaitForTraceSupervisor, in accordance with test_start/2.
+		 traces_for_tests:test_stop( ?MODULE, TraceAggregatorPid, true )
 ).
 
 
@@ -98,14 +99,16 @@
 -define( test_start,
 
 		 % false is for InitTraceSupervisor (not even binding a mute variable
-		 % for that)
+		 % for that); test_stop/2 to be consistent with it.
 		 %
-		 TraceAggregatorPid = traces_for_tests:test_start( ?MODULE, false ) ).
+		 TraceAggregatorPid = traces_for_tests:test_start( ?MODULE, false )
+).
 
 
 -define( test_stop,
-		 % No supervisor to wait for, here:
-		 traces_for_tests:test_immediate_stop( ?MODULE, TraceAggregatorPid ) ).
+		 % false is for WaitForTraceSupervisor, in accordance with test_start/2.
+		 traces_for_tests:test_stop( ?MODULE, TraceAggregatorPid, false )
+).
 
 
 -endif. % tracing_activated
@@ -115,13 +118,13 @@
 % Valid whether or not tracing is activated:
 
 -define( test_stop_without_waiting_for_trace_supervisor,
-		 traces_for_tests:test_immediate_stop( ?MODULE, TraceAggregatorPid ) ).
+		 traces_for_tests:test_immediate_stop( ?MODULE, TraceAggregatorPid )
+).
 
 
 -define( test_stop_on_shell,
-		 traces_for_tests:test_stop_on_shell( ?MODULE, TraceAggregatorPid ) ).
-
-
+		 traces_for_tests:test_stop_on_shell( ?MODULE, TraceAggregatorPid )
+).
 
 
 
@@ -133,20 +136,6 @@
 
 % Defines everything regarding application traces:
 -include("traces_test_footer.hrl").
-
-
-
-% Helper macro for those who would not know they could have called the
-% corresponding function directly:
-%
--define( test_receive, test_receive() ).
-
-
-
-% Helper macro for those who would not know they could have called the
-% corresponding function directly:
-%
--define( test_receive( AnyMessage ), test_receive( AnyMessage ) ).
 
 
 
@@ -199,7 +188,7 @@ test_failed( Reason ) ->
 	% For some reason erlang:error is unable to interpret strings as strings,
 	% they are always output as unreadable lists.
 
-	Message = text_utils:format( "Test ~s failed, reason: ~s.~n",
+	Message = text_utils:format( "Test ~s failed, reason: ~s.",
 								 [ ?MODULE, Reason ] ),
 
 	trace_utils:error( Message ),

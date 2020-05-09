@@ -78,7 +78,7 @@
 -spec start_link( boolean() ) -> term().
 start_link( TraceSupervisorWanted ) ->
 
-	% Apparently not displaying, yet executed:
+	% Apparently not displayed in a release context, yet executed:
 	trace_utils:debug( "Starting the Traces supervisor bridge." ),
 
 	supervisor_bridge:start_link( { local, ?bridge_name },

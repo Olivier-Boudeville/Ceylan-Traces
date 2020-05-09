@@ -23,7 +23,7 @@
 % <http://www.mozilla.org/MPL/>.
 %
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
-% Creation date: Tuesday, January 11, 2011
+% Creation date: Tuesday, January 11, 2011.
 
 
 % Defines some macros and functions useful for trace-using applications.
@@ -40,7 +40,7 @@
 -include("traces_app_header.hrl").
 
 
-% For exec/0 export:
+% For the export of exec/0:
 -include("app_facilities.hrl").
 
 
@@ -50,7 +50,6 @@
 
 % For notify_* and al:
 -include("traces.hrl").
-
 
 
 
@@ -76,19 +75,16 @@
 -define( app_start,
 
 		 % true is for InitTraceSupervisor (not even binding a mute variable for
-		 % that)
+		 % that); app_stop/2 to be consistent with it.
+		 %
 		 TraceAggregatorPid = traces_for_apps:app_start( ?MODULE, true )
 ).
 
 
 -define( app_stop,
-		 traces_for_apps:app_stop( ?MODULE, TraceAggregatorPid )
+		 % true is for WaitForTraceSupervisor, in accordance with app_start/2.
+		 traces_for_apps:app_stop( ?MODULE, TraceAggregatorPid, true )
 ).
-
-
--define( app_stop_without_waiting_for_trace_supervisor,
-		 traces_for_apps:app_immediate_stop( ?MODULE, TraceAggregatorPid ) ).
-
 
 
 -else. % tracing_activated
@@ -103,23 +99,33 @@
 -define( app_start,
 
 		 % false is for InitTraceSupervisor (not even binding a mute variable
-		 % for that)
+		 % for that); app_stop/2 to be consistent with it.
+		 %
 		 TraceAggregatorPid = traces_for_apps:app_start( ?MODULE, false ) ).
 
 
 
 -define( app_stop,
-		 % No supervisor to wait for, here:
-		 traces_for_apps:app_immediate_stop( ?MODULE, TraceAggregatorPid ) ).
-
-
--define( app_stop_without_waiting_for_trace_supervisor,
-		 traces_for_apps:app_immediate_stop( ?MODULE, TraceAggregatorPid ) ).
+		 % false is for WaitForTraceSupervisor, in accordance with app_start/2.
+		 traces_for_apps:app_immediate_stop( ?MODULE, TraceAggregatorPid,
+											 false )
+).
 
 
 -endif. % tracing_activated
 
 
+
+% Valid whether or not tracing is activated:
+
+-define( app_stop_without_waiting_for_trace_supervisor,
+		 traces_for_apps:app_immediate_stop( ?MODULE, TraceAggregatorPid )
+).
+
+
+-define( app_stop_on_shell,
+		 traces_for_apps:app_stop_on_shell( ?MODULE, TraceAggregatorPid )
+).
 
 
 
@@ -131,12 +137,6 @@
 
 % Defines everything regarding application traces:
 -include("traces_app_footer.hrl").
-
-
-
-% Helper macro for those who would not know they could have called the
-% corresponding function directly:
--define( app_receive, app_receive() ).
 
 
 
@@ -173,6 +173,7 @@ app_receive( Message ) ->
 
 
 
+
 % Helper macro for those who would not know they could have called the
 % corresponding function directly:
 %
@@ -180,8 +181,7 @@ app_receive( Message ) ->
 
 
 
-% Handles an application failure.
-%
+% Handles an application failure, using specified string as advertised reason.
 -spec app_failed( text_utils:ustring() ) -> no_return().
 app_failed( Reason ) ->
 

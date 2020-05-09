@@ -43,6 +43,9 @@
 % Note: the aggregator is supposed to have been launched with the 'later'
 % initial supervision setting.
 %
+% Typically useful from an OTP context, where the Traces application is started
+% without being able to defined programatically the resulting trace file.
+%
 -spec name_trace_file_from( basic_utils:module_name() ) -> void().
 name_trace_file_from( ModName ) ->
 
@@ -54,7 +57,7 @@ name_trace_file_from( ModName ) ->
 	BinNewTraceFilename = text_utils:string_to_binary( NewTraceFilename ),
 
 	AggPid = naming_utils:get_registered_pid_for(
-			   _Name=?trace_aggregator_name, _Scope=local ),
+			   _Name=?trace_aggregator_name, _Scope=global ),
 
 	% Oneway:
 	AggPid ! { renameTraceFile, BinNewTraceFilename }.
