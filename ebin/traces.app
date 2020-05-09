@@ -25,7 +25,7 @@
   %{env,[]},
 
   % Flat hierarchy in ebin here:
-  {modules, [traces_app, class_TraceEmitter, traces_sup, class_TraceSupervisor, class_TraceAggregator, traces_for_tests, class_TraceListener, traces_for_apps, traces_bridge_sup, traces]},
+  {modules, [traces_app, class_TraceEmitter, traces_utils, traces_sup, class_TraceSupervisor, class_TraceAggregator, traces_for_tests, class_TraceListener, traces_for_apps, traces_bridge_sup, traces]},
 
   {licenses, ["Ceylan-Traces is licensed by its author (Olivier Boudeville) under a disjunctive tri-license, giving you the choice of one of the three following sets of free software/open source licensing terms:
 	- the Mozilla Public License (MPL), version 1.1 or later (very close to the former Erlang Public License, except aspects regarding Ericsson and/or the Swedish law)
