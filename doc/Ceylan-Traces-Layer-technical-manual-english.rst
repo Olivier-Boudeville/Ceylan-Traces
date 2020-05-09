@@ -37,9 +37,9 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2020 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Friday, May 8, 2020
+:Lastly updated: Saturday, May 9, 2020
 :Status: Work in progress
-:Version: 0.9.10
+:Version: 0.9.11
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
@@ -476,8 +476,9 @@ Should LogMX be installed and available in the PATH, the test may simply become:
 Using OTP-Related Conventions
 =============================
 
-Build Conventions
------------------
+
+Build-time Conventions
+----------------------
 
 As discussed in these sections of `Myriad <http://myriad.esperide.org/myriad.html#otp>`_ and `WOOPER <http://wooper.esperide.org/index.html#otp>`_, we added the (optional) possibility of generating a Traces *OTP application* out of the build tree, ready to be integrated into an *(OTP) release*. For that we rely on `rebar3 <https://www.rebar3.org/>`_, `relx <https://github.com/erlware/relx>`_ and `hex <https://hex.pm/>`_.
 
@@ -490,6 +491,14 @@ For more details, one may have a look at:
 - `rebar.config.template <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar.config.template>`_, the general rebar configuration file used when generating the Traces OTP application and release (implying the automatic management of Myriad and WOOPER)
 - `rebar-for-hex.config.template <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar-for-hex.config.template>`_, to generate a corresponding Hex package for Traces (whose structure and conventions is quite different from the previous OTP elements)
 - `rebar-for-testing.config.template <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar-for-testing.config.template>`_, the simplest test of the previous Hex package: an empty rebar project having for sole dependency that Hex package
+
+
+Compile-time Conventions
+------------------------
+
+To see a full example of Ceylan-Traces use in an OTP context, one may refer to the `US-Common <https://github.com/Olivier-Boudeville/us-common>`_ project.
+
+This includes the `us_common_otp_application_test.erl <https://github.com/Olivier-Boudeville/us-common/blob/master/test/us_common_otp_application_test.erl>`_ test, a way of testing a Traces-using OTP application (here, US-Common) outside of any OTP release.
 
 
 Runtime Conventions
