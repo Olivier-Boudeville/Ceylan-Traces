@@ -90,14 +90,14 @@
 -else. % tracing_activated
 
 
-% Here, even if the trace sending is deactivated, a trace aggregator is created,
-% as some processes nevertheless expect to find one at start-up, or some of them
-% may have been recompiled to be trace-enabled.
-%
-% However no trace supervisor is needed here.
-%
 -define( test_start,
-
+		 % Here, even if the trace sending is deactivated, a trace aggregator is
+		 % created, as some processes nevertheless expect to find one at
+		 % start-up, or some of them may have been recompiled to be
+		 % trace-enabled.
+		 %
+		 % However no trace supervisor is needed here.
+		 %
 		 % false is for InitTraceSupervisor (not even binding a mute variable
 		 % for that); test_stop/2 to be consistent with it.
 		 %
