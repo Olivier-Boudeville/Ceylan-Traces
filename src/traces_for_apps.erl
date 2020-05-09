@@ -80,7 +80,8 @@ app_start( ModuleName, InitTraceSupervisor ) ->
 	% See comments above about:
 	erlang:process_flag( trap_exit, false ),
 
-	% Create first, synchronously (to avoid race conditions), a trace aggregator
+	% Create first, synchronously (to avoid race conditions), a trace
+	% aggregator.
 	%
 	% Race conditions could occur at least with trace emitters (they would
 	% create their own aggregator, should none by found) and with trace
@@ -103,7 +104,8 @@ app_start( ModuleName, InitTraceSupervisor ) ->
 	%
 	TraceAggregatorPid = class_TraceAggregator:synchronous_new_link(
 		TraceFilename, ?TraceType, ?TraceTitle,
-		_MaybeRegistrationScope=global_only, AppIsBatch, InitTraceSupervisor ),
+		_MaybeRegistrationScope=global_only, AppIsBatch,
+		_AggInitTraceSupervisor=false ),
 
 	case ModuleName of
 
