@@ -38,3 +38,9 @@
 % The name of the file to which the aggregator will write the traces it
 % receives:
 -define(trace_aggregator_filename,"Ceylan-traces" ++ ?TraceExtension ).
+
+
+% The name of the (pseudo) module to rely on for the naming of the trace file
+% produced by the trace aggregator, in an OTP-related application context.
+%
+-define( otp_application_module_name, traces_via_otp ).

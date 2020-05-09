@@ -154,8 +154,8 @@
 %
 % - TraceFilename is the path of the file in which traces should be written to
 %
-% - TraceType is either 'advanced_traces', { 'text_traces', 'text_only' } or
-% { 'text_traces', 'pdf' }, depending whether LogMX should be used to browse the
+% - TraceType is either 'advanced_traces', {'text_traces', 'text_only'} or
+% {'text_traces', 'pdf'}, depending whether LogMX should be used to browse the
 % execution traces, or just a text viewer (possibly with a PDF displaying
 % thereof)
 %
@@ -167,12 +167,12 @@
 % singleton
 %
 % - IsBatch tells whether the aggregator is run in a batch context; useful when
-% trace type is {text_traces,pdf}, so that this aggregator does not display the
+% trace type is {text_traces, pdf}, so that this aggregator does not display the
 % produced PDF when in batch mode
 %
 -spec construct( wooper:state(), file_utils:file_name(),
 				 traces:trace_supervision_type(), text_utils:title(), boolean(),
-				 initialize_supervision() ) -> wooper:state().
+				 boolean() ) -> wooper:state().
 construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 	construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 			   _InitTraceSupervisor=false ).
@@ -198,8 +198,8 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch ) ->
 % trace type is {text_traces,pdf}, so that this aggregator does not display the
 % produced PDF when in batch mode
 %
-% - InitTraceSupervisor tells whether the trace supervisor shall be created (now or
-% later, i.e. at the first renaming of the trace file) or not
+% - InitTraceSupervisor tells whether the trace supervisor shall be created (now
+% or later, i.e. at the first renaming of the trace file) or not
 %
 -spec construct( wooper:state(), file_utils:file_name(),
 				 traces:trace_supervision_type(), text_utils:title(), boolean(),
@@ -208,7 +208,8 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 		   InitTraceSupervisor ) ->
 
 	%trace_utils:debug_fmt( "Starting trace aggregator, with initial trace "
-	%					   "filename '~s'.", [ TraceFilename ] ),
+	%	"filename '~s' (init supervisor: ~w).",
+	%	[ TraceFilename, InitTraceSupervisor ] ),
 
 	% First the direct mother classes (none here), then this class-specific
 	% actions:
@@ -276,6 +277,7 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 			%trace_utils:info_fmt( "~n~s Creating the trace aggregator, "
 			%					  "whose PID is ~w.", [ ?LogPrefix, self() ] ),
 
+			% Maybe local_only would be more convenient:
 			naming_utils:register_as( ?trace_aggregator_name,
 									  local_and_global ),
 
@@ -317,12 +319,10 @@ construct( State, TraceFilename, TraceType, TraceTitle, IsPrivate, IsBatch,
 			TraceState;
 
 		false ->
-			send_internal_immediate( warning,
-						   "Note that this trace aggregator has been "
-						   "built with the trace system being deactivated, "
-						   "hinting that the overall codebase is probably "
-						   "in the same case (hence a lot less talkative).",
-						   TraceState )
+			send_internal_immediate( warning, "Note that this trace aggregator "
+				"has been built with the trace system being deactivated, "
+				"hinting that the overall codebase is probably in the same "
+				"case (hence a lot less talkative).", TraceState )
 
 	end.
 
@@ -537,7 +537,10 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 % Renames the trace file currently in use.
 %
 % Useful for example when the application requires an identifier to be included
-% in the trace filename in order to discriminate among different runs.
+% in the trace filename in order to discriminate among different runs, or if
+% started with OTP (no parameter given programatically at application start,
+% hence the creation of a supervisor is deferred until a later renaming is
+% done; see the init_supervision attribute).
 %
 % Note: if another process is reading that file (ex: a trace supervisor), an I/O
 % error will be triggered at its level (hence this is not a solution to
@@ -558,11 +561,12 @@ renameTraceFile( State, NewTraceFilename ) ->
 
 	BinTraceFilename = ?getAttr(trace_filename),
 
+	InitSupervision = ?getAttr(init_supervision),
+
 	SentState = send_internal_immediate( info,
-							   "Trace aggregator renaming atomically trace "
-							   "file from '~s' to '~s'.~n",
-							   [ BinTraceFilename, AbsNewTraceFilename ],
-							   State ),
+		"Trace aggregator renaming atomically trace file from '~s' to '~s' "
+		"(init supervision: ~w).~n",
+		[ BinTraceFilename, AbsNewTraceFilename, InitSupervision ], State ),
 
 	% Switching:
 	%file_utils:close( ?getAttr(trace_file) ),
@@ -574,7 +578,7 @@ renameTraceFile( State, NewTraceFilename ) ->
 	RenState = setAttribute( SentState, trace_filename,
 					 text_utils:string_to_binary( AbsNewTraceFilename ) ),
 
-	SupState = case ?getAttr(init_supervision) of
+	SupState = case InitSupervision of
 
 		later ->
 			initialize_supervision( RenState );
@@ -1023,7 +1027,7 @@ initialize_supervision( State ) ->
 		text_utils:format( "Initializing now trace supervision for '~s'.",
 						   [ TraceFilename ] ), State ),
 
-	MaybeSupervPid = class_TraceSupervisor:create( _BlockingSupervisor=true,
+	MaybeSupervPid = class_TraceSupervisor:create( _MaybeWaitingPid=self(),
 						TraceFilename, ?getAttr(trace_type), self() ),
 
 	%trace_utils:debug_fmt( "Created supervisor: ~w.", [ MaybeSupervPid ] ),

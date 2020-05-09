@@ -125,10 +125,10 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 		   MonitorNow, MaybeWaitingPid ) ->
 
 	trace_utils:debug_fmt( "~s Creating a trace supervisor, whose PID is ~w "
-						   "(trace filename: '~s', trace type: '~s', "
-						   "monitor now: ~w, blocking: ~w",
-						   [ ?LogPrefix, self(), TraceFilename, TraceType,
-							 MonitorNow, MaybeWaitingPid ] ),
+		"(trace filename: '~s', trace type: '~s', monitor now: ~w, "
+		"blocking: ~w",
+		[ ?LogPrefix, self(), TraceFilename, TraceType, MonitorNow,
+		  MaybeWaitingPid ] ),
 
 	NewState = setAttributes( State, [
 		{ trace_filename, TraceFilename },
@@ -463,9 +463,9 @@ create( MaybeWaitingPid, MonitorNow, TraceFilename, TraceType,
 
 	BinTraceFilename = text_utils:ensure_binary( TraceFilename ),
 
-	SupervisorPid = new_link( { BinTraceFilename, TraceType,
-								MaybeTraceAggregatorPid },
-							  MonitorNow, MaybeWaitingPid ),
+	SupervisorPid = new_link(
+		{ BinTraceFilename, TraceType, MaybeTraceAggregatorPid },
+		MonitorNow, MaybeWaitingPid ),
 
 	MaybeSupervisorPid = case MaybeWaitingPid of
 

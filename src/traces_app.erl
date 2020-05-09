@@ -52,7 +52,7 @@
 		| { 'ok', pid(), State :: term() } | { 'error', Reason :: term() }.
 start( Type, StartArgs ) ->
 
-	% See any { is_batch, boolean() } entry for the 'traces' application in any
+	% See any {is_batch, boolean()} entry for the 'traces' application in any
 	% conf/sys.config defined for the current OTP release (or override it with
 	% --batch on the command-line):
 	%

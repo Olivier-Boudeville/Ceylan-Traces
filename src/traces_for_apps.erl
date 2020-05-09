@@ -96,30 +96,14 @@ app_start( ModuleName, InitTraceSupervisor ) ->
 
 	TraceFilename = traces:get_trace_filename( ModuleName ),
 
+	% If InitTraceSupervisor is 'true' or 'later', will be still silenced if
+	% AppIsBatch is true:
+	%
 	TraceAggregatorPid = class_TraceAggregator:synchronous_new_link(
 		TraceFilename, ?TraceType, ?TraceTitle, _TraceIsPrivate=false,
-		AppIsBatch, _NoInitTraceSupervisor=false ),
+		AppIsBatch, InitTraceSupervisor ),
 
 	?app_info_fmt( "Starting application ~s.", [ ModuleName ] ),
-
-	case ( not AppIsBatch ) andalso InitTraceSupervisor of
-
-		true ->
-			TraceAggregatorPid ! { launchTraceSupervisor, [], self() },
-			receive
-
-				{ wooper_result, _SupervisorPid } ->
-					ok
-
-			end;
-
-		later ->
-			ok;
-
-		false ->
-			ok
-
-	end,
 
 	TraceAggregatorPid.
 

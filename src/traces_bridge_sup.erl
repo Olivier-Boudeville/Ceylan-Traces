@@ -64,7 +64,8 @@
 -define( bridge_name, ?MODULE ).
 
 
--define( application_module_name, traces_via_otp ).
+% For otp_application_module_name:
+-include_lib("traces/include/class_TraceAggregator.hrl").
 
 
 
@@ -81,7 +82,7 @@ start_link( TraceSupervisorWanted ) ->
 	trace_utils:debug( "Starting the Traces supervisor bridge." ),
 
 	supervisor_bridge:start_link( { local, ?bridge_name },
-			  _Module=?MODULE, _Args=TraceSupervisorWanted ).
+			_Module=?MODULE, _Args=TraceSupervisorWanted ).
 
 
 
@@ -95,7 +96,16 @@ init( TraceSupervisorWanted ) ->
 	trace_utils:trace_fmt( "Initializing the Traces supervisor bridge "
 		"(trace supervisor wanted: ~s).", [ TraceSupervisorWanted ] ),
 
-	% OTP blind start will need a renaming once the configuration will be read:
+	% This is an OTP blind start, the Traces application being started with no
+	% parameter - so with no trace filename possibly specified.
+	%
+	% As a result, knowing that no safe renaming of the trace filename can be
+	% done once a trace supervisor is launched (the trace aggregator would be
+	% fine, but at least most trace supervisors not), the creation of that trace
+	% file is deferred. It may then be (re)named once the configuration of the
+	% Traces-using application will be read, before being created and writing
+	% the pending first traces:
+	%
 	InitTraceSupervisor = case TraceSupervisorWanted of
 
 		true ->
@@ -114,7 +124,7 @@ init( TraceSupervisorWanted ) ->
 	% cope with it. Thus:
 	%
 	TraceAggregatorPid = traces_for_apps:app_start(
-		_ModuleName=?application_module_name, InitTraceSupervisor ),
+		_ModuleName=?otp_application_module_name, InitTraceSupervisor ),
 
 	{ ok, TraceAggregatorPid, _State=TraceAggregatorPid }.
 
@@ -129,5 +139,5 @@ terminate( Reason, _State=TraceAggregatorPid )
 		"(reason: ~w, trace aggregator: ~w).", [ Reason, TraceAggregatorPid ] ),
 
 	% Works whether or not a trace supervisor is used:
-	traces_for_apps:app_stop( _ModuleName=?application_module_name,
+	traces_for_apps:app_stop( _ModuleName=?otp_application_module_name,
 							  TraceAggregatorPid ).
