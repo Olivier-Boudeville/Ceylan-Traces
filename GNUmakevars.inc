@@ -72,9 +72,6 @@ TRACES_SRC := $(TRACES_TOP)/src
 # BEAM path section.
 TRACES_BEAM := $(TRACES_TOP)
 
-# Include path section.
-TRACES_INC = -I$(TRACES_SRC)
-
 
 # In an OTP/rebar3-style application layout, at compilation time, libraries
 # making use of WOOPER will expect its includes to be located in:
@@ -84,7 +81,7 @@ TRACES_INC = -I$(TRACES_SRC)
 WOOPER_OTP_INC := -I$(TRACES_TOP)/../wooper/include/
 
 
-INC += $(TRACES_INC) $(WOOPER_OTP_INC)
+INC += $(WOOPER_OTP_INC)
 
 
 # So that they can be fetched from outside
@@ -94,43 +91,8 @@ TRACES_BEAM_DIRS = $(TRACES_BEAM)/src      \
 				   $(TRACES_BEAM)/examples
 
 
-
-# When building Traces in an OTP context from its usual (GIT) root (ex: with
-# 'make rebar3-application'), the BEAMs of WOOPER are to be found in the OTP
-# build tree - rather than in a supposedly fully-built usual root for these
-# dependencies:
-#
-# (these information are useful only at compilation-time, in order to locate the
-# needed parse transforms and their dependencies; at runtime, the OTP rules
-# ensure that the relevant ebin directories are in the code path)
-#
-# Note that this implies that the BEAM files in all ebin directories should be
-# up to date with the ones in the build trees, otherwise hard-to-debug
-# discrepancies may happen (these OTP/rebar-related directories act as default
-# catch-alls, should no prior directory correspond in the BEAM paths).
-#
-# (just taking care of the layer just below, as it does the same in turn from
-# the ones below, and so on)
-#
-WOOPER_OTP_BEAM_DIR_FROM_USUAL = $(LAYER_TOP)/$(WOOPER_REBAR_BUILD_BASE)/ebin
-
-
-
-# In an OTP/rebar3-style application layout (not speaking of sibling base
-# directories here), at compilation time as well, modules compiled (directly or
-# not) by the WOOPER parse transform will expect its modules to be located in:
-#
-# (a third place could be considered, in the _build tree of WOOPER itself, yet
-# it would not provide any additional chance)
-#
-WOOPER_OTP_BEAM_DIR_FROM_OTP = $(LAYER_TOP)/../wooper/ebin/
-
-
 # We rely on Myriad and WOOPER as well:
 BEAM_DIRS += $(TRACES_BEAM_DIRS)
-
-
-DOC_ROOT = $(TRACES_TOP)/../../../doc
 
 
 ifndef VM_TEST_NAME
