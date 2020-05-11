@@ -13,7 +13,7 @@ endif
 
 # PROJECT_NAME should be defined on a per-project basis.
 ifndef PROJECT_NAME
-	PROJECT_NAME = Ceylan-Traces
+	PROJECT_NAME := Ceylan-Traces
 endif
 
 
@@ -31,23 +31,24 @@ TRACES_VERSION := 1.0.4
 
 # PROJECT_VERSION should be defined on a per-project basis.
 ifndef PROJECT_VERSION
-	PROJECT_VERSION = $(TRACES_VERSION)
+	PROJECT_VERSION := $(TRACES_VERSION)
 endif
 
 
 ifndef PACKAGE_NAME
-	PACKAGE_NAME = $(PROJECT_NAME)
+	PACKAGE_NAME := $(PROJECT_NAME)
 endif
 
 
 ifndef PACKAGE_TOP
-	PACKAGE_TOP = $(TRACES_TOP)
+	PACKAGE_TOP := $(TRACES_TOP)
 endif
 
 
 
-# For any quick, local, non-packaged update thereof:
-WOOPER_SIBLING_BUILD = $(LAYER_TOP)/../Ceylan-WOOPER
+# For any quick, local, non release-packaged update thereof:
+WOOPER_CHECKOUT_BUILD = $(LAYER_TOP)/_checkouts/wooper
+MWOOPER_SIBLING_BUILD = $(LAYER_TOP)/../wooper
 
 
 # The OTP tree of the WOOPER application within a local OTP _build tree:
@@ -82,40 +83,63 @@ TRACES_INC = -I$(TRACES_SRC)
 #
 WOOPER_OTP_INC := -I$(TRACES_TOP)/../wooper/include/
 
+
 INC += $(TRACES_INC) $(WOOPER_OTP_INC)
 
 
-# When building Traces in an OTP context from its usual, GIT root (ex: with 'make
-# rebar3-application'), the BEAMs of WOOPER are to be found in
-# the OTP build tree - rather than in a supposedly fully-built usual root for
-# WOOPER:
+# So that they can be fetched from outside
+# (see the 'list-beam-dirs' target)
+#
+TRACES_BEAM_DIRS = $(TRACES_BEAM)/src      \
+				   $(TRACES_BEAM)/examples
+
+
+
+# When building Traces in an OTP context from its usual (GIT) root (ex: with
+# 'make rebar3-application'), the BEAMs of WOOPER are to be found in the OTP
+# build tree - rather than in a supposedly fully-built usual root for these
+# dependencies:
+#
+# (these information are useful only at compilation-time, in order to locate the
+# needed parse transforms and their dependencies; at runtime, the OTP rules
+# ensure that the relevant ebin directories are in the code path)
+#
+# Note that this implies that the BEAM files in all ebin directories should be
+# up to date with the ones in the build trees, otherwise hard-to-debug
+# discrepancies may happen (these OTP/rebar-related directories act as default
+# catch-alls, should no prior directory correspond in the BEAM paths).
+#
+# (just taking care of the layer just below, as it does the same in turn from
+# the ones below, and so on)
 #
 WOOPER_OTP_BEAM_DIR_FROM_USUAL = $(LAYER_TOP)/$(WOOPER_REBAR_BUILD_BASE)/ebin
 
 
-# In an OTP/rebar3-style application layout, at compilation time, modules
-# compiled (directly or not) by the WOOPER parse transform will expect its
-# module to be located in:
+
+# In an OTP/rebar3-style application layout (not speaking of sibling base
+# directories here), at compilation time as well, modules compiled (directly or
+# not) by the WOOPER parse transform will expect its modules to be located in:
+#
+# (a third place could be considered, in the _build tree of WOOPER itself, yet
+# it would not provide any additional chance)
 #
 WOOPER_OTP_BEAM_DIR_FROM_OTP = $(LAYER_TOP)/../wooper/ebin/
 
+
+# We rely on Myriad and WOOPER as well:
+BEAM_DIRS += $(TRACES_BEAM_DIRS)
 
 
 DOC_ROOT = $(TRACES_TOP)/../../../doc
 
 
-
 ifndef VM_TEST_NAME
-
-VM_NAME := traces_debug
-
+	VM_NAME := traces_debug
 endif
 
 
 ifndef VM_TEST_NAME
-
-VM_TEST_NAME := traces_test
-
+	VM_TEST_NAME := traces_test
 endif
 
 
@@ -125,28 +149,28 @@ endif
 
 ifndef EXECUTION_TARGET
 
-  # Other possible value: production
-  EXECUTION_TARGET=development
+	# Other possible value: production
+	EXECUTION_TARGET := development
 
 endif
 
 
 ifeq ($(EXECUTION_TARGET),development)
 
-  #$(info Execution target is development)
+	#$(info Execution target is development)
 
-  ENABLE_TRACES := true
+	ENABLE_TRACES := true
 
 
 else ifeq ($(EXECUTION_TARGET),production)
 
-  #$(info Execution target is production)
+	#$(info Execution target is production)
 
-  ENABLE_TRACES := false
+	ENABLE_TRACES := false
 
 else
 
-  $(error Invalid execution target '$(EXECUTION_TARGET)'; expecting either 'development' or 'production')
+	$(error Invalid execution target '$(EXECUTION_TARGET)'; expecting either 'development' or 'production')
 
 endif
 
@@ -155,9 +179,7 @@ endif
 
 
 ifndef ENABLE_TRACES
-
 	ENABLE_TRACES := true
-
 endif
 
 
@@ -167,19 +189,12 @@ endif
 
 # Tells whether traces will be activated for the next modules to be built.
 # By default, they are enabled.
+#
 ifeq ($(ENABLE_TRACES),true)
-
 	ENABLE_TRACE_OPT := -Dtracing_activated
-
 else
-
 	ENABLE_TRACE_OPT :=
-
 endif
-
-
-# We rely on Myriad and WOOPER as well:
-BEAM_DIRS += $(TRACES_BEAM_DIRS)
 
 
 # So that they can be fetched from outside
@@ -206,30 +221,22 @@ ERLANG_COMPILER_OPT_BASE += $(ENABLE_TRACE_OPT)
 
 
 #ifndef ERLANG_COMPILER_PARSE_TRANSFORM_OPT_FOR_STANDARD_MODULES
-#
 #	ERLANG_COMPILER_PARSE_TRANSFORM_OPT_FOR_STANDARD_MODULES = $(empty)
-#
 #endif
 
 
 ifndef PARSE_TRANSFORM_DIRS
-
 	PARSE_TRANSFORM_DIRS = $(empty)
-
 endif
 
 
 #ifndef ERLANG_COMPILER_PARSE_TRANSFORM_OPT
-#
 #	ERLANG_COMPILER_PARSE_TRANSFORM_OPT = $(empty)
-#
 #endif
 
 
 ifndef BOOTSTRAP_MODULES
-
 	BOOTSTRAP_MODULES = $(empty)
-
 endif
 
 
@@ -271,8 +278,9 @@ TRACES_PLT_FILE := $(TRACES_TOP)/traces.plt
 
 # This is the merged PLT of the level just below in the software stack.
 # For Traces, it is the PLT of 'WOOPER':
+#
 ifndef PREDECESSOR_PLT
-   PREDECESSOR_PLT = $(WOOPER_PLT_FILE)
+	PREDECESSOR_PLT = $(WOOPER_PLT_FILE)
 endif
 
 
@@ -283,11 +291,11 @@ endif
 #
 ifneq ($(wildcard $(TRACES_TOP)/../wooper),)
 
+	# Default:
 	WOOPER_TOP = $(TRACES_TOP)/../wooper
 
 else
 
-	# Default:
 	WOOPER_TOP = $(TRACES_TOP)/../Ceylan-WOOPER
 
 endif
