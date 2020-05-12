@@ -70,7 +70,7 @@ TRACES_RELEASE_ARCHIVE_XZ  := $(TRACES_RELEASE_BASE).tar.xz
 TRACES_SRC := $(TRACES_TOP)/src
 
 # BEAM path section.
-TRACES_BEAM := $(TRACES_TOP)
+TRACES_BEAM := $(TRACES_TOP)/src
 
 
 # In an OTP/rebar3-style application layout, at compilation time, libraries
@@ -84,11 +84,8 @@ WOOPER_OTP_INC := -I$(TRACES_TOP)/../wooper/include/
 INC += $(WOOPER_OTP_INC)
 
 
-# So that they can be fetched from outside
-# (see the 'list-beam-dirs' target)
-#
-TRACES_BEAM_DIRS = $(TRACES_BEAM)/src      \
-				   $(TRACES_BEAM)/examples
+# See Myriad counterpart variable (MYRIAD_BEAM_DIRS) for explanations:
+TRACES_BEAM_DIRS := $(TRACES_BEAM)
 
 
 # We rely on Myriad and WOOPER as well:
@@ -157,12 +154,6 @@ ifeq ($(ENABLE_TRACES),true)
 else
 	ENABLE_TRACE_OPT :=
 endif
-
-
-# So that they can be fetched from outside
-# (see the 'list-beam-dirs' target)
-#
-TRACES_BEAM_DIRS = $(TRACES_BEAM)/src
 
 
 ERLANG_COMPILER_OPT_BASE += $(ENABLE_TRACE_OPT)
