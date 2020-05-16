@@ -35,10 +35,6 @@ ifndef PROJECT_VERSION
 endif
 
 
-ifndef PACKAGE_NAME
-	PACKAGE_NAME := $(PROJECT_NAME)
-endif
-
 
 ifndef PACKAGE_TOP
 	PACKAGE_TOP := $(TRACES_TOP)
