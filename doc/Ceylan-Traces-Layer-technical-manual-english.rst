@@ -37,7 +37,7 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2020 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Saturday, May 9, 2020
+:Lastly updated: Friday, May 15, 2020
 :Status: Work in progress
 :Version: 0.9.11
 :Dedication: Users and maintainers of the ``Traces`` layer.
@@ -430,9 +430,12 @@ We hope that enhancements will be back-contributed (ex: thanks to merge requests
 Current Stable Version & Download
 ---------------------------------
 
-As mentioned, the single, direct prerequisite of `Ceylan-Traces <https://github.com/Olivier-Boudeville/Ceylan-Traces>`_ is `Ceylan-WOOPER <https://github.com/Olivier-Boudeville/Ceylan-WOOPER>`_, which implies in turn `Ceylan-Myriad <https://github.com/Olivier-Boudeville/Ceylan-Myriad>`_ and `Erlang <http://erlang.org>`_, version 22.1 or more recent [#]_.
+As mentioned, the single, direct prerequisite of `Ceylan-Traces <https://github.com/Olivier-Boudeville/Ceylan-Traces>`_ is `Ceylan-WOOPER <https://github.com/Olivier-Boudeville/Ceylan-WOOPER>`_, which implies in turn `Ceylan-Myriad <https://github.com/Olivier-Boudeville/Ceylan-Myriad>`_ and `Erlang <http://erlang.org>`_.
 
-.. [#] Note that, in the Ceylan-Myriad repository, we have a script to streamline the installation of Erlang, see `install-erlang.sh <https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/conf/install-erlang.sh>`_; use ``install-erlang.sh --help`` for guidance.
+We prefer using GNU/Linux, sticking to the latest stable release of Erlang, and building it from sources, thanks to GNU ``make``.
+
+Refer to the corresponding `Myriad prerequisite section <http://myriad.esperide.org#prerequisites>`_  for more precise guidelines, knowing that Ceylan-Traces does not need modules with conditional support such as ``crypto`` or ``wx``.
+
 
 
 
@@ -535,7 +538,7 @@ Have fun with Ceylan-Traces!
 
 .. figure:: traces-title.png
    :alt: Traces logo
-   :width: 50 %
+   :width: 35%
    :align: center
 
 :raw-html:`<a name="traces_bottom"></a>`
