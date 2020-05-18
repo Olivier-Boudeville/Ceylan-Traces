@@ -7,16 +7,50 @@
 # Prerequisite: TRACES_TOP must be set.
 
 
-.PHONY: default-traces-rule clean clean-traces
+.PHONY: default-traces-rule clean clean-traces                \
 		rebar3-local-update rebar3-local-update-for-traces
 
 # The first non-generic, therefore default, rule:
 default-traces-rule: all
 
 
+
+# Allows to update in the current OTP _build tree WOOPER files from a supposedly
+# local built tree (hence not packaged; obtained thanks to a 'make
+# rebar3-compile' there) alongside the current one (through a checkout directory
+# or a sibling one).
+#
+# Allows to rely on a local, updated WOOPER without having to publish yet an Hex
+# package for it.
+#
 rebar3-local-update: rebar3-local-update-for-traces
 
-rebar3-local-update-for-traces: rebar3-local-update-for-wooper
+
+# As called by upper layers:
+#
+# (used to depend beforehand on the rebar3-local-sibling-update-for-traces
+#  target):
+#
+rebar3-local-update-for-traces: rebar3-local-checkout-update-for-traces
+
+
+# Supposing typically that a _checkouts/wooper symlinks exists, pointing to an
+# actual WOOPER clone:
+#
+rebar3-local-checkout-update-for-traces:
+	@echo "  Updating WOOPER from local checkout build tree $(WOOPER_CHECKOUT_BUILD)"
+	@cd $(WOOPER_CHECKOUT_BUILD) && $(MAKE) -s rebar3-compile
+	@mkdir -p $(WOOPER_LOCAL_EBIN)
+	@/bin/cp -f $(WOOPER_CHECKOUT_BUILD)/_build/default/lib/wooper/ebin/* $(WOOPER_LOCAL_EBIN)
+
+
+# Supposing a wooper symlink exists at the same level (sibling) of the traces
+# root one.
+#
+# Mostly superseded by a more convenient solution based on a _checkouts
+# directory (see rebar3-local-checkout-update-for-traces above).
+#
+rebar3-local-sibling-update-for-traces:
 	@echo "  Updating WOOPER from local sibling build tree $(WOOPER_SIBLING_BUILD)"
 	@cd $(WOOPER_SIBLING_BUILD) && $(MAKE) -s rebar3-compile
 	@mkdir -p $(WOOPER_LOCAL_EBIN)
