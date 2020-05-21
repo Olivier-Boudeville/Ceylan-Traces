@@ -1,7 +1,17 @@
 % Description of the Traces OTP active application, typically used by rebar3.
 
-% Note: if this file is named traces.app, it is a *generated* file, whose source
-% is conf/traces.app.src.
+% Note: if this file is named traces.app, it is a *generated* file, whose real
+% source is conf/traces.app.src, from which _build/lib/traces/ebin/traces.app is
+% obtained and copied to ebin/traces.app; finally src/traces.app.src is a mere
+% symlink to this last file, so we have:
+%
+% ./conf/traces.app.src [only real source]
+% ./_build/lib/traces/ebin/traces.app
+% ./ebin/traces.app
+% ./src/traces.app.src -> ../ebin/traces.app
+%
+% For more information see the Ceylan-Myriad 'rebar3-create-app-file' make
+% target and its associated comments.
 
 % See also:
 % - http://erlang.org/doc/man/app.html

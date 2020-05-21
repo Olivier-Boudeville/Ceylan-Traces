@@ -1,7 +1,17 @@
 % Description of the Traces OTP active application, typically used by rebar3.
 
-% Note: if this file is named traces.app, it is a *generated* file, whose source
-% is conf/traces.app.src.
+% Note: if this file is named traces.app, it is a *generated* file, whose real
+% source is conf/traces.app.src, from which _build/lib/traces/ebin/traces.app is
+% obtained and copied to ebin/traces.app; finally src/traces.app.src is a mere
+% symlink to this last file, so we have:
+%
+% ./conf/traces.app.src [only real source]
+% ./_build/lib/traces/ebin/traces.app
+% ./ebin/traces.app
+% ./src/traces.app.src -> ../ebin/traces.app
+%
+% For more information see the Ceylan-Myriad 'rebar3-create-app-file' make
+% target and its associated comments.
 
 % See also:
 % - http://erlang.org/doc/man/app.html
@@ -25,7 +35,7 @@
   %{env,[]},
 
   % Flat hierarchy in ebin here:
-  {modules, [traces_app, class_TraceEmitter, traces_utils, traces_sup, class_TraceSupervisor, class_TraceAggregator, traces_for_tests, class_TraceListener, traces_for_apps, traces_bridge_sup, traces]},
+  {modules, [class_TraceAggregator, class_TraceEmitter, class_TraceListener, class_TraceSupervisor, traces, traces_app, traces_bridge_sup, traces_for_apps, traces_for_tests, traces_sup, traces_utils]},
 
   {licenses, ["Ceylan-Traces is licensed by its author (Olivier Boudeville) under a disjunctive tri-license, giving you the choice of one of the three following sets of free software/open source licensing terms:
 	- the Mozilla Public License (MPL), version 1.1 or later (very close to the former Erlang Public License, except aspects regarding Ericsson and/or the Swedish law)
