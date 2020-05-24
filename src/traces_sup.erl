@@ -82,12 +82,11 @@ init( TraceSupervisorWanted ) ->
 		"(trace supervisor wanted: ~s).", [ TraceSupervisorWanted ] ),
 
 	% Restart only children that terminate.
+	% Never expected to fail, though:
 	%
-	% Same as used by kernel module in safe mode:
-	%
-	RestartStrategy = #{ strategy  => one_for_one,
-						 intensity => _MaxRestarts=4,
-						 period    => _WithinSeconds=3600 },
+	SupSettings = otp_utils:get_supervisor_settings(
+					_RestartStrategy=one_for_one,
+					traces:get_execution_target() ),
 
 	% One child, a bridge in charge of the trace aggregator:
 	BridgeChildSpec = #{
@@ -107,4 +106,4 @@ init( TraceSupervisorWanted ) ->
 
 	  modules => [ traces_bridge_sup ] },
 
-	{ ok, { RestartStrategy, [ BridgeChildSpec ] } }.
+	{ ok, { SupSettings, [ BridgeChildSpec ] } }.
