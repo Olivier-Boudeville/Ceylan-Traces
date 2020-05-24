@@ -65,7 +65,7 @@
 
 
 % For otp_application_module_name:
--include_lib("traces/include/class_TraceAggregator.hrl").
+-include("class_TraceAggregator.hrl").
 
 
 
