@@ -598,8 +598,8 @@ renameTraceFile( State, NewTraceFilename ) ->
 			initialize_supervision( RenState );
 
 		IS when is_boolean( IS ) ->
-			trace_utils:debug_fmt( "No initializing trace supervision (~s).",
-								   [ IS ] ),
+			%trace_utils:debug_fmt( "Not initializing trace supervision (~s).",
+			%					   [ IS ] ),
 			RenState
 
 	end,
