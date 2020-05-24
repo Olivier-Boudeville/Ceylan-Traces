@@ -94,6 +94,10 @@
 			   trace_supervision_type/0 ]).
 
 
+% To define get_execution_target/0:
+-include_lib("myriad/include/utils/basic_utils.hrl").
+
+
 % For notify_warning_fmt:
 -include("traces.hrl").
 
@@ -233,27 +237,3 @@ manage_supervision() ->
 			end
 
 	end.
-
-
-
-% Returns the execution target this module (hence, probably, that layer as a
-% whole) was compiled with, i.e. either the atom 'development' or 'production'.
-
-% Dispatched in actual clauses, otherwise Dialyzer will detect an
-% underspecification:
-%
-% -spec get_execution_target() -> execution_target().
-
--ifdef(exec_target_is_production).
-
--spec get_execution_target() -> 'production'.
-get_execution_target() ->
-	production.
-
--else. % exec_target_is_production
-
--spec get_execution_target() -> 'development'.
-get_execution_target() ->
-	development.
-
--endif. % exec_target_is_production
