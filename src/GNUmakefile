@@ -1,7 +1,12 @@
 TRACES_TOP = ..
 
+.PHONY: real-clean
+
 # Must be the first target, otherwise BEAM files will not be built:
 all:
+
+real-clean:
+	-@/bin/rm -f traces.app.src
 
 
 include $(TRACES_TOP)/GNUmakesettings.inc
