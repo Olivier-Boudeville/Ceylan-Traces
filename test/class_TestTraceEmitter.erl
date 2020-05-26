@@ -73,7 +73,7 @@ construct( State, TraceEmitterName ) ->
 
 	% First the direct mother classes, then this class-specific actions:
 	TraceState = class_TraceEmitter:construct( State,
-									   ?trace_categorize( TraceEmitterName ) ),
+									   ?trace_categorize(TraceEmitterName) ),
 
 	% From now on, traces can be sent (but, from the constructor, send_* traces
 	% only should be sent, to be able to refer to a trace-enabled state):
