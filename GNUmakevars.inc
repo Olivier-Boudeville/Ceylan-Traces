@@ -1,6 +1,67 @@
 # Prerequisite: TRACES_TOP must be set.
 
 
+# To understand why taking into account such conditionals requires to specify
+# them first, and in each layer, rather than at the end of the last one, refer
+# to the section about conditionals at the top of the GNUmakevars.inc of Myriad.
+
+
+# Overall settings section.
+
+#EXECUTION_TARGET = production
+
+ifndef EXECUTION_TARGET
+
+	# Other possible value: production
+	EXECUTION_TARGET = development
+
+endif
+
+
+ifeq ($(EXECUTION_TARGET),development)
+
+	#$(info Execution target is development)
+
+	ENABLE_TRACES = true
+	ENABLE_DEBUG = true
+
+else ifeq ($(EXECUTION_TARGET),production)
+
+	#$(info Execution target is production)
+
+	ENABLE_TRACES = false
+	ENABLE_DEBUG = false
+
+else
+
+	$(error Invalid Traces execution target '$(EXECUTION_TARGET)'; expecting either 'development' or 'production')
+
+endif
+
+
+# Enforce default values:
+
+
+# To selectively force any (de)activation:
+#ENABLE_TRACES := false
+
+# Should already be set through EXECUTION_TARGET above:
+ifndef ENABLE_TRACES
+	ENABLE_TRACES := true
+endif
+
+
+# Tells whether traces will be activated for the next modules to be built.
+# By default, they are enabled.
+#
+ifeq ($(ENABLE_TRACES),true)
+	ENABLE_TRACE_OPT := -Dtracing_activated
+else
+	ENABLE_TRACE_OPT :=
+endif
+
+
+
 # Useful to target for example the root of the current layer (ex: to locate the
 # relevant, layer-local '_build' directory):
 #
@@ -97,59 +158,6 @@ ifndef VM_TEST_NAME
 	VM_TEST_NAME := traces_test
 endif
 
-
-
-# Overall settings section.
-
-
-ifndef EXECUTION_TARGET
-
-	# Other possible value: production
-	EXECUTION_TARGET := development
-
-endif
-
-
-ifeq ($(EXECUTION_TARGET),development)
-
-	#$(info Execution target is development)
-
-	ENABLE_TRACES := true
-
-
-else ifeq ($(EXECUTION_TARGET),production)
-
-	#$(info Execution target is production)
-
-	ENABLE_TRACES := false
-
-else
-
-	$(error Invalid execution target '$(EXECUTION_TARGET)'; expecting either 'development' or 'production')
-
-endif
-
-
-# Enforce default values:
-
-
-ifndef ENABLE_TRACES
-	ENABLE_TRACES := true
-endif
-
-
-# To selectively force any (de)activation:
-#ENABLE_TRACES := false
-
-
-# Tells whether traces will be activated for the next modules to be built.
-# By default, they are enabled.
-#
-ifeq ($(ENABLE_TRACES),true)
-	ENABLE_TRACE_OPT := -Dtracing_activated
-else
-	ENABLE_TRACE_OPT :=
-endif
 
 
 ERLANG_COMPILER_OPT_BASE += $(ENABLE_TRACE_OPT)
