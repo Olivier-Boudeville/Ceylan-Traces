@@ -60,7 +60,7 @@
 %
 %  - call the trace_categorize/1 macro with the
 %  class_TraceEmitter:emitter_init/0 construction parameter; for example:
-%      ?trace_categorize( InstanceName )
+%      ?trace_categorize(InstanceName)
 %
 % See the class_TestTraceEmitter.erl file for an actual example.
 %
@@ -70,6 +70,8 @@
 % trace_emitter_categorization define, it will be default to the
 % default_trace_emitter_categorization one.
 %
+% -macrospec trace_categorize( emitter_name() | emitter_info() ) ->
+%                                   emitter_info().
 -define( trace_categorize( TracesInitialisationTermInternal ),
 
 		 % As few variables bound as possible, and longer variable names chosen
@@ -96,6 +98,34 @@
 
 		 end
 ).
+
+
+% To obtain a proper string-like name, whether a trace categorization has been
+% specified or not (typically useful when wanting to designate with '~s' the
+% name of a trace emitter from its constructor, i.e. when its specified name
+% (actually, emitter_info()) may still include its trace categorization):
+%
+% -macrospec trace_name( emitter_name() | emitter_info() ) ->
+%                                   emitter_name().
+-define( trace_name( TracesInitialisationTermForNameInternal ),
+
+		 % As few variables bound as possible, and longer variable names chosen
+		 % (prefixed with 'Traces'), to avoid clashes with user-defined
+		 % variables:
+		 %
+		 case TracesInitialisationTermForNameInternal of
+
+			 %{ TraceName, _TraceCategorization } ->
+			 { TraceNameForNameInternal, _ } ->
+				 TraceNameForNameInternal;
+
+			 TraceNameForNameInternal ->
+				 TraceNameForNameInternal
+
+		 end
+).
+
+
 
 
 % Conventions section.
