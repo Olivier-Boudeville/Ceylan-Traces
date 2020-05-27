@@ -7,12 +7,22 @@
 # Prerequisite: TRACES_TOP must be set.
 
 
-.PHONY: default-traces-rule clean clean-traces                \
-		rebar3-local-update rebar3-local-update-for-traces
+.PHONY: default-traces-rule create-traces-checkout                   \
+		rebar3-local-update rebar3-local-update-for-traces           \
+		clean clean-traces
+
 
 # The first non-generic, therefore default, rule:
 default-traces-rule: all
 
+
+# Create a _checkouts directory in which all Ceylan dependencies for the current
+# layer are referenced through a symlink.
+#
+create-traces-checkout:
+	@echo "  Creating a checkout directory for Traces"
+	@$(MAKE) -s create-wooper-checkout
+	@cd _checkouts && ln -sf ../$(WOOPER_TOP)
 
 
 # Allows to update in the current OTP _build tree WOOPER files from a supposedly
