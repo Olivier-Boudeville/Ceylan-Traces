@@ -37,9 +37,9 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2020 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Friday, May 15, 2020
+:Lastly updated: Wednesday, May 27, 2020
 :Status: Work in progress
-:Version: 0.9.11
+:Version: 0.9.12
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
@@ -180,9 +180,9 @@ Note that for example ``?debug(Message)`` is a macro that expands (literally) to
 
 As a result, the availability of a ``State`` variable in the scope of this macro is expected. Moreover, this WOOPER state variable shall be the one of a ``class_TraceEmitter`` instance (either directly or, more probably, through inheritance).
 
-This is not a problem in the most common case, when using traces in member methods (as by design they should be offering such a ``State``), yet in constructors the initial state (i.e. the ``State`` variable fed to the ``construct`` operator of this class) is generally not the one of a trace emitter already.
+This is not a problem in the most common case, when using traces in member methods (as by design they should be offering such a ``State``), yet in constructors the initial state (i.e. the ``State`` variable fed to the ``construct`` operator of this class) is generally not the one of a trace emitter already (it is a blank state).
 
-As a result, an instance will not be able to send traces until the completion of its own ``class_TraceEmitter`` constructor, and then it shall rely on that resulting state (for example named ``TraceState``). Sending a trace from that point should be done using ``?send_debug(TraceState,Message)``.
+As a result, an instance will not be able to send traces until the completion of its own ``class_TraceEmitter`` constructor, and then it shall rely on that resulting state (for example named ``TraceState``). Sending a trace from that point should be done using ``?send_debug(TraceState,Message)`` - so that an appropriate state is used.
 
 An example of some class ``Foobar`` inheriting directly from ``TraceEmitter`` will be clearer:
 
@@ -224,7 +224,7 @@ If wanting all traces sent by all cats to be gathered in the ``Animals.Cats`` tr
 
 and use it in the constructor like the following example, where ``class_Cat`` inherits directly from ``class_Creature`` [#]_ - supposingly itself a child class of ``class_TraceEmitter``:
 
-.. [#] We chose on purpose a different classname than ``class_Animal``, to better illustrate that trace categories can be freely specified.
+.. [#] We chose on purpose, with ``class_Creature``, a classname that differs from ``class_Animal``, to better illustrate that trace categories can be freely specified.
 
 .. code:: erlang
 
@@ -245,9 +245,9 @@ and use it in the constructor like the following example, where ``class_Cat`` in
 
 Then all traces sent by all cats will be automatically registered with this trace emitter category.
 
-The purpose of the ``trace_categorize`` macro used in the above example is to register the trace categorisation define through the inheritance tree so that, from the start, the most precise category is used [#]_.
+The purpose of the ``trace_categorize`` macro used in the above example is to register the trace categorisation define through the inheritance tree so that, right from the start, the most precise category is used for all emitted traces [#]_.
 
-.. [#] Otherwise, should the various constructors involved declare their own categorisation (which is the general case) and send traces, creating a cat instance would result in having these traces sorted under different emitter categories (ex: the one declared by ``class_Cat``, by ``class_Creature``, etc.). Tracking the messages emitted by a given instance would be made more difficult than needed.
+.. [#] Otherwise, should the various constructors involved declare their own categorisation (which is the general case) and send traces, creating a cat instance would result in having these traces sorted under different emitter categories (ex: the one declared by ``class_Creature``, then by ``class_Cat``, etc.). Tracking the messages emitted by a given instance would be made more difficult than needed.
 
 
 
@@ -265,7 +265,7 @@ Doing so incurs a very low runtime overhead anyway (supposing of course that sen
 
 
 
-Switching from basic Console Traces
+Switching from Basic Console Traces
 ===================================
 
 In some cases, it may be convenient to have first one's lower-level, debugging traces be directly output on the console.
@@ -307,7 +307,12 @@ Traces may be browsed thanks to either of the following supervision solutions (s
 
 - ``advanced_traces``, for smarter log tools such as LogMX (the default), as discussed below
 
-Indeed the tool that generally we use for trace browsing is `LogMX <http://www.logmx.com/>`_, which we integrated:
+
+----------------------------
+Trace Supervision & Browsing
+----------------------------
+
+Indeed the tool that generally we use for trace browsing is `LogMX <http://www.logmx.com/>`_ (the only tool that we use that is not free software, as we find it convenient), which we integrated:
 
 .. image:: logmx-interface.png
 		   :scale: 45 %
@@ -319,17 +324,12 @@ We implemented a Java-based parser of our trace format for LogMX (see ``CeylanTr
 		   :scale: 65 %
 
 
---------------
-Trace Browsing
---------------
-
 Traces can be browsed with this tool:
 
 - **live** (i.e. during the execution of the program), either from its start or upon connection to the instrumented program whilst it is already running [#]_ (see ``class_TraceListener.erl`` and ``trace_listening_test.erl``)
 - **post mortem** (i.e. after the program terminated for any reason, based on the trace file that it left)
 
 .. [#] In which case the trace supervisor will first receive, transactionally, a compressed version of all past traces; then all new ones will be sent to this new listener, resulting in no trace being possibly lost.
-
 
 The trace supervision solution can be switched at compile time (see the ``TraceType`` defined in ``traces/include/traces.hrl``); the ``Traces`` layer shall then be rebuilt.
 
