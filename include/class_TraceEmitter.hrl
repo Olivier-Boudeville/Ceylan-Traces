@@ -332,7 +332,8 @@
 % Plain, with 2 variations regarding state: explicit or implicit.
 
 
-% Sends a trace of 'fatal' type with specified parameters and an explicit state.
+% Sends a trace of 'fatal' type (echoed on the console) with specified
+% parameters and an explicit state.
 %
 -define( send_fatal_fmt( State, Message, FormatValues ),
 		 class_TraceEmitter:send_safe( fatal, State,
@@ -341,14 +342,34 @@
 ).
 
 
+% Sends a trace of 'fatal' type with specified parameters and an explicit state,
+% with no console echo (message just recorded in the traces).
+%
+-define( send_fatal_no_echo_fmt( State, Message, FormatValues ),
+		 class_TraceEmitter:send_synchronised( fatal, State,
+						  text_utils:format( Message, FormatValues ) )
+).
 
-% Sends a trace of 'fatal' type with specified parameters and implicit use of a
-% variable named 'State'.
+
+
+% Sends a trace of 'fatal' type (echoed on the console) with specified
+% parameters and implicit use of a variable named 'State'.
 %
 -define( fatal_fmt( Message, FormatValues ),
 		 class_TraceEmitter:send_safe( fatal, State,
 								text_utils:format( Message, FormatValues ) )
 ).
+
+
+% Sends a trace of 'fatal' type with specified parameters and implicit use of a
+% variable named 'State', with no console echo (message just recorded in the
+% traces).
+%
+-define( fatal_no_echo_fmt( Message, FormatValues ),
+		 class_TraceEmitter:send_synchronised( fatal, State,
+							text_utils:format( Message, FormatValues ) )
+).
+
 
 
 
@@ -435,6 +456,14 @@
 ).
 
 
+% Sends a trace of 'error' type with specified parameters and implicit use of a
+% variable named 'State', with no console echo (message just recorded in the
+% traces).
+%
+-define( error_no_echo_fmt( Message ),
+		 class_TraceEmitter:send_synchronised( error, State, Message ) )
+).
+
 
 
 % Categorized, with 2 variations regarding state: explicit or implicit.
@@ -491,7 +520,8 @@
 % Plain, with 2 variations regarding state: explicit or implicit.
 
 
-% Sends a trace of 'error' type with specified parameters and an explicit state.
+% Sends a trace of 'error' type (echoed on the console) with specified
+% parameters and an explicit state.
 %
 -define( send_error_fmt( State, Message, FormatValues ),
 		 class_TraceEmitter:send_safe( error, State,
@@ -499,15 +529,34 @@
 ).
 
 
+% Sends a trace of 'error' type with specified parameters and an explicit
+% state, with no console echo (message just recorded in the
+% traces).
+%
+-define( send_error_no_echo_fmt( State, Message, FormatValues ),
+		 class_TraceEmitter:send_synchronised( error, State,
+						  text_utils:format( Message, FormatValues ) )
+).
 
-% Sends a trace of 'error' type with specified parameters and implicit use of a
-% variable named 'State'.
+
+
+% Sends a trace of 'error' type (echoed on the console) with specified
+% parameters and implicit use of a variable named 'State'.
 %
 -define( error_fmt( Message, FormatValues ),
 		 class_TraceEmitter:send_safe( error, State,
 							text_utils:format( Message, FormatValues ) )
 ).
 
+
+% Sends a trace of 'error' type with specified parameters and implicit use of a
+% variable named 'State', with no console echo (message just recorded in the
+% traces).
+%
+-define( error_no_echo_fmt( Message, FormatValues ),
+		 class_TraceEmitter:send_synchronised( error, State,
+							text_utils:format( Message, FormatValues ) )
+).
 
 
 
@@ -720,8 +769,8 @@
 
 
 
-% Sends a trace of 'warning' type with specified parameters and an explicit
-% state.
+% Sends a trace of 'warning' type (echoed on the console) with specified
+% parameters and an explicit state.
 %
 -define( send_warning_fmt( State, Message, FormatValues ),
 		 class_TraceEmitter:send_safe( warning, State,
@@ -729,15 +778,34 @@
 ).
 
 
+% Sends a trace of 'warning' type with specified parameters and an explicit
+% state, with no console echo (message just recorded in the
+% traces).
+%
+-define( send_warning_no_echo_fmt( State, Message, FormatValues ),
+		 class_TraceEmitter:send_synchronised( warning, State,
+						  text_utils:format( Message, FormatValues ) )
+).
 
-% Sends a trace of 'warning' type with specified parameters and implicit use of
-% a variable named 'State'.
+
+
+% Sends a trace of 'warning' type (echoed on the console) with specified
+% parameters and implicit use of a variable named 'State'.
 %
 -define( warning_fmt( Message, FormatValues ),
 		 class_TraceEmitter:send_safe( warning, State,
 						   text_utils:format( Message, FormatValues ) )
 ).
 
+
+% Sends a trace of 'warning' type with specified parameters and implicit use of a
+% variable named 'State', with no console echo (message just recorded in the
+% traces).
+%
+-define( warning_no_echo_fmt( Message, FormatValues ),
+		 class_TraceEmitter:send_synchronised( warning, State,
+							text_utils:format( Message, FormatValues ) )
+).
 
 
 
