@@ -66,7 +66,7 @@
 % Helper functions:
 -export([ init/1, set_categorization/2,
 		  send/3, send_safe/3, send/4, send_safe/4, send/5, send_safe/5,
-		  send_synchronised/5,
+		  send_synchronised/3, send_synchronised/4, send_synchronised/5,
 		  get_trace_timestamp/1, get_trace_timestamp_as_binary/1,
 		  get_plain_name/1, sync/1, await_output_completion/0 ]).
 
@@ -944,10 +944,26 @@ send_safe( TraceType, State, Message ) ->
 
 
 
+% Sends all types of synchronised traces (the synchronisation answer is
+% requested and waited).
+%
+% All information are available here, except the trace timestamp and the message
+% categorization.
+%
+% (helper)
+%
+-spec send_synchronised( traces:message_type(), wooper:state(),
+						 traces:message() ) -> void().
+send_synchronised( TraceType, State, Message ) ->
+	send_synchronised( TraceType, State, Message,
+			   _MessageCategorization=uncategorized ).
+
+
+
 % Message is a plain string, MessageCategorization as well unless it is the
 % 'uncategorized' atom.
 
-% All informations available but the timestamp, determining its availability:
+% All information available but the timestamp, determining its availability:
 %
 % (helper)
 %
@@ -958,7 +974,7 @@ send( TraceType, State, Message, MessageCategorization ) ->
 		  get_trace_timestamp( State ) ).
 
 
-% All informations available but the timestamp, determining its availability:
+% All information available but the timestamp, determining its availability:
 %
 % (helper)
 %
@@ -972,6 +988,22 @@ send_safe( TraceType, State, Message, MessageCategorization ) ->
 	trace_utils:echo( Message, TraceType, MessageCategorization ),
 
 	wait_aggregator_sync().
+
+
+
+% Sends all types of synchronised traces (the synchronisation answer is
+% requested and waited).
+%
+% All information available but the timestamp, determining its availability:
+%
+% (helper)
+%
+-spec send_synchronised( traces:message_type(), wooper:state(),
+		  traces:message(), traces:message_categorization(),
+		  traces:app_timestamp() ) -> void().
+send_synchronised( TraceType, State, Message, MessageCategorization ) ->
+	send_synchronised( TraceType, State, Message, MessageCategorization,
+					   get_trace_timestamp( State ) ).
 
 
 
@@ -1121,8 +1153,10 @@ send_synchronisable( TraceType, State, Message, MessageCategorization,
 		  traces:app_timestamp() ) -> void().
 send_synchronised( TraceType, State, Message, MessageCategorization,
 				   AppTimestamp ) ->
+
 	send_synchronisable( TraceType, State, Message, MessageCategorization,
 						 AppTimestamp ),
+
 	wait_aggregator_sync().
 
 
