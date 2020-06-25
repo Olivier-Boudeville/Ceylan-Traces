@@ -126,7 +126,7 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 
 	trace_utils:debug_fmt( "~s Creating a trace supervisor, whose PID is ~w "
 		"(trace filename: '~s', trace type: '~s', monitor now: ~w, "
-		"blocking: ~w",
+		"blocking: ~w).",
 		[ ?LogPrefix, self(), TraceFilename, TraceType, MonitorNow,
 		  MaybeWaitingPid ] ),
 
