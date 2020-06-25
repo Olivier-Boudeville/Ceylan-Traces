@@ -912,7 +912,7 @@ get_aggregator( CreateIfNotAvailable ) ->
 
 				catch { global_registration_waiting_timeout, _Name } ->
 
-						error_logger:error_msg(
+						logger:error(
 						  "class_TraceAggregator:get_aggregator unable to "
 						  "launch successfully the aggregator.~n" ),
 						trace_aggregator_launch_failed
