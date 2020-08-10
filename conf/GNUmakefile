@@ -14,7 +14,7 @@ TRACES_TOP = ..
 # - 'rebar.config' is created in this 'conf' directory; any 'rebar.config' at
 # the root of this package has not been affected
 #
-%: %.template
+%: %.template $(TRACES_TOP)/GNUmakevars.inc
 	@echo "  Generating $@ from $< (VERSION_FOR_REBAR3 being $(VERSION_FOR_REBAR3), WOOPER_VERSION_FOR_REBAR being $(WOOPER_VERSION), MYRIAD_VERSION_FOR_REBAR being $(MYRIAD_VERSION))"
 	@cat $< | sed "s|\"MYRIAD_VERSION_FOR_REBAR\"|\"$(MYRIAD_VERSION)\"|g" | sed "s|\"WOOPER_VERSION_FOR_REBAR\"|\"$(WOOPER_VERSION)\"|g" | sed "s|\"VERSION_FOR_REBAR3\"|\"$(VERSION_FOR_REBAR3)\"|g" | sed "s|FIRST_FILES_FOR_REBAR|$(REBAR_FIRST_FILES)|g" | sed "s|DEBUG_KEY_FOR_REBAR|$(DEBUG_INFO_KEY)|g"| sed "s|INCS_FOR_REBAR|$(REBAR_INCS)|g" > $@
 
@@ -26,9 +26,9 @@ clean-local: clean-rebar
 	-@/bin/rm -f $(REBAR_CONF_FILES)
 
 
+# Removed: -@/bin/rm -rf priv/
 clean-rebar:
 	-@/bin/rm -f rebar.config
-	-@/bin/rm -rf priv/
 
 
 include $(TRACES_TOP)/GNUmakesettings.inc
