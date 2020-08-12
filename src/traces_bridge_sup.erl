@@ -90,7 +90,7 @@ start_link( TraceSupervisorWanted ) ->
 % start_link/1 above being executed.
 %
 -spec init( boolean() ) -> { 'ok', pid(), State :: term() }
-							   | 'ignore' | { 'error', Error :: term() }.
+			             | 'ignore' | { 'error', Error :: term() }.
 init( TraceSupervisorWanted ) ->
 
 	trace_utils:trace_fmt( "Initializing the Traces supervisor bridge "
