@@ -33,9 +33,9 @@
 
 
 -define( class_description,
-		 "Default, main trace aggregator."
+		 "Default, main trace aggregator. "
 		 "It just collects traces from emitters and stores them at once in a "
-		 "file, in a relevant user-specified format."
+		 "file, in a relevant user-specified format. "
 		 "Trace listeners can connect at any time to the aggregator. In this "
 		 "case it will stop and send first the full current trace file to "
 		 "them. From that moment, incoming traces will be both written in file "
