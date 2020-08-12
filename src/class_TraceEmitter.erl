@@ -29,7 +29,7 @@
 
 
 -define( class_description,
-		 "Base class for all (WOOPER-based) emitters of traces."
+		 "Base class for all (WOOPER-based) emitters of traces. "
 		 "See class_TestTraceEmitter.erl and class_TraceEmitter_test.erl." ).
 
 
@@ -41,6 +41,8 @@
 
 -type ustring() :: text_utils:ustring().
 -type bin_string() :: text_utils:bin_string().
+
+-type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
 
 
 % Describes the class-specific attributes:
@@ -55,7 +57,7 @@
 	{ emitter_node, net_utils:bin_node_name(),
 	  "the name of the Erlang node of this emitter" },
 
-	{ trace_aggregator_pid, class_TraceAggregator:aggregator_pid(),
+	{ trace_aggregator_pid, aggregator_pid(),
 	  "the PID of the trace aggregator collecting the traces emitted" },
 
 	{ trace_timestamp, maybe( app_timestamp() ),
@@ -159,6 +161,9 @@
 
 % The constructor of this class is idempotent, in the sense that it can be
 % applied more than once with no undesirable consequence.
+%
+% By default, a trace emitter locates its aggregator through a global naming
+% look-up, but an arbitrary PID may be specified.
 
 
 % The send_safe/{3,4,5} variations differ from their basic send/{3,4,5}
@@ -209,6 +214,53 @@ construct( State, EmitterName ) ->
 % Useless, as already checked:
 %construct( _State, InvalidEmitterName ) ->
 %	throw( { invalid_emitter_name, InvalidEmitterName } ).
+
+
+
+% Constructs a new trace emitter, from EmitterInit, which must be here a pair
+% made of this name and another plain string, its emitter categorization,
+% listing increasingly detailed sub-categories about this trace emitter,
+% separated by dots (ex: "topics.sports.basketball.coach"), and from the
+% specified trace aggregator.
+%
+% Notes:
+%  - this constructor should be idempotent, as a given instance might very
+% well inherit (directly or not) from that class more than once
+%
+%  - being able to provide the PID of the target trace aggregator allows to use
+%  any aggregaor of interest, regardless of choices in terms of naming
+%  registration
+%
+-spec construct( wooper:state(),
+			 { emitter_name(), emitter_categorization() }, aggregator_pid() ) ->
+		  wooper:state().
+construct( State, _EmitterInit={ EmitterName, EmitterCategorization },
+		   TraceAggregatorPid ) ->
+
+	%trace_utils:debug_fmt( "~s Creating a trace emitter whose name is '~s', "
+	%	"whose PID is ~w, whose categorization is '~s' and using trace "
+	%   "aggregator ~w.",
+	%	[ ?LogPrefix, EmitterName, self(), EmitterCategorization,
+	%     TraceAggregatorPid ] ),
+
+	BinName = check_and_binarise_name( EmitterName ),
+
+	BinCategorization = text_utils:ensure_binary( EmitterCategorization ),
+
+	setAttributes( State, [
+		{ name, BinName },
+		{ trace_categorization, BinCategorization },
+		{ trace_timestamp, undefined },
+		{ emitter_node, get_emitter_node_as_binary() },
+		{ trace_aggregator_pid, TraceAggregatorPid } ] );
+
+
+% Should no mother class have set it:
+construct( State, EmitterName, TraceAggregatorPid ) ->
+
+	EmitterInit = { EmitterName, ?default_trace_emitter_categorization },
+
+	construct( State, EmitterInit, TraceAggregatorPid ).
 
 
 
@@ -765,7 +817,7 @@ send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 
 % Returns the name of the node this emitter is on, as a binary string.
 -spec get_emitter_node_as_binary() ->
-										static_return( net_utils:bin_node_name() ).
+		  static_return( net_utils:bin_node_name() ).
 get_emitter_node_as_binary() ->
 	Bin = erlang:atom_to_binary( net_utils:localnode(), _Encoding=latin1 ),
 	wooper:return_static( Bin ).
@@ -883,8 +935,8 @@ init( State ) ->
 	% otherwise the creation of multiple emitters would result in a race
 	% condition that would lead to the creation of multiple aggregators):
 	%
-	AggregatorPid = class_TraceAggregator:get_aggregator(
-												  _LaunchAggregator=false ),
+	AggregatorPid =
+		class_TraceAggregator:get_aggregator( _LaunchAggregator=false ),
 
 	setAttributes( State, [
 		{ emitter_node, get_emitter_node_as_binary() },
@@ -956,7 +1008,7 @@ send_safe( TraceType, State, Message ) ->
 						 traces:message() ) -> void().
 send_synchronised( TraceType, State, Message ) ->
 	send_synchronised( TraceType, State, Message,
-			   _MessageCategorization=uncategorized ).
+					   _MessageCategorization=uncategorized ).
 
 
 
