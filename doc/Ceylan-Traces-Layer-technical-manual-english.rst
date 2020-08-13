@@ -37,9 +37,9 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2020 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Wednesday, May 27, 2020
+:Lastly updated: Thursday, August 13, 2020
 :Status: Work in progress
-:Version: 0.9.12
+:Version: 0.9.13
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
@@ -494,6 +494,8 @@ For more details, one may have a look at:
 - `rebar.config.template <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar.config.template>`_, the general rebar configuration file used when generating the Traces OTP application and release (implying the automatic management of Myriad and WOOPER)
 - `rebar-for-hex.config.template <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar-for-hex.config.template>`_, to generate a corresponding Hex package for Traces (whose structure and conventions is quite different from the previous OTP elements)
 - `rebar-for-testing.config.template <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/rebar-for-testing.config.template>`_, the simplest test of the previous Hex package: an empty rebar project having for sole dependency that Hex package
+
+One may run ``make create-traces-checkout`` in order to create, based on our conventions, a suitable ``_checkouts`` directory so that rebar3 can directly take into account local, directly available (in-development) dependencies (here, Myriad and WOOPER).
 
 
 Compile-time Conventions
