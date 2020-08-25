@@ -90,7 +90,7 @@ start_link( TraceSupervisorWanted ) ->
 % start_link/1 above being executed.
 %
 -spec init( boolean() ) -> { 'ok', pid(), State :: term() }
-			             | 'ignore' | { 'error', Error :: term() }.
+						 | 'ignore' | { 'error', Error :: term() }.
 init( TraceSupervisorWanted ) ->
 
 	trace_utils:trace_fmt( "Initializing the Traces supervisor bridge "
@@ -140,4 +140,4 @@ terminate( Reason, _State=TraceAggregatorPid )
 
 	% Works whether or not a trace supervisor is used:
 	traces_for_apps:app_stop( _ModuleName=?otp_application_module_name,
-							  TraceAggregatorPid ).
+				  TraceAggregatorPid, _WaitForTraceSupervisor=false ).
