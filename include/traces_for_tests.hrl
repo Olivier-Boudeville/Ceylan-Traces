@@ -41,7 +41,7 @@
 
 
 % For the export of run/0:
--include("test_facilities.hrl").
+-include_lib("myriad/include/test_facilities.hrl").
 
 
 % To avoid warnings if not used:

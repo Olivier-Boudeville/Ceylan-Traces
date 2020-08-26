@@ -1,8 +1,8 @@
-{"1.1.0",
-[{<<"myriad">>,{pkg,<<"myriad">>,<<"1.0.15">>},1},
- {<<"wooper">>,{pkg,<<"wooper">>,<<"2.0.9">>},0}]}.
-[
-{pkg_hash,[
- {<<"myriad">>, <<"F28E2D7BD8E505B159A02ED2632D49BC0A7CA1856A3531AC114504D7AB7EF1A5">>},
- {<<"wooper">>, <<"A952F1D698D0014EB857CDE9E24AB38BFF9686FF22E32E3EA3F76F189D9B3715">>}]}
-].
+[{<<"myriad">>,
+  {git,"git://github.com/Olivier-Boudeville/Ceylan-Myriad",
+       {ref,"3d1bc0640dc5740a7821785fb8cbede6bcb2330f"}},
+  0},
+ {<<"wooper">>,
+  {git,"git://github.com/Olivier-Boudeville/Ceylan-WOOPER",
+       {ref,"c027d55c093a1700444c9196d2d83f8075b040d1"}},
+  0}].

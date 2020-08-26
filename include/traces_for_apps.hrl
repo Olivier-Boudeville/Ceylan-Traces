@@ -41,7 +41,7 @@
 
 
 % For the export of exec/0:
--include("app_facilities.hrl").
+-include_lib("myriad/include/app_facilities.hrl").
 
 
 % To avoid warnings if not used:

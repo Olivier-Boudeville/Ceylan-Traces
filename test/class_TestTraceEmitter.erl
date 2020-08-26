@@ -50,7 +50,7 @@
 
 
 % Allows to define WOOPER base variables and methods for that class:
--include("wooper.hrl").
+-include_lib("wooper/include/wooper.hrl").
 
 
 % Only to test the trace system:
