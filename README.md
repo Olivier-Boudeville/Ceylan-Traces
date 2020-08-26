@@ -1,3 +1,5 @@
+![Erlang CI](https://github.com/Olivier-Boudeville/Ceylan-Traces/workflows/Erlang%20CI/badge.svg?event=push)
+
 # Ceylan-Traces
 
 ![](/doc/traces-title.png)
