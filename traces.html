@@ -34,13 +34,13 @@
 <tr class="field"><th class="field-name">Creation date:</th><td class="field-body"><p class="first">Sunday, August 15, 2010</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Thursday, August 13, 2020</p>
+<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Wednesday, October 21, 2020</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Status:</th><td class="field-body"><p class="first">Work in progress</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">0.9.13</p>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">0.9.14</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Dedication:</th><td class="field-body"><p class="first">Users and maintainers of the <tt class="docutils literal">Traces</tt> layer.</p>
@@ -266,14 +266,17 @@ The next level of information is to read the corresponding <a class="reference e
 <div class="section" id="switching-from-basic-console-traces">
 <h3><a class="toc-backref" href="#id30">Switching from Basic Console Traces</a></h3>
 <p>In some cases, it may be convenient to have first one's lower-level, debugging traces be directly output on the console.</p>
-<p>Then, once the most basic bugs are fixed (ex: the program is not crashing anymore), the full power of this <tt class="docutils literal">Traces</tt> layer can be best used, by switching these first, basic traces to the more advanced traces presented here.</p>
+<p>Then, once the most basic bugs are fixed (ex: the program is not crashing anymore), the full power of this <tt class="docutils literal">Traces</tt> layer can be best used, by switching the initial basic traces to the more advanced traces presented here.</p>
 <p>To output (basic) console traces, one may use the <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/src/utils/trace_utils.erl">trace_utils</a> module of the <tt class="docutils literal">Myriad</tt> layer. For example:</p>
 <blockquote>
 <tt class="docutils literal"><span class="pre">trace_utils:debug_fmt(&quot;Hello</span> world <span class="pre">#~B&quot;,[2])</span></tt></blockquote>
-<p>Then switching to the mainstream, more advanced traces discussed here is just a matter of replacing, for a given trace type <tt class="docutils literal">T</tt> (ex: <tt class="docutils literal">debug</tt>), <tt class="docutils literal">trace_utils:T</tt> with <tt class="docutils literal"><span class="pre">?T</span></tt>, like in:</p>
+<p>Then switching to the more advanced traces discussed here is just a matter of replacing, for a given trace type <tt class="docutils literal">T</tt> (ex: <tt class="docutils literal">debug</tt>), <tt class="docutils literal">trace_utils:T</tt> with <tt class="docutils literal"><span class="pre">?T</span></tt>, like in:</p>
 <blockquote>
 <tt class="docutils literal"><span class="pre">?debug_fmt(&quot;Hello</span> world <span class="pre">#~B&quot;,[2])</span></tt></blockquote>
 <p>(with no further change in the trace parameters).</p>
+<p>Yet now there is a better way of doing so (not requiring trace primitives to be changed once specified), through the use of the <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/src/utils/trace_bridge.erl">trace_bridge</a> module - which is also provided by the <tt class="docutils literal">Myriad</tt> layer - instead.</p>
+<p>It allows all Erlang code, including the one of lower-level libraries, to rely ultimately either on basic traces (i.e. the ones offered by Myriad in <tt class="docutils literal">trace_utils</tt>) or on more advanced ones (typically the ones discussed here, offered by Traces - or any other respecting the same conventions) transparently (i.e. with no further change, once the emitter process is registered).</p>
+<p>See <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/trace_bridging_test.erl">trace_bridging_test.erl</a> for an example of use thereof.</p>
 </div>
 </div>
 <div class="section" id="trace-ordering">
@@ -306,9 +309,9 @@ The next level of information is to read the corresponding <a class="reference e
 <div class="section" id="trace-supervision-browsing">
 <h2><a class="toc-backref" href="#id33">Trace Supervision &amp; Browsing</a></h2>
 <p>Indeed the tool that generally we use for trace browsing is <a class="reference external" href="http://www.logmx.com/">LogMX</a> (the only tool that we use that is not free software, as we find it convenient), which we integrated:</p>
-<img alt="logmx-interface.png" src="logmx-interface.png" />
+<img alt="logmx-interface.png" src="logmx-interface.png" style="width: 495.0px; height: 282.6px;" />
 <p>We implemented a Java-based parser of our trace format for LogMX (see <tt class="docutils literal">CeylanTraceParser.java</tt>):</p>
-<img alt="logmx-levels.png" src="logmx-levels.png" />
+<img alt="logmx-levels.png" src="logmx-levels.png" style="width: 484.25px; height: 271.7px;" />
 <p>Traces can be browsed with this tool:</p>
 <ul class="simple">
 <li><strong>live</strong> (i.e. during the execution of the program), either from its start or upon connection to the instrumented program whilst it is already running <a class="footnote-reference" href="#id13" id="id12">[5]</a> (see <tt class="docutils literal">class_TraceListener.erl</tt> and <tt class="docutils literal">trace_listening_test.erl</tt>)</li>
