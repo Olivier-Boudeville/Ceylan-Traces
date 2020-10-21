@@ -779,8 +779,7 @@
 
 
 % Sends a trace of 'warning' type with specified parameters and an explicit
-% state, with no console echo (message just recorded in the
-% traces).
+% state, with no console echo (message just recorded in the traces).
 %
 -define( send_warning_no_echo_fmt( State, Message, FormatValues ),
 		 class_TraceEmitter:send_synchronised( warning, State,

@@ -99,8 +99,7 @@
 %
 % Ex: "topics.sports.basketball"
 %
--type emitter_categorization() :: ustring()
-								| bin_string().
+-type emitter_categorization() :: ustring() | bin_string().
 
 
 
@@ -251,7 +250,7 @@ construct( State, _EmitterInit={ EmitterName, EmitterCategorization },
 		{ name, BinName },
 		{ trace_categorization, BinCategorization },
 		{ trace_timestamp, undefined },
-		{ emitter_node, get_emitter_node_as_binary() },
+		{ emitter_node, net_utils:localnode_as_binary() },
 		{ trace_aggregator_pid, TraceAggregatorPid } ] );
 
 
@@ -426,9 +425,6 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 			TimestampText = text_utils:string_to_binary(
 							  time_utils:get_textual_timestamp() ),
 
-			% No State available here:
-			EmitterNode = get_emitter_node_as_binary(),
-
 			AggregatorPid ! { send,
 				[
 				 _TraceEmitterPid=self(),
@@ -438,10 +434,11 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 					 text_utils:string_to_binary( EmitterCategorization ),
 				 _AppTimestamp=none,
 				 _Time=TimestampText,
-				 _Location=EmitterNode,
+				 % No State available here
+				 _Location=net_utils:localnode_as_binary(),
 				 _MessageCategorization=
 					 text_utils:string_to_binary( "Test" ),
-				 _Priority=get_priority_for( TraceType ),
+				 _Priority=trace_utils:get_priority_for( TraceType ),
 				 _Message=text_utils:string_to_binary( Message ) ] }
 
 	end,
@@ -491,9 +488,6 @@ send_from_case( TraceType, Message, EmitterCategorization ) ->
 			TimestampText = text_utils:string_to_binary(
 							  time_utils:get_textual_timestamp() ),
 
-			% No State available here:
-			EmitterNode = get_emitter_node_as_binary(),
-
 			AggregatorPid ! { send,
 				[
 				 _TraceEmitterPid=self(),
@@ -503,10 +497,11 @@ send_from_case( TraceType, Message, EmitterCategorization ) ->
 					 text_utils:string_to_binary( EmitterCategorization ),
 				 _AppTimestamp=none,
 				 _Time=TimestampText,
-				 _Location=EmitterNode,
+				 % No State available here:
+				 _Location=net_utils:localnode_as_binary(),
 				 _MessageCategorization=
 					 text_utils:string_to_binary( "Case" ),
-				 _Priority=get_priority_for( TraceType ),
+				 _Priority=trace_utils:get_priority_for( TraceType ),
 				 _Message=text_utils:string_to_binary( Message ) ] }
 
 	end,
@@ -554,9 +549,6 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 			TimestampText = text_utils:string_to_binary(
 				time_utils:get_textual_timestamp() ),
 
-			% No State available here:
-			EmitterNode = get_emitter_node_as_binary(),
-
 			PidName = get_emitter_name_from_pid(),
 
 			MessageCategorization =
@@ -570,10 +562,11 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 					 text_utils:string_to_binary( EmitterCategorization ),
 				 _AppTimestamp=none,
 				 _Time=TimestampText,
-				 _Location=EmitterNode,
+				 % No State available here:
+				 _Location=net_utils:localnode_as_binary(),
 				 _MessageCategorization=
 					 text_utils:string_to_binary( MessageCategorization ),
-				 _Priority=get_priority_for( TraceType ),
+				 _Priority=trace_utils:get_priority_for( TraceType ),
 				 _Message=text_utils:string_to_binary( Message ) ] }
 
 	end,
@@ -623,9 +616,6 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 			TimestampText = text_utils:string_to_binary(
 				time_utils:get_textual_timestamp() ),
 
-			% No State available here:
-			EmitterNode = get_emitter_node_as_binary(),
-
 			ActualMsgCateg = case MessageCategorization of
 
 				uncategorized ->
@@ -644,9 +634,10 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 					 text_utils:string_to_binary( EmitterCategorization ),
 				 _AppTimestamp=none,
 				 _Time=TimestampText,
-				 _Location=EmitterNode,
+				 % No State available here:
+				 _Location=net_utils:localnode_as_binary(),
 				 _MessageCategorization=ActualMsgCateg,
-				 _Priority=get_priority_for( TraceType ),
+				 _Priority=trace_utils:get_priority_for( TraceType ),
 				 _Message=text_utils:string_to_binary( Message ) ] }
 
 	end,
@@ -772,9 +763,6 @@ send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 			TimestampText = text_utils:string_to_binary(
 							  ApplicationTimestamp ),
 
-			% No State available here:
-			EmitterNode = get_emitter_node_as_binary(),
-
 			ActualMsgCateg = case MessageCategorization of
 
 				uncategorized ->
@@ -799,9 +787,10 @@ send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 					 text_utils:string_to_binary( EmitterCategorization ),
 				 _AppTimestamp=none,
 				 _Time=TimestampText,
-				 _Location=EmitterNode,
+				 % No State available here:
+				 _Location=net_utils:localnode_as_binary(),
 				 _MessageCategorization=ActualMsgCateg,
-				 _Priority=get_priority_for( TraceType ),
+				 _Priority=trace_utils:get_priority_for( TraceType ),
 				 BinMessage ], self() },
 
 			trace_utils:echo( Message, TraceType, MessageCategorization,
@@ -814,58 +803,9 @@ send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 
 
 
-
-% Returns the name of the node this emitter is on, as a binary string.
--spec get_emitter_node_as_binary() ->
-		  static_return( net_utils:bin_node_name() ).
-get_emitter_node_as_binary() ->
-	Bin = erlang:atom_to_binary( net_utils:localnode(), _Encoding=latin1 ),
-	wooper:return_static( Bin ).
-
-
-
-% Returns the priority of specified trace type (i.e. fatal, error, etc.).
-%
-% Note: now that LogMX v1.3.2 and later only support 5 levels of detail
-% (stack/error, warning/warn, info, fine, finest/debug, i.e. no more trace),
-% fatal and error messages have been put at the same priority level, and
-% Ceylan trace level has been kept, whereas others have been offset.
-%
-% See also: get_channel_name_for_priority/1.
-%
--spec get_priority_for( traces:message_type() ) ->
-							  static_return( traces:priority() ).
-% Corresponds to stack/error:
-get_priority_for( fatal ) ->
-	wooper:return_static( 1 ) ;
-
-% Corresponds to stack/error:
-get_priority_for( error ) ->
-	wooper:return_static( 2 );
-
-% Corresponds to warning/warn:
-get_priority_for( warning ) ->
-	wooper:return_static( 3 );
-
-% Corresponds to info:
-get_priority_for( info ) ->
-	wooper:return_static( 4 );
-
-% Corresponds to fine:
-get_priority_for( trace ) ->
-	wooper:return_static( 5 );
-
-% Corresponds to finest/debug:
-get_priority_for( debug ) ->
-	wooper:return_static( 6 ).
-
-% 'void' not expected here.
-
-
-
 % Returns the name of the trace channel corresponding to the trace priority.
 %
-% See also: get_priority_for/1
+% See also: trace_utils:get_priority_for/1
 %
 -spec get_channel_name_for_priority( traces:priority() ) ->
 									   static_return( traces:message_type() ).
@@ -939,7 +879,7 @@ init( State ) ->
 		class_TraceAggregator:get_aggregator( _LaunchAggregator=false ),
 
 	setAttributes( State, [
-		{ emitter_node, get_emitter_node_as_binary() },
+		{ emitter_node, net_utils:localnode_as_binary() },
 		{ trace_aggregator_pid, AggregatorPid } ] ).
 
 
@@ -1103,7 +1043,7 @@ send( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
 	%	 _Time=TimestampText,
 	%	 _Location=?getAttr(emitter_node),
 	%	 _MessageCategorization=MsgCateg,
-	%	 _Priority=get_priority_for( TraceType ),
+	%	 _Priority=trace_utils:get_priority_for( TraceType ),
 	%	 _Message=text_utils:string_to_binary( Message )
 	%	] ),
 
@@ -1134,7 +1074,7 @@ send( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
 		  _Time=TimestampText,
 		  _Location=?getAttr(emitter_node),
 		  _MessageCategorization=MsgCateg,
-		  _Priority=get_priority_for( TraceType ),
+		  _Priority=trace_utils:get_priority_for( TraceType ),
 		  _Message=text_utils:string_to_binary( Message ) ] }.
 
 
@@ -1185,7 +1125,7 @@ send_synchronisable( TraceType, State, Message, MessageCategorization,
 		 _Time=TimestampText,
 		 _Location=?getAttr(emitter_node),
 		 _MessageCategorization=MsgCateg,
-		 _Priority=get_priority_for( TraceType ),
+		 _Priority=trace_utils:get_priority_for( TraceType ),
 		 _Message=text_utils:string_to_binary( Message )
 		],
 		self()

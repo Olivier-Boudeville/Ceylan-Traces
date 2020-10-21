@@ -839,7 +839,7 @@ create( UseSynchronousNew ) ->
 											  static_return( aggregator_pid() ).
 create( _UseSynchronousNew=false, TraceType ) ->
 
-	% For registration scope, see also get_aggregator/1:
+	% For registration scope, see also get_aggregator/{0,1}:
 	AggregatorPid = new_link( ?trace_aggregator_filename, TraceType,
 		?TraceTitle, _MaybeRegistrationScope=global_only, _IsBatch=false ),
 
@@ -851,7 +851,7 @@ create( _UseSynchronousNew=false, TraceType ) ->
 %
 create( _UseSynchronousNew=true, TraceType ) ->
 
-	% For registration scope, see also get_aggregator/1:
+	% For registration scope, see also get_aggregator/{0,1}:
 	AggregatorPid = synchronous_new_link( ?trace_aggregator_filename, TraceType,
 		?TraceTitle, _MaybeRegistrationScope=global_only, _IsBatch=false ),
 
@@ -859,6 +859,18 @@ create( _UseSynchronousNew=true, TraceType ) ->
 
 
 
+
+% Returns the PID of the current trace aggregator, supposed to be already
+% available.
+%
+% Waits a bit before giving up: useful when client and aggregator processes are
+% launched almost simultaneously.
+%
+-spec get_aggregator() -> static_return( 'trace_aggregator_not_found'
+										 | aggregator_pid() ).
+get_aggregator() ->
+	AggRes = get_aggregator( _CreateIfNotAvailable=false ),
+	wooper:return_static( AggRes ).
 
 
 % Returns the PID of the current trace aggregator.
@@ -1075,8 +1087,6 @@ send_internal_immediate( MessageType, Message, State ) ->
 	TimestampText = text_utils:string_to_binary(
 					  time_utils:get_textual_timestamp() ),
 
-	EmitterNode = class_TraceEmitter:get_emitter_node_as_binary(),
-
 	MessageCategorization = text_utils:string_to_binary( "Trace Management" ),
 
 	SelfSentState = executeOneway( State, send, [
@@ -1086,9 +1096,9 @@ send_internal_immediate( MessageType, Message, State ) ->
 									  ?trace_emitter_categorization ),
 		_AppTimestamp=none,
 		_Time=TimestampText,
-		_Location=EmitterNode,
+		_Location=net_utils:localnode_as_binary(),
 		MessageCategorization,
-		_Priority=class_TraceEmitter:get_priority_for( MessageType ),
+		_Priority=trace_utils:get_priority_for( MessageType ),
 		Message ] ),
 
 	trace_utils:echo( Message, MessageType ),
@@ -1123,8 +1133,6 @@ send_internal_deferred( MessageType, Message ) ->
 	TimestampText = text_utils:string_to_binary(
 					  time_utils:get_textual_timestamp() ),
 
-	EmitterNode = class_TraceEmitter:get_emitter_node_as_binary(),
-
 	MessageCategorization = <<"Trace Management">>,
 
 	self() ! { send, [
@@ -1134,9 +1142,9 @@ send_internal_deferred( MessageType, Message ) ->
 									  ?trace_emitter_categorization ),
 		_AppTimestamp=none,
 		_Time=TimestampText,
-		_Location=EmitterNode,
+		_Location=net_utils:localnode_as_binary(),
 		MessageCategorization,
-		_Priority=class_TraceEmitter:get_priority_for( MessageType ),
+		_Priority=trace_utils:get_priority_for( MessageType ),
 		Message ] },
 
 	trace_utils:echo( Message, MessageType ).

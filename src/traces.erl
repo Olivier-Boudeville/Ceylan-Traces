@@ -58,7 +58,15 @@
 % A message may or may not (which is the default) by categorized:
 -type message_categorization() :: text_utils:ustring() | 'uncategorized'.
 
--type priority() :: 1..6.
+
+% Note: now that LogMX v1.3.2 and later only support 5 levels of detail
+% (stack/error, warning/warn, info, fine, finest/debug, i.e. no more trace),
+% fatal and error messages have been put at the same priority level, and
+% Ceylan trace level has been kept, whereas others have been offset.
+%
+% See also: get_channel_name_for_priority/1.
+%
+-type priority() :: trace_utils:trace_priority().
 
 -type message() :: text_utils:ustring().
 
@@ -82,7 +90,7 @@
 % - either 'advanced_traces', for traces typically expected to be read from the
 % LogMX tool (relying then on our parser); see http://logmx.com/
 %
-% - or { 'text_traces', trace_text_type() }
+% - or {'text_traces', trace_text_type()}
 %
 -type trace_supervision_type() :: 'advanced_traces'
 								| { 'text_traces', trace_text_type() }.
