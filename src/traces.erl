@@ -43,12 +43,7 @@
 
 -type emitter_info() :: { emitter_name(), emitter_categorization() }.
 
-
-% A trace timestamp can be anything (ex: integer() | 'none'), no constraint
-% applies on purpose, so that any kind of application-specific timestamps can be
-% elected.
-%
--type app_timestamp() :: any().
+-type app_timestamp() :: trace_utils:trace_timestamp().
 
 -type time() :: text_utils:ustring().
 
