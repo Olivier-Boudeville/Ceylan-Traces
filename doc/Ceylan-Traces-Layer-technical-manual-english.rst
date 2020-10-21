@@ -37,9 +37,9 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2020 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Thursday, August 13, 2020
+:Lastly updated: Wednesday, October 21, 2020
 :Status: Work in progress
-:Version: 0.9.13
+:Version: 0.9.14
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
@@ -270,17 +270,24 @@ Switching from Basic Console Traces
 
 In some cases, it may be convenient to have first one's lower-level, debugging traces be directly output on the console.
 
-Then, once the most basic bugs are fixed (ex: the program is not crashing anymore), the full power of this ``Traces`` layer can be best used, by switching these first, basic traces to the more advanced traces presented here.
+Then, once the most basic bugs are fixed (ex: the program is not crashing anymore), the full power of this ``Traces`` layer can be best used, by switching the initial basic traces to the more advanced traces presented here.
 
 To output (basic) console traces, one may use the `trace_utils <https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/src/utils/trace_utils.erl>`_ module of the ``Myriad`` layer. For example:
 
   ``trace_utils:debug_fmt("Hello world #~B",[2])``
 
-Then switching to the mainstream, more advanced traces discussed here is just a matter of replacing, for a given trace type ``T`` (ex: ``debug``), ``trace_utils:T`` with ``?T``, like in:
+Then switching to the more advanced traces discussed here is just a matter of replacing, for a given trace type ``T`` (ex: ``debug``), ``trace_utils:T`` with ``?T``, like in:
 
   ``?debug_fmt("Hello world #~B",[2])``
 
 (with no further change in the trace parameters).
+
+
+Yet now there is a better way of doing so (not requiring trace primitives to be changed once specified), through the use of the `trace_bridge <https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/src/utils/trace_bridge.erl>`_ module - which is also provided by the ``Myriad`` layer - instead.
+
+It allows all Erlang code, including the one of lower-level libraries, to rely ultimately either on basic traces (i.e. the ones offered by Myriad in ``trace_utils``) or on more advanced ones (typically the ones discussed here, offered by Traces - or any other respecting the same conventions) transparently (i.e. with no further change, once the emitter process is registered).
+
+See `trace_bridging_test.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/trace_bridging_test.erl>`_ for an example of use thereof.
 
 
 --------------
