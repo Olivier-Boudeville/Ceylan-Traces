@@ -44,9 +44,11 @@ run() ->
 
 	?test_start,
 
-	trace_utils:info( code_utils:interpret_undef_exception( trace_bridge_test, emit_traces, 0 ) ),
-
 	?test_trace( "Testing first when no trace bridge is registered." ),
+
+	% Note that we rely on the same test sending as the one done in Myriad, to
+	% better showcase it can be transparently switched:
+	%
 	trace_bridge_test:emit_traces(),
 
 
