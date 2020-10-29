@@ -80,14 +80,14 @@ run() ->
 
 	OrderedAppNames = [ myriad, wooper, traces ],
 
-	case otp_utils:prepare_for_test( OrderedAppNames, BuildRootDir ) of
+	case otp_utils:prepare_for_execution( OrderedAppNames, BuildRootDir ) of
 
 		ready ->
 			test_traces_application( OrderedAppNames ) ;
 
 		{ lacking_app, _App } ->
 			% (a detailed warning message has been issued by
-			% otp_utils:prepare_for_test/2)
+			% otp_utils:prepare_for_execution/2)
 			%
 			ok
 
