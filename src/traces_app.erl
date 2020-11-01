@@ -48,9 +48,12 @@
 
 
 % Starts the Traces services.
+%
+% Note: RestartType and StartArgs at least currently ignored.
+%
 -spec start( application:start_type(), StartArgs :: term() ) -> { 'ok', pid() }
 		| { 'ok', pid(), State :: term() } | { 'error', Reason :: term() }.
-start( Type, StartArgs ) ->
+start( RestartType, StartArgs ) ->
 
 	% See any {is_batch, boolean()} entry for the 'traces' application in any
 	% conf/sys.config defined for the current OTP release (or override it with
@@ -58,9 +61,9 @@ start( Type, StartArgs ) ->
 	%
 	TraceSupervisorWanted = not executable_utils:is_batch(),
 
-	trace_utils:debug_fmt( "Starting Traces application (type: ~w, "
-						   "start arguments: ~w, supervisor wanted: ~s).",
-						   [ Type, StartArgs, TraceSupervisorWanted ] ),
+	trace_utils:debug_fmt( "Starting Traces application (restart type: ~w, "
+		"start arguments: ~w, supervisor wanted: ~s).",
+		[ RestartType, StartArgs, TraceSupervisorWanted ] ),
 
 	% Previously, no specific root supervisor was to launch, but:
 	%class_TraceAggregator:start().
