@@ -27,7 +27,7 @@
 
 
 % Testing of Traces as an OTP active application, directly from within its code
-% base (hence without needing to create a separate, mock-up test release for
+% base (hence without needing to create a separate, mock-up test OTP release for
 % that).
 %
 -module(traces_otp_application_test).
@@ -58,8 +58,9 @@ test_traces_application( OrderedAppNames ) ->
 	%traces:manage_supervision(),
 
 
-	test_facilities:display( "Stopping the Traces application." ),
-	otp_utils:stop_applications( OrderedAppNames ),
+	% Including Traces:
+	test_facilities:display( "Stopping all user applications." ),
+	otp_utils:stop_user_applications( OrderedAppNames ),
 
 	test_facilities:display(
 	  "Successful end of test of the Traces OTP application." ).
@@ -75,22 +76,18 @@ run() ->
 
 	test_facilities:start( ?MODULE ),
 
-	% Build root directory from which prerequisite applications may be found:
+	% Build root directory from which sibling prerequisite applications may be
+	% found:
+	%
 	BuildRootDir = "..",
 
-	OrderedAppNames = [ myriad, wooper, traces ],
+	% No dependency specified in this test, yet they are managed:
+	OrderedAppNames = otp_utils:prepare_for_execution( _ThisApp=traces,
+													   BuildRootDir ),
 
-	case otp_utils:prepare_for_execution( OrderedAppNames, BuildRootDir ) of
+	trace_utils:info_fmt( "Resulting applications to start, in order: ~w.",
+						  [ OrderedAppNames ] ),
 
-		ready ->
-			test_traces_application( OrderedAppNames ) ;
-
-		{ lacking_app, _App } ->
-			% (a detailed warning message has been issued by
-			% otp_utils:prepare_for_execution/2)
-			%
-			ok
-
-	end,
+	test_traces_application( OrderedAppNames ),
 
 	test_facilities:stop().
