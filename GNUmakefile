@@ -4,7 +4,7 @@ TRACES_TOP = .
 .PHONY: help help-intro help-traces                                   \
 		all register-version-in-header register-traces list-beam-dirs \
 		add-prerequisite-plts link-plt                                \
-		stats info-traces info-deps
+		stats info-traces info-conditionals info-deps
 
 
 MODULES_DIRS = src doc conf test examples
@@ -56,6 +56,11 @@ stats:
 
 info-traces:
 	@echo "ENABLE_TRACE_OPT = $(ENABLE_TRACE_OPT)"
+
+
+info-conditionals:
+	@echo "TRACES_DEBUG_FLAGS = $(TRACES_DEBUG_FLAGS)"
+	@echo "TRACES_CHECK_FLAGS = $(TRACES_CHECK_FLAGS)"
 
 
 info-deps:

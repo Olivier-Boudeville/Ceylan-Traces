@@ -62,6 +62,27 @@ endif
 
 
 
+# Defining (optional) layer-specific flags, typically used by in-code
+# conditional compilation primitives (see cond_utils for their management):
+
+# Topics covered by flags:
+#  - xx (none yet)
+
+# Defining debug flags (at least the most verbose are by default commented-out):
+ifeq ($(ENABLE_DEBUG),true)
+	#TRACES_DEBUG_FLAGS += -Dtraces_debug_xx
+endif
+
+# Defining check flags:
+ifeq ($(EXECUTION_TARGET),development)
+	# Does not exist: TRACES_CHECK_FLAGS += -Dtraces_check_xx
+endif
+
+ERLANG_COMPILER_OPT_BASE += $(TRACES_DEBUG_FLAGS) \
+							$(TRACES_CHECK_FLAGS)
+
+
+
 # Useful to target for example the root of the current layer (ex: to locate the
 # relevant, layer-local '_build' directory):
 #
@@ -244,10 +265,12 @@ endif
 # We define the path to the WOOPER layer (possibly available as a symbolic
 # link).
 #
-# For the sake of these build-related makefiles, dependencies may be found
-# either in a local _checkouts child directory (if checkout directories are used
-# and if the top-level package of interest is the current one), or in sibling
-# directories (i.e. whose build root is at the same level as this one).
+# For the sake of these build-related makefiles, Ceylan dependencies will be
+# searched (in that order, the one enforced in otp_utils) in a local _checkouts
+# child directory (if checkout directories are used and if the top-level package
+# of interest is the current one), otherwise in sibling directories (i.e. whose
+# build root is at the same level as this one).
+#
 # This last case happens notably if not using checkout directories, or if using
 # them and if all the packages mentioned here are themselves dependencies (in
 # which case they are all sitting together in the _checkouts child directory).
@@ -255,31 +278,19 @@ endif
 # Note also we rely on the names of build roots (ex: myriad) as opposed to
 # project/repository names (ex: Ceylan-Myriad):
 #
-ifneq ($(wildcard $(TRACES_TOP)/../wooper),)
-
-	# By default, expect sibling directories:
-	WOOPER_TOP = $(TRACES_TOP)/../wooper
-
+# First priority is an existing checkout directory:
+ifneq ($(wildcard $(TRACES_TOP)/_checkouts/wooper/.),)
+	WOOPER_TOP = $(TRACES_TOP)/_checkouts/wooper
 else
-
-	# Otherwise assume a checkout one:
-	ifneq ($(wildcard $(TRACES_TOP)/_checkouts/wooper),)
-
-		WOOPER_TOP = $(TRACES_TOP)/_checkouts/wooper
-
+	# Second, a sibling one is searched for:
+	ifneq ($(wildcard $(TRACES_TOP)/../wooper/.),)
+		WOOPER_TOP = $(TRACES_TOP)/../wooper
    else
-
 		# Otherwise most probably in a 'rebar3 compile' context:
-		ifneq ($(wildcard $(TRACES_TOP)/_build/default/lib/wooper),)
-
+		ifneq ($(wildcard $(TRACES_TOP)/_build/default/lib/wooper/.),)
 			WOOPER_TOP = $(TRACES_TOP)/_build/default/lib/wooper
-
 		else
-
 			FORCE_EVAL := $(error Unable to find the build root of Ceylan-WOOPER from $(realpath .).)
-
 		endif
-
 	endif
-
 endif
