@@ -55,8 +55,13 @@ run() ->
 	?test_trace( "Then testing the trace bridge with a Ceylan-Traces bridge "
 				 "registered for this test process." ),
 
-	trace_bridge:register( "MyBridgeTester", "MyTraceCategory",
-						   class_TraceAggregator:get_aggregator() ),
+	% We define our own bridge spec and apply it to ourself:
+
+	BridgeSpec = trace_bridge:get_bridge_spec( _MyEmitterName="MyBridgeTester",
+		_MyCateg="MyTraceCategory", class_TraceAggregator:get_aggregator() ),
+
+	trace_bridge:register( BridgeSpec ),
+
 
 	trace_bridge_test:emit_traces(),
 
