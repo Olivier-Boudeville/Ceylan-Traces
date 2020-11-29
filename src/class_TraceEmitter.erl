@@ -72,7 +72,7 @@
 
 
 % Helper functions:
--export([ init/1, set_categorization/2,
+-export([ init/1, register_as_bridge/1, set_categorization/2,
 		  send/3, send_safe/3, send/4, send_safe/4, send/5, send_safe/5,
 		  send_synchronised/3, send_synchronised/4, send_synchronised/5,
 		  get_trace_timestamp/1, get_trace_timestamp_as_binary/1,
@@ -365,6 +365,74 @@ display( State ) ->
 -spec toString( wooper:state() ) -> const_request_return( ustring() ).
 toString( State ) ->
 	wooper:const_return_result( wooper:state_to_string( State ) ).
+
+
+
+
+% Callback triggered whenever a linked process stops, if this instance is to
+% trap exits (not true by default).
+%
+-spec onWOOPERExitReceived( wooper:state(), pid(),
+						basic_utils:exit_reason() ) -> const_oneway_return().
+onWOOPERExitReceived( State, PidOrPort, _ExitReason=normal ) ->
+
+	?debug_fmt( "The TraceEmitter default EXIT handler of this instance "
+		"ignored a normal EXIT message from ~w.", [ PidOrPort ] ),
+
+	wooper:const_return();
+
+onWOOPERExitReceived( State, PidOrPort, ExitReason ) ->
+
+	?warning_fmt( "The TraceEmitter default EXIT handler of this instance "
+		"ignored the following EXIT message from ~w:~n'~p'.",
+		[ PidOrPort, ExitReason ] ),
+
+	wooper:const_return().
+
+
+
+% Callback triggered whenever a linked process stops, if this instance is to
+% trap exits (not true by default).
+%
+-spec onWOOPERDownNotified( wooper:state(), monitor_utils:monitor_reference(),
+		monitor_utils:monitored_element_type(),
+		monitor_utils:monitored_element(), monitor_utils:monitor_info() ) ->
+								const_oneway_return().
+onWOOPERDownNotified( State, MonitorRef, MonitoredType, MonitoredElement,
+					  MonitorInfo ) ->
+
+	?warning_fmt( "The TraceEmitter default EXIT handler of this instance "
+		"ignored the following DOWN notification '~p' "
+		"for monitored element ~p of type '~p' (monitor reference: ~w).",
+		[ MonitorInfo, MonitoredElement, MonitoredType, MonitorRef ] ),
+
+	wooper:const_return().
+
+
+
+% Callback triggered if this instance when a new node is connected,
+-spec onWOOPERNodeConnection( wooper:state(), net_utils:atom_node_name(),
+			  monitor_utils:monitor_node_info() ) -> const_oneway_return().
+onWOOPERNodeConnection( State, Node, MonitorNodeInfo ) ->
+
+	?warning_fmt( "The TraceEmitter default node up handler of this instance "
+		"ignored the connection notification for node '~s' (information: ~p).",
+		[ Node, MonitorNodeInfo ] ),
+
+	wooper:const_return().
+
+
+
+% Callback triggered if this instance when a new node is connected,
+-spec onWOOPERNodeDisconnection( wooper:state(), net_utils:atom_node_name(),
+			  monitor_utils:monitor_node_info() ) -> const_oneway_return().
+onWOOPERNodeDisconnection( State, Node, MonitorNodeInfo ) ->
+
+	?warning_fmt( "The TraceEmitter default node down handler of this instance "
+		"ignored the disconnection notification for node '~s' (information: ~p).",
+		[ Node, MonitorNodeInfo ] ),
+
+	wooper:const_return().
 
 
 
@@ -864,6 +932,21 @@ init( State ) ->
 	setAttributes( State, [
 		{ emitter_node, net_utils:localnode_as_binary() },
 		{ trace_aggregator_pid, AggregatorPid } ] ).
+
+
+
+% Declares additionally a trace bridge in the process of this instance.
+%
+% Allows functions implemented in lower-level libraries (typically relying on
+% Myriad) that are called directly from this instance process, or helper
+% functions with no corresponding WOOPER state, to plug to the same trace
+% aggregator as used by this instance with mostly the same settings, through a
+% corresponding trace bridge.
+%
+-spec register_as_bridge( wooper:state() ) -> void().
+register_as_bridge( State ) ->
+	trace_bridge:register( _BridgeSpec={ ?getAttr(name),
+		?getAttr(trace_categorization), ?getAttr(trace_aggregator_pid) } ).
 
 
 
