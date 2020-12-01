@@ -72,7 +72,7 @@
 
 
 % Helper functions:
--export([ init/1, register_as_bridge/1, set_categorization/2,
+-export([ init/1, register_bridge/1, set_categorization/2,
 		  send/3, send_safe/3, send/4, send_safe/4, send/5, send_safe/5,
 		  send_synchronised/3, send_synchronised/4, send_synchronised/5,
 		  get_trace_timestamp/1, get_trace_timestamp_as_binary/1,
@@ -438,6 +438,53 @@ onWOOPERNodeDisconnection( State, Node, MonitorNodeInfo ) ->
 
 
 % Static section.
+
+
+
+% Registers in the caller process a trace bridge suitable to integrate to this
+% Traces subsystem.
+%
+% Dedicated to normal (non-TraceEmitter, probably not even non-WOOPER) processes
+% that nevertheless need to send traces, to centralise them.
+%
+% See also the register_bridge/1 helper for trace emitter instances that need to
+% define additionally their trace bridge, in order that the lower-level
+% libraries/functions that they call can send such traces as well.
+%
+-spec register_as_bridge( emitter_name(), emitter_categorization() ) ->
+								static_void_return().
+register_as_bridge( TraceEmitterName, TraceCategory ) ->
+
+	TraceAggregatorPid =
+		class_TraceAggregator:get_aggregator( _LaunchAggregator=false ),
+
+	register_as_bridge( TraceEmitterName, TraceCategory, TraceAggregatorPid ),
+
+	wooper:return_static_void().
+
+
+
+% Registers in the caller process a trace bridge suitable to integrate to this
+% Traces subsystem.
+%
+% Dedicated to normal (non-TraceEmitter, probably not even non-WOOPER) processes
+% that nevertheless need to send traces, to centralise them.
+%
+% See also the register_as_bridge/1 helper for trace emitter instances that need
+% to define additionally their trace bridge, in order that the lower-level
+% libraries/functions that they call can send such traces as well.
+%
+-spec register_as_bridge( emitter_name(), emitter_categorization(),
+						  aggregator_pid() ) -> static_void_return().
+
+register_as_bridge( TraceEmitterName, TraceCategory, TraceAggregatorPid ) ->
+
+	trace_bridge:register( _BridgeSpec={
+		text_utils:ensure_binary( TraceEmitterName ),
+		text_utils:ensure_binary( TraceCategory ), TraceAggregatorPid } ),
+
+	wooper:return_static_void().
+
 
 
 % Returns the names of all the base state attributes (be they defined by this
@@ -935,7 +982,7 @@ init( State ) ->
 
 
 
-% Declares additionally a trace bridge in the process of this instance.
+% Declares additionally a trace bridge in the process of this emitter instance.
 %
 % Allows functions implemented in lower-level libraries (typically relying on
 % Myriad) that are called directly from this instance process, or helper
@@ -943,8 +990,14 @@ init( State ) ->
 % aggregator as used by this instance with mostly the same settings, through a
 % corresponding trace bridge.
 %
--spec register_as_bridge( wooper:state() ) -> void().
-register_as_bridge( State ) ->
+% See also: the register_as_bridge/{2,3} static methods, offered to normal
+% (non-TraceEmitter, probably not even non-WOOPER) processes that nevertheless
+% need to send traces.
+%
+% (helper)
+%
+-spec register_bridge( wooper:state() ) -> void().
+register_bridge( State ) ->
 	trace_bridge:register( _BridgeSpec={ ?getAttr(name),
 		?getAttr(trace_categorization), ?getAttr(trace_aggregator_pid) } ).
 
