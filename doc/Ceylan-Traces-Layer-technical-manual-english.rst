@@ -37,13 +37,13 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2020 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Wednesday, October 21, 2020
+:Lastly updated: Saturday, December 5, 2020
 :Status: Work in progress
-:Version: 0.9.14
+:Version: 0.9.15
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
-	The role of the `Traces <http://traces.esperide.org/>`_ layer (part of the `Ceylan <https://github.com/Olivier-Boudeville/Ceylan>`_ project) is to provide Erlang applications with advanced trace services, so that the user can efficiently log, browse and search through detailed runtime messages that may be emitted concurrently (i.e. in a parallel, distributed way).
+	The role of the `Traces <http://traces.esperide.org/>`_ layer (part of the `Ceylan <https://github.com/Olivier-Boudeville/Ceylan>`_ project) is to provide Erlang applications with advanced trace services, so that the user can efficiently log, browse and search through detailed runtime messages that may be emitted concurrently (i.e. in a parallel, distributed way) by all kinds of processes.
 
 	We present here a short overview of these services, to introduce them to newcomers.
 	The next level of information is to read the corresponding `source files <https://github.com/Olivier-Boudeville/Ceylan-Traces>`_, which are intensely commented and generally straightforward.
@@ -65,15 +65,19 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 Overview
 --------
 
-This layer is in charge of providing `Erlang <http://erlang.org>`_ programs with the means of emitting, collecting, storing and browsing *applicative traces* (i.e. logs).
+This layer is in charge of providing `Erlang <http://erlang.org>`_ programs with the means of emitting, collecting, storing and browsing *applicative traces* (i.e. logs - not related in any way to `Erlang tracing <https://erlang.org/doc/man/erlang.html#trace-3>`_).
 
-For that, various components have been designed and implemented, such as trace aggregator, emitter, listener, supervisor, etc.
+This means that both user-originating traces (that your code emits thanks the Traces API) and standard Erlang logs are routed and centralised in a single view whose purpose is to help monitoring your application(s) as a whole.
 
-They collectively constitute the `Traces <http://traces.esperide.org/>`_ layer, whose prerequisites are the `WOOPER <http://wooper.esperide.org/>`_ layer (for object-oriented primitives) and the `Myriad <http://myriad.esperide.org/>`_ layer (for many lower-level services; itself a prerequisite of WOOPER).
+For that, various types of components have been designed and implemented, such as a trace aggregator, emitter, listener, supervisor, bridge, etc.
 
-The main purpose of this **Traces** layer is to provide adequate traces for distributed systems (a rather critical feature in order to debug in these difficult contexts), and to ease their study and browsing. A few back-ends are available for that, from the direct reading of the (raw) trace files to considerably more user-friendly solutions, such as the generation of PDF reports or the use of our more advanced trace format, which can be read by commercial tools such as `LogMX <http://www.logmx.com/>`_ [#]_.
+They collectively constitute the `Traces <http://traces.esperide.org/>`_ layer, whose only prerequisites (besides Erlang itself, of course) are the `WOOPER <http://wooper.esperide.org/>`_ layer (for object-oriented primitives) and the `Myriad <http://myriad.esperide.org/>`_ layer (for many lower-level services; itself a prerequisite of WOOPER).
 
-.. [#] The Ceylan-Traces layer defined a trace format of its own, supported by our Java-based parser for LogMX.
+The main purpose of this **Traces** layer is thus to provide adequate traces (i.e. advanced logs) for distributed systems (a rather critical feature in order to debug in these difficult contexts), and to ease their study and browsing. A few backends are available for that, from the direct reading of basic (text) trace files to considerably more user-friendly solutions, such as the generation of PDF reports or the use of our more advanced trace format, which can be read notably by commercial tools such as `LogMX <http://www.logmx.com/>`_ [#]_.
+
+.. [#] The Ceylan-Traces layer defined a trace format of its own, supported by our Java-based parser for LogMX. For what it is worth, LogMX is the only non-free, commercial tool on which we rely, as we find it quite convenient. Devising an interface to any other log browsing tool of interest is certainly a rather reasonable option. Pull requests welcome!
+
+Finally, an effort has been made to lessen the runtime impact of this service when it is enabled, and to pretty remove it as a whole (hence with no runtime overhead) when disabled (through flexible build options).
 
 
 .. _`trace levels`
@@ -81,22 +85,28 @@ The main purpose of this **Traces** layer is to provide adequate traces for dist
 
 .. _`trace severity`:
 
-------------
-Trace Levels
-------------
+----------------
+Trace Severities
+----------------
 
-There are six built-in levels for trace channels, of increasing severity:
+Traces now relies on the same conventions as the ones of the newer standard logging facility in Erlang/OTP, `logger <https://erlang.org/doc/man/logger.html>`_, which itself obeys the Syslog protocol, as defined in `RFC 5424 <https://www.ietf.org/rfc/rfc5424.txt>`_.
 
-===================== ============
-Trace Severity        Mapped Level
-===================== ============
-``debug``             6
-``trace``             5
-``info``              4
-``warning``           3
-``error``             2
-``fatal``             1
-===================== ============
+There are eight built-in levels for trace channels, of increasing severity:
+
+===================== ===============
+Trace Severity        Mapped Priority
+===================== ===============
+``debug``             7
+``info``              6
+``notice``            5
+``warning``           4
+``error``             3
+``critical``          2
+``alert``             1
+``emergency``         0
+===================== ===============
+
+Starting from ``warning`` onward (thus included), these severities are considered as error-like, and as such will never be disabled and will be echoed on the console as well.
 
 
 There is also an addition trace severity, ``void``, that designates traces that shall be muted in all cases.
@@ -114,6 +124,8 @@ Its purpose is to provide another means of muting/unmuting some traces, instead 
 -------------
 Trace Content
 -------------
+
+  Note: this section is not of interest for Traces *users*, it is only useful if wanting to integrate other tools or simply to have a look under the hood.
 
 The traces corresponding to an execution are represented as an wallclock-time ordered stream of trace messages.
 
@@ -148,7 +160,14 @@ or, better, in an OTP-compliant fashion::
 
  -include_lib("traces/include/class_TraceEmitter.hrl").
 
-This process can be a standalone module (ex: a test or an application launcher, see `trace_management_test.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/trace_management_test.erl>`_) or, more frequently, it might correspond to a WOOPER (active) instance, in which case it shall inherit, directly or not, from ``class_TraceEmitter`` (see `class_TestTraceEmitter.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/class_TestTraceEmitter.erl>`_ for a complete example of it).
+This process can be a standalone module (ex: a test or an application launcher, see `trace_management_test.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/trace_management_test.erl>`_) or, more frequently, it might correspond to a WOOPER (active or passive) instance, in which case it shall inherit, directly or not, from ``class_TraceEmitter`` (see `class_TestTraceEmitter.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/class_TestTraceEmitter.erl>`_ for a complete example of it).
+
+
+.. _`trace bridge`:
+
+Traces can also be emitted thanks to Myriad's `trace_bridge <https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/src/utils/trace_bridge.erl>`_. This is especially useful when developing lower-level libraries that can depend on Myriad, but *may* introduce extra runtime dependencies such as WOOPER and Traces only optionally. Using that bridge, the traces will by default go through Myriad's low level `trace_utils <https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/src/utils/trace_utils.erl>`_, unless Traces is available, in which case its default trace aggregator will be used.
+
+Such a bridge is also useful whenever spawning processes that have not direct trace emitter state of their own, yet may at least in some cases send traces; the bridge allows them to use a designated trace emitter as a relay.
 
 
 
@@ -164,7 +183,7 @@ or::
   ?info_fmt("The value ~B is the answer.",[MyValue])
 
 
-Many API variations exist (see `class_TraceEmitter.hrl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/include/class_TraceEmitter.hrl>`_), to account for the various `trace content`_, contexts, etc., but ``?T(Message)`` and ``?T_fmt(MessageFormat,MessageValues)``, for ``T`` corresponding to a `trace severity`_, are by far the most frequently used.
+Many API variations exist (see `class_TraceEmitter.hrl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/include/class_TraceEmitter.hrl>`_), to account for the various `trace content`_, contexts, etc., but ``?S(Message)`` and ``?S_fmt(MessageFormat,MessageValues)``, for ``S`` corresponding to a `trace severity`_ (ex: ``S`` being ``notice``), are by far the most frequently used.
 
 
 
@@ -172,7 +191,7 @@ From constructors
 =================
 
 
-Note that for example ``?debug(Message)`` is a macro that expands (literally) to:
+Note that for example ``?debug(Message)`` is a macro that (if Traces is enabled) expands (literally) to:
 
 .. code:: erlang
 
@@ -180,9 +199,9 @@ Note that for example ``?debug(Message)`` is a macro that expands (literally) to
 
 As a result, the availability of a ``State`` variable in the scope of this macro is expected. Moreover, this WOOPER state variable shall be the one of a ``class_TraceEmitter`` instance (either directly or, more probably, through inheritance).
 
-This is not a problem in the most common case, when using traces in member methods (as by design they should be offering such a ``State``), yet in constructors the initial state (i.e. the ``State`` variable fed to the ``construct`` operator of this class) is generally not the one of a trace emitter already (it is a blank state).
+This is not a problem in the most common case, when using traces in member methods (as by design they should be offering such a ``State``), yet in constructors the initial state (i.e. the ``State`` variable directly fed to the ``construct`` operator of this class) is generally not the one of a trace emitter already (it is a blank state).
 
-As a result, an instance will not be able to send traces until the completion of its own ``class_TraceEmitter`` constructor, and then it shall rely on that resulting state (for example named ``TraceState``). Sending a trace from that point should be done using ``?send_debug(TraceState,Message)`` - so that an appropriate state is used.
+As a result, an instance will not be able to send traces until the completion of its own ``class_TraceEmitter`` constructor, and then it shall rely on that resulting state (for example named ``TraceState``). Sending a trace of severity ``S`` from that point should be done using a ``send_S`` macro (ex: ``?send_debug(TraceState,Message)``) - so that an appropriate state is used.
 
 An example of some class ``Foobar`` inheriting directly from ``TraceEmitter`` will be clearer:
 
@@ -192,9 +211,9 @@ An example of some class ``Foobar`` inheriting directly from ``TraceEmitter`` wi
 
    construct(State,TraceEmitterName) ->
 	 TraceState = class_TraceEmitter:construct(State,TraceEmitterName),
-	 % Cannot use here ?trace("Hello!), as it would use 'State',
+	 % Cannot use here ?info("Hello!), as it would use 'State',
 	 % which is not a trace emitter yet! So:
-	 ?send_trace(TraceState,"Hello!"),
+	 ?send_info(TraceState,"Hello!"),
 	 [...]
 	 FinalState.
 
@@ -203,7 +222,7 @@ An example of some class ``Foobar`` inheriting directly from ``TraceEmitter`` wi
 Trace Categorisation
 ====================
 
-In addition to browsing the produced traces per emitter, origin, theme, wallclock or applicative timestamps, etc. it is often useful to be able to sort them per **emitter categorisation**, such a categorisation allowing to encompass multiple emitter instances of multiples emitter types.
+In addition to browsing the produced traces per emitter, origin, theme, wallclock or applicative timestamps, etc. it is often useful to be able to sort them per **emitter categorisation**, such a categorisation allowing to encompass multiple emitter instances of multiple emitter types.
 
 Categories are arbitrary, and are to be nested from the most general ones to the least (a bit like directories), knowing that subcategories are to be delimited by a dot character, like in: ``Art.Painting.Hopper``. As a consequence, any string can account for a category, keeping in mind dots have a specific meaning.
 
@@ -236,7 +255,7 @@ and use it in the constructor like the following example, where ``class_Cat`` in
    construct(State,TraceEmitterName) ->
 	 TraceState = class_Creature:construct(State,
 					?trace_categorize(TraceEmitterName)),
-	 % Cannot use ?trace("Hello!), as it would use 'State',
+	 % Cannot use ?warning("Hello!), as it would use 'State',
 	 % which is not a trace emitter yet! So:
 	 ?send_warning(TraceState,"Cat on the loose!"),
 	 [...]
@@ -245,9 +264,9 @@ and use it in the constructor like the following example, where ``class_Cat`` in
 
 Then all traces sent by all cats will be automatically registered with this trace emitter category.
 
-The purpose of the ``trace_categorize`` macro used in the above example is to register the trace categorisation define through the inheritance tree so that, right from the start, the most precise category is used for all emitted traces [#]_.
+The purpose of the ``trace_categorize`` macro used in the above example is to register the trace categorisation defined through the inheritance tree so that, right from the start, the most precise category is used for all emitted traces [#]_.
 
-.. [#] Otherwise, should the various constructors involved declare their own categorisation (which is the general case) and send traces, creating a cat instance would result in having these traces sorted under different emitter categories (ex: the one declared by ``class_Creature``, then by ``class_Cat``, etc.). Tracking the messages emitted by a given instance would be made more difficult than needed.
+.. [#] Otherwise, should the various constructors involved declare their own categorisation (which is the general case) and send traces, creating a cat instance would result in having these traces sorted under different emitter categories (ex: the one declared by ``class_Creature``, then by ``class_Cat``, etc.). Tracking the messages emitted by a given instance would be made more difficult than needed, using this macro allows to have them gathered all in the most precise category from the start.
 
 
 
@@ -259,9 +278,9 @@ The trace macros used above can be fully toggled at build-time, on a per-module 
 
 See the ``ENABLE_TRACES`` make variable in `GNUmakevars.inc <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/GNUmakevars.inc>`_ for that, and do not forget to recompile all classes and modules that shall observe this newer setting.
 
-Note that the ``warning``, ``error`` and ``fatal`` trace severities will not be impacted by this setting, as they shall remain always available (never muted).
+Note that an error-like `trace severity`_ will not be impacted by this setting, as such traces shall remain always available (never muted).
 
-Doing so incurs a very low runtime overhead anyway (supposing of course that sending these failure-related messages happens rather infrequently), as the cost of a mostly idle trace aggregator (which is spawned in all cases) is mostly negligible - knowing that runtime resource consumption happens only when/if emitting traces for good.
+Doing so incurs a very low runtime overhead anyway (supposing of course that sending these failure-related messages happens rather infrequently), as the cost of a mostly idle trace aggregator (which is spawned in all cases) is mostly negligible - knowing that runtime resource consumption happens only when/if emitting actual traces.
 
 
 
@@ -283,7 +302,7 @@ Then switching to the more advanced traces discussed here is just a matter of re
 (with no further change in the trace parameters).
 
 
-Yet now there is a better way of doing so (not requiring trace primitives to be changed once specified), through the use of the `trace_bridge <https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/src/utils/trace_bridge.erl>`_ module - which is also provided by the ``Myriad`` layer - instead.
+Yet now, as already mentioned, there is a better way of doing so (not requiring trace primitives to be changed once specified), through the use of the `trace_bridge <https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/src/utils/trace_bridge.erl>`_ module - which is also provided by the ``Myriad`` layer - instead.
 
 It allows all Erlang code, including the one of lower-level libraries, to rely ultimately either on basic traces (i.e. the ones offered by Myriad in ``trace_utils``) or on more advanced ones (typically the ones discussed here, offered by Traces - or any other respecting the same conventions) transparently (i.e. with no further change, once the emitter process is registered).
 
@@ -298,7 +317,7 @@ It should be noted that the ordering of the reported traces is the one seen by t
 
 So, due to network and emitter latencies, it may happen (rather infrequently) that in a distributed setting a trace message associated to a cause ends up being listed, among the registered traces, *after* a trace message associated to a consequence thereof [#]_; nevertheless each trace includes a wall-clock timestamp corresponding to its sending (hence expressed according to the local time of its trace emitter).
 
-.. [#] A total, reproducible order on the distributed traces could be implemented, yet its runtime cost would be sufficiently high to have a far larger impact onto the executions that this trace system is to instrument than the current system (and such an impact would of course not be desirable).
+.. [#] A total, reproducible order on the distributed traces could be implemented, yet its runtime synchronisation cost would be sufficiently high to have a far larger impact onto the executions that this trace system is to instrument than the current system (and such an impact would of course not be desirable).
 
 
 -----------------------
@@ -309,8 +328,8 @@ Traces may be browsed thanks to either of the following supervision solutions (s
 
 - ``text_traces``, itself available in two variations:
 
- - ``text_only`` if wanting to have traces be directly written to disk as pure, yet human-readable, text
- - ``pdf``, if wanting to read finally the traces in a generated PDF file (hence the actual text includes a relevant mark-up, and as such is less readable directly)
+  - ``text_only`` if wanting to have traces be directly written to disk as pure, yet human-readable, text
+  - ``pdf``, if wanting to read finally the traces in a generated PDF file (hence the actual text includes a relevant mark-up, and as such is less readable directly before a PDF is generated out of it)
 
 - ``advanced_traces``, for smarter log tools such as LogMX (the default), as discussed below
 
@@ -358,7 +377,7 @@ This trace format can be parsed by various trace supervisors, the most popular b
 
 Various measures have been taken in order to reduce the overhead induced by the overall trace system.
 
-Notably traces are sent in a "fire and forget", non-blocking manner (thanks to oneways, which are not specifically acknowledged). The number of messages exchanged is thus reduced, at the cost of a lesser synchronization of the traces (i.e. there is no strong guarantee that the traces will be ultimately recorded and displayed in the order of their emission in wallclock-time, as they will be directly and sequentially stored in their actual order of receiving by the trace aggregator [#]_, an order which itself depends on the potentially varied network latencies experienced from the potential multiple sources to the trace aggregator).
+Notably normal traces (as opposed to error-like ones) are sent in a "fire and forget", non-blocking manner (thanks to oneways, which are not specifically acknowledged). The number of messages exchanged is thus reduced, at the cost of a lesser synchronization of the traces (i.e. there is no strong guarantee that the traces will be ultimately recorded and displayed in the order of their emission in wallclock-time, as they will be directly and sequentially stored in their actual order of receiving by the trace aggregator [#]_, an order that depends itself on the potentially varied network latencies experienced from the potential multiple sources to the trace aggregator).
 
 .. [#] For example, if both the trace aggregator and a process B are running on the same host, and if a process A, running on another host, emits a trace then sends a message to B so that B sends in turn a trace, then the trace from  B *might* in some cases be received - and thus be listed - by the aggregator *before* the trace for A (it depends on the network congestion, relative scheduling of processes, etc.).
 
@@ -426,9 +445,9 @@ Ceylan-Traces is licensed by its author (Olivier Boudeville) under a disjunctive
 
 This allows the use of the Traces code in as wide a variety of software projects as possible, while still maintaining copyleft on this code.
 
-Being triple-licensed means that someone (the licensee) who modifies and/or distributes it can choose which of the available sets of licence terms he is operating under.
+Being triple-licensed means that someone (the licensee) who modifies and/or distributes it can choose which of the available sets of licence terms he/she is operating under.
 
-We hope that enhancements will be back-contributed (ex: thanks to merge requests), so that everyone will be able to benefit from them.
+We hope that enhancements will be back-contributed (ex: thanks to pull requests), so that everyone will be able to benefit from them.
 
 
 
@@ -441,7 +460,7 @@ As mentioned, the single, direct prerequisite of `Ceylan-Traces <https://github.
 
 We prefer using GNU/Linux, sticking to the latest stable release of Erlang, and building it from sources, thanks to GNU ``make``.
 
-Refer to the corresponding `Myriad prerequisite section <http://myriad.esperide.org#prerequisites>`_  for more precise guidelines, knowing that Ceylan-Traces does not need modules with conditional support such as ``crypto`` or ``wx``.
+Refer to the corresponding `Myriad prerequisite section <http://myriad.esperide.org#prerequisites>`_  for more precise guidelines, knowing that Ceylan-Traces does not need any module with conditional support such as ``crypto`` or ``wx``.
 
 
 
@@ -492,7 +511,7 @@ Build-time Conventions
 
 As discussed in these sections of `Myriad <http://myriad.esperide.org/myriad.html#otp>`_ and `WOOPER <http://wooper.esperide.org/index.html#otp>`_, we added the (optional) possibility of generating a Traces *OTP application* out of the build tree, ready to be integrated into an *(OTP) release*. For that we rely on `rebar3 <https://www.rebar3.org/>`_, `relx <https://github.com/erlware/relx>`_ and `hex <https://hex.pm/>`_.
 
-Unlike Myriad (which is an OTP *library* application), Traces is (like WOOPER) an OTP *active* application, meaning the reliance on an application that can be started/stopped (``traces_app``) and a root supervisor (``traces_sup``); unlike WOOPER this time - whose main server (the class manager) is a ``gen_server`` - Traces relies on a trace aggregator that is a background server process yet that does not implement the ``gen_server`` behaviour but the `supervisor_bridge <http://erlang.org/doc/man/supervisor_bridge.html>`_ one: the trace aggregator is indeed `a WOOPER instance <http://wooper.esperide.org/index.html#otp_for_instances>`_.
+Unlike Myriad (which is an OTP *library* application), Traces is (like WOOPER) an OTP *active* application, meaning the reliance on an application that can be started/stopped (``traces_app``) and on a root supervisor (``traces_sup``); unlike WOOPER this time - whose main server (the class manager) is a ``gen_server`` - Traces relies on a trace aggregator that is a background server process yet that does not implement the ``gen_server`` behaviour but the `supervisor_bridge <http://erlang.org/doc/man/supervisor_bridge.html>`_ one: the trace aggregator is indeed `a WOOPER instance <http://wooper.esperide.org/index.html#otp_for_instances>`_.
 
 As for Myriad and WOOPER, most versions of Traces are also published as `Hex packages <https://hex.pm/packages/traces>`_.
 
@@ -517,6 +536,11 @@ Runtime Conventions
 -------------------
 
 Whether or not a graphical trace supervisor is launched depends on the batch mode, which can be set through the ``is_batch`` key in the ``traces`` section of the release's ``sys.config`` file.
+
+We found convenient to define alternatively a shell environment variable (possibly named ``BATCH``), and whose value can be ``CMD_LINE_OPT="--batch"``, for an easier switch from the command-line.
+
+Then, for example for a test module defined in ``foobar_test.erl``, running from the command-line ``make foobar_run`` will result in the trace supervisor (typically LogMX) to be spawned, whereas ``make foobar_run $BATCH`` will not (i.e. the traces will be emitted and collected as usual, but will not be specifically supervised graphically).
+
 
 
 -------
