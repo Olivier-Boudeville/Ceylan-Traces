@@ -340,14 +340,14 @@ Trace Supervision & Browsing
 
 Indeed the tool that generally we use for trace browsing is `LogMX <http://www.logmx.com/>`_ (the only tool that we use that is not free software, as we find it convenient), which we integrated:
 
-.. image:: logmx-interface.png
-		   :scale: 45 %
+:raw-html:`<center><img src="logmx-interface.png" width="70%"></img></center>`
+:raw-latex:`\includegraphics[scale=0.20]{logmx-interface.png}`
 
 
 We implemented a Java-based parser of our trace format for LogMX (see ``CeylanTraceParser.java``):
 
-.. image:: logmx-levels.png
-		   :scale: 65 %
+:raw-html:`<center><img src="logmx-levels.png" width="70%"></img></center>`
+:raw-latex:`\includegraphics[scale=0.28]{logmx-levels.png}`
 
 
 Traces can be browsed with this tool:
