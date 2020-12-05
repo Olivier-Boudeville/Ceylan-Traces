@@ -44,7 +44,7 @@ run() ->
 
 	?test_start,
 
-	?test_trace( "Testing first when no trace bridge is registered." ),
+	?test_info( "Testing first when no trace bridge is registered." ),
 
 	% Note that we rely on the same test sending as the one done in Myriad, to
 	% better showcase it can be transparently switched:
@@ -52,8 +52,8 @@ run() ->
 	trace_bridge_test:emit_traces(),
 
 
-	?test_trace( "Then testing the trace bridge with a Ceylan-Traces bridge "
-				 "registered for this test process." ),
+	?test_info( "Then testing the trace bridge with a Ceylan-Traces bridge "
+				"registered for this test process." ),
 
 	% We define our own bridge spec and apply it to ourself:
 

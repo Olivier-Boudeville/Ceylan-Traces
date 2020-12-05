@@ -123,13 +123,12 @@
 -spec construct( wooper:state(), aggregator_pid(), pid() ) -> wooper:state().
 construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 
-	trace_utils:info_fmt( "~s Creating a trace listener whose PID is ~w, "
-						  "synchronized on trace aggregator ~w.",
-						  [ ?LogPrefix, self(), TraceAggregatorPid ] ),
+	trace_utils:notice_fmt( "~s Creating a trace listener whose PID is ~w, "
+		"synchronized on trace aggregator ~w.",
+		[ ?LogPrefix, self(), TraceAggregatorPid ] ),
 
-	trace_utils:debug_fmt(
-	  "~s Requesting from aggregator a trace synchronization.",
-	  [ ?LogPrefix ] ),
+	trace_utils:debug_fmt( "~s Requesting from aggregator a trace "
+						   "synchronization.", [ ?LogPrefix ] ),
 
 	TraceAggregatorPid ! { addTraceListener, self() },
 
@@ -173,7 +172,7 @@ construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 
 	EndState = executeOneway( SetState, monitor ),
 
-	%trace_utils:trace_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
+	%trace_utils:info_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
 
 	EndState.
 
@@ -190,7 +189,7 @@ construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
 		   CloseListenerPid ) ->
 
-	trace_utils:info_fmt( "~s Creating a trace listener whose PID is ~w, "
+	trace_utils:notice_fmt( "~s Creating a trace listener whose PID is ~w, "
 		"synchronized on trace aggregator ~w, using a TCP listening port "
 		"in the [~B,~B[ range.",
 		[ ?LogPrefix, self(), TraceAggregatorPid, MinTCPPort, MaxTCPPort ] ),
@@ -218,7 +217,7 @@ construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
 
 	EndState = executeOneway( SetState, monitor ),
 
-	%trace_utils:trace_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
+	%trace_utils:info_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
 
 	EndState.
 
@@ -233,7 +232,7 @@ manage_send_traces( CompressedFilename, State ) ->
 
 	file_utils:remove_file( CompressedFilename ),
 
-	%trace_utils:trace_fmt( "~s Received from aggregator a trace "
+	%trace_utils:info_fmt( "~s Received from aggregator a trace "
 	%					   "synchronization for file '~s', reused for "
 	%					   "later traces.", [ ?LogPrefix, TraceFilename ] ),
 
@@ -254,7 +253,7 @@ manage_send_traces( CompressedFilename, State ) ->
 -spec destruct( wooper:state() ) -> wooper:state().
 destruct( State ) ->
 
-	trace_utils:info_fmt( "~s Deleting trace listener.", [ ?LogPrefix ] ),
+	trace_utils:notice_fmt( "~s Deleting trace listener.", [ ?LogPrefix ] ),
 
 	% Important message, to avoid loading the aggregator with sendings to
 	% defunct listeners:
@@ -270,7 +269,7 @@ destruct( State ) ->
 	case ?getAttr(close_listener_pid) of
 
 		Pid when is_pid( Pid ) ->
-			%trace_utils:info( "Notifying close listener of deletion." ),
+			%trace_utils:notice( "Notifying close listener of deletion." ),
 			Pid ! { trace_listening_finished, self() };
 
 		_ ->
@@ -278,7 +277,7 @@ destruct( State ) ->
 
 	end,
 
-	trace_utils:info_fmt( "~s Trace listener deleted.", [ ?LogPrefix ] ),
+	trace_utils:notice_fmt( "~s Trace listener deleted.", [ ?LogPrefix ] ),
 
 	% Allow chaining:
 	State.
@@ -314,9 +313,8 @@ monitor( State ) ->
 
 	end,
 
-	trace_utils:info_fmt(
-	  "~s Trace listener will monitor file '~s' with LogMX now.",
-	  [ ?LogPrefix, Filename ] ),
+	trace_utils:notice_fmt( "~s Trace listener will monitor file '~s' "
+							"with LogMX now.", [ ?LogPrefix, Filename ] ),
 
 	Self = self(),
 
@@ -328,14 +326,13 @@ monitor( State ) ->
 			   ++ Filename ++ "'" ) of
 
 			{ _ExitCode=0, _Output } ->
-				trace_utils:info_fmt(
+				trace_utils:notice_fmt(
 				  "~s Trace listener ended the monitoring of '~s'.",
 				  [ ?LogPrefix, Filename ] );
 
 			{ ExitCode, ErrorOutput } ->
 				trace_utils:error_fmt( "The trace listening failed "
-									   "(error code: ~B): ~s.",
-									   [ ExitCode, ErrorOutput ] )
+					"(error code: ~B): ~s.", [ ExitCode, ErrorOutput ] )
 
 		end,
 

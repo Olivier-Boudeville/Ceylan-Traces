@@ -78,15 +78,14 @@ start_link( TraceSupervisorWanted ) ->
 	   { supervisor:sup_flags(), [ supervisor:child_spec() ] } } | 'ignore'.
 init( TraceSupervisorWanted ) ->
 
-	trace_utils:trace_fmt( "Initializing the Traces root supervisor "
+	trace_utils:info_fmt( "Initializing the Traces root supervisor "
 		"(trace supervisor wanted: ~s).", [ TraceSupervisorWanted ] ),
 
 	% Restart only children that terminate.
 	% Never expected to fail, though:
 	%
 	SupSettings = otp_utils:get_supervisor_settings(
-					_RestartStrategy=one_for_one,
-					traces:get_execution_target() ),
+				_RestartStrategy=one_for_one, traces:get_execution_target() ),
 
 	% One child, a bridge in charge of the trace aggregator:
 	BridgeChildSpec = #{

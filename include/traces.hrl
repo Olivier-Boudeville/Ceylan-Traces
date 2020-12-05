@@ -101,9 +101,9 @@
 
 
 % We moved away from the tracing_activated conditional sections the most severe
-% trace sendings (namely fatal, error and warning), as in all cases (whether or
-% not the traces are activated), we want them, and both as actual traces and as
-% console outputs.
+% trace sendings (namely emergency, alert, critical, error and warning), as in
+% all cases (whether or not the traces are activated), we want them, and both as
+% actual traces and as console outputs, as they should not be missed.
 
 
 % Note: when no emitter categorization is specified, 'atom_to_list( ?MODULE )'
@@ -112,19 +112,19 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Fatal section.
+% Emergency section.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
-% Subsection for Fatal, without formatting.
+% Subsection for Emergency, without formatting.
 
 
 % To send traces neither from a TraceEmitter instance nor from a test (ex: in a
 % static method):
 %
--define( notify_fatal( Message ),
-		 class_TraceEmitter:send_standalone_safe( fatal, Message )
+-define( notify_emergency( Message ),
+		 class_TraceEmitter:send_standalone_safe( emergency, Message )
 ).
 
 
@@ -132,8 +132,8 @@
 % To send traces neither from a TraceEmitter instance nor from a test (ex: in a
 % static method):
 %
--define( notify_fatal_cat( Message, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( fatal, Message,
+-define( notify_emergency_cat( Message, EmitterCategorization ),
+		 class_TraceEmitter:send_standalone_safe( emergency, Message,
 												  EmitterCategorization )
 ).
 
@@ -144,8 +144,8 @@
 %
 % (last parameter: MessageCategorization)
 %
--define( notify_fatal_named( Message, EmitterName, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( fatal, Message, EmitterName,
+-define( notify_emergency_named( Message, EmitterName, EmitterCategorization ),
+		 class_TraceEmitter:send_standalone( emergency, Message, EmitterName,
 				EmitterCategorization, uncategorized )
 ).
 
@@ -155,23 +155,23 @@
 % static method). ApplicationTimestamp corresponds to any measure of time
 % according to the application.
 %
--define( notify_fatal_full( Message, EmitterCategorization,
+-define( notify_emergency_full( Message, EmitterCategorization,
 							ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone_safe( fatal, Message,
+		 class_TraceEmitter:send_standalone_safe( emergency, Message,
 								EmitterCategorization, ApplicationTimestamp )
 ).
 
 
 
 
-% Subsection for Fatal, with formatting.
+% Subsection for Emergency, with formatting.
 
 
 % To send traces neither from a TraceEmitter instance nor from a test (ex: in a
 % static method):
 %
--define( notify_fatal_fmt( Message, FormatValues ),
-		 class_TraceEmitter:send_standalone_safe( fatal,
+-define( notify_emergency_fmt( Message, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( emergency,
 							  text_utils:format( Message, FormatValues ) )
 ).
 
@@ -180,8 +180,8 @@
 % To send traces neither from a TraceEmitter instance nor from a test (ex: in a
 % static method):
 %
--define( notify_fatal_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( fatal,
+-define( notify_emergency_fmt_cat( Message, FormatValues, EmitterCategorization ),
+		 class_TraceEmitter:send_standalone_safe( emergency,
 							  text_utils:format( Message, FormatValues ),
 							  EmitterCategorization )
 ).
@@ -191,14 +191,193 @@
 % To send traces neither from a TraceEmitter instance nor from a test (ex: in a
 % static method):
 %
--define( notify_fatal_fmt_full( Message, FormatValues, EmitterCategorization,
+-define( notify_emergency_fmt_full( Message, FormatValues, EmitterCategorization,
 								ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone_safe( fatal,
+		 class_TraceEmitter:send_standalone_safe( emergency,
 							  text_utils:format( Message, FormatValues ),
 							  EmitterCategorization, ApplicationTimestamp )
 ).
 
 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Alert section.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+% Subsection for Alert, without formatting.
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_alert( Message ),
+		 class_TraceEmitter:send_standalone_safe( alert, Message )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_alert_cat( Message, EmitterCategorization ),
+		 class_TraceEmitter:send_standalone_safe( alert, Message,
+												  EmitterCategorization )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: from
+% a static method):
+%
+% (last parameter: MessageCategorization)
+%
+-define( notify_alert_named( Message, EmitterName, EmitterCategorization ),
+		 class_TraceEmitter:send_standalone( alert, Message, EmitterName,
+				EmitterCategorization, uncategorized )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method). ApplicationTimestamp corresponds to any measure of time
+% according to the application.
+%
+-define( notify_alert_full( Message, EmitterCategorization,
+							ApplicationTimestamp ),
+		 class_TraceEmitter:send_standalone_safe( alert, Message,
+								EmitterCategorization, ApplicationTimestamp )
+).
+
+
+
+
+% Subsection for Alert, with formatting.
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_alert_fmt( Message, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( alert,
+							  text_utils:format( Message, FormatValues ) )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_alert_fmt_cat( Message, FormatValues, EmitterCategorization ),
+		 class_TraceEmitter:send_standalone_safe( alert,
+							  text_utils:format( Message, FormatValues ),
+							  EmitterCategorization )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_alert_fmt_full( Message, FormatValues, EmitterCategorization,
+								ApplicationTimestamp ),
+		 class_TraceEmitter:send_standalone_safe( alert,
+							  text_utils:format( Message, FormatValues ),
+							  EmitterCategorization, ApplicationTimestamp )
+).
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Critical section.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+% Subsection for Critical, without formatting.
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_critical( Message ),
+		 class_TraceEmitter:send_standalone_safe( critical, Message )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_critical_cat( Message, EmitterCategorization ),
+		 class_TraceEmitter:send_standalone_safe( critical, Message,
+												  EmitterCategorization )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: from
+% a static method):
+%
+% (last parameter: MessageCategorization)
+%
+-define( notify_critical_named( Message, EmitterName, EmitterCategorization ),
+		 class_TraceEmitter:send_standalone( critical, Message, EmitterName,
+				EmitterCategorization, uncategorized )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method). ApplicationTimestamp corresponds to any measure of time
+% according to the application.
+%
+-define( notify_critical_full( Message, EmitterCategorization,
+							ApplicationTimestamp ),
+		 class_TraceEmitter:send_standalone_safe( critical, Message,
+								EmitterCategorization, ApplicationTimestamp )
+).
+
+
+
+
+% Subsection for Critical, with formatting.
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_critical_fmt( Message, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( critical,
+							  text_utils:format( Message, FormatValues ) )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_critical_fmt_cat( Message, FormatValues, EmitterCategorization ),
+		 class_TraceEmitter:send_standalone_safe( critical,
+							  text_utils:format( Message, FormatValues ),
+							  EmitterCategorization )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_critical_fmt_full( Message, FormatValues, EmitterCategorization,
+								ApplicationTimestamp ),
+		 class_TraceEmitter:send_standalone_safe( critical,
+							  text_utils:format( Message, FormatValues ),
+							  EmitterCategorization, ApplicationTimestamp )
+).
 
 
 
@@ -394,7 +573,121 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Info section.
+% Notice section.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+% Subsection for Notice, without formatting.
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_notice( Message ),
+		 class_TraceEmitter:send_standalone( notice, Message )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_notice_cat( Message, EmitterCategorization ),
+		 class_TraceEmitter:send_standalone( notice, Message,
+											 EmitterCategorization )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_notice_em( Message, EmitterName, EmitterCategorization,
+						 MessageCategorization ),
+		 class_TraceEmitter:send_standalone( notice, Message, EmitterName,
+							 EmitterCategorization, MessageCategorization )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: from
+% a static method):
+%
+% (last parameter: MessageCategorization)
+%
+-define( notify_notice_named( Message, EmitterName, EmitterCategorization ),
+		 class_TraceEmitter:send_standalone( notice, Message, EmitterName,
+				EmitterCategorization, uncategorized )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_notice_full( Message, EmitterCategorization,
+						   ApplicationTimestamp ),
+		class_TraceEmitter:send_standalone( notice, Message,
+								EmitterCategorization, ApplicationTimestamp )
+).
+
+
+
+
+
+% Subsection for Notice, with formatting.
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_notice_fmt( Message, FormatValues ),
+		 class_TraceEmitter:send_standalone( notice,
+							  text_utils:format( Message, FormatValues ) )
+).
+
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_notice_fmt_cat( Message, FormatValues, EmitterCategorization ),
+		 class_TraceEmitter:send_standalone( notice,
+							  text_utils:format( Message, FormatValues ),
+							  EmitterCategorization )
+).
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_notice_fmt_em( Message, FormatValues, EmitterName,
+							 EmitterCategorization, MessageCategorization ),
+		 class_TraceEmitter:send_standalone( notice,
+					  text_utils:format( Message, FormatValues ), EmitterName,
+					  EmitterCategorization, MessageCategorization )
+).
+
+
+% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
+% static method):
+%
+-define( notify_notice_fmt_full( Message, FormatValues, EmitterCategorization,
+							   ApplicationTimestamp ),
+		 class_TraceEmitter:send_standalone( notice,
+							  text_utils:format( Message, FormatValues ),
+							  EmitterCategorization, ApplicationTimestamp )
+).
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Trace section.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -502,92 +795,6 @@
 							  EmitterCategorization, ApplicationTimestamp )
 ).
 
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Trace section.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-% Subsection for Trace, without formatting.
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_trace( Message ),
-		class_TraceEmitter:send_standalone( trace, Message )
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
--define( notify_trace_cat( Message, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( trace, Message,
-											 EmitterCategorization )
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: from
-% a static method):
-%
-% (last parameter: MessageCategorization)
-%
--define( notify_trace_named( Message, EmitterName, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( trace, Message, EmitterName,
-				EmitterCategorization, uncategorized )
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_trace_full( Message, EmitterCategorization,
-							ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone( trace, Message,
-								EmitterCategorization, ApplicationTimestamp )
-).
-
-
-% Subsection for Trace, with formatting.
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_trace_fmt( Message, FormatValues ),
-		 class_TraceEmitter:send_standalone( trace,
-							  text_utils:format( Message, FormatValues ) )
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_trace_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( trace,
-							  text_utils:format( Message, FormatValues ),
-							  EmitterCategorization )
-).
-
-
-
-% To send traces neither from a TraceEmitter instance nor from a test (ex: in a
-% static method):
-%
--define( notify_trace_fmt_full( Message, FormatValues, EmitterCategorization,
-								ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone( trace,
-							  text_utils:format( Message, FormatValues ),
-							  EmitterCategorization, ApplicationTimestamp )
-).
 
 
 
@@ -710,9 +917,63 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Info section.
+% Notice section.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+-define( notify_notice( Message ),
+		 trace_disabled( Message )
+).
+
+
+-define( notify_notice_cat( Message, EmitterCategorization ),
+		 trace_disabled( Message, EmitterCategorization )
+).
+
+
+-define( notify_notice_em( Message, EmitterName, EmitterCategorization,
+						 MessageCategorization ),
+		 trace_disabled( Message, EmitterName, EmitterCategorization,
+						 MessageCategorization )
+).
+
+
+-define( notify_notice_named( Message, EmitterName, EmitterCategorization ),
+		 trace_disabled( Message, EmitterName, EmitterCategorization )
+).
+
+
+-define( notify_notice_full( Message, EmitterCategorization,
+						   ApplicationTimestamp ),
+		 trace_disabled( Message, EmitterCategorization,
+						   ApplicationTimestamp )
+).
+
+
+
+-define( notify_notice_fmt( Message, FormatValues ),
+		 trace_disabled( Message, FormatValues )
+).
+
+
+-define( notify_notice_fmt_cat( Message, FormatValues, EmitterCategorization ),
+		 trace_disabled( Message, FormatValues, EmitterCategorization )
+).
+
+
+-define( notify_notice_fmt_full( Message, FormatValues, EmitterCategorization,
+							   ApplicationTimestamp ),
+		 trace_disabled( Message, FormatValues, EmitterCategorization,
+						 ApplicationTimestamp )
+).
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Info section.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 -define( notify_info( Message ),
 		 trace_disabled( Message )
@@ -756,53 +1017,6 @@
 
 -define( notify_info_fmt_full( Message, FormatValues, EmitterCategorization,
 							   ApplicationTimestamp ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization,
-						 ApplicationTimestamp )
-).
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Trace section.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
--define( notify_trace( Message ),
-		 trace_disabled( Message )
-).
-
-
--define( notify_trace_cat( Message, EmitterCategorization ),
-		 trace_disabled( Message, EmitterCategorization )
-).
-
-
--define( notify_trace_named( Message, EmitterName, EmitterCategorization ),
-		 trace_disabled( Message, EmitterName, EmitterCategorization )
-).
-
-
--define( notify_trace_full( Message, EmitterCategorization,
-							ApplicationTimestamp ),
-		 trace_disabled( Message, EmitterCategorization,
-						 ApplicationTimestamp )
-).
-
-
--define( notify_trace_fmt( Message, FormatValues ),
-		 trace_disabled( Message, FormatValues )
-).
-
-
--define( notify_trace_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization )
-).
-
-
--define( notify_trace_fmt_full( Message, FormatValues, EmitterCategorization,
-								ApplicationTimestamp ),
 		 trace_disabled( Message, FormatValues, EmitterCategorization,
 						 ApplicationTimestamp )
 ).
@@ -946,7 +1160,7 @@
 -define( notify_em( Message, EmitterName, EmitterCategorization,
 					MessageCategorization ),
 		 class_TraceEmitter:send_standalone_safe( info, Message, EmitterName,
-							 EmitterCategorization, MessageCategorization )
+							EmitterCategorization, MessageCategorization )
 ).
 
 
@@ -957,7 +1171,7 @@
 %
 -define( notify_fmt( Message, FormatValues ),
 		 class_TraceEmitter:send_standalone_safe( info,
-							 text_utils:format( Message, FormatValues ) )
+							text_utils:format( Message, FormatValues ) )
 ).
 
 

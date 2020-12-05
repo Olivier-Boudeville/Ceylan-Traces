@@ -54,19 +54,13 @@
 -type message_categorization() :: text_utils:ustring() | 'uncategorized'.
 
 
-% Note: now that LogMX v1.3.2 and later only support 5 levels of detail
-% (stack/error, warning/warn, info, fine, finest/debug, i.e. no more trace),
-% fatal and error messages have been put at the same priority level, and
-% Ceylan trace level has been kept, whereas others have been offset.
-%
-% See also: get_channel_name_for_priority/1.
-%
+% Numerical:
 -type priority() :: trace_utils:trace_priority().
 
 -type message() :: text_utils:ustring().
 
-
--type message_type() :: trace_utils:trace_severity().
+% 'emergency', 'alert', and all:
+-type trace_severity() :: trace_utils:trace_severity().
 
 
 
@@ -93,8 +87,18 @@
 
 -export_type([ emitter_name/0, emitter_categorization/0, emitter_info/0,
 			   app_timestamp/0, time/0, location/0, message_categorization/0,
-			   priority/0, message/0, message_type/0,
+			   priority/0, message/0, trace_severity/0,
 			   trace_supervision_type/0 ]).
+
+
+% Logger-related API (see https://erlang.org/doc/apps/kernel/logger_chapter.html
+% abd Myriad's trace_utils):
+%
+-export([ set_handler/0, add_handler/0, log/2 ]).
+
+
+% Handler id:
+-define( traces_logger_id, ceylan_traces_logger_handler_id ).
 
 
 % To define get_execution_target/0:
@@ -240,3 +244,135 @@ manage_supervision() ->
 			end
 
 	end.
+
+
+
+
+% Handler section for the integration of Erlang (newer) logger.
+%
+% Refer to https://erlang.org/doc/man/logger.html.
+
+
+% Replaces the current (probably default) logger handler with this Traces one
+% (registered as 'default').
+%
+-spec set_handler() -> void().
+set_handler() ->
+
+	TargetHandler = default,
+
+	case logger:remove_handler( TargetHandler ) of
+
+		ok ->
+			ok;
+
+		{ error, RemoveErrReason } ->
+			throw( { unable_to_remove_log_handler, RemoveErrReason,
+					 TargetHandler } )
+
+	end,
+
+	case logger:add_handler( _HandlerId=default, _Module=?MODULE,
+							 get_handler_config() ) of
+
+		ok ->
+			ok;
+
+		{ error, AddErrReason, TargetHandler } ->
+			throw( { unable_to_set_traces_log_handler, AddErrReason,
+					 TargetHandler } )
+
+	end.
+
+
+
+% Registers this Myriad logger handler as an additional one.
+-spec add_handler() -> void().
+add_handler() ->
+
+	case logger:add_handler( _HandlerId=?traces_logger_id, _Module=?MODULE,
+							 get_handler_config() ) of
+
+		ok ->
+			ok;
+
+		{ error, Reason } ->
+			throw( { unable_to_add_traces_log_handler, Reason } )
+
+	end.
+
+
+
+% Returns the (initial) configuration of the Traces logger handler.
+-spec get_handler_config() -> logger:handler_config().
+get_handler_config() ->
+
+	AggregatorPid = case class_TraceAggregator:get_aggregator() of
+
+		APid when is_pid( APid ) ->
+			APid;
+
+		% Most probably trace_aggregator_not_found:
+		Error ->
+			throw( Error )
+
+	end,
+
+	#{
+	  config => AggregatorPid
+	  % Defaults:
+	  % level => all,
+	  % filter_default => log | stop,
+	  % filters => [],
+	  % formatter => {logger_formatter, DefaultFormatterConfig}
+
+	  % Set by logger:
+	  %id => HandlerId
+	  %module => Module
+
+	 }.
+
+
+
+% Mandatory callback for log handlers.
+%
+% See https://erlang.org/doc/man/logger.html#HModule:log-2
+%
+-spec log( logger:log_event(), logger:handler_config() ) -> void().
+log( _LogEvent=#{ level := Level,
+				  %meta => #{error_logger => #{emulator => [...]
+				  msg := Msg }, _Config=TraceAggregatorPid ) ->
+
+	%io:format( "### Logging following event:~n ~p~n(with config: ~p).~n",
+	%		   [ LogEvent, Config ] ),
+
+	 TraceMsg = case Msg of
+
+		{ report, Report } ->
+			{ FmtStr, FmtValues } = logger:format_report( Report ),
+			text_utils:format( FmtStr, FmtValues );
+
+		  { string, S } ->
+			S;
+
+		{ FmtStr, FmtValues } ->
+			text_utils:format( FmtStr, FmtValues );
+
+		Other ->
+			throw( { unexpected_log_message, Other } )
+
+	 end,
+
+	Severity = trace_utils:standard_logger_level_to_severity( Level ),
+
+	%io:format( "### Logging following event:~n ~p~n(with config: ~p)~n "
+	%  "resulting in: '~s' (severity: ~p).",
+	%  [ LogEvent, Config, TraceMsg, Severity ] ),
+
+	class_TraceEmitter:send_direct( Severity, TraceMsg,
+		_EmitterCategorization= <<"Erlang logger">>, TraceAggregatorPid ),
+
+	trace_utils:echo( TraceMsg, Severity, "erlang_logger" );
+
+log( LogEvent, _Config ) ->
+	throw( { unexpected_log_event, LogEvent } ).

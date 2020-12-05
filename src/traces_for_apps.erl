@@ -32,8 +32,7 @@
 -module(traces_for_apps).
 
 
--export([ app_start/2, app_stop/3, app_immediate_stop/2,
-		  app_stop_on_shell/2 ]).
+-export([ app_start/2, app_stop/3, app_immediate_stop/2, app_stop_on_shell/2 ]).
 
 
 -define( trace_emitter_categorization, "application.life-cycle" ).
@@ -148,7 +147,7 @@ app_stop( ModuleName, TraceAggregatorPid, WaitForTraceSupervisor ) ->
 
 	% As app_start might have been called with InitTraceSupervisor=false.
 
-	%trace_utils:trace_fmt( "Application stopping (aggregator: ~w, wait "
+	%trace_utils:info_fmt( "Application stopping (aggregator: ~w, wait "
 	%    "supervisor: ~s).", [ TraceAggregatorPid, WaitForTraceSupervisor] ),
 
 	case WaitForTraceSupervisor of
@@ -161,7 +160,7 @@ app_stop( ModuleName, TraceAggregatorPid, WaitForTraceSupervisor ) ->
 
 	end,
 
-	%trace_utils:trace( "Going for immediate stop." ),
+	%trace_utils:info( "Going for immediate stop." ),
 
 	% Stop trace sent there:
 	app_immediate_stop( ModuleName, TraceAggregatorPid ).
@@ -173,12 +172,12 @@ app_stop( ModuleName, TraceAggregatorPid, WaitForTraceSupervisor ) ->
 								no_return().
 app_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 
-	%trace_utils:trace( "Immediate stop." ),
+	%trace_utils:info( "Immediate stop." ),
 
 	% Stop trace sent there:
 	app_stop_on_shell( ModuleName, TraceAggregatorPid ),
 
-	%trace_utils:trace( "Finishing." ),
+	%trace_utils:info( "Finishing." ),
 
 	app_facilities:finished().
 

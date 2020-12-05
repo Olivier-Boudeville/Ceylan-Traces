@@ -42,7 +42,7 @@
 -type ustring() :: text_utils:ustring().
 -type bin_string() :: text_utils:bin_string().
 
--type message_type() :: traces:message_type().
+-type trace_severity() :: traces:trace_severity().
 -type message() :: traces:message().
 -type message_categorization() :: traces:message_categorization().
 -type app_timestamp() :: traces:app_timestamp().
@@ -105,8 +105,9 @@
 %
 % Ex: "topics.sports.basketball"
 %
--type emitter_categorization() :: ustring() | bin_string().
+-type emitter_categorization() :: ustring().
 
+-type bin_emitter_categorization() :: bin_string().
 
 
 % Initializing a trace emitter is specifying its name to the constructor of its
@@ -125,8 +126,9 @@
 -type emitter_pid() :: wooper:instance_pid().
 
 
--export_type([ emitter_name/0, emitter_categorization/0, emitter_init/0,
-			   emitter_pid/0 ]).
+-export_type([ emitter_name/0,
+			   emitter_categorization/0, bin_emitter_categorization/0,
+			   emitter_init/0, emitter_pid/0 ]).
 
 
 % Allows to define WOOPER base variables and methods for that class:
@@ -509,9 +511,9 @@ get_all_base_attribute_names() ->
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_from_test( message_type(), message() ) -> static_void_return().
-send_from_test( TraceType, Message ) ->
-	send_from_test( TraceType, Message, ?default_test_emitter_categorization ),
+-spec send_from_test( trace_severity(), message() ) -> static_void_return().
+send_from_test( TraceSeverity, Message ) ->
+	send_from_test( TraceSeverity, Message, ?default_test_emitter_categorization ),
 	wooper:return_static_void().
 
 
@@ -522,9 +524,9 @@ send_from_test( TraceType, Message ) ->
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_from_test( message_type(), message(), emitter_categorization() ) ->
+-spec send_from_test( trace_severity(), message(), emitter_categorization() ) ->
 							static_void_return().
-send_from_test( TraceType, Message, EmitterCategorization ) ->
+send_from_test( TraceSeverity, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
 	case naming_utils:get_registered_pid_for( ?trace_aggregator_name,
@@ -554,7 +556,7 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 				 _Location=net_utils:localnode_as_binary(),
 				 _MessageCategorization=
 					 text_utils:string_to_binary( "Test" ),
-				 _Priority=trace_utils:get_priority_for( TraceType ),
+				 _Priority=trace_utils:get_priority_for( TraceSeverity ),
 				 _Message=text_utils:string_to_binary( Message ) ] }
 
 	end,
@@ -569,9 +571,9 @@ send_from_test( TraceType, Message, EmitterCategorization ) ->
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_from_case( message_type(), message() ) -> static_void_return().
-send_from_case( TraceType, Message ) ->
-	send_from_case( TraceType, Message, ?default_case_emitter_categorization ),
+-spec send_from_case( trace_severity(), message() ) -> static_void_return().
+send_from_case( TraceSeverity, Message ) ->
+	send_from_case( TraceSeverity, Message, ?default_case_emitter_categorization ),
 	wooper:return_static_void().
 
 
@@ -582,9 +584,9 @@ send_from_case( TraceType, Message ) ->
 % Uses default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_from_case( message_type(), message(), emitter_categorization() ) ->
+-spec send_from_case( trace_severity(), message(), emitter_categorization() ) ->
 							static_void_return().
-send_from_case( TraceType, Message, EmitterCategorization ) ->
+send_from_case( TraceSeverity, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
 	case naming_utils:get_registered_pid_for( ?trace_aggregator_name,
@@ -614,7 +616,7 @@ send_from_case( TraceType, Message, EmitterCategorization ) ->
 				 _Location=net_utils:localnode_as_binary(),
 				 _MessageCategorization=
 					 text_utils:string_to_binary( "Case" ),
-				 _Priority=trace_utils:get_priority_for( TraceType ),
+				 _Priority=trace_utils:get_priority_for( TraceSeverity ),
 				 _Message=text_utils:string_to_binary( Message ) ] }
 
 	end,
@@ -627,9 +629,9 @@ send_from_case( TraceType, Message, EmitterCategorization ) ->
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_standalone( message_type(), message() ) -> static_void_return().
-send_standalone( TraceType, Message ) ->
-	send_standalone( TraceType, Message,
+-spec send_standalone( trace_severity(), message() ) -> static_void_return().
+send_standalone( TraceSeverity, Message ) ->
+	send_standalone( TraceSeverity, Message,
 					 ?default_standalone_emitter_categorization ),
 	wooper:return_static_void().
 
@@ -640,9 +642,9 @@ send_standalone( TraceType, Message ) ->
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_standalone( message_type(), message(), emitter_categorization() ) ->
+-spec send_standalone( trace_severity(), message(), emitter_categorization() ) ->
 							static_void_return().
-send_standalone( TraceType, Message, EmitterCategorization ) ->
+send_standalone( TraceSeverity, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
 	case naming_utils:get_registered_pid_for( ?trace_aggregator_name,
@@ -676,7 +678,7 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 				 _Location=net_utils:localnode_as_binary(),
 				 _MessageCategorization=
 					 text_utils:string_to_binary( MessageCategorization ),
-				 _Priority=trace_utils:get_priority_for( TraceType ),
+				 _Priority=trace_utils:get_priority_for( TraceSeverity ),
 				 _Message=text_utils:string_to_binary( Message ) ] }
 
 	end,
@@ -689,10 +691,10 @@ send_standalone( TraceType, Message, EmitterCategorization ) ->
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_standalone( message_type(), message(), emitter_name(),
+-spec send_standalone( trace_severity(), message(), emitter_name(),
 					   emitter_categorization() ) -> static_void_return().
-send_standalone( TraceType, Message, EmitterName, EmitterCategorization ) ->
-	send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
+send_standalone( TraceSeverity, Message, EmitterName, EmitterCategorization ) ->
+	send_standalone( TraceSeverity, Message, EmitterName, EmitterCategorization,
 					 _MessageCategorization=uncategorized ),
 	wooper:return_static_void().
 
@@ -703,9 +705,9 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization ) ->
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_standalone( message_type(), message(), emitter_name(),
+-spec send_standalone( trace_severity(), message(), emitter_name(),
    emitter_categorization(), message_categorization() ) -> static_void_return().
-send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
+send_standalone( TraceSeverity, Message, EmitterName, EmitterCategorization,
 				 MessageCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
@@ -743,7 +745,7 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 				 % No State available here:
 				 _Location=net_utils:localnode_as_binary(),
 				 _MessageCategorization=ActualMsgCateg,
-				 _Priority=trace_utils:get_priority_for( TraceType ),
+				 _Priority=trace_utils:get_priority_for( TraceSeverity ),
 				 _Message=text_utils:string_to_binary( Message ) ] }
 
 	end,
@@ -757,14 +759,14 @@ send_standalone( TraceType, Message, EmitterName, EmitterCategorization,
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_standalone_safe( message_type(), message() ) -> static_void_return().
-send_standalone_safe( TraceType, Message ) ->
+-spec send_standalone_safe( trace_severity(), message() ) -> static_void_return().
+send_standalone_safe( TraceSeverity, Message ) ->
 
 	EmitterCategorization = ?trace_emitter_categorization,
 
 	ApplicationTimestamp = time_utils:get_textual_timestamp(),
 
-	send_standalone_safe( TraceType, Message, EmitterCategorization,
+	send_standalone_safe( TraceSeverity, Message, EmitterCategorization,
 						  ApplicationTimestamp ),
 
 	wooper:return_static_void().
@@ -777,13 +779,13 @@ send_standalone_safe( TraceType, Message ) ->
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_standalone_safe( message_type(), message(),
+-spec send_standalone_safe( trace_severity(), message(),
 							emitter_categorization() ) -> static_void_return().
-send_standalone_safe( TraceType, Message, EmitterCategorization ) ->
+send_standalone_safe( TraceSeverity, Message, EmitterCategorization ) ->
 
 	ApplicationTimestamp = time_utils:get_textual_timestamp(),
 
-	send_standalone_safe( TraceType, Message, EmitterCategorization,
+	send_standalone_safe( TraceSeverity, Message, EmitterCategorization,
 						  ApplicationTimestamp ),
 
 	wooper:return_static_void().
@@ -796,16 +798,16 @@ send_standalone_safe( TraceType, Message, EmitterCategorization ) ->
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_standalone_safe( message_type(), message(),
+-spec send_standalone_safe( trace_severity(), message(),
 			emitter_categorization(), app_timestamp() ) -> static_void_return().
-send_standalone_safe( TraceType, Message, EmitterCategorization,
+send_standalone_safe( TraceSeverity, Message, EmitterCategorization,
 					  ApplicationTimestamp ) ->
 
 	EmitterName = get_emitter_name_from_pid(),
 
 	MessageCategorization = get_default_standalone_message_categorization(),
 
-	send_standalone_safe( TraceType, Message, EmitterName,
+	send_standalone_safe( TraceSeverity, Message, EmitterName,
 		EmitterCategorization, MessageCategorization, ApplicationTimestamp ),
 
 	wooper:return_static_void().
@@ -819,14 +821,14 @@ send_standalone_safe( TraceType, Message, EmitterCategorization,
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_standalone_safe( message_type(), message(), emitter_name(),
+-spec send_standalone_safe( trace_severity(), message(), emitter_name(),
   emitter_categorization(), message_categorization() ) -> static_void_return().
-send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
+send_standalone_safe( TraceSeverity, Message, EmitterName, EmitterCategorization,
 					  MessageCategorization ) ->
 
 	ApplicationTimestamp = time_utils:get_textual_timestamp(),
 
-	send_standalone_safe( TraceType, Message, EmitterName,
+	send_standalone_safe( TraceSeverity, Message, EmitterName,
 		EmitterCategorization, MessageCategorization, ApplicationTimestamp ),
 
 	wooper:return_static_void().
@@ -840,10 +842,10 @@ send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 % Uses default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_standalone_safe( message_type(), message(), emitter_name(),
+-spec send_standalone_safe( trace_severity(), message(), emitter_name(),
 		emitter_categorization(), message_categorization(), app_timestamp() ) ->
 									static_void_return().
-send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
+send_standalone_safe( TraceSeverity, Message, EmitterName, EmitterCategorization,
 					  MessageCategorization, ApplicationTimestamp ) ->
 
 	% Follows the order of our trace format; request call:
@@ -888,10 +890,10 @@ send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 				 % No State available here:
 				 _Location=net_utils:localnode_as_binary(),
 				 _MessageCategorization=ActualMsgCateg,
-				 _Priority=trace_utils:get_priority_for( TraceType ),
+				 _Priority=trace_utils:get_priority_for( TraceSeverity ),
 				 BinMessage ], self() },
 
-			trace_utils:echo( Message, TraceType, MessageCategorization,
+			trace_utils:echo( Message, TraceSeverity, MessageCategorization,
 							  TimestampText ),
 
 			wait_aggregator_sync()
@@ -901,32 +903,48 @@ send_standalone_safe( TraceType, Message, EmitterName, EmitterCategorization,
 
 
 
+% Sends all types of traces without requiring a class_TraceEmitter state, based
+% on a specified trace aggregator.
+%
+% For example useful with a logger handler.
+%
+-spec send_direct( trace_severity(), message(), emitter_categorization(),
+				   aggregator_pid() ) -> static_void_return().
+send_direct( TraceSeverity, Message, BinEmitterCategorization, AggregatorPid ) ->
+
+	% Follows the order of our trace format; oneway call:
+	TimestampText = text_utils:string_to_binary(
+						time_utils:get_textual_timestamp() ),
+
+	PidName = get_emitter_name_from_pid(),
+
+	MessageCategorization = get_default_standalone_message_categorization(),
+
+	AggregatorPid ! { send, [
+				 _TraceEmitterPid=self(),
+				 _TraceEmitterName=text_utils:string_to_binary( PidName ),
+				 _TraceEmitterCategorization=BinEmitterCategorization,
+				 _AppTimestamp=none,
+				 _Time=TimestampText,
+				 % No State available here:
+				 _Location=net_utils:localnode_as_binary(),
+				 _TraceMessageCategorization=text_utils:string_to_binary(
+											   MessageCategorization ),
+				 _Priority=trace_utils:get_priority_for( TraceSeverity ),
+				_Message=text_utils:string_to_binary( Message ) ] },
+
+	wooper:return_static_void().
+
+
+
 % Returns the name of the trace channel corresponding to the trace priority.
 %
 % See also: trace_utils:get_priority_for/1.
 %
 -spec get_channel_name_for_priority( priority() ) ->
-										static_return( message_type() ).
-get_channel_name_for_priority( 1 ) ->
-	wooper:return_static( fatal );
-
-get_channel_name_for_priority( 2 ) ->
-	wooper:return_static( error );
-
-get_channel_name_for_priority( 3 ) ->
-	wooper:return_static( warning );
-
-get_channel_name_for_priority( 4 ) ->
-	wooper:return_static( info );
-
-get_channel_name_for_priority( 5 ) ->
-	wooper:return_static( trace );
-
-get_channel_name_for_priority( 6 ) ->
-	wooper:return_static( debug ).
-
-% 'void' not expected here.
-
+										static_return( trace_severity() ).
+get_channel_name_for_priority( Priority ) ->
+	wooper:return_static( trace_utils:get_severity_for( Priority ) ).
 
 
 
@@ -1032,9 +1050,9 @@ set_categorization( TraceCategorization, State ) ->
 %
 % (helper)
 %
--spec send( message_type(), wooper:state(), message() ) -> void().
-send( TraceType, State, Message ) ->
-	send( TraceType, State, Message, _MessageCategorization=uncategorized ).
+-spec send( trace_severity(), wooper:state(), message() ) -> void().
+send( TraceSeverity, State, Message ) ->
+	send( TraceSeverity, State, Message, _MessageCategorization=uncategorized ).
 
 
 
@@ -1047,9 +1065,9 @@ send( TraceType, State, Message ) ->
 %
 % (helper)
 %
--spec send_safe( message_type(), wooper:state(), message() ) -> void().
-send_safe( TraceType, State, Message ) ->
-	send_safe( TraceType, State, Message,
+-spec send_safe( trace_severity(), wooper:state(), message() ) -> void().
+send_safe( TraceSeverity, State, Message ) ->
+	send_safe( TraceSeverity, State, Message,
 			   _MessageCategorization=uncategorized ).
 
 
@@ -1062,9 +1080,9 @@ send_safe( TraceType, State, Message ) ->
 %
 % (helper)
 %
--spec send_synchronised( message_type(), wooper:state(), message() ) -> void().
-send_synchronised( TraceType, State, Message ) ->
-	send_synchronised( TraceType, State, Message,
+-spec send_synchronised( trace_severity(), wooper:state(), message() ) -> void().
+send_synchronised( TraceSeverity, State, Message ) ->
+	send_synchronised( TraceSeverity, State, Message,
 					   _MessageCategorization=uncategorized ).
 
 
@@ -1076,10 +1094,10 @@ send_synchronised( TraceType, State, Message ) ->
 %
 % (helper)
 %
--spec send( message_type(), wooper:state(), message(),
+-spec send( trace_severity(), wooper:state(), message(),
 			message_categorization() ) -> void().
-send( TraceType, State, Message, MessageCategorization ) ->
-	send( TraceType, State, Message, MessageCategorization,
+send( TraceSeverity, State, Message, MessageCategorization ) ->
+	send( TraceSeverity, State, Message, MessageCategorization,
 		  get_trace_timestamp( State ) ).
 
 
@@ -1087,14 +1105,14 @@ send( TraceType, State, Message, MessageCategorization ) ->
 %
 % (helper)
 %
--spec send_safe( message_type(), wooper:state(), message(),
+-spec send_safe( trace_severity(), wooper:state(), message(),
 				 message_categorization() ) -> void().
-send_safe( TraceType, State, Message, MessageCategorization ) ->
+send_safe( TraceSeverity, State, Message, MessageCategorization ) ->
 
-	send_synchronisable( TraceType, State, Message, MessageCategorization,
+	send_synchronisable( TraceSeverity, State, Message, MessageCategorization,
 						 get_trace_timestamp( State ) ),
 
-	trace_utils:echo( Message, TraceType, MessageCategorization ),
+	trace_utils:echo( Message, TraceSeverity, MessageCategorization ),
 
 	wait_aggregator_sync().
 
@@ -1107,10 +1125,10 @@ send_safe( TraceType, State, Message, MessageCategorization ) ->
 %
 % (helper)
 %
--spec send_synchronised( message_type(), wooper:state(), message(),
+-spec send_synchronised( trace_severity(), wooper:state(), message(),
 						 message_categorization(), app_timestamp() ) -> void().
-send_synchronised( TraceType, State, Message, MessageCategorization ) ->
-	send_synchronised( TraceType, State, Message, MessageCategorization,
+send_synchronised( TraceSeverity, State, Message, MessageCategorization ) ->
+	send_synchronised( TraceSeverity, State, Message, MessageCategorization,
 					   get_trace_timestamp( State ) ).
 
 
@@ -1122,9 +1140,9 @@ send_synchronised( TraceType, State, Message, MessageCategorization ) ->
 %
 % (helper)
 %
--spec send( message_type(), wooper:state(), message(),
+-spec send( trace_severity(), wooper:state(), message(),
 			message_categorization(), app_timestamp() ) -> void().
-send( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
+send( TraceSeverity, State, Message, MessageCategorization, AppTimestamp ) ->
 
 	TimestampText = text_utils:string_to_binary(
 					  time_utils:get_textual_timestamp() ),
@@ -1159,7 +1177,7 @@ send( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
 	%	 _Time=TimestampText,
 	%	 _Location=?getAttr(emitter_node),
 	%	 _MessageCategorization=MsgCateg,
-	%	 _Priority=trace_utils:get_priority_for( TraceType ),
+	%	 _Priority=trace_utils:get_priority_for( TraceSeverity ),
 	%	 _Message=text_utils:string_to_binary( Message ) ] ),
 
 	% Just for extra debugging; typically usuful should a child class set again
@@ -1174,7 +1192,7 @@ send( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
 			ok;
 
 		false ->
-			trace_utils:info( "Hint: did you set the 'name' attribute "
+			trace_utils:notice( "Hint: did you set the 'name' attribute "
 				"after the construction of mother classes to, for example, "
 				"a value of type string (instead of binary string)?" ),
 			throw( { non_binary_string_emitter_name, TraceEmitterName } )
@@ -1189,7 +1207,7 @@ send( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
 		_Time=TimestampText,
 		_Location=?getAttr(emitter_node),
 		_MessageCategorization=MsgCateg,
-		_Priority=trace_utils:get_priority_for( TraceType ),
+		_Priority=trace_utils:get_priority_for( TraceSeverity ),
 		 _Message=text_utils:string_to_binary( Message ) ] }.
 
 
@@ -1197,9 +1215,9 @@ send( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
 % Sends all types of synchronisable traces (the synchronisation answer is
 % requested yet not waited here, to allow for any interleaving).
 %
--spec send_synchronisable( message_type(), wooper:state(), message(),
+-spec send_synchronisable( trace_severity(), wooper:state(), message(),
 				   message_categorization(), app_timestamp() ) -> void().
-send_synchronisable( TraceType, State, Message, MessageCategorization,
+send_synchronisable( TraceSeverity, State, Message, MessageCategorization,
 					 AppTimestamp ) ->
 
 	% Almost exactly the same as send/5, except that the sendSync/10 agggregator
@@ -1226,7 +1244,7 @@ send_synchronisable( TraceType, State, Message, MessageCategorization,
 
 	?getAttr(trace_aggregator_pid) ! { sendSync, [
 
-	%trace_utils:trace_fmt( "Sending trace: PID=~w, emitter name='~p', "
+	%trace_utils:debug_fmt( "Sending trace: PID=~w, emitter name='~p', "
 	%		   "emitter categorization='~p', "
 	%		   "app timestamp='~p', user time='~p', location='~p', "
 	%		   "message categorization='~p', trace type='~w', message='~p'.",
@@ -1237,7 +1255,7 @@ send_synchronisable( TraceType, State, Message, MessageCategorization,
 		_Time=TimestampText,
 		_Location=?getAttr(emitter_node),
 		_MessageCategorization=MsgCateg,
-		_Priority=trace_utils:get_priority_for( TraceType ),
+		_Priority=trace_utils:get_priority_for( TraceSeverity ),
 		_Message=text_utils:string_to_binary( Message ) ],
 		self()
 	% ).
@@ -1251,12 +1269,12 @@ send_synchronisable( TraceType, State, Message, MessageCategorization,
 %
 % (helper)
 %
--spec send_synchronised( message_type(), wooper:state(), message(),
+-spec send_synchronised( trace_severity(), wooper:state(), message(),
 		message_categorization(), app_timestamp() ) -> void().
-send_synchronised( TraceType, State, Message, MessageCategorization,
+send_synchronised( TraceSeverity, State, Message, MessageCategorization,
 				   AppTimestamp ) ->
 
-	send_synchronisable( TraceType, State, Message, MessageCategorization,
+	send_synchronisable( TraceSeverity, State, Message, MessageCategorization,
 						 AppTimestamp ),
 
 	wait_aggregator_sync().
@@ -1267,14 +1285,14 @@ send_synchronised( TraceType, State, Message, MessageCategorization,
 %
 % (helper)
 %
--spec send_safe( message_type(), wooper:state(), message(),
+-spec send_safe( trace_severity(), wooper:state(), message(),
 				 message_categorization(), app_timestamp() ) -> void().
-send_safe( TraceType, State, Message, MessageCategorization, AppTimestamp ) ->
+send_safe( TraceSeverity, State, Message, MessageCategorization, AppTimestamp ) ->
 
-	send_synchronisable( TraceType, State, Message, MessageCategorization,
+	send_synchronisable( TraceSeverity, State, Message, MessageCategorization,
 						 AppTimestamp ),
 
-	trace_utils:echo( Message, TraceType, MessageCategorization,
+	trace_utils:echo( Message, TraceSeverity, MessageCategorization,
 					  text_utils:term_to_string( AppTimestamp ) ),
 
 	wait_aggregator_sync().

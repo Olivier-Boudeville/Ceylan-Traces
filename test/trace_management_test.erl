@@ -87,37 +87,45 @@ run() ->
 	MyTraceEmitter = class_TestTraceEmitter:synchronous_new_link( Name ),
 
 	% Test target here:
-	?test_fatal(   "This is a test of the fatal priority for tests."   ),
-	?test_error(   "This is a test of the error priority for tests."   ),
-	?test_warning( "This is a test of the warning priority for tests." ),
-	?test_info(    "This is a test of the info priority for tests."    ),
-	?test_trace(   "This is a test of the trace priority for tests."   ),
-	?test_debug(   "This is a test of the debug priority for tests."   ),
-	?test_void(    "This is a test of the void priority for tests."   ),
+	?test_emergency(   "This is a test of the emergency severity for tests."   ),
+	?test_alert(   "This is a test of the alert severity for tests."   ),
+	?test_critical(   "This is a test of the critical severity for tests."   ),
+	?test_error(   "This is a test of the error severity for tests."   ),
+	?test_warning( "This is a test of the warning severity for tests." ),
+	?test_notice(   "This is a test of the notice severity for tests."   ),
+	?test_info(    "This is a test of the info severity for tests."    ),
+	?test_debug(   "This is a test of the debug severity for tests."   ),
+	?test_void(    "This is a test of the void severity for tests."   ),
 
 	?test_debug(   "This is an additional test with some special characters: "
 				   "àéèïîôùû." ),
 
 
-	?test_fatal_fmt( "This is a test of the ~w priority for tests.",
-					 [ fatal ] ),
+	?test_emergency_fmt( "This is a test of the ~w severity for tests.",
+						 [ emergency ] ),
 
-	?test_error_fmt( "This is a test of the ~w priority for tests.",
+	?test_alert_fmt( "This is a test of the ~w severity for tests.",
+					 [ alert ] ),
+
+	?test_critical_fmt( "This is a test of the ~w severity for tests.",
+						[ critical ] ),
+
+	?test_error_fmt( "This is a test of the ~w severity for tests.",
 					 [ error ] ),
 
-	?test_warning_fmt( "This is a test of the ~w priority for tests.",
+	?test_warning_fmt( "This is a test of the ~w severity for tests.",
 					   [ warning ] ),
 
-	?test_info_fmt( "This is a test of the ~w priority for tests.",
+	?test_notice_fmt( "This is a test of the ~w severity for tests.",
+					  [ notice ] ),
+
+	?test_info_fmt( "This is a test of the ~w severity for tests.",
 					[ info ] ),
 
-	?test_trace_fmt( "This is a test of the ~w priority for tests.",
-					 [ trace ] ),
-
-	?test_debug_fmt( "This is a test of the ~w priority for tests.",
+	?test_debug_fmt( "This is a test of the ~w severity for tests.",
 					 [ debug ] ),
 
-	?test_void_fmt( "This is a test of the ~w priority for tests.",
+	?test_void_fmt( "This is a test of the ~w severity for tests.",
 					 [ void ] ),
 
 

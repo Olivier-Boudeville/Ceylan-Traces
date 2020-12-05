@@ -37,9 +37,7 @@
 
 % The mode of operation is to execute this test while the trace_mManagement_test
 % is running:
-%
 % - run on a first terminal: 'make trace_management_run'
-%
 % - then run on a second terminal: 'make trace_listening_run'
 %
 % A new trace supervisor window should appear and allow to catch up all the past
@@ -65,7 +63,7 @@ send_traces( _Count=0 ) ->
 	ok;
 
 send_traces( Count ) ->
-	?test_trace_fmt( "Emitting trace  #~B from listener.", [ Count ] ),
+	?test_info_fmt( "Emitting trace  #~B from listener.", [ Count ] ),
 	send_traces( Count - 1 ).
 
 
@@ -76,7 +74,7 @@ send_timed_traces( _Count=0 ) ->
 
 send_timed_traces( Count ) ->
 
-	?test_trace_fmt( "Emitting timed trace #~B from listener.", [ Count ] ),
+	?test_info_fmt( "Emitting timed trace #~B from listener.", [ Count ] ),
 
 	timer:sleep( 100 ),
 
@@ -156,6 +154,7 @@ test_actual_body() ->
 
 	send_timed_traces( _TimedCount=20 ),
 
+	% The joy of asynchronicity:
 	?test_info( "Last trace sent from test (note: the trace listener will be "
 				"deleted just afterwards, so it may miss the last traces)." ),
 

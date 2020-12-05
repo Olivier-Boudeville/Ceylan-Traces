@@ -93,7 +93,7 @@ start_link( TraceSupervisorWanted ) ->
 						 | 'ignore' | { 'error', Error :: term() }.
 init( TraceSupervisorWanted ) ->
 
-	trace_utils:trace_fmt( "Initializing the Traces supervisor bridge "
+	trace_utils:info_fmt( "Initializing the Traces supervisor bridge "
 		"(trace supervisor wanted: ~s).", [ TraceSupervisorWanted ] ),
 
 	% This is an OTP blind start, the Traces application being started with no
@@ -135,9 +135,9 @@ init( TraceSupervisorWanted ) ->
 terminate( Reason, _State=TraceAggregatorPid )
   when is_pid( TraceAggregatorPid ) ->
 
-	trace_utils:trace_fmt( "Terminating the Traces supervisor bridge "
+	trace_utils:info_fmt( "Terminating the Traces supervisor bridge "
 		"(reason: ~w, trace aggregator: ~w).", [ Reason, TraceAggregatorPid ] ),
 
 	% Works whether or not a trace supervisor is used:
 	traces_for_apps:app_stop( _ModuleName=?otp_application_module_name,
-				  TraceAggregatorPid, _WaitForTraceSupervisor=false ).
+				TraceAggregatorPid, _WaitForTraceSupervisor=false ).

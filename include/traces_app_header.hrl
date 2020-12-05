@@ -42,21 +42,46 @@
 
 
 % We moved away from the tracing_activated conditional sections the most severe
-% trace sendings (namely fatal, error and warning), as in all cases (whether or
-% not the traces are activated), we want them, and both as actual traces and as
-% console outputs.
+% trace sendings (namely emergency, alert, critical, error and warning), as in
+% all cases (whether or not the traces are activated), we want them, and both as
+% actual traces and as console outputs, as they should not be missed.
 
 
 
--define( app_fatal( Message ),
-		 class_TraceEmitter:send_standalone_safe( fatal, Message )
+-define( app_emergency( Message ),
+		 class_TraceEmitter:send_standalone_safe( emergency, Message )
 ).
 
 
--define( app_fatal_fmt( MessageFormat, FormatValues ),
-		 class_TraceEmitter:send_standalone_safe( fatal,
-					  text_utils:format( MessageFormat, FormatValues ) )
+-define( app_emergency_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( emergency,
+					text_utils:format( MessageFormat, FormatValues ) )
 ).
+
+
+
+-define( app_alert( Message ),
+		 class_TraceEmitter:send_standalone_safe( alert, Message )
+).
+
+
+-define( app_alert_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( alert,
+					text_utils:format( MessageFormat, FormatValues ) )
+).
+
+
+
+-define( app_critical( Message ),
+		 class_TraceEmitter:send_standalone_safe( critical, Message )
+).
+
+
+-define( app_critical_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( critical,
+					text_utils:format( MessageFormat, FormatValues ) )
+).
+
 
 
 -define( app_error( Message ),
@@ -66,8 +91,9 @@
 
 -define( app_error_fmt( MessageFormat, FormatValues ),
 		 class_TraceEmitter:send_standalone_safe( error,
-					  text_utils:format( MessageFormat, FormatValues ) )
+					text_utils:format( MessageFormat, FormatValues ) )
 ).
+
 
 
 -define( app_warning( Message ),
@@ -77,7 +103,7 @@
 
 -define( app_warning_fmt( MessageFormat, FormatValues ),
 		 class_TraceEmitter:send_standalone_safe( warning,
-					  text_utils:format( MessageFormat, FormatValues ) )
+					text_utils:format( MessageFormat, FormatValues ) )
 ).
 
 
@@ -88,29 +114,26 @@
 
 
 
+-define( app_notice( Message ),
+		 class_TraceEmitter:send_standalone_safe( notice, Message )
+).
+
+
+-define( app_notice_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( notice,
+					text_utils:format( MessageFormat, FormatValues ) )
+).
+
+
+
 -define( app_info( Message ),
 		 class_TraceEmitter:send_standalone_safe( info, Message )
-
 ).
 
 
 -define( app_info_fmt( MessageFormat, FormatValues ),
-		 class_TraceEmitter:send_standalone_safe( info,
-					  text_utils:format( MessageFormat, FormatValues ) )
-).
-
-
-
--define( app_trace( Message ),
-		 class_TraceEmitter:send_standalone_safe( trace, Message )
-
-).
-
-
--define( app_trace_fmt( MessageFormat, FormatValues ),
-		 class_TraceEmitter:send_standalone_safe( trace,
-					  text_utils:format( MessageFormat, FormatValues ) )
-
+		 class_TraceInfoEmitter:send_standalone_safe( info,
+					text_utils:format( MessageFormat, FormatValues ) )
 ).
 
 
@@ -122,9 +145,7 @@
 
 -define( app_debug_fmt( MessageFormat, FormatValues ),
 		 class_TraceEmitter:send_standalone_safe( debug,
-					  text_utils:format( MessageFormat, FormatValues ) )
-
-
+					text_utils:format( MessageFormat, FormatValues ) )
 ).
 
 
@@ -143,18 +164,18 @@
 
 
 
--define( app_info( Message ), app_trace_disabled( Message ) ).
+-define( app_notice( Message ), app_trace_disabled( Message ) ).
 
 
--define( app_info_fmt( Message, FormatValues ),
+-define( app_notice_fmt( Message, FormatValues ),
 		 app_trace_disabled( Message, FormatValues ) ).
 
 
 
--define( app_trace( Message ), app_trace_disabled( Message ) ).
+-define( app_info( Message ), app_trace_disabled( Message ) ).
 
 
--define( app_trace_fmt( Message, FormatValues ),
+-define( app_info_fmt( Message, FormatValues ),
 		 app_trace_disabled( Message, FormatValues ) ).
 
 

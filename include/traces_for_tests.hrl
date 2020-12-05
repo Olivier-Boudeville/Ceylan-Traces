@@ -145,14 +145,14 @@
 %
 % Returns the received value.
 %
-% Ex: Pid ! { getBaz, [], self() }, MyBaz = test_receive(), ...
+% Ex: Pid ! {getBaz, [], self()}, MyBaz = test_receive(), ...
 %
 % to be used instead of:
 %
-% Pid ! { getBaz, [], self() },
+% Pid ! {getBaz, [], self()},
 % receive
 %
-%   { wooper_result, V } ->
+%   {wooper_result, V} ->
 %			V
 %
 % end,
@@ -193,7 +193,7 @@ test_failed( Reason ) ->
 
 	trace_utils:error( Message ),
 
-	?test_fatal( Message ),
+	?test_emergency( Message ),
 
 	% Needed, otherwise error_logger may not display anything:
 	system_utils:await_output_completion(),
@@ -207,6 +207,6 @@ test_failed( Reason ) ->
 % formatted.
 %
 -spec test_failed( text_utils:format_string(), text_utils:format_values() ) ->
-						 no_return().
+						no_return().
 test_failed( FormatReason, FormatValues ) ->
 	test_failed( text_utils:format( FormatReason, FormatValues ) ).

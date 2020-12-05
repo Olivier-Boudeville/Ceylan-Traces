@@ -148,7 +148,7 @@ test_stop( ModuleName, TraceAggregatorPid, WaitForTraceSupervisor ) ->
 
 	% As test_start might have been called with InitTraceSupervisor=false.
 
-	%trace_utils:trace_fmt( "Test stopping (aggregator: ~w, wait supervisor: "
+	%trace_utils:info_fmt( "Test stopping (aggregator: ~w, wait supervisor: "
 	%    "~s).", [ TraceAggregatorPid, WaitForTraceSupervisor] ),
 
 	case WaitForTraceSupervisor of
@@ -161,7 +161,7 @@ test_stop( ModuleName, TraceAggregatorPid, WaitForTraceSupervisor ) ->
 
 	end,
 
-	%trace_utils:trace( "Going for immediate stop." ),
+	%trace_utils:info( "Going for immediate stop." ),
 
 	% Stop trace sent there:
 	test_immediate_stop( ModuleName, TraceAggregatorPid ).
@@ -170,14 +170,14 @@ test_stop( ModuleName, TraceAggregatorPid, WaitForTraceSupervisor ) ->
 
 % To be called from the counterpart macro.
 -spec test_immediate_stop( basic_utils:module_name(), aggregator_pid() ) ->
-								 no_return().
+								no_return().
 test_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 
-	%trace_utils:trace( "Immediate stop." ),
+	%trace_utils:info( "Immediate stop." ),
 
 	test_stop_on_shell( ModuleName, TraceAggregatorPid ),
 
-	%trace_utils:trace( "Finishing." ),
+	%trace_utils:info( "Finishing." ),
 
 	test_facilities:finished().
 

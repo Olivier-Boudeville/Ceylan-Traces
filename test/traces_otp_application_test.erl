@@ -53,7 +53,7 @@ test_traces_application( OrderedAppNames ) ->
 
 	% To test also a Traces module:
 
-	class_TraceEmitter:send_from_test( info, "Sent from this OTP test!" ),
+	class_TraceEmitter:send_from_test( notice, "Sent from this OTP test!" ),
 
 	%traces:manage_supervision(),
 
@@ -85,8 +85,8 @@ run() ->
 	OrderedAppNames = otp_utils:prepare_for_execution( _ThisApp=traces,
 													   BuildRootDir ),
 
-	trace_utils:info_fmt( "Resulting applications to start, in order: ~w.",
-						  [ OrderedAppNames ] ),
+	trace_utils:notice_fmt( "Resulting applications to start, in order: ~w.",
+							[ OrderedAppNames ] ),
 
 	test_traces_application( OrderedAppNames ),
 

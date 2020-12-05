@@ -27,6 +27,9 @@
 
 
 % Module gathering various trace-related facitilies, notably in link with OTP.
+%
+% Note: not to be mixed up with the trace_utils module from Myriad.
+%
 -module(traces_utils).
 
 
@@ -51,7 +54,7 @@ name_trace_file_from( ModName ) ->
 
 	NewTraceFilename = traces:get_trace_filename( ModName ),
 
-	trace_utils:trace_fmt( "Requesting the renaming of trace aggregator "
+	trace_utils:info_fmt( "Requesting the renaming of trace aggregator "
 		"file to '~s'.", [ NewTraceFilename ] ),
 
 	BinNewTraceFilename = text_utils:string_to_binary( NewTraceFilename ),

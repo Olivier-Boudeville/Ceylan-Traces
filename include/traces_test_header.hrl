@@ -31,7 +31,7 @@
 
 -ifndef(trace_emitter_categorization).
 
--define( trace_emitter_categorization, "test" ).
+ -define( trace_emitter_categorization, "test" ).
 
 -endif. % trace_emitter_categorization
 
@@ -42,21 +42,46 @@
 
 
 % We moved away from the tracing_activated conditional sections the most severe
-% trace sendings (namely fatal, error and warning), as in all cases (whether or
-% not the traces are activated), we want them, and both as actual traces and as
-% console outputs.
+% trace sendings (namely emergency, alert, critical, error and warning), as in
+% all cases (whether or not the traces are activated), we want them, and both as
+% actual traces and as console outputs.
 
 
 
--define( test_fatal( Message ),
-		 class_TraceEmitter:send_standalone_safe( fatal, Message )
+-define( test_emergency( Message ),
+		 class_TraceEmitter:send_standalone_safe( emergency, Message )
 ).
 
 
--define( test_fatal_fmt( MessageFormat, FormatValues ),
-		 class_TraceEmitter:send_standalone_safe( fatal,
-					  text_utils:format( MessageFormat, FormatValues ) )
+-define( test_emergency_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( emergency,
+					text_utils:format( MessageFormat, FormatValues ) )
 ).
+
+
+
+-define( test_alert( Message ),
+		 class_TraceEmitter:send_standalone_safe( alert, Message )
+).
+
+
+-define( test_alert_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( alert,
+					text_utils:format( MessageFormat, FormatValues ) )
+).
+
+
+
+-define( test_critical( Message ),
+		 class_TraceEmitter:send_standalone_safe( critical, Message )
+).
+
+
+-define( test_critical_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( critical,
+					text_utils:format( MessageFormat, FormatValues ) )
+).
+
 
 
 -define( test_error( Message ),
@@ -66,8 +91,9 @@
 
 -define( test_error_fmt( MessageFormat, FormatValues ),
 		 class_TraceEmitter:send_standalone_safe( error,
-					  text_utils:format( MessageFormat, FormatValues ) )
+					text_utils:format( MessageFormat, FormatValues ) )
 ).
+
 
 
 -define( test_warning( Message ),
@@ -77,7 +103,7 @@
 
 -define( test_warning_fmt( MessageFormat, FormatValues ),
 		 class_TraceEmitter:send_standalone_safe( warning,
-					  text_utils:format( MessageFormat, FormatValues ) )
+					text_utils:format( MessageFormat, FormatValues ) )
 ).
 
 
@@ -85,6 +111,18 @@
 
 
 -ifdef(tracing_activated).
+
+
+
+-define( test_notice( Message ),
+		 class_TraceEmitter:send_standalone_safe( notice, Message )
+).
+
+
+-define( test_notice_fmt( MessageFormat, FormatValues ),
+		 class_TraceEmitter:send_standalone_safe( notice,
+					  text_utils:format( MessageFormat, FormatValues ) )
+).
 
 
 
@@ -101,20 +139,6 @@
 
 
 
--define( test_trace( Message ),
-		 class_TraceEmitter:send_standalone_safe( trace, Message )
-
-).
-
-
--define( test_trace_fmt( MessageFormat, FormatValues ),
-		 class_TraceEmitter:send_standalone_safe( trace,
-					  text_utils:format( MessageFormat, FormatValues ) )
-
-).
-
-
-
 -define( test_debug( Message ),
 		 class_TraceEmitter:send_standalone_safe( debug, Message )
 ).
@@ -123,8 +147,6 @@
 -define( test_debug_fmt( MessageFormat, FormatValues ),
 		 class_TraceEmitter:send_standalone_safe( debug,
 					  text_utils:format( MessageFormat, FormatValues ) )
-
-
 ).
 
 
@@ -140,18 +162,18 @@
 % Here tracing_activated is not defined: non-critical traces are disabled.
 
 
--define( test_info( Message ), test_trace_disabled( Message ) ).
+-define( test_notice( Message ), test_trace_disabled( Message ) ).
 
 
--define( test_info_fmt( Message, FormatValues ),
+-define( test_notice_fmt( Message, FormatValues ),
 		 test_trace_disabled( Message, FormatValues ) ).
 
 
 
--define( test_trace( Message ), test_trace_disabled( Message ) ).
+-define( test_info( Message ), test_trace_disabled( Message ) ).
 
 
--define( test_trace_fmt( Message, FormatValues ),
+-define( test_info_fmt( Message, FormatValues ),
 		 test_trace_disabled( Message, FormatValues ) ).
 
 

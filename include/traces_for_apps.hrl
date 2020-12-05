@@ -193,7 +193,7 @@ app_failed( Reason ) ->
 
 	trace_utils:error( Message ),
 
-	?app_fatal( Message ),
+	?app_emergency( Message ),
 
 	% Needed, otherwise error_logger may not display anything:
 	system_utils:await_output_completion(),
