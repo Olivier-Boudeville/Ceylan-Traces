@@ -46,6 +46,9 @@
 % all cases (whether or not the traces are activated), we want them, and both as
 % actual traces and as console outputs.
 
+% All traces sent from a test are safe (i.e. explicitly synchronised), yet only
+% error-like ones are echoed on the console.
+
 
 
 -define( test_emergency( Message ),
