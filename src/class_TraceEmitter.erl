@@ -754,7 +754,8 @@ send_standalone( TraceSeverity, Message, EmitterName, EmitterCategorization,
 
 
 % Sends all types of traces without requiring a class_TraceEmitter state, in a
-% safe manner (synchronous and echoed on the console).
+% safe manner (synchronously and, if their severity is error-like, echoed on the
+% console).
 %
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
@@ -774,7 +775,8 @@ send_standalone_safe( TraceSeverity, Message ) ->
 
 
 % Sends all types of traces without requiring a class_TraceEmitter state, in a
-% safe manner (synchronous and echoed on the console).
+% safe manner (synchronously and, if their severity is error-like, echoed on the
+% console).
 %
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
@@ -793,7 +795,8 @@ send_standalone_safe( TraceSeverity, Message, EmitterCategorization ) ->
 
 
 % Sends all types of traces without requiring a class_TraceEmitter state, in a
-% safe manner (synchronous and echoed on the console).
+% safe manner (synchronously and, if their severity is error-like, echoed on the
+% console).
 %
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
@@ -816,7 +819,8 @@ send_standalone_safe( TraceSeverity, Message, EmitterCategorization,
 
 
 % Sends all types of traces without requiring a class_TraceEmitter state, in a
-% safe manner (synchronous and echoed on the console).
+% safe manner (synchronously and, if their severity is error-like, echoed on the
+% console).
 %
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
@@ -837,7 +841,8 @@ send_standalone_safe( TraceSeverity, Message, EmitterName, EmitterCategorization
 
 
 % Sends all types of traces without requiring a class_TraceEmitter state, in a
-% safe manner (synchronous and echoed on the console).
+% safe manner (synchronously and, if their severity is error-like, echoed on the
+% console).
 %
 % Uses default trace aggregator, supposed to be already available and
 % registered.
@@ -878,13 +883,13 @@ send_standalone_safe( TraceSeverity, Message, EmitterName, EmitterCategorization
 			BinMessage = text_utils:string_to_binary( Message ),
 
 			%trace_utils:debug_fmt( "Sending in sync message '~s'.",
-			%    [ BinMessage ] ),
+			%                       [ BinMessage ] ),
 
 			AggregatorPid ! { sendSync, [
 				 _TraceEmitterPid=self(),
 				 _TraceEmitterName=text_utils:string_to_binary( EmitterName ),
 				 _TraceEmitterCategorization=
-					 text_utils:string_to_binary( EmitterCategorization ),
+					text_utils:string_to_binary( EmitterCategorization ),
 				 _AppTimestamp=none,
 				 _Time=TimestampText,
 				 % No State available here:
@@ -893,8 +898,16 @@ send_standalone_safe( TraceSeverity, Message, EmitterName, EmitterCategorization
 				 _Priority=trace_utils:get_priority_for( TraceSeverity ),
 				 BinMessage ], self() },
 
-			trace_utils:echo( Message, TraceSeverity, MessageCategorization,
-							  TimestampText ),
+			case trace_utils:is_error_like( TraceSeverity ) of
+
+				true ->
+					trace_utils:echo( Message, TraceSeverity,
+									  MessageCategorization, TimestampText );
+
+				false ->
+					ok
+
+			end,
 
 			wait_aggregator_sync()
 
