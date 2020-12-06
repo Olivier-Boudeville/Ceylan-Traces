@@ -94,7 +94,7 @@
 % Logger-related API (see https://erlang.org/doc/apps/kernel/logger_chapter.html
 % abd Myriad's trace_utils):
 %
--export([ set_handler/0, add_handler/0, log/2 ]).
+-export([ set_handler/0, set_handler/1, add_handler/0, add_handler/1, log/2 ]).
 
 
 % Handler id:
@@ -107,6 +107,11 @@
 
 % For notify_warning_fmt:
 -include("traces.hrl").
+
+
+% Shorthand:
+-type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
+
 
 
 % Returns the name of the file in which traces will be written:
@@ -254,7 +259,8 @@ manage_supervision() ->
 
 
 % Replaces the current (probably default) logger handler with this Traces one
-% (registered as 'default').
+% (registered as 'default'), based on the (supposedly already-existing) trace
+% aggregator.
 %
 -spec set_handler() -> void().
 set_handler() ->
@@ -286,7 +292,42 @@ set_handler() ->
 
 
 
-% Registers this Myriad logger handler as an additional one.
+% Replaces the current (probably default) logger handler with this Traces one
+% (registered as 'default'), based on the specified trace aggregator.
+%
+-spec set_handler( aggregator_pid() ) -> void().
+set_handler( AggregatorPid ) ->
+
+	TargetHandler = default,
+
+	case logger:remove_handler( TargetHandler ) of
+
+		ok ->
+			ok;
+
+		{ error, RemoveErrReason } ->
+			throw( { unable_to_remove_log_handler, RemoveErrReason,
+					 TargetHandler } )
+
+	end,
+
+	case logger:add_handler( _HandlerId=default, _Module=?MODULE,
+							 get_handler_config( AggregatorPid ) ) of
+
+		ok ->
+			ok;
+
+		{ error, AddErrReason, TargetHandler } ->
+			throw( { unable_to_set_traces_log_handler, AddErrReason,
+					 TargetHandler } )
+
+	end.
+
+
+
+% Registers this Traces logger handler as an additional one (not replacing the
+% default one), based on the (supposedly already-existing) trace aggregator.
+%
 -spec add_handler() -> void().
 add_handler() ->
 
@@ -303,7 +344,28 @@ add_handler() ->
 
 
 
-% Returns the (initial) configuration of the Traces logger handler.
+% Registers this Traces logger handler as an additional one (not replacing the
+% default one), based on the specified trace aggregator.
+%
+-spec add_handler( aggregator_pid() ) -> void().
+add_handler( AggregatorPid ) ->
+
+	case logger:add_handler( _HandlerId=?traces_logger_id, _Module=?MODULE,
+							 get_handler_config( AggregatorPid ) ) of
+
+		ok ->
+			ok;
+
+		{ error, Reason } ->
+			throw( { unable_to_add_traces_log_handler, Reason } )
+
+	end.
+
+
+
+% Returns the (initial) configuration of the Traces logger handler, branching to
+% the (supposedly already-existing) trace aggregator.
+%
 -spec get_handler_config() -> logger:handler_config().
 get_handler_config() ->
 
@@ -318,18 +380,26 @@ get_handler_config() ->
 
 	end,
 
-	#{
-	  config => AggregatorPid
-	  % Defaults:
-	  % level => all,
-	  % filter_default => log | stop,
-	  % filters => [],
-	  % formatter => {logger_formatter, DefaultFormatterConfig}
+	get_handler_config( AggregatorPid ).
 
-	  % Set by logger:
-	  %id => HandlerId
-	  %module => Module
 
+
+% Returns the (initial) configuration of the Traces logger handler, branching to
+% the specified trace aggregator.
+%
+-spec get_handler_config( aggregator_pid() ) -> logger:handler_config().
+get_handler_config( AggregatorPid ) ->
+
+	#{ config => AggregatorPid
+	   % Defaults:
+	   % level => all,
+	   % filter_default => log | stop,
+	   % filters => [],
+	   % formatter => {logger_formatter, DefaultFormatterConfig}
+
+	   % Set by logger:
+	   %id => HandlerId
+	   %module => Module
 	 }.
 
 
@@ -341,7 +411,8 @@ get_handler_config() ->
 -spec log( logger:log_event(), logger:handler_config() ) -> void().
 log( _LogEvent=#{ level := Level,
 				  %meta => #{error_logger => #{emulator => [...]
-				  msg := Msg }, _Config=TraceAggregatorPid ) ->
+				  msg := Msg },
+	 _Config=#{ config := TraceAggregatorPid } ) ->
 
 	%io:format( "### Logging following event:~n ~p~n(with config: ~p).~n",
 	%		   [ LogEvent, Config ] ),
@@ -363,7 +434,8 @@ log( _LogEvent=#{ level := Level,
 
 	 end,
 
-	Severity = trace_utils:standard_logger_level_to_severity( Level ),
+	% Directly the same now:
+	Severity = Level,
 
 	%io:format( "### Logging following event:~n ~p~n(with config: ~p)~n "
 	%  "resulting in: '~s' (severity: ~p).",
