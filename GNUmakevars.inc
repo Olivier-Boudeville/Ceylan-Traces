@@ -78,9 +78,12 @@ ifeq ($(EXECUTION_TARGET),development)
 	# Does not exist: TRACES_CHECK_FLAGS += -Dtraces_check_xx
 endif
 
+# As soon as Traces is used, no need to ellipse traces anymore, they can be
+# fully preserved:
+#
 ERLANG_COMPILER_OPT_BASE += $(TRACES_DEBUG_FLAGS) \
-							$(TRACES_CHECK_FLAGS)
-
+							$(TRACES_CHECK_FLAGS) \
+							-Dwooper_preserve_traces
 
 
 # Useful to target for example the root of the current layer (ex: to locate the
