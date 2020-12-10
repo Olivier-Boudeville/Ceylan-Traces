@@ -165,6 +165,15 @@ WOOPER_OTP_INC := -I$(TRACES_TOP)/../wooper/include/
 INC += $(WOOPER_OTP_INC)
 
 
+# Defined so that full traces are kept in messages (as the user of Traces can
+# properly consult longer ones):
+#
+# (note: only taken into account in an integrated build, i.e. when the WOOPER
+# build happens whereas this GNUmakevars.inc has been included)
+#
+WOOPER_UNELLIPSED_TRACES_OPT= -Dwooper_unellipsed_traces
+
+
 # See Myriad counterpart variable (MYRIAD_BEAM_DIRS) for explanations:
 TRACES_BEAM_DIRS := $(TRACES_BEAM)
 
