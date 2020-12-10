@@ -646,9 +646,9 @@ renameTraceFile( State, NewTraceFilename ) ->
 %
 % Useful for example to launch a relevant trace supervision.
 %
--spec getTraceSeverity( wooper:state() ) ->
+-spec getTraceType( wooper:state() ) ->
 			  const_request_return( { 'notify_trace_types', trace_type() } ).
-getTraceSeverity( State ) ->
+getTraceType( State ) ->
 
 	Res = { notify_trace_type, ?getAttr(trace_type) },
 
