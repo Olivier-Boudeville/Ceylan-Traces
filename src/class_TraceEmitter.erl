@@ -431,8 +431,8 @@ onWOOPERNodeConnection( State, Node, MonitorNodeInfo ) ->
 onWOOPERNodeDisconnection( State, Node, MonitorNodeInfo ) ->
 
 	?warning_fmt( "The TraceEmitter default node down handler of this instance "
-		"ignored the disconnection notification for node '~s' (information: ~p).",
-		[ Node, MonitorNodeInfo ] ),
+		"ignored the disconnection notification for node '~s' "
+		"(information: ~p).", [ Node, MonitorNodeInfo ] ),
 
 	wooper:const_return().
 
@@ -452,6 +452,9 @@ onWOOPERNodeDisconnection( State, Node, MonitorNodeInfo ) ->
 % See also the register_bridge/1 helper for trace emitter instances that need to
 % define additionally their trace bridge, in order that the lower-level
 % libraries/functions that they call can send such traces as well.
+%
+% Note: no bridge is expected to be already set, otherwise an exception is
+% thrown.
 %
 -spec register_as_bridge( emitter_name(), emitter_categorization() ) ->
 								static_void_return().
@@ -476,13 +479,16 @@ register_as_bridge( TraceEmitterName, TraceCategory ) ->
 % to define additionally their trace bridge, in order that the lower-level
 % libraries/functions that they call can send such traces as well.
 %
+% Note: no bridge is expected to be already set, otherwise an exception is
+% thrown.
+%
 -spec register_as_bridge( emitter_name(), emitter_categorization(),
 						  aggregator_pid() ) -> static_void_return().
 
 register_as_bridge( TraceEmitterName, TraceCategory, TraceAggregatorPid ) ->
 
 	trace_bridge:register( _BridgeSpec={
-		text_utils:ensure_binary( TraceEmitterName ),
+		check_and_binarise_name( TraceEmitterName ),
 		text_utils:ensure_binary( TraceCategory ), TraceAggregatorPid } ),
 
 	wooper:return_static_void().
@@ -513,7 +519,8 @@ get_all_base_attribute_names() ->
 %
 -spec send_from_test( trace_severity(), message() ) -> static_void_return().
 send_from_test( TraceSeverity, Message ) ->
-	send_from_test( TraceSeverity, Message, ?default_test_emitter_categorization ),
+	send_from_test( TraceSeverity, Message,
+					?default_test_emitter_categorization ),
 	wooper:return_static_void().
 
 
@@ -573,7 +580,8 @@ send_from_test( TraceSeverity, Message, EmitterCategorization ) ->
 %
 -spec send_from_case( trace_severity(), message() ) -> static_void_return().
 send_from_case( TraceSeverity, Message ) ->
-	send_from_case( TraceSeverity, Message, ?default_case_emitter_categorization ),
+	send_from_case( TraceSeverity, Message,
+					?default_case_emitter_categorization ),
 	wooper:return_static_void().
 
 
@@ -642,8 +650,8 @@ send_standalone( TraceSeverity, Message ) ->
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_standalone( trace_severity(), message(), emitter_categorization() ) ->
-							static_void_return().
+-spec send_standalone( trace_severity(), message(),
+					   emitter_categorization() ) -> static_void_return().
 send_standalone( TraceSeverity, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
@@ -760,7 +768,8 @@ send_standalone( TraceSeverity, Message, EmitterName, EmitterCategorization,
 % Uses the default trace aggregator, supposed to be already available and
 % registered.
 %
--spec send_standalone_safe( trace_severity(), message() ) -> static_void_return().
+-spec send_standalone_safe( trace_severity(), message() ) ->
+								  static_void_return().
 send_standalone_safe( TraceSeverity, Message ) ->
 
 	EmitterCategorization = ?trace_emitter_categorization,
@@ -827,8 +836,8 @@ send_standalone_safe( TraceSeverity, Message, EmitterCategorization,
 %
 -spec send_standalone_safe( trace_severity(), message(), emitter_name(),
   emitter_categorization(), message_categorization() ) -> static_void_return().
-send_standalone_safe( TraceSeverity, Message, EmitterName, EmitterCategorization,
-					  MessageCategorization ) ->
+send_standalone_safe( TraceSeverity, Message, EmitterName,
+					  EmitterCategorization, MessageCategorization ) ->
 
 	ApplicationTimestamp = time_utils:get_textual_timestamp(),
 
@@ -850,8 +859,8 @@ send_standalone_safe( TraceSeverity, Message, EmitterName, EmitterCategorization
 -spec send_standalone_safe( trace_severity(), message(), emitter_name(),
 		emitter_categorization(), message_categorization(), app_timestamp() ) ->
 									static_void_return().
-send_standalone_safe( TraceSeverity, Message, EmitterName, EmitterCategorization,
-					  MessageCategorization, ApplicationTimestamp ) ->
+send_standalone_safe( TraceSeverity, Message, EmitterName,
+		EmitterCategorization, MessageCategorization, ApplicationTimestamp ) ->
 
 	% Follows the order of our trace format; request call:
 	case naming_utils:get_registered_pid_for( ?trace_aggregator_name,
@@ -923,7 +932,8 @@ send_standalone_safe( TraceSeverity, Message, EmitterName, EmitterCategorization
 %
 -spec send_direct( trace_severity(), message(), emitter_categorization(),
 				   aggregator_pid() ) -> static_void_return().
-send_direct( TraceSeverity, Message, BinEmitterCategorization, AggregatorPid ) ->
+send_direct( TraceSeverity, Message, BinEmitterCategorization,
+			 AggregatorPid ) ->
 
 	% Follows the order of our trace format; oneway call:
 	TimestampText = text_utils:string_to_binary(
@@ -985,7 +995,7 @@ get_emitter_name_from_pid() ->
 % (helper)
 %
 -spec get_default_standalone_message_categorization() ->
-														emitter_categorization().
+													emitter_categorization().
 get_default_standalone_message_categorization() ->
 	"Standalone".
 
@@ -1093,7 +1103,8 @@ send_safe( TraceSeverity, State, Message ) ->
 %
 % (helper)
 %
--spec send_synchronised( trace_severity(), wooper:state(), message() ) -> void().
+-spec send_synchronised( trace_severity(), wooper:state(), message() ) ->
+							   void().
 send_synchronised( TraceSeverity, State, Message ) ->
 	send_synchronised( TraceSeverity, State, Message,
 					   _MessageCategorization=uncategorized ).
@@ -1300,7 +1311,8 @@ send_synchronised( TraceSeverity, State, Message, MessageCategorization,
 %
 -spec send_safe( trace_severity(), wooper:state(), message(),
 				 message_categorization(), app_timestamp() ) -> void().
-send_safe( TraceSeverity, State, Message, MessageCategorization, AppTimestamp ) ->
+send_safe( TraceSeverity, State, Message, MessageCategorization,
+		   AppTimestamp ) ->
 
 	send_synchronisable( TraceSeverity, State, Message, MessageCategorization,
 						 AppTimestamp ),

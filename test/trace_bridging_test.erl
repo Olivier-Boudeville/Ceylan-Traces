@@ -62,6 +62,8 @@ run() ->
 
 	trace_bridge:register( BridgeSpec ),
 
+	trace_bridge:register_if_not_already( BridgeSpec ),
+
 
 	trace_bridge_test:emit_traces(),
 
