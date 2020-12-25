@@ -576,6 +576,8 @@ send( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 	  AppTimestamp, Time, Location, MessageCategorization, Priority,
 	  Message ) ->
 
+	%trace_utils:debug_fmt( "Received sent message '~s'.", [ Message ] ),
+
 	% Useful to check that all fields are of minimal sizes (ex: binaries):
 	%inspect_fields( [ TraceEmitterPid, TraceEmitterName,
 	%				  TraceEmitterCategorization,
@@ -591,6 +593,9 @@ send( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 	% but now we use faster raw writes:
 	%ok = file:write( ?getAttr(trace_file),
 	%                 text_utils:format( "~s", [ Trace ] ) ),
+
+	%trace_utils:debug_fmt( "Writing to ~p: ~p.",
+	%					   [ ?getAttr(trace_file), Trace ] ),
 
 	file_utils:write( ?getAttr(trace_file), Trace ),
 
@@ -678,8 +683,10 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 %
 -spec renameTraceFile( wooper:state(), any_file_name() ) -> oneway_return().
 renameTraceFile( State, NewTraceFilename ) when is_binary( NewTraceFilename ) ->
+
 	RenamedState = renameTraceFile( State,
 						text_utils:binary_to_string( NewTraceFilename ) ),
+
 	wooper:return_state( RenamedState );
 
 
@@ -692,20 +699,22 @@ renameTraceFile( State, NewTraceFilename ) ->
 
 	InitSupervision = ?getAttr(init_supervision),
 
-	SentState = send_internal_immediate( info,
-		"Trace aggregator renaming atomically trace file from '~s' to '~s' "
-		"(init supervision: ~s).",
-		[ BinTraceFilename, AbsNewTraceFilename, InitSupervision ], State ),
+	Msg = text_utils:format( "Trace aggregator renaming atomically trace file "
+			"from '~s' to '~s' (init supervision: ~s).",
+			[ BinTraceFilename, AbsNewTraceFilename, InitSupervision ] ),
 
-	% Switching:
-	%file_utils:close( ?getAttr(trace_file) ),
-	%File = open_trace_file( AbsNewTraceFilename ),
-	%
-	% Better, yet still not sufficient for a transparent renaming:
+	%trace_utils:debug( Msg ),
+
+	SentState = send_internal_immediate( info, Msg, State ),
+
+	% Switching gracefully:
+	file_utils:close( ?getAttr(trace_file) ),
 	file_utils:rename( BinTraceFilename, AbsNewTraceFilename ),
+	NewFile = reopen_trace_file( AbsNewTraceFilename ),
 
-	RenState = setAttribute( SentState, trace_filename,
-					 text_utils:string_to_binary( AbsNewTraceFilename ) ),
+	RenState = setAttributes( SentState, [
+		{ trace_filename, text_utils:string_to_binary( AbsNewTraceFilename ) },
+		{ trace_file, NewFile } ] ),
 
 	SupState = case InitSupervision of
 
@@ -1189,6 +1198,7 @@ watchdog_main_loop( RegName, RegScope, AggregatorPid, MsPeriod ) ->
 						"~w (registration name: '~s'; scope: ~s) available.",
 						[ AggregatorPid, RegName, RegScope ] ),
 
+					%trace_utils:debug( Msg ),
 					class_TraceEmitter:send_direct( info, Msg,
 						_BinEmitterCategorization=?watchdog_emitter_categ,
 						AggregatorPid ),
@@ -1370,9 +1380,8 @@ send_internal_immediate( TraceSeverity, Message, State ) ->
 %
 % (helper)
 %
--spec send_internal_immediate( trace_severity(),
-		format_string(), format_values(),
-		wooper:state() ) -> wooper:state().
+-spec send_internal_immediate( trace_severity(), format_string(),
+						   format_values(), wooper:state() ) -> wooper:state().
 send_internal_immediate( TraceSeverity, MessageFormat, MessageValues, State ) ->
 	Message = text_utils:format( MessageFormat, MessageValues ),
 	send_internal_immediate( TraceSeverity, Message, State ).
