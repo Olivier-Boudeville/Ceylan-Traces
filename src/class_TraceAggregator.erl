@@ -1296,22 +1296,32 @@ initialize_supervision( State ) ->
 					   unit_utils:seconds(), wooper:state() ) -> wooper:state().
 enable_watchdog( RegName, LookupScope, Period, State ) ->
 
-	MsPeriod = 1000 * Period,
+	case ?getAttr(watchdog_pid) of
 
-	% Closure used to avoid exporting the function (beware of self()):
-	AggregatorPid = self(),
+		undefined ->
+			MsPeriod = 1000 * Period,
 
-	send_internal_deferred( info, "Aggregator watchdog enabled for '~s' "
-		"(scope: ~s; PID: ~w), based on a period of ~s.",
-		[ RegName, LookupScope, AggregatorPid,
-		  time_utils:duration_to_string( MsPeriod ) ] ),
+			% Closure used to avoid exporting the function (beware of self()):
+			AggregatorPid = self(),
 
-	WatchdogPid = ?myriad_spawn_link( fun() ->
-		watchdog_main_loop( RegName, LookupScope, AggregatorPid, MsPeriod )
-									  end ),
+			send_internal_deferred( info, "Aggregator watchdog enabled for '~s'"
+				" (scope: ~s; PID: ~w), based on a period of ~s.",
+				[ RegName, LookupScope, AggregatorPid,
+				  time_utils:duration_to_string( MsPeriod ) ] ),
 
-	setAttribute( State, watchdog_pid, WatchdogPid ).
+			WatchdogPid = ?myriad_spawn_link( fun() ->
+							 watchdog_main_loop( RegName, LookupScope,
+												 AggregatorPid, MsPeriod )
+											  end ),
 
+			setAttribute( State, watchdog_pid, WatchdogPid );
+
+		WatchdogPid ->
+			send_internal_deferred( error, "An aggregator watchdog was "
+				"already enabled (as PID: ~w), newer enabling request ignored.",
+				[ WatchdogPid ] )
+
+	end.
 
 
 
