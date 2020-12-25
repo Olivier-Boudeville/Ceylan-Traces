@@ -78,7 +78,17 @@
 	  "tells whether/when the trace supervisor shall be launched" },
 
 	{ supervisor_pid, maybe( supervisor_pid() ),
-	  "the PID of the associated trace supervisor (if any)" } ] ).
+	  "the PID of the associated trace supervisor (if any)" },
+
+	{ overload_monitor_pid, pid(),
+	  "the PID of the process (if any) in charge of tracking the length of "
+	  "the message queue of this aggregator in order to detect whenever "
+	  "it is unable to cope with the intensity of message receivings" },
+
+	{ watchdog_pid, maybe( pid() ),
+	  "the PID of the process (if any) in charge of ensuring that this "
+	  "aggregator is still up and running, by looking it up and sending "
+	  "a trace to it periodically" } ] ).
 
 
 
@@ -130,9 +140,23 @@
 -define( LogOutput( Message, Format ), void ).
 
 
-% Shorthands:
+% The default registration scope (must correspond to default_look_up_scope):
+-define( default_registration_scope, global ).
 
--type registration_scope() :: naming_utils:registration_scope().
+% The default look-up scope (must correspond to default_registration_scope):
+-define( default_look_up_scope, global_only ).
+
+
+
+% The default period in seconds between two checks done by the watchdog (15
+% minutes):
+%
+-define( default_watchdog_period, 15*60 ).
+
+-define( watchdog_emitter_categ, <<"Traces.Trace Watchdog">> ).
+
+
+% Shorthands:
 
 -type ustring() :: text_utils:ustring().
 -type title() :: text_utils:title().
@@ -143,6 +167,11 @@
 -type file_name() :: file_utils:file_name().
 -type bin_file_name() :: file_utils:bin_file_name().
 -type any_file_name() :: file_utils:any_file_name().
+
+
+-type registration_name() :: naming_utils:registration_name().
+-type registration_scope() :: naming_utils:registration_scope().
+-type look_up_scope() :: naming_utils:look_up_scope().
 
 -type trace_type() :: traces:trace_supervision_type().
 -type listener_pid() :: class_TraceListener:listener_pid().
@@ -227,6 +256,7 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 % - InitTraceSupervisor tells whether the trace supervisor shall be created (now
 % or later, i.e. at the first renaming of the trace file) or not
 %
+% Main constructor:
 -spec construct( wooper:state(), file_name(), trace_supervision_type(), title(),
 	 maybe( registration_scope() ), boolean(), initialize_supervision() ) ->
 					   wooper:state().
@@ -236,6 +266,11 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 	%trace_utils:debug_fmt( "Starting trace aggregator, with initial trace "
 	%	"filename '~s' (init supervisor: ~w).",
 	%	[ TraceFilename, InitTraceSupervisor ] ),
+
+	% Wanting a better control by resisting to exit messages being received (see
+	% the onWOOPERExitReceived/3 callback):
+	%
+	erlang:process_flag( trap_exit, true ),
 
 	% First the direct mother classes (none here), then this class-specific
 	% actions:
@@ -290,7 +325,8 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 
 		{ is_batch, IsBatch },
 		{ init_supervision, ShouldInitTraceSupervisor },
-		{ supervisor_pid, undefined } ] ),
+		{ supervisor_pid, undefined },
+		{ watchdog_pid, undefined } ] ),
 
 	% We do not display these information on the console now, as the application
 	% may have to change the trace filename (the best moment to display that
@@ -314,7 +350,7 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 
 			trace_utils:info_fmt( "~s Creating a trace aggregator, "
 				"whose PID is ~w, with name '~s' and registration scope ~s.",
-								  [ ?LogPrefix, self(), RegName, RegScope ] ),
+				[ ?LogPrefix, self(), RegName, RegScope ] ),
 
 			% As soon as possible (i.e. now that it is registered, provided that
 			% get_aggregator/1 can find it, i.e. that it is registered
@@ -389,6 +425,16 @@ destruct( State ) ->
 	%trace_utils:debug_fmt( "~s Deleting trace aggregator.", [ ?LogPrefix ] ),
 
 	?getAttr(overload_monitor_pid) ! delete,
+
+	case ?getAttr(watchdog_pid) of
+
+		undefined ->
+			ok;
+
+		WatchdogPid ->
+			WatchdogPid ! delete
+
+	end,
 
 	% Class-specific actions:
 	case ?getAttr(registration_scope) of
@@ -481,6 +527,41 @@ destruct( State ) ->
 
 
 % Methods section.
+
+
+% Enables the aggregator watchdog, using the defaults.
+-spec enableWatchdog( wooper:state() ) -> oneway_return().
+enableWatchdog( State ) ->
+
+	WatchState = enable_watchdog( ?trace_aggregator_name,
+		?default_look_up_scope, ?default_watchdog_period, State ),
+
+	wooper:return_state( WatchState ).
+
+
+
+% Enables the aggregator watchdog, using the specified check period and the
+% defaults.
+%
+-spec enableWatchdog( wooper:state(), unit_utils:seconds() ) -> oneway_return().
+enableWatchdog( State, Period ) ->
+
+	WatchState = enable_watchdog( ?trace_aggregator_name,
+								  ?default_look_up_scope, Period, State ),
+
+	wooper:return_state( WatchState ).
+
+
+
+% Enables the aggregator watchdog.
+-spec enableWatchdog( wooper:state(), registration_name(), look_up_scope(),
+					  unit_utils:seconds() ) -> oneway_return().
+enableWatchdog( State, RegName, LookupScope, Period ) ->
+
+	WatchState = enable_watchdog( RegName, LookupScope, Period, State ),
+
+	wooper:return_state( WatchState ).
+
 
 
 % Sends a full trace to this aggregator to have it processed, i.e. stored or
@@ -849,6 +930,33 @@ sync( State ) ->
 
 
 
+% Callback triggered, as we trap exits, notably to reduce the risk of being
+% crashed in turn.
+%
+-spec onWOOPERExitReceived( wooper:state(), pid(),
+							basic_utils:exit_reason() ) -> const_oneway_return().
+onWOOPERExitReceived( State, StopPid, _ExitType=normal ) ->
+
+	Msg = text_utils:format( "Ignoring normal exit from process ~w.",
+							 [ StopPid ] ),
+
+	send_internal_deferred( notice, Msg ),
+
+	wooper:const_return();
+
+
+onWOOPERExitReceived( State, CrashPid, ExitType ) ->
+
+	Msg = text_utils:format( "Received and ignored an exit message '~p' from ~w.",
+							 [ ExitType, CrashPid ] ),
+
+	send_internal_deferred( error, Msg ),
+
+	wooper:const_return().
+
+
+
+
 
 % Static section.
 
@@ -875,7 +983,7 @@ create( _UseSynchronousNew=false, TraceSeverity ) ->
 
 	% For registration scope, see also get_aggregator/{0,1}:
 	AggregatorPid = new_link( ?trace_aggregator_filename, TraceSeverity,
-		?TraceTitle, _MaybeRegistrationScope=global_only, _IsBatch=false ),
+		?TraceTitle, ?default_registration_scope, _IsBatch=false ),
 
 	wooper:return_static( AggregatorPid );
 
@@ -887,7 +995,7 @@ create( _UseSynchronousNew=true, TraceSeverity ) ->
 
 	% For registration scope, see also get_aggregator/{0,1}:
 	AggregatorPid = synchronous_new_link( ?trace_aggregator_filename,
-		TraceSeverity, ?TraceTitle, _MaybeRegistrationScope=global_only,
+		TraceSeverity, ?TraceTitle, ?default_registration_scope,
 		_IsBatch=false ),
 
 	wooper:return_static( AggregatorPid ).
@@ -924,8 +1032,8 @@ get_aggregator() ->
 %
 -spec get_aggregator( boolean() ) ->
 							static_return( 'trace_aggregator_launch_failed'
-										   | 'trace_aggregator_not_found'
-										   | aggregator_pid() ).
+										 | 'trace_aggregator_not_found'
+										 | aggregator_pid() ).
 get_aggregator( CreateIfNotAvailable ) ->
 
 	% Only dealing with registered managers (instead of using directly their
@@ -939,9 +1047,10 @@ get_aggregator( CreateIfNotAvailable ) ->
 	%
 	AggRes = try
 
-		naming_utils:wait_for_global_registration_of( ?trace_aggregator_name )
+		naming_utils:wait_for_registration_of( ?trace_aggregator_name,
+											   ?default_look_up_scope )
 
-	catch { global_registration_waiting_timeout, _Name } ->
+	catch { registration_waiting_timeout, _Name, _Scope } ->
 
 		case CreateIfNotAvailable of
 
@@ -954,14 +1063,14 @@ get_aggregator( CreateIfNotAvailable ) ->
 
 				try
 
-					naming_utils:wait_for_global_registration_of(
-					  ?trace_aggregator_name )
+					naming_utils:wait_for_registration_of(
+					  ?trace_aggregator_name, ?default_look_up_scope )
 
-				catch { global_registration_waiting_timeout, _Name } ->
+				catch { registration_waiting_timeout, _Name, _Scope } ->
 
-						logger:error(
-						  "class_TraceAggregator:get_aggregator unable to "
-						  "launch successfully the aggregator.~n" ),
+						trace_utils:error(
+						  "class_TraceAggregator:get_aggregator/1 unable to "
+						  "launch successfully the aggregator." ),
 						trace_aggregator_launch_failed
 
 				end;
@@ -985,7 +1094,7 @@ get_aggregator( CreateIfNotAvailable ) ->
 remove() ->
 
 	case naming_utils:is_registered( ?trace_aggregator_name,
-									 _LookUpScope=global ) of
+									 ?default_look_up_scope ) of
 
 		not_registered ->
 			wooper:return_static( trace_aggregator_not_found );
@@ -1001,7 +1110,8 @@ remove() ->
 
 
 
-% Code of the process that monitors the aggregator, overloading-wise.
+% Code run by the process that monitors the aggregator, overloading-wise.
+-spec overload_monitor_main_loop( aggregator_pid() ) -> no_return().
 overload_monitor_main_loop( AggregatorPid ) ->
 
 	receive
@@ -1033,6 +1143,78 @@ overload_monitor_main_loop( AggregatorPid ) ->
 	end.
 
 
+
+% Code run by the process that monitors the aggregator, watchdog-wise: like a
+% client, tries to look-up that aggregator and checks that its PID is still
+% alive and the same.
+%
+-spec watchdog_main_loop( registration_name(), look_up_scope(),
+				aggregator_pid(), unit_utils:milliseconds() ) -> no_return().
+watchdog_main_loop( RegName, RegScope, AggregatorPid, MsPeriod ) ->
+
+	receive
+
+		delete ->
+			%trace_utils:info( "(aggregator watchdog deleted)" ),
+			deleted
+
+	after MsPeriod ->
+
+			% First check whether the registered process still matches:
+			case naming_utils:is_registered( RegName, RegScope ) of
+
+				not_registered ->
+
+					ErrorMsg = text_utils:format( "Watchdog did not find trace "
+						"aggregator '~s' in naming service (scope: ~s; "
+						"expected PID: ~w).",
+						[ RegName, RegScope, AggregatorPid ] ),
+
+					trace_utils:error( ErrorMsg ),
+
+					% Trying nevertheless:
+					class_TraceEmitter:send_direct( error, ErrorMsg,
+						_BinEmitterCategorization=?watchdog_emitter_categ,
+						AggregatorPid ),
+
+					% And still trying afterwards:
+					watchdog_main_loop( RegName, RegScope, AggregatorPid,
+										MsPeriod );
+
+
+				% Matching PID:
+				AggregatorPid ->
+
+					Msg = text_utils:format( "Watchdog found trace aggregator "
+						"~w (registration name: '~s'; scope: ~s) available.",
+						[ AggregatorPid, RegName, RegScope ] ),
+
+					class_TraceEmitter:send_direct( info, Msg,
+						_BinEmitterCategorization=?watchdog_emitter_categ,
+						AggregatorPid ),
+
+					watchdog_main_loop( RegName, RegScope, AggregatorPid,
+										MsPeriod );
+
+
+				OtherAggregatorPid ->
+
+					Msg = text_utils:format( "Watchdog found trace aggregator "
+						"(registration name: '~s'; scope: ~s) available, but "
+						"as ~w, instead of the expected ~w.",
+						[ RegName, RegScope, OtherAggregatorPid, AggregatorPid ] ),
+
+					class_TraceEmitter:send_direct( warning, Msg,
+						_BinEmitterCategorization=?watchdog_emitter_categ,
+						OtherAggregatorPid ),
+
+					% Adopt newer aggregator then:
+					watchdog_main_loop( RegName, RegScope, OtherAggregatorPid,
+										MsPeriod )
+
+	 end
+
+end.
 
 
 
@@ -1109,6 +1291,30 @@ initialize_supervision( State ) ->
 
 
 
+% Enables the aggregator watchdog.
+-spec enable_watchdog( registration_name(), look_up_scope(),
+					   unit_utils:seconds(), wooper:state() ) -> wooper:state().
+enable_watchdog( RegName, LookupScope, Period, State ) ->
+
+	MsPeriod = 1000 * Period,
+
+	% Closure used to avoid exporting the function (beware of self()):
+	AggregatorPid = self(),
+
+	send_internal_deferred( info, "Aggregator watchdog enabled for '~s' "
+		"(scope: ~s; PID: ~w), based on a period of ~s.",
+		[ RegName, LookupScope, AggregatorPid,
+		  time_utils:duration_to_string( MsPeriod ) ] ),
+
+	WatchdogPid = ?myriad_spawn_link( fun() ->
+		watchdog_main_loop( RegName, LookupScope, AggregatorPid, MsPeriod )
+									  end ),
+
+	setAttribute( State, watchdog_pid, WatchdogPid ).
+
+
+
+
 % Sends specified trace immediately from the aggregator itself (hence to
 % itself); this is done directly, in order to write it before any trace message
 % that would be waiting in the mailbox.
@@ -1160,7 +1366,6 @@ send_internal_immediate( TraceSeverity, Message, State ) ->
 send_internal_immediate( TraceSeverity, MessageFormat, MessageValues, State ) ->
 	Message = text_utils:format( MessageFormat, MessageValues ),
 	send_internal_immediate( TraceSeverity, Message, State ).
-
 
 
 

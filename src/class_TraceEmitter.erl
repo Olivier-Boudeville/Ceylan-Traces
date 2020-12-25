@@ -769,7 +769,7 @@ send_standalone( TraceSeverity, Message, EmitterName, EmitterCategorization,
 % registered.
 %
 -spec send_standalone_safe( trace_severity(), message() ) ->
-								  static_void_return().
+								static_void_return().
 send_standalone_safe( TraceSeverity, Message ) ->
 
 	EmitterCategorization = ?trace_emitter_categorization,
