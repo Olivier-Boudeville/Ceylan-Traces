@@ -943,7 +943,7 @@ sync( State ) ->
 % crashed in turn.
 %
 -spec onWOOPERExitReceived( wooper:state(), pid(),
-							basic_utils:exit_reason() ) -> const_oneway_return().
+						basic_utils:exit_reason() ) -> const_oneway_return().
 onWOOPERExitReceived( State, StopPid, _ExitType=normal ) ->
 
 	Msg = text_utils:format( "Ignoring normal exit from process ~w.",
@@ -956,8 +956,8 @@ onWOOPERExitReceived( State, StopPid, _ExitType=normal ) ->
 
 onWOOPERExitReceived( State, CrashPid, ExitType ) ->
 
-	Msg = text_utils:format( "Received and ignored an exit message '~p' from ~w.",
-							 [ ExitType, CrashPid ] ),
+	Msg = text_utils:format( "Received and ignored an exit message '~p' "
+							 "from ~w.", [ ExitType, CrashPid ] ),
 
 	send_internal_deferred( error, Msg ),
 
@@ -1194,8 +1194,10 @@ watchdog_main_loop( RegName, RegScope, AggregatorPid, MsPeriod ) ->
 				% Matching PID:
 				AggregatorPid ->
 
-					Msg = text_utils:format( "Watchdog found trace aggregator "
-						"~w (registration name: '~s'; scope: ~s) available.",
+					% Mimicking the Erlang VM standard messages:
+					Msg = text_utils:format( "ALIVE: watchdog found trace "
+						"aggregator ~w (registration name: '~s'; "
+						"scope: ~s) available.",
 						[ AggregatorPid, RegName, RegScope ] ),
 
 					%trace_utils:debug( Msg ),
@@ -1212,7 +1214,8 @@ watchdog_main_loop( RegName, RegScope, AggregatorPid, MsPeriod ) ->
 					Msg = text_utils:format( "Watchdog found trace aggregator "
 						"(registration name: '~s'; scope: ~s) available, but "
 						"as ~w, instead of the expected ~w.",
-						[ RegName, RegScope, OtherAggregatorPid, AggregatorPid ] ),
+						[ RegName, RegScope, OtherAggregatorPid,
+						  AggregatorPid ] ),
 
 					class_TraceEmitter:send_direct( warning, Msg,
 						_BinEmitterCategorization=?watchdog_emitter_categ,
