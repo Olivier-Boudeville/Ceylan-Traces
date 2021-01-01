@@ -949,7 +949,10 @@ onWOOPERExitReceived( State, StopPid, _ExitType=normal ) ->
 	Msg = text_utils:format( "Ignoring normal exit from process ~w.",
 							 [ StopPid ] ),
 
-	send_internal_deferred( notice, Msg ),
+	% Was 'notice', yet such a trace was often sent (once), presumably due to
+	% the automatic renaming of the trace file; so only 'info' now:
+	%
+	send_internal_deferred( info, Msg ),
 
 	wooper:const_return();
 
@@ -1548,7 +1551,7 @@ get_row_separator( DashType ) ->
 % Formats specified trace according to specified trace type.
 -spec format_trace_for( trace_supervision_type(),
 		 { emitter_pid(), emitter_name(), emitter_categorization(),
-		   app_timestamp(),  traces:time(), location(),
+		   app_timestamp(), traces:time(), location(),
 		   message_categorization(), priority(), message() } ) -> ustring().
 format_trace_for( advanced_traces, { TraceEmitterPid,
 		TraceEmitterName, TraceEmitterCategorization, AppTimestamp, Time,
