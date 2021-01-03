@@ -949,10 +949,11 @@ onWOOPERExitReceived( State, StopPid, _ExitType=normal ) ->
 	Msg = text_utils:format( "Ignoring normal exit from process ~w.",
 							 [ StopPid ] ),
 
-	% Was 'notice', yet such a trace was often sent (once), presumably due to
-	% the automatic renaming of the trace file; so only 'info' now:
+	% Was 'notice', yet such a trace was often sent (once), most probably due to
+	% the automatic renaming of the trace file or its sending to a trace
+	% listener; so now only:
 	%
-	send_internal_deferred( info, Msg ),
+	send_internal_deferred( debug, Msg ),
 
 	wooper:const_return();
 
