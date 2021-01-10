@@ -69,8 +69,8 @@ info-conditionals:
 
 
 info-deps:
-	@echo "MYRIAD_TOP = $(MYRIAD_TOP)"
-	@echo "WOOPER_TOP = $(WOOPER_TOP)"
+	@echo "MYRIAD_TOP = $(MYRIAD_TOP) (i.e. $$(realpath $(MYRIAD_TOP)))"
+	@echo "WOOPER_TOP = $(WOOPER_TOP)) (i.e. $$(realpath $(WOOPER_TOP)))"
 
 
 include $(TRACES_TOP)/GNUmakesettings.inc
