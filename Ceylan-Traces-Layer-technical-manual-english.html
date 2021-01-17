@@ -25,7 +25,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Organisation:</th><td class="field-body"><p class="first">Copyright (C) 2010-2020 Olivier Boudeville</p>
+<tr class="field"><th class="field-name">Organisation:</th><td class="field-body"><p class="first">Copyright (C) 2010-2021 Olivier Boudeville</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Contact:</th><td class="field-body"><p class="first">about (dash) traces (at) esperide (dot) com</p>
@@ -34,13 +34,13 @@
 <tr class="field"><th class="field-name">Creation date:</th><td class="field-body"><p class="first">Sunday, August 15, 2010</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Saturday, December 5, 2020</p>
+<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Sunday, January 17, 2021</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Status:</th><td class="field-body"><p class="first">Work in progress</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">0.9.15</p>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">0.9.16</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Dedication:</th><td class="field-body"><p class="first">Users and maintainers of the <tt class="docutils literal">Traces</tt> layer.</p>
@@ -315,6 +315,7 @@ Note: this section is not of interest for Traces <em>users</em>, it is only usef
 </li>
 <li><tt class="docutils literal">advanced_traces</tt>, for smarter log tools such as LogMX (the default), as discussed below</li>
 </ul>
+<p>Note also that trace rotation is supported (in a synchronous or asynchronous manner, see the <tt class="docutils literal">rotateTraceFile/1</tt> oneway and the <tt class="docutils literal">rotateTraceFileSync/1</tt> request of the trace aggregator). If the current trace file is <tt class="docutils literal">my_file.traces</tt>, its rotated version will be an XZ archive named for example <tt class="docutils literal"><span class="pre">my_file.trace.2021-1-17-at-22h-14m-00s.xz</span></tt>, in the same directory.</p>
 </div>
 <div class="section" id="trace-supervision-browsing">
 <h2><a class="toc-backref" href="#id36">Trace Supervision &amp; Browsing</a></h2>
