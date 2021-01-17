@@ -163,8 +163,11 @@
 -type format_string() :: text_utils:format_string().
 -type format_values() :: text_utils:format_values().
 
+-type seconds() :: unit_utils:seconds().
+-type milliseconds() :: unit_utils:milliseconds().
 
 -type file_name() :: file_utils:file_name().
+-type bin_file_path() :: file_utils:bin_file_path().
 -type bin_file_name() :: file_utils:bin_file_name().
 -type any_file_name() :: file_utils:any_file_name().
 
@@ -197,7 +200,8 @@
 % categorization) instead of having them sent to it each time, but more look-ups
 % would be involved.
 %
-% The aggregator is not a standard trace emitter.
+% The aggregator is not a standard trace emitter; do not use for example
+% ?debug-like macros.
 %
 % The aggregator can be (optionally) plugged to an OTP supervision tree, thanks
 % to the Traces supervisor bridge (see the traces_sup module).
@@ -258,7 +262,7 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 %
 % Main constructor:
 -spec construct( wooper:state(), file_name(), trace_supervision_type(), title(),
-	 maybe( registration_scope() ), boolean(), initialize_supervision() ) ->
+		maybe( registration_scope() ), boolean(), initialize_supervision() ) ->
 					   wooper:state().
 construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 		   MaybeRegistrationScope, IsBatch, InitTraceSupervisor ) ->
@@ -372,7 +376,6 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 
 	end,
 
-
 	% Closure used to avoid exporting the function (beware of self()):
 	AggregatorPid = self(),
 
@@ -414,7 +417,6 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 				"case (hence a lot less talkative).", TraceState )
 
 	end.
-
 
 
 
@@ -543,7 +545,7 @@ enableWatchdog( State ) ->
 % Enables the aggregator watchdog, using the specified check period and the
 % defaults.
 %
--spec enableWatchdog( wooper:state(), unit_utils:seconds() ) -> oneway_return().
+-spec enableWatchdog( wooper:state(), seconds() ) -> oneway_return().
 enableWatchdog( State, Period ) ->
 
 	WatchState = enable_watchdog( ?trace_aggregator_name,
@@ -555,7 +557,7 @@ enableWatchdog( State, Period ) ->
 
 % Enables the aggregator watchdog.
 -spec enableWatchdog( wooper:state(), registration_name(), look_up_scope(),
-					  unit_utils:seconds() ) -> oneway_return().
+					  seconds() ) -> oneway_return().
 enableWatchdog( State, RegName, LookupScope, Period ) ->
 
 	WatchState = enable_watchdog( RegName, LookupScope, Period, State ),
@@ -737,7 +739,7 @@ renameTraceFile( State, NewTraceFilename ) ->
 % Useful for example to launch a relevant trace supervision.
 %
 -spec getTraceType( wooper:state() ) ->
-			  const_request_return( { 'notify_trace_types', trace_type() } ).
+				const_request_return( { 'notify_trace_types', trace_type() } ).
 getTraceType( State ) ->
 
 	Res = { notify_trace_type, ?getAttr(trace_type) },
@@ -751,7 +753,7 @@ getTraceType( State ) ->
 % Useful for example to launch a relevant trace supervision.
 %
 -spec getTraceSettings( wooper:state() ) -> const_request_return(
-	  { 'notify_trace_settings', bin_file_name(), trace_type() } ).
+			{ 'notify_trace_settings', bin_file_name(), trace_type() } ).
 getTraceSettings( State ) ->
 
 	Res = { notify_trace_settings, ?getAttr(trace_filename),
@@ -907,7 +909,7 @@ removeTraceListener( State, ListenerPid ) ->
 % written.
 %
 -spec requestReadyNotification( wooper:state() ) ->
-								const_request_return( 'trace_file_ready' ).
+									const_request_return( 'trace_file_ready' ).
 requestReadyNotification( State ) ->
 
 	%trace_utils:info( "Requested for a ready notification." ),
@@ -936,6 +938,45 @@ sync( State ) ->
 	file:sync( TraceFile ),
 
 	wooper:const_return_result( trace_aggregator_synchronised ).
+
+
+
+% Rotates the current trace file (asynchronous version): closes the current
+% file, renames it, compresses it and creates a new file from scratch to avoid
+% it becomes too large. No trace can be lost in the process.
+%
+% If the current trace file is named 'my_file.traces', its rotated version will
+% be an XZ archive named for example
+% 'my_file.trace.2021-1-17-at-22h-14m-00s.xz', located in the same directory.
+%
+-spec rotateTraceFile( wooper:state() ) -> oneway_return().
+rotateTraceFile( State ) ->
+
+	{ _RotatedFilePath, RotateState } = rotate_trace_file( State ),
+
+	wooper:return_state( RotateState ).
+
+
+% Rotates the current trace file (synchronous version): closes the current file,
+% renames it, compresses it and creates a new file from scratch to avoid it
+% becomes too large. No trace can be lost in the process.
+%
+% If the current trace file is named 'my_file.traces', its rotated version will
+% be an XZ archive named for example
+% 'my_file.trace.2021-1-17-at-22h-14m-00s.xz', located in the same directory.
+%
+-spec rotateTraceFileSync( wooper:state() ) ->
+		request_return( fallible( { 'trace_file_rotated', bin_file_path() } ) ).
+rotateTraceFileSync( State ) ->
+
+	{ RotatedFilePath, RotateState } = rotate_trace_file( State ),
+
+	BinRotatedFilePath = text_utils:string_to_binary( RotatedFilePath ),
+
+	wooper:return_state_result( RotateState,
+								{ trace_file_rotated, BinRotatedFilePath } ).
+
+
 
 
 
@@ -1162,7 +1203,7 @@ overload_monitor_main_loop( AggregatorPid ) ->
 % alive and the same.
 %
 -spec watchdog_main_loop( registration_name(), look_up_scope(),
-				aggregator_pid(), unit_utils:milliseconds() ) -> no_return().
+						  aggregator_pid(), milliseconds() ) -> no_return().
 watchdog_main_loop( RegName, RegScope, AggregatorPid, MsPeriod ) ->
 
 	receive
@@ -1309,8 +1350,8 @@ initialize_supervision( State ) ->
 
 
 % Enables the aggregator watchdog.
--spec enable_watchdog( registration_name(), look_up_scope(),
-					   unit_utils:seconds(), wooper:state() ) -> wooper:state().
+-spec enable_watchdog( registration_name(), look_up_scope(), seconds(),
+					   wooper:state() ) -> wooper:state().
 enable_watchdog( RegName, LookupScope, Period, State ) ->
 
 	case ?getAttr(watchdog_pid) of
@@ -1388,7 +1429,7 @@ send_internal_immediate( TraceSeverity, Message, State ) ->
 % (helper)
 %
 -spec send_internal_immediate( trace_severity(), format_string(),
-						   format_values(), wooper:state() ) -> wooper:state().
+						format_values(), wooper:state() ) -> wooper:state().
 send_internal_immediate( TraceSeverity, MessageFormat, MessageValues, State ) ->
 	Message = text_utils:format( MessageFormat, MessageValues ),
 	send_internal_immediate( TraceSeverity, Message, State ).
@@ -1405,7 +1446,7 @@ send_internal_immediate( TraceSeverity, MessageFormat, MessageValues, State ) ->
 send_internal_deferred( TraceSeverity, Message ) ->
 
 	TimestampText = text_utils:string_to_binary(
-					  time_utils:get_textual_timestamp() ),
+						time_utils:get_textual_timestamp() ),
 
 	MessageCategorization = <<"Trace Management">>,
 
@@ -1413,7 +1454,7 @@ send_internal_deferred( TraceSeverity, Message ) ->
 		_TraceEmitterPid=self(),
 		_TraceEmitterName= <<"Trace Aggregator">>,
 		_TraceEmitterCategorization=text_utils:string_to_binary(
-									  ?trace_emitter_categorization ),
+										?trace_emitter_categorization ),
 		_AppTimestamp=none,
 		_Time=TimestampText,
 		_Location=net_utils:localnode_as_binary(),
@@ -1692,6 +1733,40 @@ get_trace_file_base_options() ->
 	%
 	[ { delayed_write, _Size=32*1024, _Delay=500 },
 	  file_utils:get_default_encoding_option() ].
+
+
+
+% (helper)
+-spec rotate_trace_file( wooper:state() ) -> { file_name(), wooper:state() }.
+rotate_trace_file( State ) ->
+
+	BinTracePath = ?getAttr(trace_filename),
+
+	send_internal_immediate( _TraceSeverity=info,  "Rotating '~s'.",
+							 [ BinTracePath ], State ),
+
+	ArchiveFilePath = text_utils:format( "~s.~s",
+			[ BinTracePath, time_utils:get_textual_timestamp_for_path() ] ),
+
+	% Hopefully synchronous:
+	file_utils:close( ?getAttr(trace_file) ),
+
+	file_utils:move_file( BinTracePath, ArchiveFilePath ),
+
+	CompressedFilePath = file_utils:compress( ArchiveFilePath ),
+
+	file_utils:remove_file( ArchiveFilePath ),
+
+	send_internal_deferred( debug,
+		"Trace rotation done: archive '~s' generated "
+		"(original '~s' removed).", [ CompressedFilePath, BinTracePath ] ),
+
+	NewTraceFile = open_trace_file( BinTracePath ),
+
+	RotatedState = setAttribute( State, trace_file, NewTraceFile ),
+
+	{ CompressedFilePath, RotatedState }.
+
 
 
 % Allows inspecting the trace messages, which are often copied and/or sent over
