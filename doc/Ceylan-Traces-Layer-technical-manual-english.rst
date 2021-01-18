@@ -34,12 +34,12 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 ===============================================
 
 
-:Organisation: Copyright (C) 2010-2020 Olivier Boudeville
+:Organisation: Copyright (C) 2010-2021 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Saturday, December 5, 2020
+:Lastly updated: Sunday, January 17, 2021
 :Status: Work in progress
-:Version: 0.9.15
+:Version: 0.9.16
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
@@ -324,6 +324,10 @@ So, due to network and emitter latencies, it may happen (rather infrequently) th
 Trace Output Generation
 -----------------------
 
+
+Trace Format Type
+=================
+
 Traces may be browsed thanks to either of the following supervision solutions (see ``class_TraceSupervisor.erl``):
 
 - ``text_traces``, itself available in two variations:
@@ -332,6 +336,16 @@ Traces may be browsed thanks to either of the following supervision solutions (s
   - ``pdf``, if wanting to read finally the traces in a generated PDF file (hence the actual text includes a relevant mark-up, and as such is less readable directly before a PDF is generated out of it)
 
 - ``advanced_traces``, for smarter log tools such as LogMX (the default), as discussed below
+
+
+Trace Rotation
+==============
+
+Note also that trace rotation can be enabled: when requested, it is performed (in a synchronous or asynchronous manner, see the ``rotateTraceFile/1`` oneway and the ``rotateTraceFileSync/1`` request of the trace aggregator) unconditionally or based on a threshold in the size of the trace file.
+
+Such trace rotation is typically meant to be triggered by a scheduler, on a regular basis (doing so is more relevant than for example checking a criterion at each trace addition).
+
+If the current trace file is ``my_file.traces``, its rotated version will be an XZ archive named for example ``my_file.traces.2021-1-17-at-22h-14m-00s.xz`` (the timestamp corresponding to the log rotation), located in the same directory.
 
 
 ----------------------------
