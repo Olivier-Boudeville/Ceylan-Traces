@@ -49,13 +49,17 @@ run() ->
 
 	?test_info( "Waiting for the acknowledgement of trace rotation." ),
 
-	receive
+	BinFilePath = receive
 
 		{ wooper_result, { trace_file_rotated, BinRotatedFilePath } } ->
 			?test_info_fmt( "Trace rotation acknowledged, result in '~s'.",
-							[ BinRotatedFilePath ] )
+							[ BinRotatedFilePath ] ),
+			BinRotatedFilePath
 
 	end,
+
+	?test_debug_fmt( "Removing '~s'.", [ BinFilePath ] ),
+	file_utils:remove_file( BinFilePath ),
 
 	?test_debug_fmt( "End of test for ~s.", [ ?MODULE ] ),
 
