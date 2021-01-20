@@ -80,6 +80,9 @@
 	{ supervisor_pid, maybe( supervisor_pid() ),
 	  "the PID of the associated trace supervisor (if any)" },
 
+	{ rotation_min_size, byte_size(),
+	  "the minimum size of a traces file before it can be rotated" },
+
 	{ rotation_count, count(), "the number of the upcoming rotation to "
 	  "take place (useful to keep track of a series of rotated files)" },
 
@@ -174,6 +177,7 @@
 -type bin_file_name() :: file_utils:bin_file_name().
 -type any_file_name() :: file_utils:any_file_name().
 
+-type byte_size() :: system_utils:byte_size().
 
 -type registration_name() :: naming_utils:registration_name().
 -type registration_scope() :: naming_utils:registration_scope().
@@ -266,7 +270,7 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 % Main constructor:
 -spec construct( wooper:state(), file_name(), trace_supervision_type(), title(),
 		maybe( registration_scope() ), boolean(), initialize_supervision() ) ->
-					   wooper:state().
+						wooper:state().
 construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 		   MaybeRegistrationScope, IsBatch, InitTraceSupervisor ) ->
 
@@ -333,6 +337,10 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 		{ is_batch, IsBatch },
 		{ init_supervision, ShouldInitTraceSupervisor },
 		{ supervisor_pid, undefined },
+
+		% 2 MB is a reasonable default:
+		{ rotation_min_size, 2000000 },
+
 		{ rotation_count, 1 },
 		% overload_monitor_pid set later
 		{ watchdog_pid, undefined } ] ),
@@ -926,7 +934,8 @@ requestReadyNotification( State ) ->
 
 
 
-% Requests this aggregator to acknowledge this message (like a ping).
+% Requests this aggregator to flush any trace not already written in file and to
+% acknowledge this message (like a ping).
 %
 % The purpose is to ensure that all pending operations are performed (ex: so
 % that any next crash will not result in the loss of traces).
@@ -946,9 +955,28 @@ sync( State ) ->
 
 
 
-% Rotates the current trace file (asynchronous version): closes the current
-% file, renames it, compresses it and creates a new file from scratch to avoid
-% it becomes too large. No trace can be lost in the process.
+% Sets the specified minimum size for the trace file before it can be rotated.
+%
+% A size of zero leads to unconditinal rotation.
+%
+-spec setMinimumTraceFileSizeForRotation( wooper:state(), byte_size() ) ->
+											 oneway_return().
+setMinimumTraceFileSizeForRotation( State, MinFileSize )
+  when is_integer( MinFileSize ) ->
+
+	send_internal_deferred( info, "Setting minimum size for trace file to ~s.",
+		[ system_utils:interpret_byte_size_with_unit( MinFileSize ) ] ),
+
+	SetState = setAttribute( State, rotation_min_size, MinFileSize ),
+
+	wooper:return_state( SetState ).
+
+
+
+% Rotates the current trace file (asynchronous version): provided that its size
+% is above the current threshold, closes the current file, renames it,
+% compresses it and creates a new file from scratch to avoid it becomes too
+% large. No trace can be lost in the process.
 %
 % If the current trace file is named 'my_file.traces', its rotated version could
 % be an XZ archive named for example
@@ -958,14 +986,16 @@ sync( State ) ->
 -spec rotateTraceFile( wooper:state() ) -> oneway_return().
 rotateTraceFile( State ) ->
 
-	{ _RotatedFilePath, RotateState } = rotate_trace_file( State ),
+	{ _Res, RotateState } = rotate_trace_file( State ),
 
 	wooper:return_state( RotateState ).
 
 
-% Rotates the current trace file (synchronous version): closes the current file,
-% renames it, compresses it and creates a new file from scratch to avoid it
-% becomes too large. No trace can be lost in the process.
+
+% Rotates the current trace file (synchronous version): provided that its size
+% is above the current threshold, closes the current file, renames it,
+% compresses it and creates a new file from scratch to avoid it becomes too
+% large. No trace can be lost in the process.
 %
 % If the current trace file is named 'my_file.traces', its rotated version could
 % be an XZ archive named for example
@@ -973,15 +1003,22 @@ rotateTraceFile( State ) ->
 % textual timestamp), located in the same directory.
 %
 -spec rotateTraceFileSync( wooper:state() ) ->
-		request_return( fallible( { 'trace_file_rotated', bin_file_path() } ) ).
+		request_return( fallible( { 'trace_file_rotated', bin_file_path() }
+								| 'trace_file_below_min_size' ) ).
 rotateTraceFileSync( State ) ->
 
-	{ RotatedFilePath, RotateState } = rotate_trace_file( State ),
+	{ Res, RotState } = case rotate_trace_file( State ) of
 
-	BinRotatedFilePath = text_utils:string_to_binary( RotatedFilePath ),
+		undefined ->
+			{ trace_file_below_min_size, State };
 
-	wooper:return_state_result( RotateState,
-								{ trace_file_rotated, BinRotatedFilePath } ).
+		{ RotatedFilePath, RotateState } ->
+			BinRotatedFilePath = text_utils:string_to_binary( RotatedFilePath ),
+			{ { trace_file_rotated, BinRotatedFilePath }, RotateState }
+
+	end,
+
+	wooper:return_state_result( RotState, Res ).
 
 
 
@@ -1744,39 +1781,50 @@ get_trace_file_base_options() ->
 
 
 % (helper)
--spec rotate_trace_file( wooper:state() ) -> { file_name(), wooper:state() }.
+-spec rotate_trace_file( wooper:state() ) ->
+								maybe( { file_name(), wooper:state() } ).
 rotate_trace_file( State ) ->
 
 	BinTracePath = ?getAttr(trace_filename),
 
-	send_internal_immediate( _TraceSeverity=info,  "Rotating '~s'.",
-							 [ BinTracePath ], State ),
+	% Equality allows to support unconditionality (with a null size):
+	case file_utils:get_size( BinTracePath ) >= ?getAttr(rotation_min_size) of
 
-	RotCount = ?getAttr(rotation_count),
+		true ->
+			send_internal_immediate( _TraceSeverity=info,  "Rotating '~s'.",
+									 [ BinTracePath ], State ),
 
-	ArchiveFilePath = text_utils:format( "~s.~B.~s", [ BinTracePath, RotCount,
-				time_utils:get_textual_timestamp_for_path() ] ),
+			RotCount = ?getAttr(rotation_count),
 
-	% Hopefully synchronous:
-	file_utils:close( ?getAttr(trace_file) ),
+			ArchiveFilePath = text_utils:format( "~s.~B.~s", [ BinTracePath,
+				RotCount, time_utils:get_textual_timestamp_for_path() ] ),
 
-	file_utils:move_file( BinTracePath, ArchiveFilePath ),
+			% Hopefully synchronous:
+			file_utils:close( ?getAttr(trace_file) ),
 
-	CompressedFilePath = file_utils:compress( ArchiveFilePath ),
+			file_utils:move_file( BinTracePath, ArchiveFilePath ),
 
-	file_utils:remove_file( ArchiveFilePath ),
+			CompressedFilePath = file_utils:compress( ArchiveFilePath ),
 
-	send_internal_deferred( debug,
-		"Trace rotation done: archive '~s' generated "
-		"(original '~s' removed).", [ CompressedFilePath, BinTracePath ] ),
+			file_utils:remove_file( ArchiveFilePath ),
 
-	NewTraceFile = open_trace_file( BinTracePath ),
+			send_internal_deferred( debug,
+				"Trace rotation done: archive '~s' generated "
+				"(original '~s' removed).",
+				[ CompressedFilePath, BinTracePath ] ),
 
-	RotatedState = setAttributes( State, [
-		{ trace_file, NewTraceFile },
-		{ rotation_count, RotCount+1 } ] ),
+			NewTraceFile = open_trace_file( BinTracePath ),
 
-	{ CompressedFilePath, RotatedState }.
+			RotatedState = setAttributes( State, [
+				{ trace_file, NewTraceFile },
+				{ rotation_count, RotCount+1 } ] ),
+
+			{ CompressedFilePath, RotatedState };
+
+		false ->
+			undefined
+
+	end.
 
 
 

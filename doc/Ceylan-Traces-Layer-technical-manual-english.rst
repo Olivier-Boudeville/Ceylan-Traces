@@ -37,9 +37,9 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2021 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Sunday, January 17, 2021
+:Lastly updated: Wednesday, January 20, 2021
 :Status: Work in progress
-:Version: 0.9.16
+:Version: 0.9.17
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
@@ -338,14 +338,15 @@ Traces may be browsed thanks to either of the following supervision solutions (s
 - ``advanced_traces``, for smarter log tools such as LogMX (the default), as discussed below
 
 
+
 Trace Rotation
 ==============
 
-Note also that trace rotation can be enabled: when requested, it is performed (in a synchronous or asynchronous manner, see the ``rotateTraceFile/1`` oneway and the ``rotateTraceFileSync/1`` request of the trace aggregator) unconditionally or based on a threshold in the size of the trace file.
+Note also that trace rotation can be enabled: when requested, it is performed (in a synchronous or asynchronous manner, see the ``rotateTraceFile/1`` oneway and the ``rotateTraceFileSync/1`` request of the trace aggregator) unconditionally or based on a threshold in the size of the trace file (the default; see also the ``setMinimumTraceFileSizeForRotation/2`` oneway).
 
 Such trace rotation is typically meant to be triggered by a scheduler, on a regular basis (doing so is more relevant than for example checking a criterion at each trace addition).
 
-If the current trace file is ``my_file.traces``, its rotated version will be an XZ archive named for example ``my_file.traces.2021-1-17-at-22h-14m-00s.xz`` (the timestamp corresponding to the log rotation), located in the same directory.
+If the current trace file is ``my_file.traces``, its rotated version will be an XZ archive named for example ``my_file.traces.8.2021-1-17-at-22h-14m-00s.xz`` (the count, here ``8``, allows to keep track of a series of rotation archives, while the timestamp corresponds to the time at which the log rotation was done), located in the same directory.
 
 
 ----------------------------

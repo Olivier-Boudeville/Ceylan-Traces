@@ -44,6 +44,18 @@ run() ->
 
 	TraceAggPid = class_TraceAggregator:get_aggregator(),
 
+	% Disable threshold:
+	TraceAggPid ! { setMinimumTraceFileSizeForRotation, [ 0 ] },
+
+	% Otherwise the trace file might still be empty for upcoming rotation:
+	TraceAggPid ! { sync, [], self() },
+	receive
+
+		{ wooper_result, trace_aggregator_synchronised } ->
+			ok
+
+	end,
+
 	% Calling the request version:
 	TraceAggPid ! { rotateTraceFileSync, [], self() },
 
@@ -54,12 +66,17 @@ run() ->
 		{ wooper_result, { trace_file_rotated, BinRotatedFilePath } } ->
 			?test_info_fmt( "Trace rotation acknowledged, result in '~s'.",
 							[ BinRotatedFilePath ] ),
-			BinRotatedFilePath
+			BinRotatedFilePath;
+
+		{ wooper_result, Other } ->
+			?test_error_fmt( "Received ~p.", [ Other ] )
 
 	end,
 
-	?test_debug_fmt( "Removing '~s'.", [ BinFilePath ] ),
-	file_utils:remove_file( BinFilePath ),
+	?test_debug_fmt( "Removing any '~s'.", [ BinFilePath ] ),
+
+	% Probably not existing because of past rotation:
+	file_utils:remove_file_if_existing( BinFilePath ),
 
 	?test_debug_fmt( "End of test for ~s.", [ ?MODULE ] ),
 
