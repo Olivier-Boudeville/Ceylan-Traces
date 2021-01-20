@@ -80,6 +80,9 @@
 	{ supervisor_pid, maybe( supervisor_pid() ),
 	  "the PID of the associated trace supervisor (if any)" },
 
+	{ rotation_count, count(), "the number of the upcoming rotation to "
+	  "take place (useful to keep track of a series of rotated files)" },
+
 	{ overload_monitor_pid, pid(),
 	  "the PID of the process (if any) in charge of tracking the length of "
 	  "the message queue of this aggregator in order to detect whenever "
@@ -330,6 +333,8 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 		{ is_batch, IsBatch },
 		{ init_supervision, ShouldInitTraceSupervisor },
 		{ supervisor_pid, undefined },
+		{ rotation_count, 1 },
+		% overload_monitor_pid set later
 		{ watchdog_pid, undefined } ] ),
 
 	% We do not display these information on the console now, as the application
@@ -945,9 +950,10 @@ sync( State ) ->
 % file, renames it, compresses it and creates a new file from scratch to avoid
 % it becomes too large. No trace can be lost in the process.
 %
-% If the current trace file is named 'my_file.traces', its rotated version will
+% If the current trace file is named 'my_file.traces', its rotated version could
 % be an XZ archive named for example
-% 'my_file.trace.2021-1-17-at-22h-14m-00s.xz', located in the same directory.
+% 'my_file.traces.7.2021-1-17-at-22h-14m-00s.xz' (a rotation count then a
+% textual timestamp), located in the same directory.
 %
 -spec rotateTraceFile( wooper:state() ) -> oneway_return().
 rotateTraceFile( State ) ->
@@ -961,9 +967,10 @@ rotateTraceFile( State ) ->
 % renames it, compresses it and creates a new file from scratch to avoid it
 % becomes too large. No trace can be lost in the process.
 %
-% If the current trace file is named 'my_file.traces', its rotated version will
+% If the current trace file is named 'my_file.traces', its rotated version could
 % be an XZ archive named for example
-% 'my_file.trace.2021-1-17-at-22h-14m-00s.xz', located in the same directory.
+% 'my_file.traces.7.2021-1-17-at-22h-14m-00s.xz' (a rotation count then a
+% textual timestamp), located in the same directory.
 %
 -spec rotateTraceFileSync( wooper:state() ) ->
 		request_return( fallible( { 'trace_file_rotated', bin_file_path() } ) ).
@@ -1745,8 +1752,10 @@ rotate_trace_file( State ) ->
 	send_internal_immediate( _TraceSeverity=info,  "Rotating '~s'.",
 							 [ BinTracePath ], State ),
 
-	ArchiveFilePath = text_utils:format( "~s.~s",
-			[ BinTracePath, time_utils:get_textual_timestamp_for_path() ] ),
+	RotCount = ?getAttr(rotation_count),
+
+	ArchiveFilePath = text_utils:format( "~s.~B.~s", [ BinTracePath, RotCount,
+				time_utils:get_textual_timestamp_for_path() ] ),
 
 	% Hopefully synchronous:
 	file_utils:close( ?getAttr(trace_file) ),
@@ -1763,7 +1772,9 @@ rotate_trace_file( State ) ->
 
 	NewTraceFile = open_trace_file( BinTracePath ),
 
-	RotatedState = setAttribute( State, trace_file, NewTraceFile ),
+	RotatedState = setAttributes( State, [
+		{ trace_file, NewTraceFile },
+		{ rotation_count, RotCount+1 } ] ),
 
 	{ CompressedFilePath, RotatedState }.
 
