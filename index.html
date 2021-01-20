@@ -34,13 +34,13 @@
 <tr class="field"><th class="field-name">Creation date:</th><td class="field-body"><p class="first">Sunday, August 15, 2010</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Sunday, January 17, 2021</p>
+<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Wednesday, January 20, 2021</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Status:</th><td class="field-body"><p class="first">Work in progress</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">0.9.16</p>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">0.9.17</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Dedication:</th><td class="field-body"><p class="first">Users and maintainers of the <tt class="docutils literal">Traces</tt> layer.</p>
@@ -324,9 +324,9 @@ Note: this section is not of interest for Traces <em>users</em>, it is only usef
 </div>
 <div class="section" id="trace-rotation">
 <h3><a class="toc-backref" href="#id37">Trace Rotation</a></h3>
-<p>Note also that trace rotation can be enabled: when requested, it is performed (in a synchronous or asynchronous manner, see the <tt class="docutils literal">rotateTraceFile/1</tt> oneway and the <tt class="docutils literal">rotateTraceFileSync/1</tt> request of the trace aggregator) unconditionally or based on a threshold in the size of the trace file.</p>
+<p>Note also that trace rotation can be enabled: when requested, it is performed (in a synchronous or asynchronous manner, see the <tt class="docutils literal">rotateTraceFile/1</tt> oneway and the <tt class="docutils literal">rotateTraceFileSync/1</tt> request of the trace aggregator) unconditionally or based on a threshold in the size of the trace file (the default; see also the <tt class="docutils literal">setMinimumTraceFileSizeForRotation/2</tt> oneway).</p>
 <p>Such trace rotation is typically meant to be triggered by a scheduler, on a regular basis (doing so is more relevant than for example checking a criterion at each trace addition).</p>
-<p>If the current trace file is <tt class="docutils literal">my_file.traces</tt>, its rotated version will be an XZ archive named for example <tt class="docutils literal"><span class="pre">my_file.traces.2021-1-17-at-22h-14m-00s.xz</span></tt> (the timestamp corresponding to the log rotation), located in the same directory.</p>
+<p>If the current trace file is <tt class="docutils literal">my_file.traces</tt>, its rotated version will be an XZ archive named for example <tt class="docutils literal"><span class="pre">my_file.traces.8.2021-1-17-at-22h-14m-00s.xz</span></tt> (the count, here <tt class="docutils literal">8</tt>, allows to keep track of a series of rotation archives, while the timestamp corresponds to the time at which the log rotation was done), located in the same directory.</p>
 </div>
 </div>
 <div class="section" id="trace-supervision-browsing">
