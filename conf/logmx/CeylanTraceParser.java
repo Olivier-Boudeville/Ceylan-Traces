@@ -170,13 +170,17 @@ public class CeylanTraceParser extends LogFileParser
 			 */
 			for ( Integer i = 0; i < remainingFieldsCount; i++ )
 			{
-				remainingFields += fields[i+8].trim() ;
+				// No trimming wanted here:
+				remainingFields += fields[i+8] ;
 				if ( i != remainingFieldsCount-1 )
 					remainingFields += "|" ;
 			}
 
+			// Otherwise lost because of split:
 			if ( line.endsWith( "|" ) )
 				remainingFields += "|" ;
+			else
+				line.trim() ;
 
 			/*
 			 * Inserts spaces to allow line-breaking, and end-of-line to
