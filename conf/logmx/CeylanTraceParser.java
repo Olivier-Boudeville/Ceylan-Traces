@@ -164,13 +164,19 @@ public class CeylanTraceParser extends LogFileParser
 
 			Integer remainingFieldsCount = fields.length - 8 ;
 
-			// Puts back the '|':
+			/* Puts back the '|' (note that, due to line.split/1, any trailing
+			 * pipe will be lost)
+			 *
+			 */
 			for ( Integer i = 0; i < remainingFieldsCount; i++ )
 			{
 				remainingFields += fields[i+8].trim() ;
 				if ( i != remainingFieldsCount-1 )
 					remainingFields += "|" ;
 			}
+
+			if ( line.endsWith( "|" ) )
+				remainingFields += "|" ;
 
 			/*
 			 * Inserts spaces to allow line-breaking, and end-of-line to

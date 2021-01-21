@@ -56,6 +56,9 @@ run() ->
 
 	end,
 
+	% Pipe being the field separator used internally for traces:
+	?test_debug( "Testing a message with pipes: AA|BB|CC|" ),
+
 	?test_debug_fmt( "End of test for ~s.", [ ?MODULE ] ),
 
 	?test_stop.
