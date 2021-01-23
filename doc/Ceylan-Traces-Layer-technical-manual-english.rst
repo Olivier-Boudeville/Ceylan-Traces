@@ -37,7 +37,7 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2021 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Wednesday, January 20, 2021
+:Lastly updated: Saturday, January 23, 2021
 :Status: Work in progress
 :Version: 0.9.17
 :Dedication: Users and maintainers of the ``Traces`` layer.
@@ -125,7 +125,7 @@ Its purpose is to provide another means of muting/unmuting some traces, instead 
 Trace Content
 -------------
 
-  Note: this section is not of interest for Traces *users*, it is only useful if wanting to integrate other tools or simply to have a look under the hood.
+.. Note:: This section is not of interest for Traces *users*, it is only useful if wanting to integrate other tools or simply to have a look under the hood.
 
 The traces corresponding to an execution are represented as an wallclock-time ordered stream of trace messages.
 
