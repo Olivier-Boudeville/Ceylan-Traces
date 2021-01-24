@@ -807,7 +807,9 @@ addTraceListener( State, ListenerPid ) ->
 			% Done ASAP, otherwise the listener could lose traces if buffers of
 			% all levels were not flushed:
 
-			% Not sufficient by itself...
+			% Not sufficient by itself (so file:datasync/1 no sufficient
+			% either)...
+			%
 			file:sync( TraceFile ),
 
 			% ...so we have also to close and re-open later:
