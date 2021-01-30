@@ -928,7 +928,7 @@ send_standalone_safe( TraceSeverity, Message, EmitterName,
 % Sends all types of traces without requiring a class_TraceEmitter state, based
 % on a specified trace aggregator.
 %
-% For example useful with a logger handler.
+% For example useful with a logger handler, for lower message severities.
 %
 -spec send_direct( trace_severity(), message(), emitter_categorization(),
 				   aggregator_pid() ) -> static_void_return().
@@ -958,6 +958,50 @@ send_direct( TraceSeverity, Message, BinEmitterCategorization,
 
 	wooper:return_static_void().
 
+
+
+% Sends all types of traces without requiring a class_TraceEmitter state, based
+% on a specified trace aggregator.
+%
+% Allows to ensure synchronicity of the operation with the caller operation,
+% typically to ensure no crash can affect a given emitted trace: the caller may
+% wait for the trace_aggregator_synchronised WOOPER result message it will
+% received before continuing on its operation.
+%
+% For example useful with a logger handler, for higher message severities.
+%
+-spec send_direct_synchronisable( trace_severity(), message(),
+		emitter_categorization(), aggregator_pid() ) -> static_void_return().
+send_direct_synchronisable( TraceSeverity, Message,
+							BinEmitterCategorization, AggregatorPid ) ->
+
+	% Follows the order of our trace format; oneway call:
+	TimestampText = text_utils:string_to_binary(
+						time_utils:get_textual_timestamp() ),
+
+	PidName = get_emitter_name_from_pid(),
+
+	MessageCategorization = get_default_standalone_message_categorization(),
+
+	% This is a request, so the caller of this static method is expected to
+	% perform a receive of its result, i.e. {wooper_result,
+	% trace_aggregator_synchronised}:
+	%
+	AggregatorPid ! { sendSync, [
+				 _TraceEmitterPid=self(),
+				 _TraceEmitterName=text_utils:string_to_binary( PidName ),
+				 _TraceEmitterCategorization=BinEmitterCategorization,
+				 _AppTimestamp=none,
+				 _Time=TimestampText,
+				 % No State available here:
+				 _Location=net_utils:localnode_as_binary(),
+				 _TraceMessageCategorization=text_utils:string_to_binary(
+											   MessageCategorization ),
+				 _Priority=trace_utils:get_priority_for( TraceSeverity ),
+				_Message=text_utils:string_to_binary( Message ) ],
+					  self() },
+
+	wooper:return_static_void().
 
 
 % Returns the name of the trace channel corresponding to the trace priority.
