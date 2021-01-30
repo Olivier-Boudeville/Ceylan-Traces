@@ -298,6 +298,9 @@ set_handler() ->
 -spec set_handler( aggregator_pid() ) -> void().
 set_handler( AggregatorPid ) ->
 
+	%trace_utils:debug_fmt( "Setting default handler for logger to "
+	%	"aggregator ~w, on node: ~s.", [ AggregatorPid, node() ] ),
+
 	TargetHandler = default,
 
 	case logger:remove_handler( TargetHandler ) of
@@ -441,10 +444,40 @@ log( _LogEvent=#{ level := Level,
 	%  "resulting in: '~s' (severity: ~p).",
 	%  [ LogEvent, Config, TraceMsg, Severity ] ),
 
-	class_TraceEmitter:send_direct( Severity, TraceMsg,
-		_EmitterCategorization= <<"Erlang logger">>, TraceAggregatorPid ),
+	BinEmitterCategorization = <<"Erlang logger">>,
 
-	trace_utils:echo( TraceMsg, Severity, "erlang_logger" );
+	% Trying to induce as low overhead as possible (alternatively separate
+	% per-level handlers could be set); yet finally we prefer never losing any
+	% message (even of lower priority), and anyway messages going through logger
+	% are quite infrequent - at least in our use cases - so we have them all
+	% properly synchronised so that none can be lost in case of crash:
+	%
+	%case Level =:= notice orelse Level =:= info orelse Level =:= debug of
+	%
+	%	% Lighter, quicker:
+	%	true ->
+	%		class_TraceEmitter:send_direct( Severity, TraceMsg,
+	%			BinEmitterCategorization, TraceAggregatorPid );
+	%
+	%	_False ->
+			% Sent as soon as possible:
+			class_TraceEmitter:send_direct_synchronisable( Severity, TraceMsg,
+				BinEmitterCategorization, TraceAggregatorPid ),
+
+	%end,
+
+	trace_utils:echo( TraceMsg, Severity, "erlang_logger" ),
+
+	% Received (from send_direct_synchronisable/4) as late as possible:
+	receive
+
+		{ wooper_result, trace_aggregator_synchronised } ->
+			%trace_utils:debug_fmt( "Synchronised from logger for "
+			%	"message '~p'.", [ TraceMsg ] ),
+			ok
+
+	end;
+
 
 log( LogEvent, _Config ) ->
 	throw( { unexpected_log_event, LogEvent } ).
