@@ -657,13 +657,14 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 
 	%trace_utils:debug_fmt( "Writing sync trace '~s'.", [ Trace ] ),
 
-	% Was: io:format( ?getAttr(trace_file), "~s", [ Trace ] ),
+	TraceFile = ?getAttr(trace_file),
+
+	% Was: io:format( TraceFile, "~s", [ Trace ] ),
 	% but now we use faster raw writes:
 	%
-	%ok = file:write( ?getAttr(trace_file),
-	%                 text_utils:format( "~s", [ Trace ] ) ),
+	%ok = file:write( TraceFile, text_utils:format( "~s", [ Trace ] ) ),
 
-	file_utils:write( ?getAttr(trace_file), Trace ),
+	file_utils:write( TraceFile, Trace ),
 
 	Listeners = ?getAttr(trace_listeners),
 
@@ -679,6 +680,14 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 			[ L ! { addTrace, BinTrace } || L <- Listeners ]
 
 	end,
+
+	%trace_utils:debug_fmt( "Sync trace '~s' written.", [ Trace ] ),
+
+	% Done as late as possible, and strictly necessary (and apparently
+	% sufficient), otherwise at least some crashes could prevent the trace to be
+	% actually written on disk (actually seen in the wild):
+	%
+	file:sync( TraceFile ),
 
 	wooper:const_return_result( trace_aggregator_synchronised ).
 
@@ -1801,8 +1810,14 @@ rotate_trace_file( State ) ->
 			ArchiveFilePath = text_utils:format( "~s.~B.~s", [ BinTracePath,
 				RotCount, time_utils:get_textual_timestamp_for_path() ] ),
 
-			% Hopefully synchronous:
-			file_utils:close( ?getAttr(trace_file) ),
+			TraceFile = ?getAttr(trace_file),
+
+			% Close is hopefully a strictly synchronous operation, yet we
+			% prefer to be very defensive:
+			%
+			file:sync( TraceFile ),
+
+			file_utils:close( TraceFile ),
 
 			file_utils:move_file( BinTracePath, ArchiveFilePath ),
 
