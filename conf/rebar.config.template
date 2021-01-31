@@ -23,7 +23,7 @@
 % Depends on the Ceylan-Myriad and Ceylan-WOOPER OTP library applications
 % (Erlang implied):
 
-% As a GIT-based dependency:
+% As GIT-based dependencies:
 {deps, [ {myriad, {git, "git://github.com/Olivier-Boudeville/Ceylan-Myriad",
 					{branch, "master"}}},
 		 {wooper, {git, "git://github.com/Olivier-Boudeville/Ceylan-WOOPER",
@@ -42,7 +42,12 @@
 %{erl_first_files, [ FIRST_FILES_FOR_REBAR ]}.
 
 
-% Could not set REBAR_PROFILE=$(REBAR_PROFILE):
+% (hooks needed, for example to create the include symlinks and for the build
+% itself)
+%
+% Previously 'MYRIAD_REBAR_PROFILE=${REBAR_PROFILE}' was added, yet
+% REBAR_PROFILE is actually not set, so we rely on our default value instead.
+%
 {pre_hooks,  [ {compile, "make -s rebar3-compile-pre-hook"} ]}.
 {post_hooks, [ {compile, "make -s rebar3-compile-post-hook"} ]}.
 
@@ -57,13 +62,14 @@
 %
 {relx, [
 
-  {release, {traces_release, "VERSION_FOR_REBAR3"},
+  {release, {traces_release, "VERSION_FOR_REBAR"},
 			% myriad and wooper thus implied:
 			[sasl, traces]},
 
   {sys_config, "./conf/sys.config"},
   %{vm_args, "./conf/vm.args"},
 
+  % Base, development version:
   {dev_mode, true},
   {include_erts, false},
 

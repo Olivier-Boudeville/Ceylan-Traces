@@ -102,16 +102,16 @@ ifndef PROJECT_NAME
 endif
 
 
-# REBAR3_PROJECT_NAME should be defined on a per-project basis.
-ifndef REBAR3_PROJECT_NAME
-	REBAR3_PROJECT_NAME := traces
+# PROJECT_NAME_FOR_REBAR should be defined on a per-project basis.
+ifndef PROJECT_NAME_FOR_REBAR
+	PROJECT_NAME_FOR_REBAR := traces
 endif
 
 
 # The uniquely-defined version of this layer, for all uses (including rebar and
 # hex):
 #
-TRACES_VERSION := 1.0.4
+TRACES_VERSION := 1.0.5
 
 
 # PROJECT_VERSION should be defined on a per-project basis.
