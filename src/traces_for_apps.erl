@@ -32,7 +32,8 @@
 -module(traces_for_apps).
 
 
--export([ app_start/2, app_stop/3, app_immediate_stop/2, app_stop_on_shell/2 ]).
+-export([ app_start/2, app_start/3,
+		  app_stop/3, app_immediate_stop/2, app_stop_on_shell/2 ]).
 
 
 -define( trace_emitter_categorization, "application.life-cycle" ).
@@ -58,7 +59,7 @@
 -type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
 
 
-% To be called from the counterpart macro.
+% To be called notably from the counterpart macro.
 %
 % The trace supervisor can be requested to be initialized now or not at all, or
 % later (typically only once the desired filename for the traces file will be
@@ -73,11 +74,39 @@
 %
 -spec app_start( basic_utils:module_name(),
 		  class_TraceAggregator:initialize_supervision() ) -> aggregator_pid().
-% All values possible for InitTraceSupervisor here:
 app_start( ModuleName, InitTraceSupervisor ) ->
+	app_start( ModuleName, InitTraceSupervisor, _DisableExitTrapping=true ).
 
-	% See comments above about:
-	erlang:process_flag( trap_exit, false ),
+
+
+% The trace supervisor can be requested to be initialized now or not at all, or
+% later (typically only once the desired filename for the traces file will be
+% known for good, i.e. at its first renaming).
+%
+% The trapping of EXIT messages may be disabled (by setting DisableExitTrapping
+% to true), typically in most tests / cases (see comments in
+% app_start/2). However it may also be left as it is, notably when this function
+% is executed from a supervisor (see traces_bridge_sup:init/1), whose trapping
+% of EXITs shall not be altered (otherwise, for example, shutdowns may freeze).
+
+-spec app_start( basic_utils:module_name(),
+			class_TraceAggregator:initialize_supervision(), boolean() ) ->
+						aggregator_pid().
+% All values possible for InitTraceSupervisor here:
+app_start( ModuleName, InitTraceSupervisor, DisableExitTrapping ) ->
+
+	% See also the comments of app_start/2:
+	case DisableExitTrapping of
+
+		true ->
+			erlang:process_flag( trap_exit, false );
+
+		false ->
+			% No changing the status regarding the trapping of EXITs, whatever
+			% it is currently.
+			ok
+
+	end,
 
 	% Create first, synchronously (to avoid race conditions), a trace
 	% aggregator.
