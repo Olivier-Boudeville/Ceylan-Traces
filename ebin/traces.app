@@ -13,6 +13,7 @@
 % For more information see the Ceylan-Myriad 'rebar3-create-app-file' make
 % target and its associated comments.
 
+
 % See also:
 % - http://erlang.org/doc/man/app.html
 % - https://learnyousomeerlang.com/building-otp-applications
@@ -20,7 +21,7 @@
 
 {application, traces,
  [{description, "Ceylan-Traces, an advanced trace service, so that the user of an Erlang application can efficiently log, browse and search through detailed runtime messages that may be emitted concurrently (see http://traces.esperide.org)"},
-  {vsn, "1.0.4"},
+  {vsn, "1.0.5"},
 
   % See class_TraceAggregator.hrl:
   {registered, [ceylan_trace_aggregator]},
