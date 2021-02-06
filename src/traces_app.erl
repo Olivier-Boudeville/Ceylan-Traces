@@ -68,6 +68,9 @@ start( RestartType, StartArgs ) ->
 	% Previously, no specific root supervisor was to launch, but:
 	%class_TraceAggregator:start().
 
+	% We now create a root supervisor that has a supervisor_bridge child, which
+	% takes care of the interface to the (non-OTP) trace aggregator:
+	%
 	case traces_sup:start_link( TraceSupervisorWanted ) of
 
 		R={ ok, _RootSupervisorPid } ->
@@ -89,7 +92,7 @@ stop( State ) ->
 	trace_utils:debug_fmt( "Stopping Traces application (state: ~w).",
 						   [ State ] ),
 
-	% Previously (now managed by the root supervisor):
-	% class_TraceAggregator:stop().
+	% Previously: (now managed by the root supervisor)
+	%class_TraceAggregator:stop(),
 
 	ok.
