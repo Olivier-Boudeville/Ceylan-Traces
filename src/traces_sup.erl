@@ -32,6 +32,9 @@
 % trace aggregator, through a dedicated supervision bridge, defined in the
 % traces_bridge_sup module.
 %
+% Refer to the documentation of the supervisor_bridge module for further
+% details.
+%
 -module(traces_sup).
 
 
@@ -62,24 +65,24 @@
 -spec start_link( boolean() ) -> supervisor:startlink_ret().
 start_link( TraceSupervisorWanted ) ->
 
-	% Apparently not displayed, yet executed:
-	trace_utils:debug( "Starting the Traces root supervisor." ),
+	trace_utils:debug_fmt( "Starting the Traces root supervisor, from ~w.",
+						   [ self() ] ),
 
-	% Local registration is better to avoid clashes:
+	% A local registration is better in order to avoid inter-node clashes:
 	supervisor:start_link( _Reg={ local, ?root_supervisor_name },
 						   _Mod=?MODULE, _Args=TraceSupervisorWanted ).
 
 
 
-% Callback to initialise this Traces root supervisor bridge, typically in answer
-% to start_link/1 above being executed.
+% Callback to initialise the Traces supervisor bridge (supervised by this root
+% supervisor), typically in answer to start_link/1 above being executed.
 %
 -spec init( boolean() ) -> { 'ok',
 	   { supervisor:sup_flags(), [ supervisor:child_spec() ] } } | 'ignore'.
 init( TraceSupervisorWanted ) ->
 
-	trace_utils:info_fmt( "Initializing the Traces root supervisor "
-		"(trace supervisor wanted: ~s).", [ TraceSupervisorWanted ] ),
+	trace_utils:info_fmt( "Initializing the Traces root supervisor ~w "
+		"(trace supervisor wanted: ~s).", [ self(), TraceSupervisorWanted ] ),
 
 	% Restart only children that terminate.
 	% Never expected to fail, though:
@@ -87,7 +90,7 @@ init( TraceSupervisorWanted ) ->
 	SupSettings = otp_utils:get_supervisor_settings(
 				_RestartStrategy=one_for_one, traces:get_execution_target() ),
 
-	% One child, a bridge in charge of the trace aggregator:
+	% One child, a supervisor bridge in charge of the trace aggregator:
 	BridgeChildSpec = #{
 
 	  id => traces_bridge_id,
@@ -98,8 +101,13 @@ init( TraceSupervisorWanted ) ->
 	  % Always restarted:
 	  restart => permanent,
 
-	  % 2-second termination allowed before brutal killing:
-	  shutdown => 2000,
+	  % 2-second termination was allowed before brutal killing; yet now this
+	  % child process is of the 'supervisor' type, and, in
+	  % https://erlang.org/doc, the
+	  % design_principles/sup_princ.html#child-specification page explains that
+	  % 'infinity' is required here:
+	  %
+	  shutdown => infinity,
 
 	  type => supervisor,
 
