@@ -94,7 +94,8 @@
 % Logger-related API (see https://erlang.org/doc/apps/kernel/logger_chapter.html
 % abd Myriad's trace_utils):
 %
--export([ set_handler/0, set_handler/1, add_handler/0, add_handler/1, log/2 ]).
+-export([ set_handler/0, set_handler/1, add_handler/0, add_handler/1,
+		  reset_handler/0, log/2 ]).
 
 
 % Handler id:
@@ -405,6 +406,16 @@ get_handler_config( AggregatorPid ) ->
 	   %module => Module
 	 }.
 
+
+
+% Unsets the Traces logger handler, returns to the base trace_utils one.
+-spec reset_handler() -> void().
+reset_handler() ->
+
+	%trace_utils:debug( "Resetting logger handler." ),
+
+	% Remove then add:
+	trace_utils:set_handler().
 
 
 % Mandatory callback for log handlers.
