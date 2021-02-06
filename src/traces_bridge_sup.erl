@@ -45,7 +45,8 @@
 % Hence used for (optional) OTP compliance (see
 % http://erlang.org/doc/man/supervisor_bridge.html).
 %
-% We suppose such a supervisor bridge cannot be used as a root supervisor.
+% We suppose that such a supervisor bridge cannot be used directly as a root
+% supervisor.
 %
 % See also within the Erlang codebase itself, as an example, the user_sup
 % supervisor bridge, created by kernel:init/1.
@@ -79,7 +80,8 @@
 start_link( TraceSupervisorWanted ) ->
 
 	% Apparently not displayed in a release context, yet executed:
-	trace_utils:debug( "Starting the Traces supervisor bridge." ),
+	trace_utils:debug_fmt( "Starting the Traces supervisor bridge, from ~w.",
+						   [ self() ] ),
 
 	supervisor_bridge:start_link( { local, ?bridge_name },
 			_Module=?MODULE, _Args=TraceSupervisorWanted ).
@@ -93,8 +95,8 @@ start_link( TraceSupervisorWanted ) ->
 						 | 'ignore' | { 'error', Error :: term() }.
 init( TraceSupervisorWanted ) ->
 
-	trace_utils:info_fmt( "Initializing the Traces supervisor bridge "
-		"(trace supervisor wanted: ~s).", [ TraceSupervisorWanted ] ),
+	trace_utils:info_fmt( "Initializing the Traces supervisor bridge ~w "
+		"(trace supervisor wanted: ~s).", [ self(), TraceSupervisorWanted ] ),
 
 	% This is an OTP blind start, the Traces application being started with no
 	% parameter - so with no trace filename possibly specified.
@@ -116,15 +118,23 @@ init( TraceSupervisorWanted ) ->
 
 	end,
 
-	% Not trapping EXITs explicitly. Not initializing either our trace
-	% supervisor (not OTP related: class_TraceSupervisor) now, as we may have to
-	% adopt a non-default trace filename afterwards (ex: after any parent
-	% applications read its own configuration file to select a specific
-	% name/path), and any already running trace supervisor would not be able to
-	% cope with it. Thus:
+	% Not initializing our trace supervisor (not OTP related, referring to
+	% class_TraceSupervisor here) now, as we may have to adopt a non-default
+	% trace filename afterwards (ex: after any parent applications read its own
+	% configuration file to select a specific name/path), and as mentioned above
+	% any already running trace supervisor would not be able to cope with it.
+	%
+	% The next call must not disable the trapping of EXIT messages, as the
+	% supervisor (bridge) behaviour implies (and had made so) that this process
+	% already traps EXITs: otherwise for example the bridged process will not be
+	% properly shutdown.
 	%
 	TraceAggregatorPid = traces_for_apps:app_start(
-		_ModuleName=?otp_application_module_name, InitTraceSupervisor ),
+		_ModuleName=?otp_application_module_name, InitTraceSupervisor,
+		_DisableExitTrapping=false ),
+
+	trace_utils:debug_fmt( "Traces supervisor bridge initialised, "
+		"with trace aggregator ~w.", [ TraceAggregatorPid ] ),
 
 	{ ok, TraceAggregatorPid, _State=TraceAggregatorPid }.
 
@@ -140,4 +150,8 @@ terminate( Reason, _State=TraceAggregatorPid )
 
 	% Works whether or not a trace supervisor is used:
 	traces_for_apps:app_stop( _ModuleName=?otp_application_module_name,
-				TraceAggregatorPid, _WaitForTraceSupervisor=false ).
+		TraceAggregatorPid, _WaitForTraceSupervisor=false );
+
+terminate( Reason, State ) ->
+	trace_utils:info_fmt( "Terminating the Traces supervisor bridge "
+						  "(reason: ~w, state: ~w).", [ Reason, State ] ).
