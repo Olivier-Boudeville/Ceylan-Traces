@@ -132,7 +132,7 @@
 
 
 -define( app_info_fmt( MessageFormat, FormatValues ),
-		 class_TraceInfoEmitter:send_standalone_safe( info,
+		 class_TraceEmitter:send_standalone_safe( info,
 					text_utils:format( MessageFormat, FormatValues ) )
 ).
 
