@@ -48,6 +48,16 @@
 -define( superclasses, [] ).
 
 
+% Implementation notes:
+%
+% Here two unrelated kinds of supervisors are mentioned: the main one, for trace
+% supervision (i.e. browsing and monitoring the traces) and the OTP one, for the
+% supervisor behaviour.
+%
+% Unless specified otherwise, 'supervisor' relates here primarily to the trace
+% supervision.
+
+
 % Describes the class-specific attributes:
 -define( class_attributes, [
 
@@ -375,7 +385,7 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 			% now:
 			%
 			case RegScope =:= global_only
-					orelse RegScope =:= local_and_global of
+				orelse RegScope =:= local_and_global of
 
 				true ->
 					send_internal_deferred( info, "Self registering as default "
@@ -451,13 +461,18 @@ destruct( State ) ->
 
 	end,
 
+
 	% Class-specific actions:
-	case ?getAttr(registration_scope) of
+
+	RegScope = ?getAttr(registration_scope),
+
+	case RegScope of
 
 		undefined ->
 			ok;
 
 		RegScope ->
+			% (handler reset in this function, below)
 			naming_utils:unregister( ?trace_aggregator_name, RegScope )
 
 	end,
@@ -530,6 +545,16 @@ destruct( State ) ->
 						ExitCode, ErrorOutput ] )
 
 			end
+
+	end,
+
+	case RegScope =:= global_only orelse RegScope =:= local_and_global of
+
+		true ->
+			traces:reset_handler();
+
+		false ->
+			ok
 
 	end,
 
@@ -1039,7 +1064,7 @@ rotateTraceFileSync( State ) ->
 % crashed in turn.
 %
 -spec onWOOPERExitReceived( wooper:state(), pid(),
-						basic_utils:exit_reason() ) -> const_oneway_return().
+					basic_utils:exit_reason() ) -> oneway_return().
 onWOOPERExitReceived( State, StopPid, _ExitType=normal ) ->
 
 	Msg = text_utils:format( "Ignoring normal exit from process ~w.",
@@ -1053,6 +1078,22 @@ onWOOPERExitReceived( State, StopPid, _ExitType=normal ) ->
 
 	wooper:const_return();
 
+% Typically received from the Traces supervisor bridge when Traces is stopped:
+onWOOPERExitReceived( State, Pid, ExitType=shutdown ) ->
+
+	Msg = text_utils:format( "Trace aggregator received a shutdown message "
+			"from ~w, shutting down immediately.", [ Pid ] ),
+
+	SentState = send_internal_immediate( info, Msg, State ),
+
+	trace_utils:debug( Msg ),
+
+	DestructedState = destruct( SentState ),
+
+	exit( ExitType ),
+
+	% Never executed:
+	wooper:return_state( DestructedState );
 
 onWOOPERExitReceived( State, CrashPid, ExitType ) ->
 
