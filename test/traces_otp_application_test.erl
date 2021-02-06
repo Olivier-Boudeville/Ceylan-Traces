@@ -47,9 +47,16 @@ test_traces_application( OrderedAppNames ) ->
 	test_facilities:display( "Starting the Traces OTP active application." ),
 	otp_utils:start_applications( OrderedAppNames ),
 
+	% Just to showcase Traces is usable and running indeed:
 
 	test_facilities:display( "Traces version: ~p.",
-				 [ system_utils:get_application_version( traces ) ] ),
+		[ system_utils:get_application_version( traces ) ] ),
+
+	AggPid = class_TraceAggregator:get_aggregator(
+			   _CreateIfNotAvailable=false ),
+
+	test_facilities:display( "PID of the trace aggregator: ~w.",
+							 [ AggPid ] ),
 
 	% To test also a Traces module:
 
@@ -57,9 +64,10 @@ test_traces_application( OrderedAppNames ) ->
 
 	%traces:manage_supervision(),
 
-
 	% Including Traces:
-	test_facilities:display( "Stopping all user applications." ),
+	test_facilities:display( "Stopping all user applications found in ~p.",
+							 [ OrderedAppNames ] ),
+
 	otp_utils:stop_user_applications( OrderedAppNames ),
 
 	test_facilities:display(
@@ -81,7 +89,9 @@ run() ->
 	%
 	BuildRootDir = "..",
 
-	% No dependency specified in this test, yet they are managed:
+	% No dependency (such as WOOPER or Myriad) specified in this test, yet they
+	% are managed by otp_utils, based on the corresponding .app files:
+	%
 	OrderedAppNames = otp_utils:prepare_for_execution( _ThisApp=traces,
 													   BuildRootDir ),
 
