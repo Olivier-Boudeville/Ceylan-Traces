@@ -47,7 +47,7 @@ test_traces_application( OrderedAppNames ) ->
 	test_facilities:display( "Starting the Traces OTP active application." ),
 	otp_utils:start_applications( OrderedAppNames ),
 
-	% Just to showcase Traces is usable and running indeed:
+	% Just to showcase that Traces is usable and running indeed:
 
 	test_facilities:display( "Traces version: ~p.",
 		[ system_utils:get_application_version( traces ) ] ),
