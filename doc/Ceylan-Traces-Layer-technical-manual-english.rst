@@ -37,7 +37,7 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2021 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Saturday, January 23, 2021
+:Lastly updated: Sunday, February 7, 2021
 :Status: Work in progress
 :Version: 0.9.17
 :Dedication: Users and maintainers of the ``Traces`` layer.
@@ -479,7 +479,6 @@ Refer to the corresponding `Myriad prerequisite section <http://myriad.esperide.
 
 
 
-
 Using Cutting-Edge GIT
 ======================
 
@@ -497,6 +496,9 @@ Once Erlang is available, it should be just a matter of executing:
 
  $ git clone https://github.com/Olivier-Boudeville/Ceylan-Traces traces
  $ cd traces && make all
+
+
+(for OTP compliance, using short names, such as ``myriad``, ``wooper`` and ``traces``, for clones rather than long ones, such as ``Ceylan-Myriad``, ``Ceylan-WOOPER`` and ``Ceylan-Traces``, is recommended)
 
 
 Running a corresponding test just then boils down to:
@@ -521,6 +523,23 @@ Using OTP-Related Conventions
 =============================
 
 
+Using Rebar3
+------------
+
+The usual rebar3 machinery is in place and functional, so the Traces prerequisites (`Myriad <https://myriad.esperide.org>`_ and `WOOPER <https://wooper.esperide.org>`_) and Traces itself can be obtained simply thanks to:
+
+.. code:: bash
+
+  $ git clone https://github.com/Olivier-Boudeville/Ceylan-Traces.git traces
+  $ cd traces
+  $ rebar3 compile
+
+Then Traces and its tests shall be ready for a successful execution.
+
+Note that rebar3 is an alternate way of building Traces, as one may rely directly on our make-based system instead.
+
+
+
 Build-time Conventions
 ----------------------
 
@@ -528,7 +547,8 @@ As discussed in these sections of `Myriad <http://myriad.esperide.org/myriad.htm
 
 Unlike Myriad (which is an OTP *library* application), Traces is (like WOOPER) an OTP *active* application, meaning the reliance on an application that can be started/stopped (``traces_app``) and on a root supervisor (``traces_sup``); unlike WOOPER this time - whose main server (the class manager) is a ``gen_server`` - Traces relies on a trace aggregator that is a background server process yet that does not implement the ``gen_server`` behaviour but the `supervisor_bridge <http://erlang.org/doc/man/supervisor_bridge.html>`_ one: the trace aggregator is indeed `a WOOPER instance <http://wooper.esperide.org/index.html#otp_for_instances>`_.
 
-As for Myriad and WOOPER, most versions of Traces are also published as `Hex packages <https://hex.pm/packages/traces>`_.
+As for Myriad and WOOPER, most versions of Traces used to be also published as `Hex packages <https://hex.pm/packages/traces>`_, yet finally our workflow does not rely on Hex, so we do not update the Hex packages anymore. Just drop us an email if needing a recent one.
+
 
 For more details, one may have a look at:
 
@@ -555,6 +575,25 @@ Whether or not a graphical trace supervisor is launched depends on the batch mod
 We found convenient to define alternatively a shell environment variable (possibly named ``BATCH``), and whose value can be ``CMD_LINE_OPT="--batch"``, for an easier switch from the command-line.
 
 Then, for example for a test module defined in ``foobar_test.erl``, running from the command-line ``make foobar_run`` will result in the trace supervisor (typically LogMX) to be spawned, whereas ``make foobar_run $BATCH`` will not (i.e. the traces will be emitted and collected as usual, but will not be specifically supervised graphically).
+
+
+
+--------------
+Testing Traces
+--------------
+
+Once the prerequisites (`Myriad <https://myriad.esperide.org>`_ and `WOOPER <https://wooper.esperide.org>`_) and Traces itself have been secured (for that refer to either `Using Cutting-Edge GIT`_ or `Using Rebar3`_), just run from the root directory of Traces:
+
+.. code:: bash
+
+ $ make test
+
+
+The testing shall complete successfully (if it is not the case, see our support_ section).
+
+.. Note:: Traces is built and tested at each commit through `continuous integration <https://github.com/Olivier-Boudeville/Ceylan-Traces/actions?query=workflow%3A%22Erlang+CI%22>`_, and the same holds for its two prerequisites (`Myriad <https://myriad.esperide.org>`_ and `WOOPER <https://wooper.esperide.org>`_).
+		  Reciprocally this procedure applies to the projects based on it (ex: `US-Web <https://us-web.esperide.org/>`_), so in terms of usability, confidence should be high.
+
 
 
 
