@@ -20,7 +20,7 @@
 
 :raw-html:`<a name="traces_top"></a>`
 
-:raw-html:`<div class="banner"><p><em>Traces documentation</em> <a href="http://traces.esperide.org">browse latest</a> <a href="https://olivier-boudeville.github.io/Ceylan-Traces/index.html">browse mirror</a> <a href="traces.pdf">get PDF</a> <a href="#traces_top">go to top</a> <a href="#traces_bottom">go to bottom</a> <a href="mailto:about(dash)traces(at)esperide(dot)com?subject=[Ceylan-Traces]%20Remark">email us</a></p></div>`
+:raw-html:`<div class="banner"><p><em>Traces documentation</em> <a href="http://traces.esperide.org">browse latest</a> <a href="https://olivier-boudeville.github.io/Ceylan-Traces/index.html">browse mirror</a> <a href="traces.pdf">get PDF</a> <a href="#traces_top">go to top</a> <a href="#traces_bottom">go to bottom</a> <a href="https://github.com/Olivier-Boudeville/Ceylan-Traces">go to project</a> <a href="mailto:about(dash)traces(at)esperide(dot)com?subject=[Ceylan-Traces]%20Remark">email us</a></p></div>`
 
 
 
@@ -37,7 +37,7 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2021 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Sunday, February 7, 2021
+:Lastly updated: Monday, February 8, 2021
 :Status: Work in progress
 :Version: 0.9.17
 :Dedication: Users and maintainers of the ``Traces`` layer.
@@ -72,6 +72,8 @@ This means that both user-originating traces (that your code emits thanks the Tr
 For that, various types of components have been designed and implemented, such as a trace aggregator, emitter, listener, supervisor, bridge, etc.
 
 They collectively constitute the `Traces <http://traces.esperide.org/>`_ layer, whose only prerequisites (besides Erlang itself, of course) are the `WOOPER <http://wooper.esperide.org/>`_ layer (for object-oriented primitives) and the `Myriad <http://myriad.esperide.org/>`_ layer (for many lower-level services; itself a prerequisite of WOOPER).
+
+The project repository is located `here <https://github.com/Olivier-Boudeville/Ceylan-Traces>`_.
 
 The main purpose of this **Traces** layer is thus to provide adequate traces (i.e. advanced logs) for distributed systems (a rather critical feature in order to debug in these difficult contexts), and to ease their study and browsing. A few backends are available for that, from the direct reading of basic (text) trace files to considerably more user-friendly solutions, such as the generation of PDF reports or the use of our more advanced trace format, which can be read notably by commercial tools such as `LogMX <http://www.logmx.com/>`_ [#]_.
 
