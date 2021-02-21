@@ -32,8 +32,8 @@ GITHUB_PAGES_BASE := $(shell basename "$(TRACES_WEB_MIRROR_BRANCH)")
 
 
 
-.PHONY: doc all full-doc html pdf clone-mirror            \
-		export-doc export-to-official export-to-mirror    \
+.PHONY: doc all full-doc create-link html pdf clone-mirror            \
+		export-doc export-to-official export-to-mirror                \
 		clean clean-doc clean-links info info-web
 
 
@@ -47,9 +47,11 @@ all:
 
 
 full-doc: $(DOC_GENERATED_FILES)
-	@/bin/ln -sf $(CURRENT_TRACES_HTML) traces.html
-	@/bin/ln -sf traces.html index.html
-	@/bin/ln -sf $(CURRENT_TRACES_PDF) traces.pdf
+
+
+# This link does not need to be in version control:
+create-links:
+	@/bin/ln -sf $(CURRENT_TRACES_HTML) index.html
 
 
 html: clean-doc $(HTML_TARGET)
@@ -73,12 +75,12 @@ export-doc: clean-doc full-doc export-to-official export-to-mirror
 # not a set of files), so currently not used:
 # rsync -avze "ssh $(SP)" $(SOME_WEB_TREE) $(WEB_SRV):$(WEB_ROOT)/Traces/
 #
-export-to-official: $(DOC_GENERATED_FILES)
+export-to-official: create-links $(DOC_GENERATED_FILES)
 	@echo "   Exporting Traces documentation to official website ($(WEB_SRV))"
 	@/bin/scp $(SP) $(WEB_CONTENT) $(WEB_SRV):$(WEB_ROOT)/Traces/
 
 
-export-to-mirror: $(DOC_GENERATED_FILES)
+export-to-mirror: create-links $(DOC_GENERATED_FILES)
 	@echo "   Exporting Traces documentation to mirror website in $(TRACES_WEB_MIRROR_BRANCH)"
 	@/bin/cp -f $(WEB_CONTENT) $(TRACES_WEB_MIRROR_BRANCH) && cd $(TRACES_WEB_MIRROR_BRANCH) && git add . && git merge -s ours && git commit -m "Traces doc updated." && git push && git pull --ff-only
 
@@ -92,8 +94,9 @@ clean-doc: clean-links
 	-@/bin/rm -f *.aux *.log *.maf *.mtc* *.stc* *.tex *.toc $(DOC_GENERATED_FILES)
 
 
+# No more traces.html traces.pdf:
 clean-links:
-	-@/bin/rm -f index.html traces.html traces.pdf
+	-@/bin/rm -f index.html
 
 
 info: info-doc info-web
