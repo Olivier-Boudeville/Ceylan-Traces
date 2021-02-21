@@ -9,7 +9,7 @@ OVERALL_DOCUMENT_SOURCE := $(DOC_BASE_NAME).rst
 
 CURRENT_TRACES_HTML := $(DOC_BASE_NAME).html
 
-HTML_TARGET = $(CURRENT_TRACES_HTML)
+HTML_TARGET := $(CURRENT_TRACES_HTML)
 
 
 CURRENT_TRACES_PDF := $(DOC_BASE_NAME).pdf
@@ -17,7 +17,7 @@ CURRENT_TRACES_PDF := $(DOC_BASE_NAME).pdf
 PDF_TARGET := $(CURRENT_TRACES_PDF)
 
 
-DOC_GENERATED_FILES = $(HTML_TARGET) $(PDF_TARGET)
+DOC_GENERATED_FILES := $(HTML_TARGET) $(PDF_TARGET)
 
 
 
@@ -32,8 +32,8 @@ GITHUB_PAGES_BASE := $(shell basename "$(TRACES_WEB_MIRROR_BRANCH)")
 
 
 
-.PHONY: doc all full-doc create-link html pdf clone-mirror            \
-		export-doc export-to-official export-to-mirror                \
+.PHONY: doc all full-doc create-links html pdf clone-mirror         \
+		export-doc export-to-official export-to-mirror              \
 		clean clean-doc clean-links info info-web
 
 
@@ -41,9 +41,9 @@ GITHUB_PAGES_BASE := $(shell basename "$(TRACES_WEB_MIRROR_BRANCH)")
 # Default do-nothing target:
 doc:
 
+
 all:
 	@echo "  Run 'make full-doc' to generate the manual of the 'Traces' layer."
-
 
 
 full-doc: $(DOC_GENERATED_FILES)
@@ -94,17 +94,11 @@ clean-doc: clean-links
 	-@/bin/rm -f *.aux *.log *.maf *.mtc* *.stc* *.tex *.toc $(DOC_GENERATED_FILES)
 
 
-# No more traces.html traces.pdf:
 clean-links:
 	-@/bin/rm -f index.html
 
 
-info: info-doc info-web
-
-
-info-doc:
-	@echo "OVERALL_DOCUMENT_SOURCE = $(OVERALL_DOCUMENT_SOURCE)"
-	@echo "DOC_TRACKER = $(DOC_TRACKER)"
+info: info-web
 
 
 info-web:
@@ -119,4 +113,5 @@ info-web:
 
 DOCUTILS_TOP = .
 
+# For MYRIAD_TOP:
 include $(TRACES_TOP)/GNUmakesettings.inc
