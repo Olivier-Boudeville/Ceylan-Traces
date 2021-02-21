@@ -20,7 +20,7 @@
 
 :raw-html:`<a name="traces_top"></a>`
 
-:raw-html:`<div class="banner"><p><em>Traces documentation</em> <a href="http://traces.esperide.org">browse latest</a> <a href="https://olivier-boudeville.github.io/Ceylan-Traces/index.html">browse mirror</a> <a href="traces.pdf">get PDF</a> <a href="#traces_top">go to top</a> <a href="#traces_bottom">go to bottom</a> <a href="https://github.com/Olivier-Boudeville/Ceylan-Traces">go to project</a> <a href="mailto:about(dash)traces(at)esperide(dot)com?subject=[Ceylan-Traces]%20Remark">email us</a></p></div>`
+:raw-html:`<div class="banner"><p><em>Traces documentation</em> <a href="http://traces.esperide.org">browse latest</a> <a href="https://olivier-boudeville.github.io/Ceylan-Traces/">browse mirror</a> <a href="Ceylan-Traces-Layer-technical-manual-english.pdf">get PDF</a> <a href="#traces_top">go to top</a> <a href="#traces_bottom">go to bottom</a> <a href="https://github.com/Olivier-Boudeville/Ceylan-Traces">go to project</a> <a href="mailto:about(dash)traces(at)esperide(dot)com?subject=[Ceylan-Traces]%20Remark">email us</a></p></div>`
 
 
 
@@ -37,9 +37,9 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2021 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Monday, February 8, 2021
+:Lastly updated: Saturday, February 20, 2021
 :Status: Work in progress
-:Version: 0.9.17
+:Version: 0.9.18
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
@@ -53,13 +53,25 @@ Technical Manual of the ``Ceylan-Traces`` Layer
    :keywords: Traces, log, browse, emit, layer, generic, general-purpose, helper code, library, layer
 
 
+The latest version of this documentation is to be found at the `official Traces website <http://traces.esperide.org>`_ (``http://traces.esperide.org``).
+
+:raw-html:`This Traces documentation is also available in the PDF format (see <a href="Ceylan-Traces-Layer-technical-manual-english.pdf">Ceylan-Traces-Layer-technical-manual-english.pdf</a>), and mirrored <a href="http://olivier-boudeville.github.io/Ceylan-Traces/">here</a>.`
+
+:raw-latex:`The documentation is also mirrored \href{https://olivier-boudeville.github.io/Ceylan-Traces/}{here}.`
+
+
+
+
 :raw-latex:`\pagebreak`
+
+.. _`table of contents`:
 
 .. contents:: Table of Contents
 	:depth: 3
 
 
 :raw-latex:`\pagebreak`
+
 
 --------
 Overview
@@ -604,7 +616,6 @@ Support
 -------
 
 Bugs, questions, remarks, patches, requests for enhancements, etc. are to be reported to the `project interface <https://github.com/Olivier-Boudeville/Ceylan-Traces>`_ (typically `issues <https://github.com/Olivier-Boudeville/Ceylan-Traces/issues>`_) or directly at the email address mentioned at the beginning of this document.
-
 
 
 
