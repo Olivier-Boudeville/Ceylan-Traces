@@ -115,9 +115,6 @@ app_start( ModuleName, InitTraceSupervisor, DisableExitTrapping ) ->
 	% create their own aggregator, should none by found) and with trace
 	% supervisor (which expects a trace file to be already created at start-up).
 
-	% Goes back to the beginning of line for clean outputs:
-	io:format( "~n" ),
-
 	AppIsBatch = executable_utils:is_batch(),
 
 	%trace_utils:debug_fmt( "At app_start/2: AppIsBatch=~s, "
