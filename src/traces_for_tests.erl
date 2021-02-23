@@ -54,9 +54,12 @@
 
 
 
-% Shorthand:
+% Shorthands:
+
+-type module_name() :: basic_utils:module_name().
 
 -type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
+
 
 
 % To be called from the counterpart macro.
@@ -72,8 +75,8 @@
 % most probably remain unnoticed (just leading to an EXIT message happily
 % sitting in the mailbox of the app process).
 %
--spec test_start( basic_utils:module_name(),
-		  class_TraceAggregator:initialize_supervision() ) -> aggregator_pid().
+-spec test_start( module_name(),
+		class_TraceAggregator:initialize_supervision() ) -> aggregator_pid().
 % All values possible for InitTraceSupervisor here:
 test_start( ModuleName, InitTraceSupervisor ) ->
 
@@ -86,9 +89,6 @@ test_start( ModuleName, InitTraceSupervisor ) ->
 	% Race conditions could occur at least with trace emitters (they would
 	% create their own aggregator, should none by found) and with trace
 	% supervisor (which expects a trace file to be already created at start-up).
-
-	% Goes back to the beginning of line for clean outputs:
-	io:format( "~n" ),
 
 	TestIsBatch = executable_utils:is_batch(),
 
@@ -142,8 +142,7 @@ test_start( ModuleName, InitTraceSupervisor ) ->
 
 
 % To be called from the counterpart macro.
--spec test_stop( basic_utils:module_name(), aggregator_pid(),
-				 boolean() ) -> no_return().
+-spec test_stop( module_name(), aggregator_pid(), boolean() ) -> no_return().
 test_stop( ModuleName, TraceAggregatorPid, WaitForTraceSupervisor ) ->
 
 	% As test_start might have been called with InitTraceSupervisor=false.
@@ -169,8 +168,7 @@ test_stop( ModuleName, TraceAggregatorPid, WaitForTraceSupervisor ) ->
 
 
 % To be called from the counterpart macro.
--spec test_immediate_stop( basic_utils:module_name(), aggregator_pid() ) ->
-								no_return().
+-spec test_immediate_stop( module_name(), aggregator_pid() ) -> no_return().
 test_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 
 	%trace_utils:info( "Immediate stop." ),
@@ -184,8 +182,7 @@ test_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 
 
 % To be called from the counterpart macro, directly or not.
--spec test_stop_on_shell( basic_utils:module_name(), aggregator_pid() ) ->
-								no_return().
+-spec test_stop_on_shell( module_name(), aggregator_pid() ) -> no_return().
 test_stop_on_shell( ModuleName, TraceAggregatorPid ) ->
 
 	?test_info_fmt( "Stopping test ~s.", [ ModuleName ] ),

@@ -54,9 +54,12 @@
 
 
 
-% Shorthand:
+% Shorthands:
+
+-type module_name() :: basic_utils:module_name().
 
 -type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
+
 
 
 % To be called notably from the counterpart macro.
@@ -72,8 +75,8 @@
 % most probably remain unnoticed (just leading to an EXIT message happily
 % sitting in the mailbox of the app process).
 %
--spec app_start( basic_utils:module_name(),
-		  class_TraceAggregator:initialize_supervision() ) -> aggregator_pid().
+-spec app_start( module_name(),
+		class_TraceAggregator:initialize_supervision() ) -> aggregator_pid().
 app_start( ModuleName, InitTraceSupervisor ) ->
 	app_start( ModuleName, InitTraceSupervisor, _DisableExitTrapping=true ).
 
@@ -89,7 +92,7 @@ app_start( ModuleName, InitTraceSupervisor ) ->
 % is executed from a supervisor (see traces_bridge_sup:init/1), whose trapping
 % of EXITs shall not be altered (otherwise, for example, shutdowns may freeze).
 
--spec app_start( basic_utils:module_name(),
+-spec app_start( module_name(),
 			class_TraceAggregator:initialize_supervision(), boolean() ) ->
 						aggregator_pid().
 % All values possible for InitTraceSupervisor here:
@@ -167,8 +170,7 @@ app_start( ModuleName, InitTraceSupervisor, DisableExitTrapping ) ->
 
 
 % To be called from the counterpart macro.
--spec app_stop( basic_utils:module_name(), aggregator_pid(),
-				boolean() ) -> no_return().
+-spec app_stop( module_name(), aggregator_pid(), boolean() ) -> no_return().
 app_stop( ModuleName, TraceAggregatorPid, WaitForTraceSupervisor ) ->
 
 	% As app_start might have been called with InitTraceSupervisor=false.
@@ -194,8 +196,7 @@ app_stop( ModuleName, TraceAggregatorPid, WaitForTraceSupervisor ) ->
 
 
 % To be called from the counterpart macro.
--spec app_immediate_stop( basic_utils:module_name(), aggregator_pid() ) ->
-								no_return().
+-spec app_immediate_stop( module_name(), aggregator_pid() ) -> no_return().
 app_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 
 	%trace_utils:info( "Immediate stop." ),
@@ -210,8 +211,7 @@ app_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 
 
 % To be called from the counterpart macro, directly or not.
--spec app_stop_on_shell( basic_utils:module_name(), aggregator_pid() ) ->
-							   no_return().
+-spec app_stop_on_shell( module_name(), aggregator_pid() ) -> no_return().
 app_stop_on_shell( ModuleName, TraceAggregatorPid ) ->
 
 	?app_info_fmt( "Stopping application ~s.", [ ModuleName ] ),
