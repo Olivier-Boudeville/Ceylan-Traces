@@ -47,6 +47,20 @@ test_traces_application( OrderedAppNames ) ->
 	test_facilities:display( "Starting the Traces OTP active application." ),
 	otp_utils:start_applications( OrderedAppNames ),
 
+	% We did not trap EXIT messages, as we wanted this test to crash (thanks to
+	% the link below) in case of problem (and not to receive an EXIT message
+	% bound not to be read).
+	%
+	% However this test was crashing even when stopping (normally) applications,
+	% as apparently an OTP application has its processes terminated with reason
+	% 'shutdown' (not 'normal').
+	%
+	% So now this test process traps EXIT messages, and ensures that none
+	% besides {'EXIT',P,shutdown}, P being the PID of the trace aggregator, is
+	% received.
+	%
+	false = erlang:process_flag( trap_exit, true ),
+
 	% Just to showcase that Traces is usable and running indeed:
 
 	test_facilities:display( "Traces version: ~p.",
@@ -55,8 +69,18 @@ test_traces_application( OrderedAppNames ) ->
 	AggPid = class_TraceAggregator:get_aggregator(
 			   _CreateIfNotAvailable=false ),
 
-	test_facilities:display( "PID of the trace aggregator: ~w.",
-							 [ AggPid ] ),
+
+	% The top-level user process may not be aware that an OTP application fails
+	% (ex: because its main process crashed), which is a problem for a test. So
+	% here we link explicitly this test process to the trace aggregator, to
+	% increase the chances of detecting any issue:
+	%
+	erlang:link( AggPid ),
+
+	% Note that we did not link specifically to the WOOPER class manager.
+
+	test_facilities:display( "Linked to the trace aggregator ~w.", [ AggPid ] ),
+
 
 	% To test also a Traces module:
 
@@ -69,6 +93,11 @@ test_traces_application( OrderedAppNames ) ->
 							 [ OrderedAppNames ] ),
 
 	otp_utils:stop_user_applications( OrderedAppNames ),
+
+	% Visibly no {'EXIT',AggPid,shutdown} message is to be expected here.
+
+	% None expected to be left:
+	basic_utils:check_no_pending_message(),
 
 	test_facilities:display(
 	  "Successful end of test of the Traces OTP application." ).
