@@ -157,10 +157,10 @@
 
 
 % The default registration scope (must correspond to default_look_up_scope):
--define( default_registration_scope, global ).
+-define( default_registration_scope, global_only ).
 
 % The default look-up scope (must correspond to default_registration_scope):
--define( default_look_up_scope, global_only ).
+-define( default_look_up_scope, global ).
 
 
 
@@ -1097,8 +1097,8 @@ onWOOPERExitReceived( State, Pid, ExitType=shutdown ) ->
 
 onWOOPERExitReceived( State, CrashPid, ExitType ) ->
 
-	Msg = text_utils:format( "Received and ignored an exit message '~p' "
-							 "from ~w.", [ ExitType, CrashPid ] ),
+	Msg = text_utils:format( "Trace aggregator received and ignored "
+		"an exit message '~p' from ~w.", [ ExitType, CrashPid ] ),
 
 	send_internal_deferred( error, Msg ),
 
