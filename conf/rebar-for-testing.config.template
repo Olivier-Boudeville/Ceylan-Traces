@@ -22,9 +22,9 @@
 %
 % Implied:
 % - {myriad, "MYRIAD_VERSION_FOR_REBAR"}
-% - {wooper, "WOOPER_VERSION_FOR_REBAR3" }
+% - {wooper, "WOOPER_VERSION_FOR_REBAR" }
 %
-{deps, [ {traces, "VERSION_FOR_REBAR3" } ] }.
+{deps, [ {traces, "VERSION_FOR_REBAR" } ] }.
 
 
 % This testing just targets to trigger the build of Traces (and its Myriad and
@@ -53,7 +53,7 @@
 %
 {relx, [
 
-  {release, {traces_test_release, "VERSION_FOR_REBAR3"},
+  {release, {traces_test_release, "VERSION_FOR_REBAR"},
 			[sasl, traces]},
 
   %{sys_config, "conf/sys.config"},
