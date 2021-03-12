@@ -12,11 +12,6 @@
 .. role:: raw-latex(raw)
    :format: latex
 
-.. comment Would appear too late, can only be an be used only in preamble:
-.. comment :raw-latex:`\usepackage{graphicx}`
-.. comment As a result, in this document at least a '.. figure:: XXXX' must
-.. exist, otherwise: 'Undefined control sequence \includegraphics.'.
-
 
 :raw-html:`<a name="traces_top"></a>`
 
@@ -24,8 +19,8 @@
 
 
 
-:raw-html:`<center><img src="traces-title.png" width="70%"></img></center>`
-:raw-latex:`\includegraphics[scale=0.35]{traces-title.png}`
+:raw-html:`<center><img src="traces-title.png" width="40%"></img></center>`
+:raw-latex:`\centering \includegraphics[scale=0.35]{traces-title.png}`
 
 
 
@@ -37,7 +32,7 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2021 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Saturday, February 20, 2021
+:Lastly updated: Friday, March 12, 2021
 :Status: Work in progress
 :Version: 0.9.18
 :Dedication: Users and maintainers of the ``Traces`` layer.
@@ -633,12 +628,7 @@ Ending Word
 
 Have fun with Ceylan-Traces!
 
-.. comment Mostly added to ensure there is at least one figure directive,
-.. otherwise the LateX graphic support will not be included:
-
-.. figure:: traces-title.png
-   :alt: Traces logo
-   :width: 35%
-   :align: center
+:raw-html:`<center><img src="traces-title.png" width="30%"></img></center>`
+:raw-latex:`\begin{figure}[h] \centering \includegraphics[scale=0.2]{traces-title.png} \end{figure}`
 
 :raw-html:`<a name="traces_bottom"></a>`
