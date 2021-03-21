@@ -188,7 +188,7 @@ test_failed( Reason ) ->
 	% For some reason erlang:error is unable to interpret strings as strings,
 	% they are always output as unreadable lists.
 
-	Message = text_utils:format( "Test ~s failed, reason: ~s.",
+	Message = text_utils:format( "Test ~ts failed, reason: ~ts.",
 								 [ ?MODULE, Reason ] ),
 
 	trace_utils:error( Message ),
@@ -198,7 +198,7 @@ test_failed( Reason ) ->
 	% Needed, otherwise error_logger may not display anything:
 	system_utils:await_output_completion(),
 
-	erlang:error( "Test ~s failed.", [ ?MODULE ] ).
+	erlang:error( "Test ~ts failed.", [ ?MODULE ] ).
 
 
 

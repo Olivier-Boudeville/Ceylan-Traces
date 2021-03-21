@@ -82,7 +82,7 @@ start_link( TraceSupervisorWanted ) ->
 init( TraceSupervisorWanted ) ->
 
 	trace_utils:info_fmt( "Initializing the Traces root supervisor ~w "
-		"(trace supervisor wanted: ~s).", [ self(), TraceSupervisorWanted ] ),
+		"(trace supervisor wanted: ~ts).", [ self(), TraceSupervisorWanted ] ),
 
 	% Restart only children that terminate.
 	% Never expected to fail, though:

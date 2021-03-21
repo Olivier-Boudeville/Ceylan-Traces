@@ -51,7 +51,6 @@ run() ->
 	%
 	trace_bridge_test:emit_traces(),
 
-
 	?test_info( "Then testing the trace bridge with a Ceylan-Traces bridge "
 				"registered for this test process." ),
 
@@ -64,12 +63,10 @@ run() ->
 
 	trace_bridge:register_if_not_already( BridgeSpec ),
 
-
 	trace_bridge_test:emit_traces(),
 
 	trace_bridge:unregister(),
 
-
-	?test_debug_fmt( "End of test for ~s.", [ ?MODULE ] ),
+	?test_debug_fmt( "End of test for ~ts.", [ ?MODULE ] ),
 
 	?test_stop.

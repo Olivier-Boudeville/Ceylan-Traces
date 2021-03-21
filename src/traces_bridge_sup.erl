@@ -96,7 +96,7 @@ start_link( TraceSupervisorWanted ) ->
 init( TraceSupervisorWanted ) ->
 
 	trace_utils:info_fmt( "Initializing the Traces supervisor bridge ~w "
-		"(trace supervisor wanted: ~s).", [ self(), TraceSupervisorWanted ] ),
+		"(trace supervisor wanted: ~ts).", [ self(), TraceSupervisorWanted ] ),
 
 	% This is an OTP blind start, the Traces application being started with no
 	% parameter - so with no trace filename possibly specified.

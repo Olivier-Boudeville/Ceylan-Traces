@@ -64,7 +64,7 @@ run() ->
 	BinFilePath = receive
 
 		{ wooper_result, { trace_file_rotated, BinRotatedFilePath } } ->
-			?test_info_fmt( "Trace rotation acknowledged, result in '~s'.",
+			?test_info_fmt( "Trace rotation acknowledged, result in '~ts'.",
 							[ BinRotatedFilePath ] ),
 			BinRotatedFilePath;
 
@@ -73,11 +73,11 @@ run() ->
 
 	end,
 
-	?test_debug_fmt( "Removing any '~s'.", [ BinFilePath ] ),
+	?test_debug_fmt( "Removing any '~ts'.", [ BinFilePath ] ),
 
 	% Probably not existing because of past rotation:
 	file_utils:remove_file_if_existing( BinFilePath ),
 
-	?test_debug_fmt( "End of test for ~s.", [ ?MODULE ] ),
+	?test_debug_fmt( "End of test for ~ts.", [ ?MODULE ] ),
 
 	?test_stop.

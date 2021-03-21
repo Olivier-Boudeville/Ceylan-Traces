@@ -103,10 +103,10 @@ test_actual_body() ->
 	%
 	[ _TestModuleName, NodeSuffix ] = string:tokens( NodeStringName, "@" ),
 
-	TargetNodeName = text_utils:format( "trace_management_run-~s@~s",
+	TargetNodeName = text_utils:format( "trace_management_run-~ts@~ts",
 						[ system_utils:get_user_name(), NodeSuffix ] ),
 
-	test_facilities:display( "Connecting to node '~s'.", [ TargetNodeName ] ),
+	test_facilities:display( "Connecting to node '~ts'.", [ TargetNodeName ] ),
 
 	case net_adm:ping( text_utils:string_to_atom( TargetNodeName ) ) of
 
@@ -130,11 +130,11 @@ test_actual_body() ->
 
 	AggregatorName = ?trace_aggregator_name,
 
-	test_facilities:display( "Looking up aggregator by name: ~s.",
+	test_facilities:display( "Looking up aggregator by name: ~ts.",
 							 [ AggregatorName ] ),
 
 	AggregatorPid = naming_utils:get_registered_pid_for( AggregatorName,
-														global ),
+														 global ),
 
 	test_facilities:display( "Sending initial traces to force "
 							 "a real synchronization." ),

@@ -123,11 +123,11 @@
 -spec construct( wooper:state(), aggregator_pid(), pid() ) -> wooper:state().
 construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 
-	trace_utils:notice_fmt( "~s Creating a trace listener whose PID is ~w, "
+	trace_utils:notice_fmt( "~ts Creating a trace listener whose PID is ~w, "
 		"synchronized on trace aggregator ~w.",
 		[ ?LogPrefix, self(), TraceAggregatorPid ] ),
 
-	trace_utils:debug_fmt( "~s Requesting from aggregator a trace "
+	trace_utils:debug_fmt( "~ts Requesting from aggregator a trace "
 						   "synchronization.", [ ?LogPrefix ] ),
 
 	TraceAggregatorPid ! { addTraceListener, self() },
@@ -145,9 +145,9 @@ construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 	%	{ trace_sending, ErrorReason } ->
 	%
 	%		trace_utils:error_fmt(
-	%                  "~s Trace listener cannot listen to current trace "
-	%				   "aggregator, as this aggregator does not use "
-	%				   "LogMX-based traces.", [ ?LogPrefix ] ),
+	%           "~ts Trace listener cannot listen to current trace "
+	%			"aggregator, as this aggregator does not use "
+	%			"LogMX-based traces.", [ ?LogPrefix ] ),
 	%
 	%		throw( { cannot_listen_aggregator, TraceAggregatorPid,
 	%				 ErrorReason } )
@@ -172,7 +172,7 @@ construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 
 	EndState = executeOneway( SetState, monitor ),
 
-	%trace_utils:info_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
+	%trace_utils:info_fmt( "~ts Trace listener created.", [ ?LogPrefix ] ),
 
 	EndState.
 
@@ -189,13 +189,13 @@ construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
 		   CloseListenerPid ) ->
 
-	trace_utils:notice_fmt( "~s Creating a trace listener whose PID is ~w, "
+	trace_utils:notice_fmt( "~ts Creating a trace listener whose PID is ~w, "
 		"synchronized on trace aggregator ~w, using a TCP listening port "
 		"in the [~B,~B[ range.",
 		[ ?LogPrefix, self(), TraceAggregatorPid, MinTCPPort, MaxTCPPort ] ),
 
 	trace_utils:debug_fmt(
-	  "~s Requesting from aggregator a trace synchronization.",
+	  "~ts Requesting from aggregator a trace synchronization.",
 	  [ ?LogPrefix ] ),
 
 	TraceAggregatorPid ! { addTraceListener, self() },
@@ -217,7 +217,7 @@ construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
 
 	EndState = executeOneway( SetState, monitor ),
 
-	%trace_utils:info_fmt( "~s Trace listener created.", [ ?LogPrefix ] ),
+	%trace_utils:info_fmt( "~ts Trace listener created.", [ ?LogPrefix ] ),
 
 	EndState.
 
@@ -232,8 +232,8 @@ manage_send_traces( CompressedFilename, State ) ->
 
 	file_utils:remove_file( CompressedFilename ),
 
-	%trace_utils:info_fmt( "~s Received from aggregator a trace "
-	%					   "synchronization for file '~s', reused for "
+	%trace_utils:info_fmt( "~ts Received from aggregator a trace "
+	%					   "synchronization for file '~ts', reused for "
 	%					   "later traces.", [ ?LogPrefix, TraceFilename ] ),
 
 	% Will write in it newly received traces (sent through messages); now
@@ -253,7 +253,7 @@ manage_send_traces( CompressedFilename, State ) ->
 -spec destruct( wooper:state() ) -> wooper:state().
 destruct( State ) ->
 
-	trace_utils:notice_fmt( "~s Deleting trace listener.", [ ?LogPrefix ] ),
+	trace_utils:notice_fmt( "~ts Deleting trace listener.", [ ?LogPrefix ] ),
 
 	% Important message, to avoid loading the aggregator with sendings to
 	% defunct listeners:
@@ -277,7 +277,7 @@ destruct( State ) ->
 
 	end,
 
-	trace_utils:notice_fmt( "~s Trace listener deleted.", [ ?LogPrefix ] ),
+	trace_utils:notice_fmt( "~ts Trace listener deleted.", [ ?LogPrefix ] ),
 
 	% Allow chaining:
 	State.
@@ -307,13 +307,12 @@ monitor( State ) ->
 
 		false ->
 			trace_utils:error_fmt( "class_TraceListener:monitor/1 "
-								   "unable to find trace file '~s'.",
-								   [ Filename ] ),
+				"unable to find trace file '~ts'.", [ Filename ] ),
 			trace_file_not_found
 
 	end,
 
-	trace_utils:notice_fmt( "~s Trace listener will monitor file '~s' "
+	trace_utils:notice_fmt( "~ts Trace listener will monitor file '~ts' "
 							"with LogMX now.", [ ?LogPrefix, Filename ] ),
 
 	Self = self(),
@@ -327,12 +326,12 @@ monitor( State ) ->
 
 			{ _ExitCode=0, _Output } ->
 				trace_utils:notice_fmt(
-				  "~s Trace listener ended the monitoring of '~s'.",
+				  "~ts Trace listener ended the monitoring of '~ts'.",
 				  [ ?LogPrefix, Filename ] );
 
 			{ ExitCode, ErrorOutput } ->
 				trace_utils:error_fmt( "The trace listening failed "
-					"(error code: ~B): ~s.", [ ExitCode, ErrorOutput ] )
+					"(error code: ~B): ~ts.", [ ExitCode, ErrorOutput ] )
 
 		end,
 
@@ -359,13 +358,13 @@ addTrace( State, NewTrace ) ->
 
 	% We used to rely on:
 
-	%io:format( ?getAttr(trace_file), "~s", [
+	%io:format( ?getAttr(trace_file), "~ts", [
 	%					text_utils:binary_to_string( NewTrace ) ] ),
 
 	% yet now the internal trace file is opened in raw mode (so there is no
 	% intermediate process handling the I/O protocol), so:
 
-	Content = text_utils:format( "~s",
+	Content = text_utils:format( "~ts",
 				[ text_utils:binary_to_string( NewTrace ) ] ),
 
 	file:write( ?getAttr(trace_file), Content ),

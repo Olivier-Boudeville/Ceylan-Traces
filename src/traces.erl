@@ -232,7 +232,7 @@ manage_supervision() ->
 
 			% Expected to be already created:
 			TraceAggregatorPid = class_TraceAggregator:get_aggregator(
-								   _CreateIfNotAvailable=false ),
+									_CreateIfNotAvailable=false ),
 
 			% Not blocking the calling process until the supervision is over:
 			TraceAggregatorPid !
@@ -300,7 +300,7 @@ set_handler() ->
 set_handler( AggregatorPid ) ->
 
 	%trace_utils:debug_fmt( "Setting default handler for logger to "
-	%	"aggregator ~w, on node: ~s.", [ AggregatorPid, node() ] ),
+	%	"aggregator ~w, on node: ~ts.", [ AggregatorPid, node() ] ),
 
 	TargetHandler = default,
 
@@ -452,7 +452,7 @@ log( _LogEvent=#{ level := Level,
 	Severity = Level,
 
 	%io:format( "### Logging following event:~n ~p~n(with config: ~p)~n "
-	%  "resulting in: '~s' (severity: ~p).",
+	%  "resulting in: '~ts' (severity: ~p).",
 	%  [ LogEvent, Config, TraceMsg, Severity ] ),
 
 	BinEmitterCategorization = <<"Erlang logger">>,

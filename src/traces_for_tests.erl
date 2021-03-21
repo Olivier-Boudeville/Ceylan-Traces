@@ -92,8 +92,8 @@ test_start( ModuleName, InitTraceSupervisor ) ->
 
 	TestIsBatch = executable_utils:is_batch(),
 
-	%trace_utils:debug_fmt( "At test_start/2: TestIsBatch=~s, "
-	%	"InitTraceSupervisor=~s.", [ TestIsBatch, InitTraceSupervisor ] ),
+	%trace_utils:debug_fmt( "At test_start/2: TestIsBatch=~ts, "
+	%	"InitTraceSupervisor=~ts.", [ TestIsBatch, InitTraceSupervisor ] ),
 
 	TraceFilename = traces:get_trace_filename( ModuleName ),
 
@@ -114,7 +114,7 @@ test_start( ModuleName, InitTraceSupervisor ) ->
 						"OTP context." );
 
 		_ ->
-			?test_info_fmt( "Starting test ~s.", [ ModuleName ] )
+			?test_info_fmt( "Starting test ~ts.", [ ModuleName ] )
 
 	end,
 
@@ -148,7 +148,7 @@ test_stop( ModuleName, TraceAggregatorPid, WaitForTraceSupervisor ) ->
 	% As test_start might have been called with InitTraceSupervisor=false.
 
 	%trace_utils:info_fmt( "Test stopping (aggregator: ~w, wait supervisor: "
-	%    "~s).", [ TraceAggregatorPid, WaitForTraceSupervisor] ),
+	%    "~ts).", [ TraceAggregatorPid, WaitForTraceSupervisor] ),
 
 	case WaitForTraceSupervisor of
 
@@ -185,7 +185,7 @@ test_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 -spec test_stop_on_shell( module_name(), aggregator_pid() ) -> no_return().
 test_stop_on_shell( ModuleName, TraceAggregatorPid ) ->
 
-	?test_info_fmt( "Stopping test ~s.", [ ModuleName ] ),
+	?test_info_fmt( "Stopping test ~ts.", [ ModuleName ] ),
 
 	% Also possible: class_TraceAggregator:remove(),
 
@@ -201,4 +201,4 @@ test_stop_on_shell( ModuleName, TraceAggregatorPid ) ->
 
 	traces:check_pending_wooper_results(),
 
-	test_facilities:display( "End of test ~s.", [ ModuleName ] ).
+	test_facilities:display( "End of test ~ts.", [ ModuleName ] ).

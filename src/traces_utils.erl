@@ -55,12 +55,12 @@ name_trace_file_from( ModName ) ->
 	NewTraceFilename = traces:get_trace_filename( ModName ),
 
 	trace_utils:info_fmt( "Requesting the renaming of trace aggregator "
-		"file to '~s'.", [ NewTraceFilename ] ),
+		"file to '~ts'.", [ NewTraceFilename ] ),
 
 	BinNewTraceFilename = text_utils:string_to_binary( NewTraceFilename ),
 
 	AggPid = naming_utils:get_registered_pid_for(
-			   _Name=?trace_aggregator_name, _Scope=global ),
+				_Name=?trace_aggregator_name, _Scope=global ),
 
 	% Oneway:
 	AggPid ! { renameTraceFile, BinNewTraceFilename }.

@@ -101,7 +101,7 @@
 
 
 % To obtain a proper string-like name, whether a trace categorization has been
-% specified or not (typically useful when wanting to designate with '~s' the
+% specified or not (typically useful when wanting to designate with '~ts' the
 % name of a trace emitter from its constructor, i.e. when its specified name
 % (actually, emitter_info()) may still include its trace categorization):
 %
@@ -256,7 +256,8 @@
 % Plain, with 2 variations regarding state: explicit or implicit.
 
 
-% Sends a trace of 'emergency' type with specified parameters and an explicit state.
+% Sends a trace of 'emergency' type with specified parameters and an explicit
+% state.
 %
 -define( send_emergency( State, Message ),
 		 class_TraceEmitter:send_safe( emergency, State, Message )
@@ -264,8 +265,8 @@
 
 
 
-% Sends a trace of 'emergency' type with specified parameters and implicit use of a
-% variable named 'State'.
+% Sends a trace of 'emergency' type with specified parameters and implicit use
+% of a variable named 'State'.
 %
 -define( emergency( Message ),
 		 class_TraceEmitter:send_safe( emergency, State, Message )
@@ -277,8 +278,8 @@
 % Categorized, with 2 variations regarding state: explicit or implicit.
 
 
-
-% Sends a trace of 'emergency' type with specified parameters and an explicit state.
+% Sends a trace of 'emergency' type with specified parameters and an explicit
+% state.
 %
 -define( send_emergency_cat( State, Message, MessageCategorization ),
 		 class_TraceEmitter:send_safe( emergency, State, Message,
@@ -287,8 +288,8 @@
 
 
 
-% Sends a trace of 'emergency' type with specified parameters and implicit use of a
-% variable named 'State'.
+% Sends a trace of 'emergency' type with specified parameters and implicit use
+% of a variable named 'State'.
 %
 -define( emergency_cat( Message, MessageCategorization ),
 		 class_TraceEmitter:send_safe( emergency, State, Message,
@@ -303,7 +304,8 @@
 
 
 
-% Sends a trace of 'emergency' type with specified parameters and an explicit state.
+% Sends a trace of 'emergency' type with specified parameters and an explicit
+% state.
 %
 -define( send_emergency_full( State, Message, MessageCategorization,
 						  ApplicationTimestamp ),
@@ -313,8 +315,8 @@
 
 
 
-% Sends a trace of 'emergency' type with specified parameters and implicit use of a
-% variable named 'State'.
+% Sends a trace of 'emergency' type with specified parameters and implicit use
+% of a variable named 'State'.
 %
 -define( emergency_full( Message, MessageCategorization, ApplicationTimestamp ),
 		 class_TraceEmitter:send_safe( emergency, State, Message,
@@ -340,8 +342,8 @@
 ).
 
 
-% Sends a trace of 'emergency' type with specified parameters and an explicit state,
-% with no console echo (message just recorded in the traces).
+% Sends a trace of 'emergency' type with specified parameters and an explicit
+% state, with no console echo (message just recorded in the traces).
 %
 -define( send_emergency_no_echo_fmt( State, Message, FormatValues ),
 		 class_TraceEmitter:send_synchronised( emergency, State,
@@ -359,9 +361,9 @@
 ).
 
 
-% Sends a trace of 'emergency' type with specified parameters and implicit use of a
-% variable named 'State', with no console echo (message just recorded in the
-% traces).
+% Sends a trace of 'emergency' type with specified parameters and implicit use
+% of a variable named 'State', with no console echo (message just recorded in
+% the traces).
 %
 -define( emergency_no_echo_fmt( Message, FormatValues ),
 		 class_TraceEmitter:send_synchronised( emergency, State,
@@ -374,7 +376,8 @@
 % Categorized, with 2 variations regarding state: explicit or implicit.
 
 
-% Sends a trace of 'emergency' type with specified parameters and an explicit state.
+% Sends a trace of 'emergency' type with specified parameters and an explicit
+% state.
 %
 -define( send_emergency_fmt_cat( State, Message, FormatValues,
 							 MessageCategorization ),
@@ -384,8 +387,8 @@
 
 
 
-% Sends a trace of 'emergency' type with specified parameters and implicit use of a
-% variable named 'State'.
+% Sends a trace of 'emergency' type with specified parameters and implicit use
+% of a variable named 'State'.
 %
 -define( emergency_fmt_cat( Message, FormatValues, MessageCategorization ),
 		 class_TraceEmitter:send_safe( emergency, State,
@@ -399,7 +402,8 @@
 % explicit or implicit.
 
 
-% Sends a trace of 'emergency' type with specified parameters and an explicit state.
+% Sends a trace of 'emergency' type with specified parameters and an explicit
+% state.
 %
 -define( send_emergency_fmt_full( State, Message, FormatValues,
 							  MessageCategorization, ApplicationTimestamp ),
@@ -410,8 +414,8 @@
 
 
 
-% Sends a trace of 'emergency' type with specified parameters and implicit use of a
-% variable named 'State'.
+% Sends a trace of 'emergency' type with specified parameters and implicit use
+% of a variable named 'State'.
 %
 -define( emergency_fmt_full( Message, FormatValues, MessageCategorization,
 						 ApplicationTimestamp ),
@@ -436,7 +440,6 @@
 
 
 % Sends a trace of 'alert' type with specified parameters and an explicit state.
-%
 -define( send_alert( State, Message ),
 		 class_TraceEmitter:send_safe( alert, State, Message )
 ).
@@ -458,7 +461,6 @@
 
 
 % Sends a trace of 'alert' type with specified parameters and an explicit state.
-%
 -define( send_alert_cat( State, Message, MessageCategorization ),
 		 class_TraceEmitter:send_safe( alert, State, Message,
 									   MessageCategorization )
@@ -483,7 +485,6 @@
 
 
 % Sends a trace of 'alert' type with specified parameters and an explicit state.
-%
 -define( send_alert_full( State, Message, MessageCategorization,
 						  ApplicationTimestamp ),
 		 class_TraceEmitter:send_safe( alert, State, Message,
@@ -554,7 +555,6 @@
 
 
 % Sends a trace of 'alert' type with specified parameters and an explicit state.
-%
 -define( send_alert_fmt_cat( State, Message, FormatValues,
 							 MessageCategorization ),
 		 class_TraceEmitter:send_safe( alert, State,
@@ -579,7 +579,6 @@
 
 
 % Sends a trace of 'alert' type with specified parameters and an explicit state.
-%
 -define( send_alert_fmt_full( State, Message, FormatValues,
 							  MessageCategorization, ApplicationTimestamp ),
 		 class_TraceEmitter:send_safe( alert, State,
@@ -613,7 +612,8 @@
 % Plain, with 2 variations regarding state: explicit or implicit.
 
 
-% Sends a trace of 'critical' type with specified parameters and an explicit state.
+% Sends a trace of 'critical' type with specified parameters and an explicit
+% state.
 %
 -define( send_critical( State, Message ),
 		 class_TraceEmitter:send_safe( critical, State, Message )
@@ -621,8 +621,8 @@
 
 
 
-% Sends a trace of 'critical' type with specified parameters and implicit use of a
-% variable named 'State'.
+% Sends a trace of 'critical' type with specified parameters and implicit use of
+% a variable named 'State'.
 %
 -define( critical( Message ),
 		 class_TraceEmitter:send_safe( critical, State, Message )
@@ -635,7 +635,8 @@
 
 
 
-% Sends a trace of 'critical' type with specified parameters and an explicit state.
+% Sends a trace of 'critical' type with specified parameters and an explicit
+% state.
 %
 -define( send_critical_cat( State, Message, MessageCategorization ),
 		 class_TraceEmitter:send_safe( critical, State, Message,
@@ -644,8 +645,8 @@
 
 
 
-% Sends a trace of 'critical' type with specified parameters and implicit use of a
-% variable named 'State'.
+% Sends a trace of 'critical' type with specified parameters and implicit use of
+% a variable named 'State'.
 %
 -define( critical_cat( Message, MessageCategorization ),
 		 class_TraceEmitter:send_safe( critical, State, Message,
@@ -660,18 +661,19 @@
 
 
 
-% Sends a trace of 'critical' type with specified parameters and an explicit state.
+% Sends a trace of 'critical' type with specified parameters and an explicit
+% state.
 %
 -define( send_critical_full( State, Message, MessageCategorization,
-						  ApplicationTimestamp ),
+							 ApplicationTimestamp ),
 		 class_TraceEmitter:send_safe( critical, State, Message,
 								  MessageCategorization, ApplicationTimestamp )
 ).
 
 
 
-% Sends a trace of 'critical' type with specified parameters and implicit use of a
-% variable named 'State'.
+% Sends a trace of 'critical' type with specified parameters and implicit use of
+% a variable named 'State'.
 %
 -define( critical_full( Message, MessageCategorization, ApplicationTimestamp ),
 		 class_TraceEmitter:send_safe( critical, State, Message,
@@ -697,12 +699,12 @@
 ).
 
 
-% Sends a trace of 'critical' type with specified parameters and an explicit state,
-% with no console echo (message just recorded in the traces).
+% Sends a trace of 'critical' type with specified parameters and an explicit
+% state, with no console echo (message just recorded in the traces).
 %
 -define( send_critical_no_echo_fmt( State, Message, FormatValues ),
 		 class_TraceEmitter:send_synchronised( critical, State,
-						  text_utils:format( Message, FormatValues ) )
+						text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -716,8 +718,8 @@
 ).
 
 
-% Sends a trace of 'critical' type with specified parameters and implicit use of a
-% variable named 'State', with no console echo (message just recorded in the
+% Sends a trace of 'critical' type with specified parameters and implicit use of
+% a variable named 'State', with no console echo (message just recorded in the
 % traces).
 %
 -define( critical_no_echo_fmt( Message, FormatValues ),
@@ -731,7 +733,8 @@
 % Categorized, with 2 variations regarding state: explicit or implicit.
 
 
-% Sends a trace of 'critical' type with specified parameters and an explicit state.
+% Sends a trace of 'critical' type with specified parameters and an explicit
+% state.
 %
 -define( send_critical_fmt_cat( State, Message, FormatValues,
 							 MessageCategorization ),
@@ -741,8 +744,8 @@
 
 
 
-% Sends a trace of 'critical' type with specified parameters and implicit use of a
-% variable named 'State'.
+% Sends a trace of 'critical' type with specified parameters and implicit use of
+% a variable named 'State'.
 %
 -define( critical_fmt_cat( Message, FormatValues, MessageCategorization ),
 		 class_TraceEmitter:send_safe( critical, State,
@@ -756,7 +759,8 @@
 % explicit or implicit.
 
 
-% Sends a trace of 'critical' type with specified parameters and an explicit state.
+% Sends a trace of 'critical' type with specified parameters and an explicit
+% state.
 %
 -define( send_critical_fmt_full( State, Message, FormatValues,
 							  MessageCategorization, ApplicationTimestamp ),
@@ -767,8 +771,8 @@
 
 
 
-% Sends a trace of 'critical' type with specified parameters and implicit use of a
-% variable named 'State'.
+% Sends a trace of 'critical' type with specified parameters and implicit use of
+% a variable named 'State'.
 %
 -define( critical_fmt_full( Message, FormatValues, MessageCategorization,
 						 ApplicationTimestamp ),
@@ -792,7 +796,6 @@
 
 
 % Sends a trace of 'error' type with specified parameters and an explicit state.
-%
 -define( send_error( State, Message ),
 		 class_TraceEmitter:send_safe( error, State, Message )
 ).
@@ -821,7 +824,6 @@
 
 
 % Sends a trace of 'error' type with specified parameters and an explicit state.
-%
 -define( send_error_cat( State, Message, MessageCategorization ),
 		 class_TraceEmitter:send_safe( error, State,
 		   text_utils:format( Message, FormatValues ), MessageCategorization )
@@ -845,7 +847,6 @@
 
 
 % Sends a trace of 'error' type with specified parameters and an explicit state.
-%
 -define( send_error_full( State, Message, MessageCategorization,
 						  ApplicationTimestamp ),
 		 class_TraceEmitter:send_safe( error, State, Message,
@@ -916,7 +917,6 @@
 
 
 % Sends a trace of 'error' type with specified parameters and an explicit state.
-%
 -define( send_error_fmt_cat( State, Message, FormatValues,
 							 MessageCategorization ),
 		 class_TraceEmitter:send_safe( error, State,
@@ -945,7 +945,6 @@
 
 
 % Sends a trace of 'error' type with specified parameters and an explicit state.
-%
 -define( send_error_fmt_full( State, Message, FormatValues,
 							  MessageCategorization, ApplicationTimestamp ),
 		 class_TraceEmitter:send_safe( error, State,
@@ -1147,8 +1146,8 @@
 ).
 
 
-% Sends a trace of 'warning' type with specified parameters and implicit use of a
-% variable named 'State', with no console echo (message just recorded in the
+% Sends a trace of 'warning' type with specified parameters and implicit use of
+% a variable named 'State', with no console echo (message just recorded in the
 % traces).
 %
 -define( warning_no_echo_fmt( Message, FormatValues ),
@@ -1256,14 +1255,12 @@
 
 
 % Taking 'notice' as an example:
-%
 % - '?notice( "Hello" )'
 % - '?notice_cat( "Hello", "My Category" )' ('cat' stands for 'categorized')
 % - '?notice_full( "Hello", "My Category", 125 )'
 %
 % The use of text_utils:format/2 involved too much typing, so we defined shorter
 % forms instead. Taking 'notice' again as an example:
-%
 % - '?notice_fmt( "Hello ~w.", [V] )' (most frequently used form; 'fmt' stands
 % for 'format')
 % - '?notice_fmt_cat( "Hello ~w.", [V], "My Category" )'
@@ -1358,7 +1355,7 @@
 % state.
 %
 -define( send_notice_full( State, Message, MessageCategorization,
-						 ApplicationTimestamp ),
+						   ApplicationTimestamp ),
 		 class_TraceEmitter:send( notice, State, Message,
 								  MessageCategorization, ApplicationTimestamp )
 ).
@@ -1384,7 +1381,8 @@
 % Plain, with 2 variations regarding state: explicit or implicit.
 
 
-% Sends a trace of 'notice' type with specified parameters and an explicit state.
+% Sends a trace of 'notice' type with specified parameters and an explicit
+% state.
 %
 -define( send_notice_fmt( State, Message, FormatValues ),
 		 class_TraceEmitter:send( notice, State,
@@ -1408,7 +1406,8 @@
 % Categorized, with 2 variations regarding state: explicit or implicit.
 
 
-% Sends a trace of 'notice' type with specified parameters and an explicit state.
+% Sends a trace of 'notice' type with specified parameters and an explicit
+% state.
 %
 -define( send_notice_fmt_cat( State, Message, FormatValues,
 							MessageCategorization ),
@@ -1436,10 +1435,11 @@
 % explicit or implicit.
 
 
-% Sends a trace of 'notice' type with specified parameters and an explicit state.
+% Sends a trace of 'notice' type with specified parameters and an explicit
+% state.
 %
 -define( send_notice_fmt_full( State, Message, FormatValues,
-							 MessageCategorization, ApplicationTimestamp ),
+							   MessageCategorization, ApplicationTimestamp ),
 		 class_TraceEmitter:send( notice, State,
 								  text_utils:format( Message, FormatValues ),
 								  MessageCategorization, ApplicationTimestamp )
@@ -1451,7 +1451,7 @@
 % variable named 'State'.
 %
 -define( notice_fmt_full( Message, FormatValues, MessageCategorization,
-						ApplicationTimestamp ),
+						  ApplicationTimestamp ),
 		 class_TraceEmitter:send( notice, State,
 								  text_utils:format( Message, FormatValues ),
 								  MessageCategorization, ApplicationTimestamp )
@@ -1807,8 +1807,6 @@
 
 
 
-
-
 -else. % tracing_activated not defined below:
 
 
@@ -1868,7 +1866,7 @@
 % We believe that nonetheless these local do-nothing functions will be optimized
 % out by the compiler.
 %-compile( {inline,[ trace_disabled/1, trace_disabled/2, trace_disabled/3,
-%				   trace_disabled/4, trace_disabled/5 ] } ).
+%					 trace_disabled/4, trace_disabled/5 ] } ).
 
 % Final solution: replacing calls to trace_disabled/[1..5] by tuples containing
 % these variables (ex: 'trace_disabled( State, Message )' -> { State, Message })
@@ -1879,7 +1877,7 @@
 % otherwise the compiler would report that the "variable 'Foobar' is unused".
 
 % We do the same also whenever the 'State' variable is to be implicitly used
-% (ex: with '?error( "Hello" )'), otherwise user code would also have it
+% (ex: with '?error("Hello")'), otherwise user code would also have it
 % reported as unused.
 
 
@@ -1921,7 +1919,7 @@
 
 
 -define( send_notice_full( State, Message, MessageCategorization,
-						 ApplicationTimestamp ),
+						   ApplicationTimestamp ),
 		 trace_disabled( State, Message, MessageCategorization,
 						 ApplicationTimestamp )
 ).
@@ -1952,7 +1950,7 @@
 
 
 -define( send_notice_fmt_cat( State, Message, FormatValues,
-							MessageCategorization ),
+							  MessageCategorization ),
 		 trace_disabled( State, Message, FormatValues,
 						 MessageCategorization )
 ).
@@ -1968,14 +1966,14 @@
 
 
 -define( send_notice_fmt_full( State, Message, FormatValues,
-							 MessageCategorization, ApplicationTimestamp ),
+							   MessageCategorization, ApplicationTimestamp ),
 		 trace_disabled( State, Message, FormatValues,
 						 MessageCategorization, ApplicationTimestamp )
 ).
 
 
 -define( notice_fmt_full( Message, FormatValues, MessageCategorization,
-						ApplicationTimestamp ),
+						  ApplicationTimestamp ),
 		 trace_disabled( State, Message, FormatValues, MessageCategorization,
 						 ApplicationTimestamp )
 ).
@@ -2304,7 +2302,7 @@ trace_disabled( _, _, _, _, _ ) ->
 %
 -define( report_fmt( Message, FormatValues ),
 		 class_TraceEmitter:send_safe( info, State,
-					  text_utils:format( Message, FormatValues ) )
+						text_utils:format( Message, FormatValues ) )
 ).
 
 

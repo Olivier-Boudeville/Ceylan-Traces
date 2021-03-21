@@ -195,8 +195,8 @@ construct( State, _EmitterInit={ EmitterName, EmitterCategorization } ) ->
   % Useless, as checks done just afterwards:
   % when is_list( EmitterName ) andalso is_list( EmitterCategorization ) ->
 
-	%trace_utils:debug_fmt( "~s Creating a trace emitter whose name is '~s', "
-	%	"whose PID is ~w and whose categorization is '~s'.",
+	%trace_utils:debug_fmt( "~ts Creating a trace emitter whose name is '~ts', "
+	%	"whose PID is ~w and whose categorization is '~ts'.",
 	%	[ ?LogPrefix, EmitterName, self(), EmitterCategorization ] ),
 
 	InitState = init( State ),
@@ -243,8 +243,8 @@ construct( State, EmitterName ) ->
 construct( State, _EmitterInit={ EmitterName, EmitterCategorization },
 		   TraceAggregatorPid ) ->
 
-	%trace_utils:debug_fmt( "~s Creating a trace emitter whose name is '~s', "
-	%	"whose PID is ~w, whose categorization is '~s' and using trace "
+	%trace_utils:debug_fmt( "~ts Creating a trace emitter whose name is '~ts', "
+	%	"whose PID is ~w, whose categorization is '~ts' and using trace "
 	%   "aggregator ~w.",
 	%	[ ?LogPrefix, EmitterName, self(), EmitterCategorization,
 	%     TraceAggregatorPid ] ),
@@ -293,7 +293,7 @@ check_and_binarise_name( BinName ) when is_binary( BinName ) ->
 check_string_name( Name ) ->
 
 	% Can be an io_list():
-	FlatName = text_utils:format( "~s", [ Name ] ),
+	FlatName = text_utils:format( "~ts", [ Name ] ),
 
 	% Dots are not allowed in emitter names (as they are interpreted as
 	% subcategories), whereas for example FQDNs have such characters:
@@ -418,7 +418,7 @@ onWOOPERDownNotified( State, MonitorRef, MonitoredType, MonitoredElement,
 onWOOPERNodeConnection( State, Node, MonitorNodeInfo ) ->
 
 	?warning_fmt( "The TraceEmitter default node up handler of this instance "
-		"ignored the connection notification for node '~s' (information: ~p).",
+		"ignored the connection notification for node '~ts' (information: ~p).",
 		[ Node, MonitorNodeInfo ] ),
 
 	wooper:const_return().
@@ -431,7 +431,7 @@ onWOOPERNodeConnection( State, Node, MonitorNodeInfo ) ->
 onWOOPERNodeDisconnection( State, Node, MonitorNodeInfo ) ->
 
 	?warning_fmt( "The TraceEmitter default node down handler of this instance "
-		"ignored the disconnection notification for node '~s' "
+		"ignored the disconnection notification for node '~ts' "
 		"(information: ~p).", [ Node, MonitorNodeInfo ] ),
 
 	wooper:const_return().
@@ -509,6 +509,7 @@ get_all_base_attribute_names() ->
 			   || C <- ?superclasses ] ),
 
 	wooper:return_static( AttrNames ).
+
 
 
 % Sends all types of traces on behalf of a test, thus without requiring a
@@ -747,7 +748,7 @@ send_standalone( TraceSeverity, Message, EmitterName, EmitterCategorization,
 				 _TraceEmitterPid=self(),
 				 _TraceEmitterName=text_utils:string_to_binary( EmitterName ),
 				 _TraceEmitterCategorization=
-					 text_utils:string_to_binary( EmitterCategorization ),
+						text_utils:string_to_binary( EmitterCategorization ),
 				 _AppTimestamp=none,
 				 _Time=TimestampText,
 				 % No State available here:
@@ -891,7 +892,7 @@ send_standalone_safe( TraceSeverity, Message, EmitterName,
 
 			BinMessage = text_utils:string_to_binary( Message ),
 
-			%trace_utils:debug_fmt( "Sending in sync message '~s'.",
+			%trace_utils:debug_fmt( "Sending in sync message '~ts'.",
 			%                       [ BinMessage ] ),
 
 			AggregatorPid ! { sendSync, [
@@ -1148,7 +1149,7 @@ send_safe( TraceSeverity, State, Message ) ->
 % (helper)
 %
 -spec send_synchronised( trace_severity(), wooper:state(), message() ) ->
-							   void().
+								void().
 send_synchronised( TraceSeverity, State, Message ) ->
 	send_synchronised( TraceSeverity, State, Message,
 					   _MessageCategorization=uncategorized ).
@@ -1213,7 +1214,7 @@ send_synchronised( TraceSeverity, State, Message, MessageCategorization ) ->
 send( TraceSeverity, State, Message, MessageCategorization, AppTimestamp ) ->
 
 	TimestampText = text_utils:string_to_binary(
-					  time_utils:get_textual_timestamp() ),
+						time_utils:get_textual_timestamp() ),
 
 	MsgCateg = case MessageCategorization of
 
@@ -1284,7 +1285,7 @@ send( TraceSeverity, State, Message, MessageCategorization, AppTimestamp ) ->
 % requested yet not waited here, to allow for any interleaving).
 %
 -spec send_synchronisable( trace_severity(), wooper:state(), message(),
-				   message_categorization(), app_timestamp() ) -> void().
+					message_categorization(), app_timestamp() ) -> void().
 send_synchronisable( TraceSeverity, State, Message, MessageCategorization,
 					 AppTimestamp ) ->
 

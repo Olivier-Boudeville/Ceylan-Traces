@@ -120,8 +120,8 @@ app_start( ModuleName, InitTraceSupervisor, DisableExitTrapping ) ->
 
 	AppIsBatch = executable_utils:is_batch(),
 
-	%trace_utils:debug_fmt( "At app_start/2: AppIsBatch=~s, "
-	%	"InitTraceSupervisor=~s.", [ AppIsBatch, InitTraceSupervisor ] ),
+	%trace_utils:debug_fmt( "At app_start/2: AppIsBatch=~ts, "
+	%	"InitTraceSupervisor=~ts.", [ AppIsBatch, InitTraceSupervisor ] ),
 
 	TraceFilename = traces:get_trace_filename( ModuleName ),
 
@@ -142,7 +142,7 @@ app_start( ModuleName, InitTraceSupervisor, DisableExitTrapping ) ->
 					   "OTP context." );
 
 		_ ->
-			?app_info_fmt( "Starting application ~s.", [ ModuleName ] )
+			?app_info_fmt( "Starting application ~ts.", [ ModuleName ] )
 
 	end,
 
@@ -176,7 +176,7 @@ app_stop( ModuleName, TraceAggregatorPid, WaitForTraceSupervisor ) ->
 	% As app_start might have been called with InitTraceSupervisor=false.
 
 	%trace_utils:info_fmt( "Application stopping (aggregator: ~w, wait "
-	%    "supervisor: ~s).", [ TraceAggregatorPid, WaitForTraceSupervisor] ),
+	%    "supervisor: ~ts).", [ TraceAggregatorPid, WaitForTraceSupervisor] ),
 
 	case WaitForTraceSupervisor of
 
@@ -214,7 +214,7 @@ app_immediate_stop( ModuleName, TraceAggregatorPid ) ->
 -spec app_stop_on_shell( module_name(), aggregator_pid() ) -> no_return().
 app_stop_on_shell( ModuleName, TraceAggregatorPid ) ->
 
-	?app_info_fmt( "Stopping application ~s.", [ ModuleName ] ),
+	?app_info_fmt( "Stopping application ~ts.", [ ModuleName ] ),
 
 	% Also possible: class_TraceAggregator:remove(),
 
@@ -230,4 +230,4 @@ app_stop_on_shell( ModuleName, TraceAggregatorPid ) ->
 
 	traces:check_pending_wooper_results(),
 
-	app_facilities:display( "End of application ~s.", [ ModuleName ] ).
+	app_facilities:display( "End of application ~ts.", [ ModuleName ] ).

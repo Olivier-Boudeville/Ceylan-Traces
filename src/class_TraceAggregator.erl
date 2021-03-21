@@ -285,7 +285,7 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 		   MaybeRegistrationScope, IsBatch, InitTraceSupervisor ) ->
 
 	%trace_utils:debug_fmt( "Starting trace aggregator, with initial trace "
-	%	"filename '~s' (init supervisor: ~w).",
+	%	"filename '~ts' (init supervisor: ~w).",
 	%	[ TraceFilename, InitTraceSupervisor ] ),
 
 	% Wanting a better control by resisting to exit messages being received (see
@@ -330,8 +330,8 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 
 	end,
 
-	%trace_utils:debug_fmt( "InitTraceSupervisor=~s, IsBatch=~s, "
-	%	"ShouldInitTraceSupervisor=~s.",
+	%trace_utils:debug_fmt( "InitTraceSupervisor=~ts, IsBatch=~ts, "
+	%	"ShouldInitTraceSupervisor=~ts.",
 	%	[ InitTraceSupervisor, IsBatch, ShouldInitTraceSupervisor ] ),
 
 	SetState = setAttributes( State, [
@@ -360,12 +360,12 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 	% file information on the console is when the filename is final, typically
 	% when the trace supervisor is started):
 	%
-	%trace_utils:debug_fmt( "~s ~s", [ ?LogPrefix, Message ] ),
+	%trace_utils:debug_fmt( "~ts ~ts", [ ?LogPrefix, Message ] ),
 
 	case MaybeRegistrationScope of
 
 		undefined ->
-			trace_utils:info_fmt( "~s Creating a private trace aggregator, "
+			trace_utils:info_fmt( "~ts Creating a private trace aggregator, "
 				"whose PID is ~w.", [ ?LogPrefix, self() ] );
 
 		RegScope ->
@@ -375,8 +375,8 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 			% Implicit check of scope:
 			naming_utils:register_as( RegName, RegScope ),
 
-			trace_utils:info_fmt( "~s Creating a trace aggregator, "
-				"whose PID is ~w, with name '~s' and registration scope ~s.",
+			trace_utils:info_fmt( "~ts Creating a trace aggregator, "
+				"whose PID is ~w, with name '~ts' and registration scope ~ts.",
 				[ ?LogPrefix, self(), RegName, RegScope ] ),
 
 			% As soon as possible (i.e. now that it is registered, provided that
@@ -413,7 +413,8 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 
 	% Writes the very first trace after this header, returns an updated state:
 	TraceState = send_internal_immediate( info, "Trace aggregator created, "
-		"trace filename is '~s', trace type is '~w', and trace title is '~s'.",
+		"trace filename is '~ts', trace type is '~w', "
+		"and trace title is '~ts'.",
 		[ AbsBinTraceFilename, TraceSupervisionType, TraceTitle ],
 		HeaderState ),
 
@@ -447,7 +448,7 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 -spec destruct( wooper:state() ) -> wooper:state().
 destruct( State ) ->
 
-	%trace_utils:debug_fmt( "~s Deleting trace aggregator.", [ ?LogPrefix ] ),
+	%trace_utils:debug_fmt( "~ts Deleting trace aggregator.", [ ?LogPrefix ] ),
 
 	?getAttr(overload_monitor_pid) ! delete,
 
@@ -507,7 +508,7 @@ destruct( State ) ->
 
 		{ text_traces, pdf } ->
 
-			trace_utils:info_fmt( "~s Generating PDF trace report.",
+			trace_utils:info_fmt( "~ts Generating PDF trace report.",
 								  [ ?LogPrefix ] ),
 
 			PdfTargetFilename = file_utils:replace_extension(
@@ -517,7 +518,7 @@ destruct( State ) ->
 			GenerationCommand = executable_utils:find_executable( "make" )
 				++ " '" ++ PdfTargetFilename ++ "' VIEW_PDF=no",
 
-			%trace_utils:info_fmt( "PDF generation command is '~s'.",
+			%trace_utils:info_fmt( "PDF generation command is '~ts'.",
 			%						 [ GenerationCommand ] ),
 
 			case system_utils:run_executable( GenerationCommand ) of
@@ -530,7 +531,7 @@ destruct( State ) ->
 							ok;
 
 						false ->
-							trace_utils:info_fmt( "~s Displaying PDF trace "
+							trace_utils:info_fmt( "~ts Displaying PDF trace "
 								"report.", [ ?LogPrefix ] ),
 
 							executable_utils:display_pdf_file(
@@ -539,10 +540,10 @@ destruct( State ) ->
 						end;
 
 				{ ExitCode, ErrorOutput } ->
-					trace_utils:error_fmt(
-					  "~s Generation of PDF from ~s failed (error ~B: '~s').",
-					  [ ?LogPrefix, ?getAttr(trace_filename),
-						ExitCode, ErrorOutput ] )
+					trace_utils:error_fmt( "~ts Generation of PDF from ~ts "
+						"failed (error ~B: '~ts').",
+						[ ?LogPrefix, ?getAttr(trace_filename),
+						  ExitCode, ErrorOutput ] )
 
 			end
 
@@ -558,7 +559,7 @@ destruct( State ) ->
 
 	end,
 
-	%trace_utils:info_fmt( "~s Aggregator deleted.", [ ?LogPrefix ] ),
+	%trace_utils:info_fmt( "~ts Aggregator deleted.", [ ?LogPrefix ] ),
 
 	% Allow chaining:
 	FooterState.
@@ -616,7 +617,7 @@ send( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 	  AppTimestamp, Time, Location, MessageCategorization, Priority,
 	  Message ) ->
 
-	%trace_utils:debug_fmt( "Received sent message '~s'.", [ Message ] ),
+	%trace_utils:debug_fmt( "Received sent message '~ts'.", [ Message ] ),
 
 	% Useful to check that all fields are of minimal sizes (ex: binaries):
 	%inspect_fields( [ TraceEmitterPid, TraceEmitterName,
@@ -629,10 +630,10 @@ send( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 		  TraceEmitterCategorization, AppTimestamp, Time, Location,
 		  MessageCategorization, Priority, Message } ),
 
-	% Was: io:format( ?getAttr(trace_file), "~s", [ Trace ] ),
+	% Was: io:format( ?getAttr(trace_file), "~ts", [ Trace ] ),
 	% but now we use faster raw writes:
 	%ok = file:write( ?getAttr(trace_file),
-	%                 text_utils:format( "~s", [ Trace ] ) ),
+	%                 text_utils:format( "~ts", [ Trace ] ) ),
 
 	%trace_utils:debug_fmt( "Writing to ~p: ~p.",
 	%					   [ ?getAttr(trace_file), Trace ] ),
@@ -680,14 +681,14 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 		  TraceEmitterCategorization, AppTimestamp, Time, Location,
 		  MessageCategorization, Priority, Message } ),
 
-	%trace_utils:debug_fmt( "Writing sync trace '~s'.", [ Trace ] ),
+	%trace_utils:debug_fmt( "Writing sync trace '~ts'.", [ Trace ] ),
 
 	TraceFile = ?getAttr(trace_file),
 
-	% Was: io:format( TraceFile, "~s", [ Trace ] ),
+	% Was: io:format( TraceFile, "~ts", [ Trace ] ),
 	% but now we use faster raw writes:
 	%
-	%ok = file:write( TraceFile, text_utils:format( "~s", [ Trace ] ) ),
+	%ok = file:write( TraceFile, text_utils:format( "~ts", [ Trace ] ) ),
 
 	file_utils:write( TraceFile, Trace ),
 
@@ -706,7 +707,7 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 
 	end,
 
-	%trace_utils:debug_fmt( "Sync trace '~s' written.", [ Trace ] ),
+	%trace_utils:debug_fmt( "Sync trace '~ts' written.", [ Trace ] ),
 
 	% Done as late as possible, and strictly necessary (and apparently
 	% sufficient), otherwise at least some crashes could prevent the trace to be
@@ -749,7 +750,7 @@ renameTraceFile( State, NewTraceFilename ) ->
 	InitSupervision = ?getAttr(init_supervision),
 
 	Msg = text_utils:format( "Trace aggregator renaming atomically trace file "
-			"from '~s' to '~s' (init supervision: ~s).",
+			"from '~ts' to '~ts' (init supervision: ~ts).",
 			[ BinTraceFilename, AbsNewTraceFilename, InitSupervision ] ),
 
 	%trace_utils:debug( Msg ),
@@ -771,7 +772,7 @@ renameTraceFile( State, NewTraceFilename ) ->
 			initialize_supervision( RenState );
 
 		IS when is_boolean( IS ) ->
-			%trace_utils:debug_fmt( "Not initializing trace supervision (~s).",
+			%trace_utils:debug_fmt( "Not initializing trace supervision (~ts).",
 			%					   [ IS ] ),
 			RenState
 
@@ -888,7 +889,7 @@ addTraceListener( State, ListenerPid ) ->
 			% So finally the server-side renaming is useless, and it will be
 			% done by the listener:
 
-			trace_utils:info_fmt( "Sending '~s' to listener ~w.",
+			trace_utils:info_fmt( "Sending '~ts' to listener ~w.",
 								  [ XZFilename, ListenerPid ] ),
 
 			SentState = try
@@ -904,7 +905,7 @@ addTraceListener( State, ListenerPid ) ->
 				throw:Exception:Stacktrace ->
 					Message = text_utils:format( "Adding trace listener ~w "
 					   "failed, hence has been ignored: exception '~w' was "
-					   "raised.~nStacktrace was: ~s", [ ListenerPid, Exception,
+					   "raised.~nStacktrace was: ~ts", [ ListenerPid, Exception,
 						 code_utils:interpret_stacktrace( Stacktrace ) ] ),
 					% Will be duplicated on the console anyway:
 					%trace_utils:error( Message ),
@@ -939,7 +940,7 @@ addTraceListener( State, ListenerPid ) ->
 -spec removeTraceListener( wooper:state(), listener_pid() ) -> oneway_return().
 removeTraceListener( State, ListenerPid ) ->
 
-	trace_utils:info_fmt( "~s Removing trace listener ~w.",
+	trace_utils:info_fmt( "~ts Removing trace listener ~w.",
 							[ ?LogPrefix, ListenerPid ] ),
 
 	SentState = send_internal_immediate( info,
@@ -1000,7 +1001,7 @@ sync( State ) ->
 setMinimumTraceFileSizeForRotation( State, MinFileSize )
   when is_integer( MinFileSize ) ->
 
-	send_internal_deferred( info, "Setting minimum size for trace file to ~s.",
+	send_internal_deferred( info, "Setting minimum size for trace file to ~ts.",
 		[ system_utils:interpret_byte_size_with_unit( MinFileSize ) ] ),
 
 	SetState = setAttribute( State, rotation_min_size, MinFileSize ),
@@ -1040,7 +1041,7 @@ rotateTraceFile( State ) ->
 %
 -spec rotateTraceFileSync( wooper:state() ) ->
 		request_return( fallible( { 'trace_file_rotated', bin_file_path() }
-								| 'trace_file_below_min_size' ) ).
+								  | 'trace_file_below_min_size' ) ).
 rotateTraceFileSync( State ) ->
 
 	{ Res, RotState } = case rotate_trace_file( State ) of
@@ -1181,9 +1182,8 @@ get_aggregator() ->
 % launched almost simultaneously.
 %
 -spec get_aggregator( boolean() ) ->
-							static_return( 'trace_aggregator_launch_failed'
-										 | 'trace_aggregator_not_found'
-										 | aggregator_pid() ).
+			static_return( 'trace_aggregator_launch_failed'
+						   | 'trace_aggregator_not_found' | aggregator_pid() ).
 get_aggregator( CreateIfNotAvailable ) ->
 
 	% Only dealing with registered managers (instead of using directly their
@@ -1316,7 +1316,7 @@ watchdog_main_loop( RegName, RegScope, AggregatorPid, MsPeriod ) ->
 				not_registered ->
 
 					ErrorMsg = text_utils:format( "Watchdog did not find trace "
-						"aggregator '~s' in naming service (scope: ~s; "
+						"aggregator '~ts' in naming service (scope: ~ts; "
 						"expected PID: ~w).",
 						[ RegName, RegScope, AggregatorPid ] ),
 
@@ -1337,8 +1337,8 @@ watchdog_main_loop( RegName, RegScope, AggregatorPid, MsPeriod ) ->
 
 					% Mimicking the Erlang VM standard messages:
 					Msg = text_utils:format( "ALIVE: watchdog found trace "
-						"aggregator ~w (registration name: '~s'; "
-						"scope: ~s) available.",
+						"aggregator ~w (registration name: '~ts'; "
+						"scope: ~ts) available.",
 						[ AggregatorPid, RegName, RegScope ] ),
 
 					%trace_utils:debug( Msg ),
@@ -1353,7 +1353,7 @@ watchdog_main_loop( RegName, RegScope, AggregatorPid, MsPeriod ) ->
 				OtherAggregatorPid ->
 
 					Msg = text_utils:format( "Watchdog found trace aggregator "
-						"(registration name: '~s'; scope: ~s) available, but "
+						"(registration name: '~ts'; scope: ~ts) available, but "
 						"as ~w, instead of the expected ~w.",
 						[ RegName, RegScope, OtherAggregatorPid,
 						  AggregatorPid ] ),
@@ -1433,7 +1433,7 @@ initialize_supervision( State ) ->
 	TraceFilename = ?getAttr(trace_filename),
 
 	SentState = send_internal_immediate( trace,
-		text_utils:format( "Initializing now trace supervision for '~s'.",
+		text_utils:format( "Initializing now trace supervision for '~ts'.",
 						   [ TraceFilename ] ), State ),
 
 	MaybeSupervPid = class_TraceSupervisor:create( _MaybeWaitingPid=self(),
@@ -1458,8 +1458,8 @@ enable_watchdog( RegName, LookupScope, Period, State ) ->
 			% Closure used to avoid exporting the function (beware of self()):
 			AggregatorPid = self(),
 
-			send_internal_deferred( info, "Aggregator watchdog enabled for '~s'"
-				" (scope: ~s; PID: ~w), based on a period of ~s.",
+			send_internal_deferred( info, "Aggregator watchdog enabled "
+				"for '~ts' (scope: ~ts; PID: ~w), based on a period of ~ts.",
 				[ RegName, LookupScope, AggregatorPid,
 				  time_utils:duration_to_string( MsPeriod ) ] ),
 
@@ -1490,7 +1490,7 @@ enable_watchdog( RegName, LookupScope, Period, State ) ->
 send_internal_immediate( TraceSeverity, Message, State ) ->
 
 	TimestampText = text_utils:string_to_binary(
-					  time_utils:get_textual_timestamp() ),
+						time_utils:get_textual_timestamp() ),
 
 	MessageCategorization = text_utils:string_to_binary( "Trace Management" ),
 
@@ -1498,7 +1498,7 @@ send_internal_immediate( TraceSeverity, Message, State ) ->
 		_TraceEmitterPid=self(),
 		_TraceEmitterName= <<"Trace Aggregator">>,
 		_TraceEmitterCategorization=text_utils:string_to_binary(
-									  ?trace_emitter_categorization ),
+										?trace_emitter_categorization ),
 		_AppTimestamp=none,
 		_Time=TimestampText,
 		_Location=net_utils:localnode_as_binary(),
@@ -1601,22 +1601,22 @@ manage_trace_header( State ) ->
 
 			% Builds a proper RST-compatible title layout:
 			TitleText = text_utils:format(
-				   "~s~n.. _table:~n~n.. contents:: Table of Contents~n~n",
+				   "~ts~n.. _table:~n~n.. contents:: Table of Contents~n~n",
 				   [ text_utils:generate_title(Title,1) ] )
-				++ text_utils:format( "~s", [ text_utils:generate_title(
+				++ text_utils:format( "~ts", [ text_utils:generate_title(
 												 "Execution Context", 2 ) ] )
-				++ text_utils:format( "Report generated on ~s, "
-					"from trace file ``~s``, on host ``~s``.~n~n",
+				++ text_utils:format( "Report generated on ~ts, "
+					"from trace file ``~ts``, on host ``~ts``.~n~n",
 					[ time_utils:get_textual_timestamp(),
 					  ?getAttr(trace_filename), net_adm:localhost() ] )
-				++ text_utils:format( "~s",
+				++ text_utils:format( "~ts",
 					[ text_utils:generate_title( "Trace Begin", 2 ) ] ),
 
 			PidLines = text_utils:format_text_for_width(
-						 "Pid of Trace Emitter", ?PidWidth ),
+							"Pid of Trace Emitter", ?PidWidth ),
 
 			EmitterNameLines = text_utils:format_text_for_width(
-								 "Emitter Name", ?EmitterNameWidth ),
+									"Emitter Name", ?EmitterNameWidth ),
 
 			AppTimestampLines = text_utils:format_text_for_width(
 						  "Application Timestamp", ?AppTimestampWidth ),
@@ -1628,7 +1628,7 @@ manage_trace_header( State ) ->
 															  ?PriorityWidth ),
 
 			MessageLines = text_utils:format_text_for_width(
-							 "Trace Message", ?MessageWidth ),
+								"Trace Message", ?MessageWidth ),
 
 			HeaderLine = format_linesets( PidLines, EmitterNameLines,
 				AppTimestampLines, TimeLines, PriorityLines, MessageLines ) ,
@@ -1657,9 +1657,9 @@ manage_trace_footer( State ) ->
 
 		{ text_traces, _TargetFormat } ->
 			file_utils:write( ?getAttr(trace_file), text_utils:format(
-					   "~s~n~nEnd of execution traces.~n"
-					   "~nBack to the table_ of contents "
-					   "and to the beginning of traces.",
+					"~ts~n~nEnd of execution traces.~n"
+					"~nBack to the table_ of contents "
+					"and to the beginning of traces.",
 				[ text_utils:generate_title( "Trace End", 2 ) ] ) ),
 			State
 
@@ -1701,7 +1701,7 @@ format_trace_for( advanced_traces, { TraceEmitterPid,
 	 %
 	 %io_lib:format(
 	 text_utils:format(
-	   "~w|~s|~s|~s|~s|~s|~s|~B|~s~n",
+	   "~w|~ts|~ts|~ts|~ts|~ts|~ts|~B|~ts~n",
 		[ TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 		  AppTimestamp, Time, Location, MessageCategorization, Priority,
 		  Message ] ) );
@@ -1719,14 +1719,14 @@ format_trace_for( { text_traces, _TargetFormat }, { TraceEmitterPid,
 		text_utils:format( "~w", [ TraceEmitterPid ] ), ?PidWidth ),
 
 	EmitterNameLines = text_utils:format_text_for_width(
-		text_utils:format( "~s", [ TraceEmitterName ] ), ?EmitterNameWidth ),
+		text_utils:format( "~ts", [ TraceEmitterName ] ), ?EmitterNameWidth ),
 
 	% Can be a tick, an atom like 'unknown' or anything alike:
 	AppTimestampLines = text_utils:format_text_for_width(
-		text_utils:format( "~s", [ AppTimestamp ] ), ?AppTimestampWidth ),
+		text_utils:format( "~ts", [ AppTimestamp ] ), ?AppTimestampWidth ),
 
 	TimeLines = text_utils:format_text_for_width(
-		text_utils:format( "~s", [ Time ] ), ?TimeWidth ),
+		text_utils:format( "~ts", [ Time ] ), ?TimeWidth ),
 
 	PriorityLines = text_utils:format_text_for_width(
 		text_utils:format( "~w", [
@@ -1734,7 +1734,7 @@ format_trace_for( { text_traces, _TargetFormat }, { TraceEmitterPid,
 		?PriorityWidth ),
 
 	MessageLines = text_utils:format_text_for_width(
-		text_utils:format( "~s", [ Message ] ), ?MessageWidth ),
+		text_utils:format( "~ts", [ Message ] ), ?MessageWidth ),
 
 	format_linesets( PidLines, EmitterNameLines, AppTimestampLines, TimeLines,
 					 PriorityLines, MessageLines ) ++ get_row_separator().
@@ -1843,12 +1843,12 @@ rotate_trace_file( State ) ->
 	case file_utils:get_size( BinTracePath ) >= ?getAttr(rotation_min_size) of
 
 		true ->
-			send_internal_immediate( _TraceSeverity=info,  "Rotating '~s'.",
+			send_internal_immediate( _TraceSeverity=info,  "Rotating '~ts'.",
 									 [ BinTracePath ], State ),
 
 			RotCount = ?getAttr(rotation_count),
 
-			ArchiveFilePath = text_utils:format( "~s.~B.~s", [ BinTracePath,
+			ArchiveFilePath = text_utils:format( "~ts.~B.~ts", [ BinTracePath,
 				RotCount, time_utils:get_textual_timestamp_for_path() ] ),
 
 			TraceFile = ?getAttr(trace_file),
@@ -1867,8 +1867,8 @@ rotate_trace_file( State ) ->
 			file_utils:remove_file( ArchiveFilePath ),
 
 			send_internal_deferred( debug,
-				"Trace rotation done: archive '~s' generated "
-				"(original '~s' removed).",
+				"Trace rotation done: archive '~ts' generated "
+				"(original '~ts' removed).",
 				[ CompressedFilePath, BinTracePath ] ),
 
 			NewTraceFile = open_trace_file( BinTracePath ),
@@ -1902,16 +1902,16 @@ inspect_fields( FieldsReceived ) ->
 							 FieldsReceived ),
 
 	trace_utils:info_fmt( "~n"
-			   "- TraceEmitterPid: '~w', i.e. '~p' (~s)~n"
-			   "- TraceEmitterName: '~w', i.e. '~p' (~s)~n"
-			   "- TraceEmitterCategorization: '~w', i.e. '~p' (~s)~n"
-			   "- AppTimestamp: '~w', i.e. '~p' (~s)~n"
-			   "- Time: '~w', i.e. '~p' (~s)~n"
-			   "- Location: '~w', i.e. '~p' (~s)~n"
-			   "- MessageCategorization: '~w', i.e. '~p' (~s)~n"
-			   "- Priority: '~w', i.e. '~p' (~s)~n"
-			   "- Message: '~w', i.e. '~p' (~s)~n",
-			   AllVars ).
+		"- TraceEmitterPid: '~w', i.e. '~p' (~ts)~n"
+		"- TraceEmitterName: '~w', i.e. '~p' (~ts)~n"
+		"- TraceEmitterCategorization: '~w', i.e. '~p' (~ts)~n"
+		"- AppTimestamp: '~w', i.e. '~p' (~ts)~n"
+		"- Time: '~w', i.e. '~p' (~ts)~n"
+		"- Location: '~w', i.e. '~p' (~ts)~n"
+		"- MessageCategorization: '~w', i.e. '~p' (~ts)~n"
+		"- Priority: '~w', i.e. '~p' (~ts)~n"
+		"- Message: '~w', i.e. '~p' (~ts)~n",
+		AllVars ).
 
 
 

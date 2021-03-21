@@ -56,13 +56,14 @@
 
 % Start/stop section.
 %
-% Any application that is not using (directly on not) traces_for_apps:app_start/2
-% (like with the macros below) should then execute by itself:
+% Any application that is not using (directly on not)
+% traces_for_apps:app_start/2 (like with the macros below) should then execute
+% by itself:
 %
 %    erlang:process_flag( trap_exit, false )
 %
-% otherwise the application will silently trap EXIT signals, typically resulting in
-% having linked instances failing without notice.
+% otherwise the application will silently trap EXIT signals, typically resulting
+% in having linked instances failing without notice.
 %
 % See the comment of traces_for_apps:app_start/2 for more details.
 
@@ -188,7 +189,7 @@ app_failed( Reason ) ->
 	% For some reason erlang:error is unable to interpret strings as strings,
 	% they are always output as unreadable lists.
 
-	Message = text_utils:format( "Application ~s failed, reason: ~s.",
+	Message = text_utils:format( "Application ~ts failed, reason: ~ts.",
 								 [ ?MODULE, Reason ] ),
 
 	trace_utils:error( Message ),
@@ -198,7 +199,7 @@ app_failed( Reason ) ->
 	% Needed, otherwise error_logger may not display anything:
 	system_utils:await_output_completion(),
 
-	erlang:error( "Application ~s failed.", [ ?MODULE ] ).
+	erlang:error( "Application ~ts failed.", [ ?MODULE ] ).
 
 
 
@@ -207,6 +208,6 @@ app_failed( Reason ) ->
 % to be formatted.
 %
 -spec app_failed( text_utils:format_string(), text_utils:format_values() ) ->
-						 no_return().
+							no_return().
 app_failed( FormatReason, FormatValues ) ->
 	app_failed( text_utils:format( FormatReason, FormatValues ) ).

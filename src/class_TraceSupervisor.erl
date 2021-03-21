@@ -130,8 +130,8 @@
 construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 		   MonitorNow, MaybeWaitingPid ) ->
 
-	trace_utils:debug_fmt( "~s Creating a trace supervisor, whose PID is ~w "
-		"(trace filename: '~s', trace type: '~s', monitor now: ~w, "
+	trace_utils:debug_fmt( "~ts Creating a trace supervisor, whose PID is ~w "
+		"(trace filename: '~ts', trace type: '~ts', monitor now: ~w, "
 		"blocking: ~w).",
 		[ ?LogPrefix, self(), TraceFilename, TraceType, MonitorNow,
 		  MaybeWaitingPid ] ),
@@ -230,7 +230,7 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 
 	end,
 
-	%trace_utils:debug_fmt( "~s Supervisor created.", [ ?LogPrefix ] ),
+	%trace_utils:debug_fmt( "~ts Supervisor created.", [ ?LogPrefix ] ),
 
 	EndState.
 
@@ -249,7 +249,7 @@ monitor( State ) ->
 	case ?getAttr(trace_type) of
 
 		{ text_traces, pdf } ->
-			trace_utils:notice_fmt( "~s Supervisor has nothing to monitor, "
+			trace_utils:notice_fmt( "~ts Supervisor has nothing to monitor, "
 				"as the PDF trace report will be generated only on "
 				"execution termination.", [ ?LogPrefix ] ),
 			wooper:const_return();
@@ -266,13 +266,14 @@ monitor( State ) ->
 
 				false ->
 					trace_utils:error_fmt( "class_TraceSupervisor:monitor "
-						"unable to find trace file '~s'.", [ ActualFilename ] ),
+					  "unable to find trace file '~ts'.", [ ActualFilename ] ),
 					throw( { trace_file_not_found, ActualFilename } )
 
 			end,
 
-			trace_utils:notice_fmt( "~s Supervisor will monitor file '~s' now, "
-				"with '~s'.", [ ?LogPrefix, ActualFilename, Command ] ),
+			trace_utils:notice_fmt(
+			  "~ts Supervisor will monitor file '~ts' now, "
+			  "with '~ts'.", [ ?LogPrefix, ActualFilename, Command ] ),
 
 			Cmd = Command ++ " '" ++ ActualFilename ++ "'",
 
@@ -296,7 +297,7 @@ blocking_monitor( State ) ->
 	case ?getAttr(trace_type) of
 
 		{ text_traces, pdf } ->
-			trace_utils:notice_fmt( "~s Supervisor has nothing to monitor, "
+			trace_utils:notice_fmt( "~ts Supervisor has nothing to monitor, "
 				"as the PDF trace report will be generated only on "
 				"execution termination.", [ ?LogPrefix ] ),
 			wooper:const_return_result( monitor_ok );
@@ -311,22 +312,22 @@ blocking_monitor( State ) ->
 
 				true ->
 					%trace_utils:debug_fmt(
-					%  "Found actual trace filename '~s' from '~s'.",
+					%  "Found actual trace filename '~ts' from '~ts'.",
 					%  [ ActualFilename, CurrentDir ] ),
 					ok;
 
 				false ->
 					trace_utils:error_fmt(
 					  "class_TraceSupervisor:blocking_monitor unable to find "
-					  "trace file '~s' (while current directory is '~s').",
+					  "trace file '~ts' (while current directory is '~ts').",
 					  [ ActualFilename, CurrentDir ] ),
 					throw( { trace_file_not_found, ActualFilename } )
 
 			end,
 
-			trace_utils:notice_fmt( "~s Supervisor will monitor file '~s' now "
-				"with '~s', blocking until the user closes the viewer window.",
-				[ ?LogPrefix, ActualFilename, Command ] ),
+			trace_utils:notice_fmt( "~ts Supervisor will monitor file '~ts' "
+				"now with '~ts', blocking until the user closes the viewer "
+				"window.", [ ?LogPrefix, ActualFilename, Command ] ),
 
 			% Blocking:
 			case system_utils:run_executable(
@@ -336,7 +337,7 @@ blocking_monitor( State ) ->
 
 				{ _ExitStatus=0, _Output } ->
 					trace_utils:notice_fmt(
-					  "~s Supervisor ended monitoring of '~s'.",
+					  "~ts Supervisor ended monitoring of '~ts'.",
 					  [ ?LogPrefix, ActualFilename ] ),
 					wooper:const_return_result( monitor_ok );
 
@@ -352,7 +353,7 @@ blocking_monitor( State ) ->
 				{ ExitStatus, ErrorOutput } ->
 					trace_utils:error_fmt(
 						"The monitoring of trace supervisor failed "
-						"(error ~B): '~s'.", [ ExitStatus, ErrorOutput ] ),
+						"(error ~B): '~ts'.", [ ExitStatus, ErrorOutput ] ),
 
 					% Must not be a blocking error:
 					%wooper:const_return_result( monitor_failed )
@@ -515,7 +516,7 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 			maybe( pid() ) ) -> static_return( supervisor_outcome() ).
 init( TraceFilename, TraceType, TraceAggregatorPid, MaybeWaitingPid ) ->
 
-	%trace_utils:info_fmt( "Initializing trace supervisor for file '~s' and "
+	%trace_utils:info_fmt( "Initializing trace supervisor for file '~ts' and "
 	%						"trace type ~p.", [ TraceFilename, TraceType ] ),
 
 	% By default (with no specific option) a synchronous supervisor is wanted
@@ -525,7 +526,7 @@ init( TraceFilename, TraceType, TraceAggregatorPid, MaybeWaitingPid ) ->
 
 		true ->
 			% Option specified to disable the supervisor:
-			trace_utils:notice_fmt( "Application trace file is '~s'; no "
+			trace_utils:notice_fmt( "Application trace file is '~ts'; no "
 				"interactive supervision requested.", [ TraceFilename ] ),
 			wooper:return_static( no_trace_supervisor_wanted );
 

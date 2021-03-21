@@ -67,7 +67,7 @@
 					 wooper:state().
 construct( State, TraceEmitterName ) ->
 
-	trace_utils:notice_fmt( "~s Creating a new test trace emitter, whose name "
+	trace_utils:notice_fmt( "~ts Creating a new test trace emitter, whose name "
 		"is ~p, whose PID is ~w.", [ ?LogPrefix, TraceEmitterName, self() ] ),
 
 	% First the direct mother classes, then this class-specific actions:
@@ -96,8 +96,8 @@ construct( State, TraceEmitterName ) ->
 destruct( State ) ->
 
 	% Class-specific actions:
-	trace_utils:notice_fmt( "~s Deleting test trace emitter ~s.",
-						 [ ?LogPrefix, ?getAttr(name) ] ),
+	trace_utils:notice_fmt( "~ts Deleting test trace emitter ~ts.",
+							[ ?LogPrefix, ?getAttr(name) ] ),
 
 	% Last moment to send traces:
 	?emergency( "Goodbye emergency world!" ),
@@ -110,7 +110,7 @@ destruct( State ) ->
 	?debug( "Goodbye debug world!" ),
 	?void( "Goodbye void world!" ),
 
-	trace_utils:notice_fmt( "~s Test trace emitter ~s deleted.",
+	trace_utils:notice_fmt( "~ts Test trace emitter ~ts deleted.",
 							[ ?LogPrefix, ?getAttr(name) ] ),
 
 	% Allows chaining:
@@ -122,11 +122,10 @@ destruct( State ) ->
 % Methods section.
 
 
-
 -spec sendTraces( wooper:state() ) -> const_request_return( 'ok' ).
 sendTraces( State ) ->
 
-	%trace_utils:notice_fmt( "~s Sending some traces.", [ ?LogPrefix ] ),
+	%trace_utils:notice_fmt( "~ts Sending some traces.", [ ?LogPrefix ] ),
 
 	%send_traces( State ),
 
@@ -136,11 +135,10 @@ sendTraces( State ) ->
 
 
 
-
 -spec sendAsyncTraces( wooper:state() ) -> const_oneway_return().
 sendAsyncTraces( State ) ->
 
-	%trace_utils:notice_fmt( "~s Sending some asynchronous traces.",
+	%trace_utils:notice_fmt( "~ts Sending some asynchronous traces.",
 	% [ ?LogPrefix ] ),
 
 	%send_traces( State ),
@@ -158,7 +156,7 @@ sendAsyncTraces( State ) ->
 -spec send_traces( wooper:state() ) -> void().
 send_traces( State ) ->
 
-	%trace_utils:notice_fmt( "~s Sending some traces.", [ ?LogPrefix ] ),
+	%trace_utils:notice_fmt( "~ts Sending some traces.", [ ?LogPrefix ] ),
 
 	% We used to replace emergency, alert, critical and error traces by warning
 	% ones, as the former ones induced fixed waitings (i.e. timer:sleep/1
@@ -177,7 +175,6 @@ send_traces( State ) ->
 	?info( "Still livin' in an info world! (plain)" ),
 	?debug( "Still livin' in a debug world! (plain)" ),
 	?void( "Still livin' in a void world! (plain)" ),
-
 
 
 	?emergency_cat( "Still livin' in an emergency world! (cat)",
@@ -206,7 +203,6 @@ send_traces( State ) ->
 			   ?application_start ),
 
 
-
 	?emergency_full( "Still livin' in an emergency world! (full)",
 					 ?application_start, 5 ),
 
@@ -233,7 +229,6 @@ send_traces( State ) ->
 
 	?void_full( "Still livin' in a void world! (full)",
 				?application_start, 11 ),
-
 
 
 	% With formatting:
@@ -307,7 +302,7 @@ send_debug_trace( State ) ->
 -spec send_traces_benchmark( wooper:state() ) -> void().
 send_traces_benchmark( State ) ->
 
-	%trace_utils:notice_fmt( "~s Sending some traces.", [ ?LogPrefix ] ),
+	%trace_utils:notice_fmt( "~ts Sending some traces.", [ ?LogPrefix ] ),
 
 	% We used to replace emergency, alert, critical and error traces by warning
 	% ones, as the former ones induced fixed waitings (i.e. timer:sleep/1
@@ -337,7 +332,7 @@ send_traces_benchmark( State ) ->
 				?application_start ),
 
 	?critical_cat( "Still livin' in a critical world! (cat)",
-				?application_start ),
+				   ?application_start ),
 
 	?error_cat( "Still livin' in an error world! (cat)",
 				?application_save ),
