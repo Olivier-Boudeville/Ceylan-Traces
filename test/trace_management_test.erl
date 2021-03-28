@@ -87,18 +87,19 @@ run() ->
 	MyTraceEmitter = class_TestTraceEmitter:synchronous_new_link( Name ),
 
 	% Test target here:
-	?test_emergency(   "This is a test of the emergency severity for tests."   ),
-	?test_alert(   "This is a test of the alert severity for tests."   ),
-	?test_critical(   "This is a test of the critical severity for tests."   ),
-	?test_error(   "This is a test of the error severity for tests."   ),
+	?test_emergency(   "This is a test of the emergency severity for tests." ),
+	?test_alert(   "This is a test of the alert severity for tests." ),
+	?test_critical(   "This is a test of the critical severity for tests." ),
+	?test_error(   "This is a test of the error severity for tests." ),
 	?test_warning( "This is a test of the warning severity for tests." ),
-	?test_notice(   "This is a test of the notice severity for tests."   ),
-	?test_info(    "This is a test of the info severity for tests."    ),
-	?test_debug(   "This is a test of the debug severity for tests."   ),
-	?test_void(    "This is a test of the void severity for tests."   ),
+	?test_notice(   "This is a test of the notice severity for tests." ),
+	?test_info(    "This is a test of the info severity for tests."  ),
+	?test_debug(   "This is a test of the debug severity for tests." ),
+	?test_void(    "This is a test of the void severity for tests." ),
 
-	?test_debug(   "This is an additional test with some special characters: "
-				   "àéèïîôùû." ),
+	% Useful to test the trace listener:
+	?test_debug(   "This is an additional test with some non-Latin1 "
+				   "characters: àâäéèêëîïôöùûü" ),
 
 
 	?test_emergency_fmt( "This is a test of the ~w severity for tests.",

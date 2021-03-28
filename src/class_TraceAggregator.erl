@@ -638,7 +638,7 @@ send( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 	%trace_utils:debug_fmt( "Writing to ~p: ~p.",
 	%					   [ ?getAttr(trace_file), Trace ] ),
 
-	file_utils:write( ?getAttr(trace_file), Trace ),
+	file_utils:write_ustring( ?getAttr(trace_file), Trace ),
 
 	Listeners = ?getAttr(trace_listeners),
 
@@ -690,7 +690,7 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 	%
 	%ok = file:write( TraceFile, text_utils:format( "~ts", [ Trace ] ) ),
 
-	file_utils:write( TraceFile, Trace ),
+	file_utils:write_ustring( TraceFile, Trace ),
 
 	Listeners = ?getAttr(trace_listeners),
 
@@ -1633,9 +1633,9 @@ manage_trace_header( State ) ->
 			HeaderLine = format_linesets( PidLines, EmitterNameLines,
 				AppTimestampLines, TimeLines, PriorityLines, MessageLines ) ,
 
-			file_utils:write( ?getAttr(trace_file), TitleText
-							  ++ get_row_separator() ++ HeaderLine
-							  ++ get_row_separator( $= ) ),
+			file_utils:write_ustring( ?getAttr(trace_file), TitleText
+									++ get_row_separator() ++ HeaderLine
+									++ get_row_separator( $= ) ),
 
 			State
 
@@ -1656,11 +1656,11 @@ manage_trace_footer( State ) ->
 			State;
 
 		{ text_traces, _TargetFormat } ->
-			file_utils:write( ?getAttr(trace_file), text_utils:format(
-					"~ts~n~nEnd of execution traces.~n"
-					"~nBack to the table_ of contents "
-					"and to the beginning of traces.",
-				[ text_utils:generate_title( "Trace End", 2 ) ] ) ),
+			file_utils:write_ustring( ?getAttr(trace_file),
+				"~ts~n~nEnd of execution traces.~n"
+				"~nBack to the table_ of contents "
+				"and to the beginning of traces.",
+				[ text_utils:generate_title( "Trace End", 2 ) ] ),
 			State
 
 	end.
@@ -1827,8 +1827,10 @@ get_trace_file_base_options() ->
 	% overall encoding of the file will not be UTF-8 as expected, but
 	% ISO-8859...
 	%
-	[ { delayed_write, _Size=32*1024, _Delay=500 },
-	  file_utils:get_default_encoding_option() ].
+	% No file_utils:get_default_encoding_option/0 here, otherwise a
+	% double-Unicode encoding will take place:
+	%
+	[ raw, { delayed_write, _Size=32*1024, _Delay=500 } ].
 
 
 

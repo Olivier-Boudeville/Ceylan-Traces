@@ -240,8 +240,7 @@ manage_send_traces( CompressedFilename, State ) ->
 	% preferring the (more efficient) raw mode:
 	%
 	File = file_utils:open( TraceFilename, [ append, raw,
-				{ delayed_write, _Size=1024, _Delay=200 },
-				file_utils:get_default_encoding_option() ] ),
+				{ delayed_write, _Size=1024, _Delay=200 } ] ),
 
 	setAttributes( State, [ { trace_filename, TraceFilename },
 							{ trace_file, File } ] ).
@@ -351,7 +350,7 @@ monitor( State ) ->
 % To be called by the trace aggregator.
 %
 -spec addTrace( wooper:state(), text_utils:bin_string() ) ->
-					  const_oneway_return().
+						const_oneway_return().
 addTrace( State, NewTrace ) ->
 
 	% Write to file:
