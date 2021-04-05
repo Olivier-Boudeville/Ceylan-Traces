@@ -278,7 +278,7 @@ monitor( State ) ->
 			Cmd = Command ++ " '" ++ ActualFilename ++ "'",
 
 			% Non-blocking (command must be found in the PATH):
-			system_utils:run_background_executable( Cmd ),
+			system_utils:run_background_command( Cmd ),
 
 			wooper:const_return()
 
@@ -330,7 +330,7 @@ blocking_monitor( State ) ->
 				"window.", [ ?LogPrefix, ActualFilename, Command ] ),
 
 			% Blocking:
-			case system_utils:run_executable(
+			case system_utils:run_command(
 				   Command ++ " '" ++ ActualFilename ++ "'",
 				   system_utils:get_standard_environment(),
 				   _WorkingDir=CurrentDir ) of

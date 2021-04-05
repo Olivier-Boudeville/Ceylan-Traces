@@ -521,7 +521,7 @@ destruct( State ) ->
 			%trace_utils:info_fmt( "PDF generation command is '~ts'.",
 			%						 [ GenerationCommand ] ),
 
-			case system_utils:run_executable( GenerationCommand ) of
+			case system_utils:run_command( GenerationCommand ) of
 
 				{ _ExitCode=0, _Output } ->
 
@@ -535,7 +535,7 @@ destruct( State ) ->
 								"report.", [ ?LogPrefix ] ),
 
 							executable_utils:display_pdf_file(
-							  PdfTargetFilename )
+								PdfTargetFilename )
 
 						end;
 

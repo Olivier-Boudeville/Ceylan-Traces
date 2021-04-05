@@ -319,14 +319,14 @@ monitor( State ) ->
 	WaiterPid = ?myriad_spawn_link( fun() ->
 
 		% Blocking this waiter process (logmx.sh must be found in the PATH):
-		case system_utils:run_executable(
-			   executable_utils:get_default_trace_viewer_path() ++ " '"
-			   ++ Filename ++ "'" ) of
+		case system_utils:run_command(
+				executable_utils:get_default_trace_viewer_path() ++ " '"
+				++ Filename ++ "'" ) of
 
 			{ _ExitCode=0, _Output } ->
 				trace_utils:notice_fmt(
-				  "~ts Trace listener ended the monitoring of '~ts'.",
-				  [ ?LogPrefix, Filename ] );
+					"~ts Trace listener ended the monitoring of '~ts'.",
+					[ ?LogPrefix, Filename ] );
 
 			{ ExitCode, ErrorOutput } ->
 				trace_utils:error_fmt( "The trace listening failed "
