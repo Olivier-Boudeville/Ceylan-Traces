@@ -1216,7 +1216,7 @@ get_aggregator( CreateIfNotAvailable ) ->
 					naming_utils:wait_for_registration_of(
 					  ?trace_aggregator_name, ?default_look_up_scope )
 
-				catch { registration_waiting_timeout, _Name, _Scope } ->
+				catch { registration_waiting_timeout, _AName, _AScope } ->
 
 						trace_utils:error(
 						  "class_TraceAggregator:get_aggregator/1 unable to "
