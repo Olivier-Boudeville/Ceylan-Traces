@@ -16,7 +16,7 @@
 
 
 <span class="target" id="top"></span><p><span class="raw-html"><a name="traces_top"></a></span></p>
-<p><span class="raw-html"><div class="banner"><p><em>Traces documentation</em> <a href="http://traces.esperide.org">browse latest</a> <a href="https://olivier-boudeville.github.io/Ceylan-Traces/">browse mirror</a> <a href="Ceylan-Traces-Layer-technical-manual-english.pdf">get PDF</a> <a href="#traces_top">go to top</a> <a href="#traces_bottom">go to bottom</a> <a href="https://github.com/Olivier-Boudeville/Ceylan-Traces">go to project</a> <a href="mailto:about(dash)traces(at)esperide(dot)com?subject=[Ceylan-Traces]%20Remark">email us</a></p></div></span></p>
+<p><span class="raw-html"><div class="banner"><p><em>Traces documentation</em> <a href="http://traces.esperide.org">browse latest</a> <a href="https://olivier-boudeville.github.io/Ceylan-Traces/">browse mirror</a> <a href="Ceylan-Traces-Layer-technical-manual-english.pdf">get PDF</a> <a href="#traces_top">go to top</a> <a href="#traces_toc">go to toc</a> <a href="#traces_bottom">go to bottom</a> <a href="api-doc/index.html">browse API</a> <a href="https://github.com/Olivier-Boudeville/Ceylan-Traces">go to project</a> <a href="mailto:about(dash)traces(at)esperide(dot)com?subject=[Ceylan-Traces]%20Remark">email us</a></p></div></span></p>
 <p><span class="raw-html"><center><img src="traces-title.png" width="40%"></img></center></span>
 </p>
 <div class="section" id="technical-manual-of-the-ceylan-traces-layer">
@@ -34,13 +34,13 @@
 <tr class="field"><th class="field-name">Creation date:</th><td class="field-body"><p class="first">Sunday, August 15, 2010</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Friday, March 12, 2021</p>
+<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Saturday, May 22, 2021</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Status:</th><td class="field-body"><p class="first">Work in progress</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">0.9.18</p>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">0.9.19</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Dedication:</th><td class="field-body"><p class="first">Users and maintainers of the <tt class="docutils literal">Traces</tt> layer.</p>
@@ -48,7 +48,7 @@
 </tr>
 <tr class="field"><th class="field-name">Abstract:</th><td class="field-body"><p class="first">The role of the <a class="reference external" href="http://traces.esperide.org/">Traces</a> layer (part of the <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan">Ceylan</a> project) is to provide Erlang applications with advanced trace services, so that the user can efficiently log, browse and search through detailed runtime messages that may be emitted concurrently (i.e. in a parallel, distributed way) by all kinds of processes.</p>
 <p class="last">We present here a short overview of these services, to introduce them to newcomers.
-The next level of information is to read the corresponding <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces">source files</a>, which are intensely commented and generally straightforward.</p>
+The next level of information is either to browse the <a class="reference external" href="api-doc/index.html">Traces API documentation</a> or simply to read the corresponding <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces">source files</a>, which are intensely commented and generally straightforward.</p>
 </td>
 </tr>
 </tbody>
@@ -57,8 +57,9 @@ The next level of information is to read the corresponding <a class="reference e
 <p><span class="raw-html">This Traces documentation is also available in the PDF format (see <a href="Ceylan-Traces-Layer-technical-manual-english.pdf">Ceylan-Traces-Layer-technical-manual-english.pdf</a>), and mirrored <a href="http://olivier-boudeville.github.io/Ceylan-Traces/">here</a>.</span></p>
 <p></p>
 <p></p>
+<p><span class="raw-html"><a name="traces_toc"></a></span></p>
 <div class="contents topic" id="id1">
-<span id="table-of-contents"></span><p class="topic-title">Table of Contents</p>
+<span id="table-of-contents"></span><p class="topic-title"><strong>Table of Contents</strong></p>
 <ul class="simple">
 <li><a class="reference internal" href="#technical-manual-of-the-ceylan-traces-layer" id="id32">Technical Manual of the <tt class="docutils literal"><span class="pre">Ceylan-Traces</span></tt> Layer</a><ul>
 <li><a class="reference internal" href="#overview" id="id33">Overview</a></li>
