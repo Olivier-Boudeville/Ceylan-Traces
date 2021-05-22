@@ -103,7 +103,12 @@ clean-links:
 	-@/bin/rm -f index.html
 
 
-info: info-web
+info: info-doc info-web
+
+
+info-doc:
+	@echo "OVERALL_DOCUMENT_SOURCE = $(OVERALL_DOCUMENT_SOURCE)"
+	@echo "DOC_TRACKER = $(DOC_TRACKER)"
 
 
 info-web:
@@ -118,5 +123,5 @@ info-web:
 
 DOCUTILS_TOP = .
 
-# For MYRIAD_TOP:
+# For WOOPER_TOP and MYRIAD_TOP:
 include $(TRACES_TOP)/GNUmakesettings.inc
