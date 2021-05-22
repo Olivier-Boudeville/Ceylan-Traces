@@ -15,7 +15,7 @@
 
 :raw-html:`<a name="traces_top"></a>`
 
-:raw-html:`<div class="banner"><p><em>Traces documentation</em> <a href="http://traces.esperide.org">browse latest</a> <a href="https://olivier-boudeville.github.io/Ceylan-Traces/">browse mirror</a> <a href="Ceylan-Traces-Layer-technical-manual-english.pdf">get PDF</a> <a href="#traces_top">go to top</a> <a href="#traces_bottom">go to bottom</a> <a href="https://github.com/Olivier-Boudeville/Ceylan-Traces">go to project</a> <a href="mailto:about(dash)traces(at)esperide(dot)com?subject=[Ceylan-Traces]%20Remark">email us</a></p></div>`
+:raw-html:`<div class="banner"><p><em>Traces documentation</em> <a href="http://traces.esperide.org">browse latest</a> <a href="https://olivier-boudeville.github.io/Ceylan-Traces/">browse mirror</a> <a href="Ceylan-Traces-Layer-technical-manual-english.pdf">get PDF</a> <a href="#traces_top">go to top</a> <a href="#traces_toc">go to toc</a> <a href="#traces_bottom">go to bottom</a> <a href="api-doc/index.html">browse API</a> <a href="https://github.com/Olivier-Boudeville/Ceylan-Traces">go to project</a> <a href="mailto:about(dash)traces(at)esperide(dot)com?subject=[Ceylan-Traces]%20Remark">email us</a></p></div>`
 
 
 
@@ -32,16 +32,16 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 :Organisation: Copyright (C) 2010-2021 Olivier Boudeville
 :Contact: about (dash) traces (at) esperide (dot) com
 :Creation date: Sunday, August 15, 2010
-:Lastly updated: Friday, March 12, 2021
+:Lastly updated: Saturday, May 22, 2021
 :Status: Work in progress
-:Version: 0.9.18
+:Version: 0.9.19
 :Dedication: Users and maintainers of the ``Traces`` layer.
 :Abstract:
 
 	The role of the `Traces <http://traces.esperide.org/>`_ layer (part of the `Ceylan <https://github.com/Olivier-Boudeville/Ceylan>`_ project) is to provide Erlang applications with advanced trace services, so that the user can efficiently log, browse and search through detailed runtime messages that may be emitted concurrently (i.e. in a parallel, distributed way) by all kinds of processes.
 
 	We present here a short overview of these services, to introduce them to newcomers.
-	The next level of information is to read the corresponding `source files <https://github.com/Olivier-Boudeville/Ceylan-Traces>`_, which are intensely commented and generally straightforward.
+	The next level of information is either to browse the `Traces API documentation <api-doc/index.html>`_ or simply to read the corresponding `source files <https://github.com/Olivier-Boudeville/Ceylan-Traces>`_, which are intensely commented and generally straightforward.
 
 
 .. meta::
@@ -52,16 +52,18 @@ The latest version of this documentation is to be found at the `official Traces 
 
 :raw-html:`This Traces documentation is also available in the PDF format (see <a href="Ceylan-Traces-Layer-technical-manual-english.pdf">Ceylan-Traces-Layer-technical-manual-english.pdf</a>), and mirrored <a href="http://olivier-boudeville.github.io/Ceylan-Traces/">here</a>.`
 
-:raw-latex:`The documentation is also mirrored \href{https://olivier-boudeville.github.io/Ceylan-Traces/}{here}.`
+:raw-latex:`This documentation is also mirrored \href{https://olivier-boudeville.github.io/Ceylan-Traces/}{here}.`
 
 
 
 
 :raw-latex:`\pagebreak`
 
+:raw-html:`<a name="traces_toc"></a>`
+
 .. _`table of contents`:
 
-.. contents:: Table of Contents
+.. contents:: **Table of Contents**
 	:depth: 3
 
 
