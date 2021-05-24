@@ -312,7 +312,7 @@ else
 		ifneq ($(wildcard $(TRACES_TOP)/_build/default/lib/wooper/.),)
 			WOOPER_TOP = $(TRACES_TOP)/_build/default/lib/wooper
 		else
-			FORCE_EVAL := $(error Unable to find the build root of Ceylan-WOOPER from $(realpath .).)
+			FORCE_EVAL := $(error Unable to find the build root of Ceylan-WOOPER from '$(realpath .)'.)
 		endif
 	endif
 endif
