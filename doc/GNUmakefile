@@ -38,6 +38,7 @@ GITHUB_PAGES_BASE := $(shell basename "$(TRACES_WEB_MIRROR_BRANCH)")
 		clean clean-doc clean-links info info-web
 
 
+
 # Default do-nothing target:
 all:
 	@echo "  Run 'make full-doc' to generate the manual of the 'Traces' layer."
@@ -68,7 +69,7 @@ api-doc: api
 
 # Creates a separate repository for the GitHub pages branch:
 clone-mirror:
-	@ echo "  Creating a separate repository for website in $(GITHUB_PAGES_BASE)"
+	@echo "  Creating a separate repository for website in $(GITHUB_PAGES_BASE)"
 	@cd ../../ && git clone https://github.com/Olivier-Boudeville/Ceylan-Traces.git $(GITHUB_PAGES_BASE) && cd $(GITHUB_PAGES_BASE) && git checkout -b gh-pages
 	@echo "Please remove all initial content in that selected 'gh-pages' branch."
 
