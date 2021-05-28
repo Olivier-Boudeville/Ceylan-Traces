@@ -124,7 +124,7 @@
 
 -define( test_notice_fmt( MessageFormat, FormatValues ),
 		 class_TraceEmitter:send_standalone_safe( notice,
-					  text_utils:format( MessageFormat, FormatValues ) )
+						text_utils:format( MessageFormat, FormatValues ) )
 ).
 
 
@@ -137,7 +137,7 @@
 
 -define( test_info_fmt( MessageFormat, FormatValues ),
 		 class_TraceEmitter:send_standalone_safe( info,
-					  text_utils:format( MessageFormat, FormatValues ) )
+						text_utils:format( MessageFormat, FormatValues ) )
 ).
 
 
@@ -149,7 +149,7 @@
 
 -define( test_debug_fmt( MessageFormat, FormatValues ),
 		 class_TraceEmitter:send_standalone_safe( debug,
-					  text_utils:format( MessageFormat, FormatValues ) )
+						text_utils:format( MessageFormat, FormatValues ) )
 ).
 
 
