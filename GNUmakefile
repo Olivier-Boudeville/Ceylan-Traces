@@ -4,7 +4,9 @@ TRACES_TOP = .
 .PHONY: help help-intro help-traces                                   \
 		all register-version-in-header register-traces list-beam-dirs \
 		add-prerequisite-plts link-plt                                \
-		stats info-traces info-compile info-conditionals info-deps
+		stats                                                         \
+		info-context info-versions info-traces info-compile           \
+		info-conditionals info-deps
 
 
 MODULES_DIRS = src doc conf test examples
@@ -52,6 +54,16 @@ link-plt:
 
 stats:
 	@$(MAKE_CODE_STATS) $(TRACES_TOP)
+
+
+# Typically useful to know the software context for continuous integration:
+info-context: info-platform info-versions
+
+
+info-versions:
+	@echo "MYRIAD_VERSION = $(MYRIAD_VERSION)"
+	@echo "WOOPER_VERSION = $(WOOPER_VERSION)"
+	@echo "TRACES_VERSION = $(TRACES_VERSION)"
 
 
 info-traces:
