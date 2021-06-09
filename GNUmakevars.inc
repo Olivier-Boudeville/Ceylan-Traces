@@ -157,18 +157,7 @@ TRACES_RELEASE_ARCHIVE_XZ  := $(TRACES_RELEASE_BASE).tar.xz
 TRACES_SRC := $(TRACES_TOP)/src
 
 # BEAM path section.
-TRACES_BEAM := $(TRACES_TOP)/src
-
-
-# In an OTP/rebar3-style application layout, at compilation time, libraries
-# making use of WOOPER will expect its includes to be located in:
-#
-# (Myriad already taken care of, at the WOOPER level)
-#
-WOOPER_OTP_INC := -I$(TRACES_TOP)/../wooper/include/
-
-
-INC += $(WOOPER_OTP_INC)
+TRACES_BEAM_DIR := $(TRACES_TOP)/src
 
 
 # Defined so that full traces are kept in messages (as the user of Traces can
@@ -181,7 +170,7 @@ WOOPER_UNELLIPSED_TRACES_OPT= -Dwooper_unellipsed_traces
 
 
 # See Myriad counterpart variable (MYRIAD_BEAM_DIRS) for explanations:
-TRACES_BEAM_DIRS := $(TRACES_BEAM)
+TRACES_BEAM_DIRS := $(TRACES_BEAM_DIR) $(TRACES_TOP)/..
 
 
 # We rely on Myriad and WOOPER as well:
