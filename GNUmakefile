@@ -70,9 +70,7 @@ info-traces:
 	@echo "ENABLE_TRACE_OPT = $(ENABLE_TRACE_OPT)"
 
 
-info-compile:
-	@echo "ERLANG_COMPILER_OPT_FOR_STANDARD_MODULES = $(ERLANG_COMPILER_OPT_FOR_STANDARD_MODULES)"
-	@echo "COMPILER_OPT_FOR_WOOPER_CLASSES = $(COMPILER_OPT_FOR_WOOPER_CLASSES)"
+info-compile: info-compile-wooper
 
 
 info-conditionals:
