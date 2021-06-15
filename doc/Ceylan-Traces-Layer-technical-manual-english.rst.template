@@ -19,7 +19,7 @@
 
 
 
-:raw-html:`<center><img src="traces-title.png" width="40%"></img></center>`
+:raw-html:`<center><img src="traces-title.png" id="responsive-image-small"></img></center>`
 :raw-latex:`\centering \includegraphics[scale=0.35]{traces-title.png}`
 
 
@@ -366,13 +366,13 @@ Trace Supervision & Browsing
 
 Indeed the tool that generally we use for trace browsing is `LogMX <http://www.logmx.com/>`_ (the only tool that we use that is not free software, as we find it convenient), which we integrated:
 
-:raw-html:`<center><img src="logmx-interface.png" width="70%"></img></center>`
+:raw-html:`<center><img src="logmx-interface.png" id="responsive-image-full"></img></center>`
 :raw-latex:`\includegraphics[scale=0.20]{logmx-interface.png}`
 
 
 We implemented a Java-based parser of our trace format for LogMX (see ``CeylanTraceParser.java``):
 
-:raw-html:`<center><img src="logmx-levels.png" width="70%"></img></center>`
+:raw-html:`<center><img src="logmx-levels.png" id="responsive-image-large"></img></center>`
 :raw-latex:`\includegraphics[scale=0.28]{logmx-levels.png}`
 
 
@@ -630,7 +630,7 @@ Ending Word
 
 Have fun with Ceylan-Traces!
 
-:raw-html:`<center><img src="traces-title.png" width="30%"></img></center>`
+:raw-html:`<center><img src="traces-title.png" id="responsive-image-small"></img></center>`
 :raw-latex:`\begin{figure}[h] \centering \includegraphics[scale=0.2]{traces-title.png} \end{figure}`
 
 :raw-html:`<a name="traces_bottom"></a>`
