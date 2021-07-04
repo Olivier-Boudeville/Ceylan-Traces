@@ -6,6 +6,11 @@
 .. comment stylesheet specified through GNUmakefile
 
 
+===============================================
+Technical Manual of the ``Ceylan-Traces`` Layer
+===============================================
+
+
 .. role:: raw-html(raw)
    :format: html
 
@@ -24,9 +29,6 @@
 
 
 
-===============================================
-Technical Manual of the ``Ceylan-Traces`` Layer
-===============================================
 
 
 :Organisation: Copyright (C) 2010-GENERATION_YEAR_TAG Olivier Boudeville
@@ -146,15 +148,15 @@ For example the traces for a test named ``my_foobar_test`` are typically stored 
 
 Following data is associated to a given trace:
 
- #. **technical identifier of the emitter**, as a string (ex: ``<9097.51.0>`` for the PID of a distributed Erlang process)
- #. **name of the emitter** (ex: ``"Instance tracker"``)
- #. **dotted categorization of the emitter** (ex: ``"Core.Tracker.Instances"``); here for example the emitter is an element of the service in charge of the instances, which itself belongs to the tracker services, which themselves belong to the (even more general) core services
- #. **application-level timestamp** (ex: operation count, relative tick, absolute timestep, or any complex, application-specific timestamp, etc.), possibly ``none``, or ``undefined`` if not applicable (ex: a simulation that would not be started yet)
- #. **wall-clock timestamp**, in the ``"Year/Month/Day Hour:Minute:Second"`` format (ex: ``"2016/6/10 15:43:31"``); this is an emitter-side timestamp (hence not related to the wallclock time known of the trace aggregator)
- #. **emitter location**, as a string (ex: the name of the Erlang node, possibly including the name of the application use case, of the user and of the host; ex: ``my_foobar_test_john@hurricane.org``)
- #. **dotted categorization of the trace message** itself (ex: ``MyApp.MyTopic.MyTheme``)
- #. **severity of the trace message** (mapped to an integer level, as discussed above)
- #. the **trace message** itself, an arbitrary text of arbitrary length
+#. **technical identifier of the emitter**, as a string (ex: ``<9097.51.0>`` for the PID of a distributed Erlang process)
+#. **name of the emitter** (ex: ``"Instance tracker"``)
+#. **dotted categorization of the emitter** (ex: ``"Core.Tracker.Instances"``); here for example the emitter is an element of the service in charge of the instances, which itself belongs to the tracker services, which themselves belong to the (even more general) core services
+#. **application-level timestamp** (ex: operation count, relative tick, absolute timestep, or any complex, application-specific timestamp, etc.), possibly ``none``, or ``undefined`` if not applicable (ex: a simulation that would not be started yet)
+#. **wall-clock timestamp**, in the ``"Year/Month/Day Hour:Minute:Second"`` format (ex: ``"2016/6/10 15:43:31"``); this is an emitter-side timestamp (hence not related to the wallclock time known of the trace aggregator)
+#. **emitter location**, as a string (ex: the name of the Erlang node, possibly including the name of the application use case, of the user and of the host; ex: ``my_foobar_test_john@hurricane.org``)
+#. **dotted categorization of the trace message** itself (ex: ``MyApp.MyTopic.MyTheme``)
+#. **severity of the trace message** (mapped to an integer level, as discussed above)
+#. the **trace message** itself, an arbitrary text of arbitrary length
 
 
 
@@ -304,11 +306,15 @@ Then, once the most basic bugs are fixed (ex: the program is not crashing anymor
 
 To output (basic) console traces, one may use the `trace_utils <https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/src/utils/trace_utils.erl>`_ module of the ``Myriad`` layer. For example:
 
-  ``trace_utils:debug_fmt("Hello world #~B",[2])``
+.. code:: erlang
+
+   trace_utils:debug_fmt("Hello world #~B",[2])
 
 Then switching to the more advanced traces discussed here is just a matter of replacing, for a given trace type ``T`` (ex: ``debug``), ``trace_utils:T`` with ``?T``, like in:
 
-  ``?debug_fmt("Hello world #~B",[2])``
+.. code:: erlang
+
+   ?debug_fmt("Hello world #~B",[2])
 
 (with no further change in the trace parameters).
 
