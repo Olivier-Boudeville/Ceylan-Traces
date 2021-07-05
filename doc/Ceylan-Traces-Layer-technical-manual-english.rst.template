@@ -24,10 +24,8 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 
 
 
-:raw-html:`<center><img src="traces-title.png" id="responsive-image-small"></img></center>`
+:raw-html:`<center><img src="traces-title.png" id="responsive-image-small"></img>`
 :raw-latex:`\centering \includegraphics[scale=0.35]{traces-title.png}`
-
-
 
 
 
@@ -48,6 +46,8 @@ Technical Manual of the ``Ceylan-Traces`` Layer
 
 .. meta::
    :keywords: Traces, log, browse, emit, layer, generic, general-purpose, helper code, library, layer
+
+:raw-html:`</center>`
 
 
 The latest version of this documentation is to be found at the `official Traces website <http://traces.esperide.org>`_ (``http://traces.esperide.org``).
