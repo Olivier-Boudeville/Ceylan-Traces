@@ -30,9 +30,9 @@ help-traces:
 
 
 register-version-in-header:
-	@if [ -z "$(VERSION_FILE)" ] ; then \
-	echo "Error, no version file defined." 1>&2 ; exit 52 ; else \
-	$(MAKE) register-traces ; fi
+	@if [ -z "$(VERSION_FILE)" ]; then \
+	echo "Error, no version file defined." 1>&2; exit 52; else \
+	$(MAKE) register-traces; fi
 
 
 register-traces:
@@ -41,7 +41,7 @@ register-traces:
 
 # Useful to extract internal layout for re-use in upper layers:
 list-beam-dirs:
-	@for d in $(TRACES_BEAM_DIRS) ; do echo $$(readlink -f $$d) ; done
+	@for d in $(TRACES_BEAM_DIRS); do echo $$(readlink -f $$d); done
 
 
 add-prerequisite-plts: link-plt
@@ -49,7 +49,7 @@ add-prerequisite-plts: link-plt
 
 # As upper layers may rely on the 'traces' naming:
 link-plt:
-	@if [ ! "$(PLT_FILE)" = "$(TRACES_PLT_FILE)" ]; then /bin/ln -s --force $(PLT_FILE) $(TRACES_PLT_FILE) ; fi
+	@if [ ! "$(PLT_FILE)" = "$(TRACES_PLT_FILE)" ]; then /bin/ln -s --force $(PLT_FILE) $(TRACES_PLT_FILE); fi
 
 
 stats:
