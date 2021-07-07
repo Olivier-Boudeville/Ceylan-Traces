@@ -1114,7 +1114,7 @@ onWOOPERExitReceived( State, Pid, ExitType=shutdown ) ->
 onWOOPERExitReceived( State, CrashPid, ExitType ) ->
 
 	Msg = text_utils:format( "Trace aggregator received and ignored "
-		"an exit message '~p' from ~w.", [ ExitType, CrashPid ] ),
+		"following exit message from ~w:~n  ~p", [ CrashPid, ExitType ] ),
 
 	send_internal_deferred( error, Msg ),
 
