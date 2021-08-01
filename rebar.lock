@@ -4,5 +4,5 @@
   0},
  {<<"wooper">>,
   {git,"git://github.com/Olivier-Boudeville/Ceylan-WOOPER",
-       {ref,"24015373f5dc6ebf2badce63c0c4fad6a9608e1a"}},
+       {ref,"fc5bf1306dcc95f685b03d075488cc3abeeaf729"}},
   0}].
