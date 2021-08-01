@@ -1809,6 +1809,9 @@ format_full_lines( _Rows=[ { [ Line | OtherLines ], Width } | ColumnPairs ],
 % (helper)
 %
 open_trace_file( TraceFilename ) ->
+
+	%trace_utils:debug_fmt( "Creating trace file '~ts'.", [ TraceFilename ] ),
+
 	% 'exclusive' not needed:
 	file_utils:open( TraceFilename,
 					 [ write | get_trace_file_base_options() ] ).
@@ -1820,6 +1823,9 @@ open_trace_file( TraceFilename ) ->
 % (helper)
 %
 reopen_trace_file( TraceFilename ) ->
+
+	%trace_utils:debug_fmt( "Reopening trace file '~ts'.", [ TraceFilename ] ),
+
 	% 'exclusive' not wanted:
 	file_utils:open( TraceFilename,
 					 [ append | get_trace_file_base_options() ] ).
