@@ -135,7 +135,7 @@ endif
 
 # For any quick, local, non release-packaged update thereof:
 WOOPER_CHECKOUT_BUILD = $(LAYER_TOP)/_checkouts/wooper
-MWOOPER_SIBLING_BUILD = $(LAYER_TOP)/../wooper
+WOOPER_SIBLING_BUILD = $(LAYER_TOP)/../wooper
 
 
 # The OTP tree of the WOOPER application within a local OTP _build tree:
@@ -143,7 +143,6 @@ WOOPER_LOCAL_APP := $(LAYER_TOP)/_build/default/lib/wooper
 
 # Where WOOPER BEAMs are to lie when used as an OTP application:
 WOOPER_LOCAL_EBIN := $(WOOPER_LOCAL_APP)/ebin/
-
 
 
 TRACES_RELEASE_BASE := Traces-$(PROJECT_VERSION)
