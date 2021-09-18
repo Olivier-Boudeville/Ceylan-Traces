@@ -66,11 +66,12 @@ endif
 # conditional compilation primitives (see cond_utils for their management):
 
 # Topics covered by flags:
-#  - xx (none yet)
+# - registration: regarding the naming registration/look-up, notably of the
+#   trace aggregator
 
 # Defining debug flags (at least the most verbose are by default commented-out):
 ifeq ($(ENABLE_DEBUG),true)
-	#TRACES_DEBUG_FLAGS += -Dtraces_debug_xx
+	#TRACES_DEBUG_FLAGS += -Dtraces_debug_registration
 endif
 
 # Defining check flags:

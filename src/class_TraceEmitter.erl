@@ -192,6 +192,9 @@
 % a relevant look-up scope; so all go first for the general case ('global'
 % registration of the aggregator) and fall back to 'local' in the other cases.
 %
+% To avoid any unnecessary global look-up or to designate a specific trace
+% aggregator, use construct/3.
+%
 -define( emitter_look_up_scope, global_otherwise_local ).
 
 
@@ -254,7 +257,7 @@ construct( State, EmitterName ) ->
 %
 -spec construct( wooper:state(),
 			{ emitter_name(), emitter_categorization() }, aggregator_pid() ) ->
-		  wooper:state().
+		wooper:state().
 construct( State, _EmitterInit={ EmitterName, EmitterCategorization },
 		   TraceAggregatorPid ) ->
 

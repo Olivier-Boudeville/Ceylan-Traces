@@ -67,55 +67,7 @@ start( RestartType, StartArgs ) ->
 		"start arguments: ~w, supervisor wanted: ~ts).",
 		[ RestartType, StartArgs, TraceSupervisorWanted ] ),
 
-	% Possibly read from any *.config specified (ex: refer to the
-	% INTERNAL_OPTIONS make variable):
-	%
-	% Supporting this not deemed useful:
-	%AggRegName = case application:get_env(
-	%                   trace_aggregator_registration_name ) of
-	%
-	%	undefined ->
-	%		?trace_aggregator_name;
-	%
-	%	{ ok, CfgRegName } when is_atom( RegName ) ->
-	%		CfgRegName;
-	%
-	%	{ ok, InvalidRegName } ->
-	%		trace_utils:error_fmt( "Invalid registration name read for the "
-	%			"trace aggregator: '~p'.", [ InvalidRegName ] ),
-	%		throw( { invalid_trace_aggregator_registration_name,
-	%				 InvalidRegName } )
-	%
-	%end,
-
-	AggRegScope =
-			case application:get_env( trace_aggregator_registration_scope ) of
-
-		undefined ->
-			?default_trace_aggregator_registration_scope;
-
-		{ ok, CfgRegScope } when is_atom( CfgRegScope ) ->
-			case naming_utils:vet_registration_scope( CfgRegScope ) of
-
-				true ->
-					CfgRegScope;
-
-				false ->
-					trace_utils:error_fmt( "Invalid registration scope (type) "
-						"read for the trace aggregator: '~p'.",
-						[ CfgRegScope ] ),
-					throw( { invalid_trace_aggregator_registration_scope,
-							 CfgRegScope } )
-
-			end;
-
-		{ ok, InvalidRegScope } ->
-			trace_utils:error_fmt( "Invalid registration scope read for the "
-				"trace aggregator: '~p'.", [ InvalidRegScope ] ),
-			throw( { invalid_trace_aggregator_registration_scope,
-					 InvalidRegScope } )
-
-	end,
+	AggRegScope = traces_utils:get_aggregator_registration_scope(),
 
 	% Previously, no specific root supervisor was to launch, but:
 	%class_TraceAggregator:start().
