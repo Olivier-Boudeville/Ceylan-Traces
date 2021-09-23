@@ -95,12 +95,13 @@ start_link( TraceInitArgs ) ->
 % root supervisor), typically in answer to start_link/1 above being executed.
 %
 -spec init( { boolean() | registration_scope() } ) ->
-	{ 'ok', { supervisor:sup_flags(), [ supervisor:child_spec() ] } }
-		| 'ignore'.
+	{ 'ok', { supervisor:sup_flags(), [ supervisor:child_spec() ] } }.
 init( { TraceSupervisorWanted, RegScope } ) ->
 
 	trace_utils:info_fmt( "Initialising the Traces root supervisor ~w "
 		"(trace supervisor wanted: ~ts).", [ self(), TraceSupervisorWanted ] ),
+
+	ExecTarget= wooper:get_execution_target(),
 
 	% Restart only children that terminate.
 	% Never expected to fail, though:
@@ -116,19 +117,22 @@ init( { TraceSupervisorWanted, RegScope } ) ->
 		start => { _Mod=traces_bridge_sup, _Fun=start_link,
 				   _Args=[ TraceSupervisorWanted, RegScope ] },
 
-		% Always restarted:
-		restart => permanent,
+		% Always restarted in production:
+		restart => otp_utils:get_restart_setting( ExecTarget ),
 
-		% 2-second termination was allowed before brutal killing; yet now this
-		% child process is of the 'supervisor' type, and, in
+		% This child process is of the 'supervisor' type, and, in
 		% https://erlang.org/doc, the
 		% design_principles/sup_princ.html#child-specification page explains
-		% that 'infinity' is required here:
+		% that 'infinity' is required here (rather than, say, a 2-second
+		% termination was allowed before brutal killing):
 		%
 		shutdown => infinity,
 
+		% As it is a WOOPER instance (not for example a gen_server):
 		type => supervisor,
 
 		modules => [ traces_bridge_sup ] },
 
-	{ ok, { SupSettings, [ BridgeChildSpec ] } }.
+	ChildrenSpec = [ BridgeChildSpec ],
+
+	{ ok, { SupSettings, ChildrenSpec } }.
