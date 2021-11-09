@@ -291,13 +291,17 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 		   MaybeRegistrationScope, IsBatch, InitTraceSupervisor ) ->
 
 	%trace_utils:debug_fmt( "Starting trace aggregator, with initial trace "
-	%	"filename '~ts' (init supervisor: ~w).",
-	%	[ TraceFilename, InitTraceSupervisor ] ),
+	%   "filename '~ts' (init supervisor: ~w).",
+	%   [ TraceFilename, InitTraceSupervisor ] ),
 
 	% Wanting a better control by resisting to exit messages being received (see
 	% the onWOOPERExitReceived/3 callback):
 	%
 	erlang:process_flag( trap_exit, true ),
+
+	% Surely that these aggregators can be overwhelmed by (trace) messages:
+	erlang:process_flag( message_queue_data, off_heap ),
+
 
 	% First the direct mother classes (none here), then this class-specific
 	% actions:
@@ -337,8 +341,8 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 	end,
 
 	%trace_utils:debug_fmt( "InitTraceSupervisor=~ts, IsBatch=~ts, "
-	%	"ShouldInitTraceSupervisor=~ts.",
-	%	[ InitTraceSupervisor, IsBatch, ShouldInitTraceSupervisor ] ),
+	%   "ShouldInitTraceSupervisor=~ts.",
+	%   [ InitTraceSupervisor, IsBatch, ShouldInitTraceSupervisor ] ),
 
 	SetState = setAttributes( State, [
 		{ trace_filename, AbsBinTraceFilename },
@@ -918,7 +922,7 @@ addTraceListener( State, ListenerPid ) ->
 					Message = text_utils:format( "Adding trace listener ~w "
 					   "failed, hence has been ignored: exception '~w' was "
 					   "raised.~nStacktrace was: ~ts", [ ListenerPid, Exception,
-						 code_utils:interpret_stacktrace( Stacktrace ) ] ),
+							code_utils:interpret_stacktrace( Stacktrace ) ] ),
 					% Will be duplicated on the console anyway:
 					%trace_utils:error( Message ),
 					send_internal_deferred( error, Message ),
@@ -1010,7 +1014,7 @@ sync( State ) ->
 % A size of zero leads to unconditinal rotation.
 %
 -spec setMinimumTraceFileSizeForRotation( wooper:state(), byte_size() ) ->
-											 oneway_return().
+												oneway_return().
 setMinimumTraceFileSizeForRotation( State, MinFileSize )
   when is_integer( MinFileSize ) ->
 
@@ -1077,7 +1081,7 @@ rotateTraceFileSync( State ) ->
 % crashed in turn.
 %
 -spec onWOOPERExitReceived( wooper:state(), pid(),
-					basic_utils:exit_reason() ) -> oneway_return().
+							basic_utils:exit_reason() ) -> oneway_return().
 onWOOPERExitReceived( State, StopPid, _ExitType=normal ) ->
 
 	Msg = text_utils:format( "Ignoring normal exit from process ~w.",
@@ -1758,9 +1762,9 @@ get_row_separator( DashType ) ->
 
 % @doc Formats specified trace according to specified trace type.
 -spec format_trace_for( trace_supervision_type(),
-		 { emitter_pid(), emitter_name(), emitter_categorization(),
-		   app_timestamp(), traces:time(), location(),
-		   message_categorization(), priority(), message() } ) -> ustring().
+		{ emitter_pid(), emitter_name(), emitter_categorization(),
+		  app_timestamp(), traces:time(), location(),
+		  message_categorization(), priority(), message() } ) -> ustring().
 format_trace_for( advanced_traces, { TraceEmitterPid,
 		TraceEmitterName, TraceEmitterCategorization, AppTimestamp, Time,
 		Location, MessageCategorization, Priority, Message } ) ->
