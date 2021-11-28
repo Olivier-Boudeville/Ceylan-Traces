@@ -199,8 +199,8 @@
 
 
 
-% @doc Constructs a new trace emitter, from EmitterInit, which must be here a
-% pair made of this name and another plain string, its emitter categorization,
+% @doc Constructs a trace emitter, from EmitterInit, which must be here a pair
+% made of this name and another plain string, its emitter categorization,
 % listing increasingly detailed sub-categories about this trace emitter,
 % separated by dots (ex: "topics.sports.basketball.coach").
 %
@@ -241,8 +241,8 @@ construct( State, EmitterName ) ->
 
 
 
-% @doc Constructs a new trace emitter, from EmitterInit, which must be here a
-% pair made of this name and another plain string, its emitter categorization,
+% @doc Constructs a trace emitter, from EmitterInit, which must be here a pair
+% made of this name and another plain string, its emitter categorization,
 % listing increasingly detailed sub-categories about this trace emitter,
 % separated by dots (ex: "topics.sports.basketball.coach"), and from the
 % specified trace aggregator.

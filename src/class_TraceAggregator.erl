@@ -24,7 +24,7 @@
 %
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
-%
+
 
 % @doc The <b>trace aggregator</b> class, in charge of collecting and storing
 % the traces sent by emitters.
@@ -226,7 +226,8 @@
 % such this is the convention that was first prioritised and tuned for.
 
 
-% @doc Constructs a new trace aggregator.
+
+% @doc Constructs a trace aggregator.
 %
 % Construction parameters are:
 %
@@ -257,7 +258,7 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 
 
 
-% Constructs a new trace aggregator, telling whether a trace supervisor shall be
+% Constructs a trace aggregator, telling whether a trace supervisor shall be
 % created.
 %
 % Construction parameters are:

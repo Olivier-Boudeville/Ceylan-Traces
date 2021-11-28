@@ -109,7 +109,7 @@
 
 
 
-% @doc Constructs a new trace supervisor.
+% @doc Constructs a trace supervisor.
 %
 % Construction parameters are:
 %
@@ -130,9 +130,9 @@
 % monitoring will be done; otherwise (if set to 'undefined') nothing will be
 % done then
 %
--spec construct( wooper:state(), { bin_file_name(), trace_supervision_type(),
-								   maybe( aggregator_pid() ) },
-				 boolean(), maybe( pid() ) ) -> wooper:state().
+-spec construct( wooper:state(),
+	{ bin_file_name(), trace_supervision_type(), maybe( aggregator_pid() ) },
+	boolean(), maybe( pid() ) ) -> wooper:state().
 construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 		   MonitorNow, MaybeWaitingPid ) ->
 
