@@ -106,6 +106,8 @@ Traces now relies on the same conventions as the ones of the newer standard logg
 
 There are eight built-in levels for trace channels, of increasing severity:
 
+:raw-html:`<center>`
+
 ===================== ===============
 Trace Severity        Mapped Priority
 ===================== ===============
@@ -118,6 +120,8 @@ Trace Severity        Mapped Priority
 ``alert``             1
 ``emergency``         0
 ===================== ===============
+
+:raw-html:`</center>`
 
 Starting from ``warning`` onward (thus included), these severities are considered as error-like, and as such will never be disabled and will be echoed on the console as well.
 
