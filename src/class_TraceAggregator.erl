@@ -1030,7 +1030,7 @@ setMinimumTraceFileSizeForRotation( State, MinFileSize )
 
 % @doc Rotates the current trace file (asynchronous version): provided that its
 % size is above the current threshold, closes the current file, renames it,
-% compresses it and creates a new file from scratch to avoid it becomes too
+% compresses it and creates a file from scratch to avoid it becomes too
 % large. No trace can be lost in the process.
 %
 % If the current trace file is named 'my_file.traces', its rotated version could
@@ -1049,7 +1049,7 @@ rotateTraceFile( State ) ->
 
 % @doc Rotates the current trace file (synchronous version): provided that its
 % size is above the current threshold, closes the current file, renames it,
-% compresses it and creates a new file from scratch to avoid it becomes too
+% compresses it and creates a file from scratch to avoid it becomes too
 % large. No trace can be lost in the process.
 %
 % If the current trace file is named 'my_file.traces', its rotated version could
@@ -1776,7 +1776,7 @@ format_trace_for( advanced_traces, { TraceEmitterPid,
 	 %
 	 %io_lib:format(
 	 text_utils:format(
-	   "~w|~ts|~ts|~ts|~ts|~ts|~ts|~B|~ts~n",
+		"~w|~ts|~ts|~ts|~ts|~ts|~ts|~B|~ts~n",
 		[ TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 		  AppTimestamp, Time, Location, MessageCategorization, Priority,
 		  Message ] ) );
