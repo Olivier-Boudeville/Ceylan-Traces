@@ -156,7 +156,7 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 			% written by the aggregator in the trace file:
 
 			%trace_utils:debug(
-			%      "(trace supervisor waiting for the trace aggregator)" ),
+			%   "(trace supervisor waiting for the trace aggregator)" ),
 
 			AggPid ! { requestReadyNotification, [], self() },
 
@@ -179,7 +179,7 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 	end,
 
 	%trace_utils:debug_fmt( "Supervisor associated to aggregator ~w.",
-	%					   [ MaybeTraceAggregatorPid ] ),
+	%                       [ MaybeTraceAggregatorPid ] ),
 
 	EndState = case MonitorNow of
 
@@ -199,7 +199,7 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 						{ RequestState, monitor_ok } ->
 
 							%trace_utils:debug(
-							%  "Blocking supervisor received monitor_ok." ),
+							%   "Blocking supervisor received monitor_ok." ),
 
 							% Sends back to the caller:
 							WaitingPid ! { wooper_result, monitor_ok },
@@ -208,8 +208,8 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 
 						{ AnyState, monitor_failed } ->
 
-							trace_utils:warning(
-							  "Blocking supervisor received monitor_failed." ),
+							trace_utils:warning( "Blocking supervisor received "
+												 "monitor_failed." ),
 
 							% If needing to ignore a non-significant error from
 							% the supervision tool:
@@ -273,14 +273,15 @@ monitor( State ) ->
 
 				false ->
 					trace_utils:error_fmt( "class_TraceSupervisor:monitor "
-					  "unable to find trace file '~ts'.", [ ActualFilename ] ),
+						"unable to find trace file '~ts'.",
+						[ ActualFilename ] ),
 					throw( { trace_file_not_found, ActualFilename } )
 
 			end,
 
 			trace_utils:notice_fmt(
-			  "~ts Supervisor will monitor file '~ts' now, "
-			  "with '~ts'.", [ ?LogPrefix, ActualFilename, Command ] ),
+				"~ts Supervisor will monitor file '~ts' now, "
+				"with '~ts'.", [ ?LogPrefix, ActualFilename, Command ] ),
 
 			Cmd = Command ++ " '" ++ ActualFilename ++ "'",
 
@@ -338,14 +339,14 @@ blocking_monitor( State ) ->
 
 			% Blocking:
 			case system_utils:run_command(
-				   Command ++ " '" ++ ActualFilename ++ "'",
-				   system_utils:get_standard_environment(),
-				   _WorkingDir=CurrentDir ) of
+					Command ++ " '" ++ ActualFilename ++ "'",
+					system_utils:get_standard_environment(),
+					_WorkingDir=CurrentDir ) of
 
 				{ _ExitStatus=0, _Output } ->
 					trace_utils:notice_fmt(
-					  "~ts Supervisor ended monitoring of '~ts'.",
-					  [ ?LogPrefix, ActualFilename ] ),
+						"~ts Supervisor ended monitoring of '~ts'.",
+						[ ?LogPrefix, ActualFilename ] ),
 					wooper:const_return_result( monitor_ok );
 
 				{ ExitStatus, _ErrorOutput="" } ->
@@ -526,7 +527,7 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 init( TraceFilename, TraceType, TraceAggregatorPid, MaybeWaitingPid ) ->
 
 	%trace_utils:info_fmt( "Initializing trace supervisor for file '~ts' and "
-	%						"trace type ~p.", [ TraceFilename, TraceType ] ),
+	%                      "trace type ~p.", [ TraceFilename, TraceType ] ),
 
 	% By default (with no specific option) a synchronous supervisor is wanted
 	% (wait for its launch to complete):
@@ -582,7 +583,7 @@ actual_wait_for() ->
 
 	% A supervisor must be waited for here:
 	trace_utils:notice(
-	  "(waiting for the user to stop the trace supervision)" ),
+		"(waiting for the user to stop the trace supervision)" ),
 
 	receive
 
