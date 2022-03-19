@@ -320,15 +320,15 @@ blocking_monitor( State ) ->
 
 				true ->
 					%trace_utils:debug_fmt(
-					%  "Found actual trace filename '~ts' from '~ts'.",
-					%  [ ActualFilename, CurrentDir ] ),
+					%   "Found actual trace filename '~ts' from '~ts'.",
+					%   [ ActualFilename, CurrentDir ] ),
 					ok;
 
 				false ->
 					trace_utils:error_fmt(
-					  "class_TraceSupervisor:blocking_monitor unable to find "
-					  "trace file '~ts' (while current directory is '~ts').",
-					  [ ActualFilename, CurrentDir ] ),
+						"class_TraceSupervisor:blocking_monitor unable to find "
+						"trace file '~ts' (while current directory is '~ts').",
+						[ ActualFilename, CurrentDir ] ),
 					throw( { trace_file_not_found, ActualFilename } )
 
 			end,
@@ -420,14 +420,13 @@ create( MaybeWaitingPid ) ->
 % See create/5 for a more in-depth explanation of the parameters.
 %
 -spec create( maybe( pid() ), any_file_path() ) ->
-					static_return( supervisor_pid() ).
+							static_return( supervisor_pid() ).
 create( MaybeWaitingPid, TraceFilename ) ->
 
 	SupervisorPid = create( MaybeWaitingPid, TraceFilename,
-		 _TraceType=advanced_traces, _TraceAggregatorPid=undefined ),
+		_TraceType=advanced_traces, _TraceAggregatorPid=undefined ),
 
 	wooper:return_static( SupervisorPid ).
-
 
 
 
@@ -446,7 +445,6 @@ create( MaybeWaitingPid, TraceFilename, TraceType, TraceAggregatorPid ) ->
 							TraceType, TraceAggregatorPid ),
 
 	wooper:return_static( SupervisorPid ).
-
 
 
 
@@ -501,11 +499,29 @@ create( MaybeWaitingPid, MonitorNow, TraceFilename, TraceType,
 % cannot be created at the same time as the trace aggregator (ex: if the trace
 % filename is to change at runtime).
 %
-% Use the --batch option (ex: erl --batch, or with the make system 'make
+% Use the --batch option (ex: erl --batch, or, with our make system, 'make
+% MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
+%
+-spec init( file_name(), aggregator_pid() ) ->
+									static_return( supervisor_outcome() ).
+init( TraceFilename, TraceAggregatorPid ) ->
+
+	SupOutcome = init( TraceFilename, _TraceType=advanced_traces,
+					   TraceAggregatorPid, _MaybeWaitingPid=undefined ),
+
+	wooper:return_static( SupOutcome ).
+
+
+
+% @doc Inits a trace supervisor; especially useful when the trace supervisor
+% cannot be created at the same time as the trace aggregator (ex: if the trace
+% filename is to change at runtime).
+%
+% Use the --batch option (ex: erl --batch, or, with our make system, 'make
 % MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
 %
 -spec init( file_name(), trace_supervision_type(), aggregator_pid() ) ->
-				static_return( supervisor_outcome() ).
+							static_return( supervisor_outcome() ).
 init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 
 	SupOutcome = init( TraceFilename, TraceType, TraceAggregatorPid,
@@ -519,7 +535,7 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 % when the trace supervisor cannot be created at the same time as the trace
 % aggregator (ex: if the trace filename is to change at runtime).
 %
-% Use the --batch option (ex: erl --batch, or with the make system 'make
+% Use the --batch option (ex: erl --batch, or, with our make system, 'make
 % MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
 %
 -spec init( file_name(), trace_supervision_type(), aggregator_pid(),
