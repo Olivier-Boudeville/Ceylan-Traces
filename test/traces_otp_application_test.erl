@@ -26,9 +26,9 @@
 % Creation date: Tuesday, August 6, 2019.
 
 
-% Testing of Traces as an OTP active application, directly from within its code
-% base (hence without needing to create a separate, mock-up test OTP release for
-% that).
+% Testing of Traces as an <b>OTP active application</b>, directly from within
+% its code base (hence without needing to create a separate, mock-up test OTP
+% release for that).
 %
 -module(traces_otp_application_test).
 
@@ -108,7 +108,7 @@ test_traces_application( OrderedAppNames ) ->
 	basic_utils:check_no_pending_message(),
 
 	test_facilities:display(
-	  "Successful end of test of the Traces OTP application." ).
+		"Successful end of test of the Traces OTP application." ).
 
 
 
