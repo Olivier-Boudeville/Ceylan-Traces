@@ -153,14 +153,11 @@ terminate( Reason, _BridgeState=TraceAggregatorPid )
 	trace_utils:info_fmt( "Terminating the Traces supervisor bridge "
 		"(reason: ~w, trace aggregator: ~w).", [ Reason, TraceAggregatorPid ] ),
 
-	TraceAggregatorPid ! { synchronous_delete, self() },
-
-	receive
-
-		{ deleted, TraceAggregatorPid } ->
-			ok
-
-	end,
+	% Synchronicity needed, otherwise a potential race condition exists, leading
+	% this process to be killed by its OTP supervisor instead of being normally
+	% stopped:
+	%
+	wooper:delete_synchronously_instance( TraceAggregatorPid ),
 
 	trace_utils:debug_fmt( "Trace aggregator ~w terminated.",
 						   [ TraceAggregatorPid ] );
