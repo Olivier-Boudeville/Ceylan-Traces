@@ -102,7 +102,16 @@ test_traces_application( OrderedAppNames ) ->
 
 	otp_utils:stop_user_applications( OrderedAppNames ),
 
-	% Visibly no {'EXIT',AggPid,shutdown} message is to be expected here.
+	% Not able to use Traces anymore:
+	trace_utils:debug_fmt( "Waiting for the termination of the trace "
+						   "aggregator (~w).", [ AggPid ] ),
+
+	receive
+
+		{'EXIT', AggPid, normal } ->
+			ok
+
+	end,
 
 	% None expected to be left:
 	basic_utils:check_no_pending_message(),
