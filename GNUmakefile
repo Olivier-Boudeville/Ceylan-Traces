@@ -3,7 +3,6 @@ TRACES_TOP = .
 
 .PHONY: help help-intro help-traces                                    \
 		all register-version-in-header register-traces list-beam-dirs  \
-		copy-all-beams-to-ebins copy-deps-beams-to-ebin                    \
 		add-prerequisite-plts link-plt                                 \
 		stats                                                          \
 		info-context info-versions info-traces info-compile            \
@@ -43,12 +42,6 @@ register-traces:
 # Useful to extract internal layout for re-use in upper layers:
 list-beam-dirs:
 	@for d in $(TRACES_BEAM_DIRS); do echo $$(readlink -f $$d); done
-
-
-copy-all-beams-to-ebins: copy-deps-beams-to-ebin
-
-copy-deps-beams-to-ebin:
-	@cd $(WOOPER_TOP) && $(MAKE) -s copy-all-beams-to-ebins
 
 
 add-prerequisite-plts: link-plt
