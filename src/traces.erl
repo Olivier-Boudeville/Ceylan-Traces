@@ -38,18 +38,20 @@
 		  manage_supervision/0, get_execution_target/0 ]).
 
 
--type emitter_name() :: text_utils:ustring().
--type emitter_categorization() :: text_utils:ustring().
+-type emitter_name() :: ustring().
+
+-type emitter_categorization() :: ustring().
+-type emitter_bin_categorization() :: bin_string().
 
 -type emitter_info() :: { emitter_name(), emitter_categorization() }.
 
 -type app_timestamp() :: trace_utils:trace_timestamp().
 
--type time() :: text_utils:ustring().
+-type time() :: ustring().
 
--type location() :: text_utils:ustring().
+-type location() :: ustring().
 
--type message_categorization() :: text_utils:ustring() | 'uncategorized'.
+-type message_categorization() :: ustring() | 'uncategorized'.
 % A message may or may not (which is the default) by categorized.
 
 
@@ -59,7 +61,7 @@
 -type trace_severity() :: trace_utils:trace_severity().
 % Textual version: 'emergency', 'alert', and all.
 
--type message() :: text_utils:ustring().
+-type message() :: ustring().
 
 
 -type trace_text_type() :: 'text_only' | 'pdf'.
@@ -82,14 +84,16 @@
 % - or {'text_traces', trace_text_type()}
 
 
--export_type([ emitter_name/0, emitter_categorization/0, emitter_info/0,
+-export_type([ emitter_name/0,
+			   emitter_categorization/0, emitter_bin_categorization/0,
+			   emitter_info/0,
 			   app_timestamp/0, time/0, location/0, message_categorization/0,
 			   priority/0, message/0, trace_severity/0,
 			   trace_supervision_type/0 ]).
 
 
 % Logger-related API (see https://erlang.org/doc/apps/kernel/logger_chapter.html
-% abd Myriad's trace_utils):
+% and Myriad's trace_utils):
 %
 -export([ set_handler/0, set_handler/1, add_handler/0, add_handler/1,
 		  reset_handler/0, log/2 ]).
@@ -107,14 +111,21 @@
 -include("traces.hrl").
 
 
-% Shorthand:
+% Shorthands:
+
+-type handler_config() :: logger:handler_config().
+
+-type ustring() :: text_utils:ustring().
+-type bin_string() :: text_utils:bin_string().
+
+-type file_name() :: file_utils:file_name().
+
 -type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
 
 
 
 % @doc Returns the name of the file in which traces will be written.
--spec get_trace_filename( basic_utils:module_name() ) ->
-								file_utils:file_name().
+-spec get_trace_filename( basic_utils:module_name() ) -> file_name().
 get_trace_filename( ModuleName ) ->
 	atom_to_list( ModuleName ) ++ ?TraceExtension.
 
@@ -368,7 +379,7 @@ add_handler( AggregatorPid ) ->
 % @doc Returns the (initial) configuration of the Traces logger handler,
 % branching to the (supposedly already-existing) trace aggregator.
 %
--spec get_handler_config() -> logger:handler_config().
+-spec get_handler_config() -> handler_config().
 get_handler_config() ->
 
 	AggregatorPid = case class_TraceAggregator:get_aggregator() of
@@ -389,7 +400,7 @@ get_handler_config() ->
 % @doc Returns the (initial) configuration of the Traces logger handler,
 % branching to the specified trace aggregator.
 %
--spec get_handler_config( aggregator_pid() ) -> logger:handler_config().
+-spec get_handler_config( aggregator_pid() ) -> handler_config().
 get_handler_config( AggregatorPid ) ->
 
 	#{ config => AggregatorPid
@@ -421,7 +432,7 @@ reset_handler() ->
 %
 % See [https://erlang.org/doc/man/logger.html#HModule:log-2].
 %
--spec log( logger:log_event(), logger:handler_config() ) -> void().
+-spec log( logger:log_event(), handler_config() ) -> void().
 log( _LogEvent=#{ level := Level,
 				  %meta => #{error_logger => #{emulator => [...]
 				  msg := Msg },
