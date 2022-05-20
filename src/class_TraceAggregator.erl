@@ -1693,7 +1693,7 @@ manage_trace_header( State ) ->
 									"Emitter Name", ?EmitterNameWidth ),
 
 			AppTimestampLines = text_utils:format_text_for_width(
-						  "Application Timestamp", ?AppTimestampWidth ),
+							"Application Timestamp", ?AppTimestampWidth ),
 
 			TimeLines = text_utils:format_text_for_width( "User Time",
 														  ?TimeWidth ),
@@ -1708,8 +1708,8 @@ manage_trace_header( State ) ->
 				AppTimestampLines, TimeLines, PriorityLines, MessageLines ) ,
 
 			file_utils:write_ustring( ?getAttr(trace_file), TitleText
-									++ get_row_separator() ++ HeaderLine
-									++ get_row_separator( $= ) ),
+				++ get_row_separator() ++ HeaderLine
+				++ get_row_separator( $= ) ),
 
 			State
 
