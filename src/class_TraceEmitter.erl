@@ -80,7 +80,8 @@
 		  send/3, send_safe/3, send/4, send_safe/4, send/5, send_safe/5,
 		  send_synchronised/3, send_synchronised/4, send_synchronised/5,
 		  get_trace_timestamp/1, get_trace_timestamp_as_binary/1,
-		  get_plain_name/1, sync/1, await_output_completion/0 ]).
+		  get_plain_name/1, get_short_description/1,
+		  sync/1, await_output_completion/0 ]).
 
 
 % The class-specific trace_emitter_categorization define will be set in the
@@ -1459,6 +1460,17 @@ get_trace_timestamp_as_binary( State ) ->
 -spec get_plain_name( wooper:state() ) -> ustring().
 get_plain_name( State ) ->
 	text_utils:binary_to_string( ?getAttr(name) ).
+
+
+
+% @doc Returns a short description of this trace emitter.
+%
+% Typically useful in traces.
+%
+-spec get_short_description( wooper:state() ) -> ustring().
+get_short_description( State ) ->
+	text_utils:format( "named '~ts', categorised as '~ts'",
+					   [ ?getAttr(name), ?getAttr(trace_categorization) ] ).
 
 
 
