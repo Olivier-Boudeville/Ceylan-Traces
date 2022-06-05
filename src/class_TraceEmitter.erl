@@ -572,9 +572,6 @@ send_from_test( TraceSeverity, Message, EmitterCategorization ) ->
 
 		AggregatorPid ->
 
-			TimestampText = text_utils:string_to_binary(
-								time_utils:get_textual_timestamp() ),
-
 			AggregatorPid ! { send, [
 				_TraceEmitterPid=self(),
 				_TraceEmitterName=
@@ -582,7 +579,7 @@ send_from_test( TraceSeverity, Message, EmitterCategorization ) ->
 				_TraceEmitterCategorization=
 					text_utils:string_to_binary( EmitterCategorization ),
 				_AppTimestamp=none,
-				_Time=TimestampText,
+				_Time=time_utils:get_bin_textual_timestamp(),
 				% No State available here
 				_Location=net_utils:localnode_as_binary(),
 				_MessageCategorization=
@@ -633,9 +630,6 @@ send_from_case( TraceSeverity, Message, EmitterCategorization ) ->
 
 		AggregatorPid ->
 
-			TimestampText = text_utils:string_to_binary(
-								time_utils:get_textual_timestamp() ),
-
 			AggregatorPid ! { send, [
 				_TraceEmitterPid=self(),
 				_TraceEmitterName=
@@ -643,7 +637,7 @@ send_from_case( TraceSeverity, Message, EmitterCategorization ) ->
 				_TraceEmitterCategorization=
 					text_utils:string_to_binary( EmitterCategorization ),
 				_AppTimestamp=none,
-				_Time=TimestampText,
+				_Time=time_utils:get_bin_textual_timestamp(),
 				% No State available here:
 				_Location=net_utils:localnode_as_binary(),
 				_MessageCategorization=
@@ -691,9 +685,6 @@ send_standalone( TraceSeverity, Message, EmitterCategorization ) ->
 
 		AggregatorPid ->
 
-			TimestampText = text_utils:string_to_binary(
-				time_utils:get_textual_timestamp() ),
-
 			PidName = get_emitter_name_from_pid(),
 
 			MessageCategorization =
@@ -705,7 +696,7 @@ send_standalone( TraceSeverity, Message, EmitterCategorization ) ->
 				_TraceEmitterCategorization=
 					text_utils:string_to_binary( EmitterCategorization ),
 				_AppTimestamp=none,
-				_Time=TimestampText,
+				_Time=time_utils:get_bin_textual_timestamp(),
 				% No State available here:
 				_Location=net_utils:localnode_as_binary(),
 				_MessageCategorization=
@@ -754,9 +745,6 @@ send_standalone( TraceSeverity, Message, EmitterName, EmitterCategorization,
 
 		AggregatorPid ->
 
-			TimestampText = text_utils:string_to_binary(
-				time_utils:get_textual_timestamp() ),
-
 			ActualMsgCateg = case MessageCategorization of
 
 				uncategorized ->
@@ -773,7 +761,7 @@ send_standalone( TraceSeverity, Message, EmitterName, EmitterCategorization,
 				_TraceEmitterCategorization=
 						text_utils:string_to_binary( EmitterCategorization ),
 				_AppTimestamp=none,
-				_Time=TimestampText,
+				_Time=time_utils:get_bin_textual_timestamp(),
 				% No State available here:
 				_Location=net_utils:localnode_as_binary(),
 				_MessageCategorization=ActualMsgCateg,
@@ -959,8 +947,6 @@ send_direct( TraceSeverity, Message, BinEmitterCategorization,
 			 AggregatorPid ) ->
 
 	% Follows the order of our trace format; oneway call:
-	TimestampText = text_utils:string_to_binary(
-						time_utils:get_textual_timestamp() ),
 
 	PidName = get_emitter_name_from_pid(),
 
@@ -971,7 +957,7 @@ send_direct( TraceSeverity, Message, BinEmitterCategorization,
 				_TraceEmitterName=text_utils:string_to_binary( PidName ),
 				_TraceEmitterCategorization=BinEmitterCategorization,
 				_AppTimestamp=none,
-				_Time=TimestampText,
+				_Time=time_utils:get_bin_textual_timestamp(),
 				% No State available here:
 				_Location=net_utils:localnode_as_binary(),
 				_TraceMessageCategorization=
@@ -999,8 +985,6 @@ send_direct_synchronisable( TraceSeverity, Message,
 							BinEmitterCategorization, AggregatorPid ) ->
 
 	% Follows the order of our trace format; oneway call:
-	TimestampText = text_utils:string_to_binary(
-						time_utils:get_textual_timestamp() ),
 
 	PidName = get_emitter_name_from_pid(),
 
@@ -1015,7 +999,7 @@ send_direct_synchronisable( TraceSeverity, Message,
 				_TraceEmitterName=text_utils:string_to_binary( PidName ),
 				_TraceEmitterCategorization=BinEmitterCategorization,
 				_AppTimestamp=none,
-				_Time=TimestampText,
+				_Time=time_utils:get_bin_textual_timestamp(),
 				% No State available here:
 				_Location=net_utils:localnode_as_binary(),
 				_TraceMessageCategorization=
@@ -1069,7 +1053,7 @@ get_default_standalone_message_categorization() ->
 
 
 
-% @doc Initializes some context-specific information.
+% @doc Initialises some context-specific information.
 %
 % (helper)
 %
@@ -1246,9 +1230,6 @@ send_synchronised( TraceSeverity, State, Message, MessageCategorization ) ->
 			message_categorization(), app_timestamp() ) -> void().
 send( TraceSeverity, State, Message, MessageCategorization, AppTimestamp ) ->
 
-	TimestampText = text_utils:string_to_binary(
-						time_utils:get_textual_timestamp() ),
-
 	MsgCateg = case MessageCategorization of
 
 		uncategorized ->
@@ -1305,7 +1286,7 @@ send( TraceSeverity, State, Message, MessageCategorization, AppTimestamp ) ->
 		TraceEmitterName,
 		_TraceEmitterCategorization=?getAttr(trace_categorization),
 		AppTimestampString,
-		_Time=TimestampText,
+		_Time=time_utils:get_bin_textual_timestamp(),
 		_Location=?getAttr(emitter_node),
 		_MessageCategorization=MsgCateg,
 		_Priority=trace_utils:get_priority_for( TraceSeverity ),
@@ -1326,9 +1307,6 @@ send_synchronisable( TraceSeverity, State, Message, MessageCategorization,
 	% Almost exactly the same as send/5, except that the sendSync/10 agggregator
 	% request is called instead of the send/10 oneway, so that it sends an
 	% acknowlegment when done.
-
-	TimestampText = text_utils:string_to_binary(
-	   time_utils:get_textual_timestamp() ),
 
 	MsgCateg = case MessageCategorization of
 
@@ -1355,7 +1333,7 @@ send_synchronisable( TraceSeverity, State, Message, MessageCategorization,
 		_TraceEmitterName=?getAttr(name),
 		_TraceEmitterCategorization=?getAttr(trace_categorization),
 		AppTimestampString,
-		_Time=TimestampText,
+		_Time=time_utils:get_bin_textual_timestamp(),
 		_Location=?getAttr(emitter_node),
 		_MessageCategorization=MsgCateg,
 		_Priority=trace_utils:get_priority_for( TraceSeverity ),
@@ -1407,7 +1385,7 @@ send_safe( TraceSeverity, State, Message, MessageCategorization,
 
 
 
-% @doc Waits for the aggregator to report that a trace synchronization has been
+% @doc Waits for the aggregator to report that a trace synchronisation has been
 % completed.
 %
 % (helper)
