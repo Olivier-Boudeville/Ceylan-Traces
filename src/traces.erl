@@ -56,13 +56,13 @@
 
 
 -type priority() :: trace_utils:trace_priority().
-% Numerical version.
+% Numerical version of the severity of a message.
 
 -type trace_severity() :: trace_utils:trace_severity().
-% Textual version: 'emergency', 'alert', and all.
+% Textual version of the severity of a message: 'emergency', 'alert', and all.
 
 -type message() :: ustring().
-
+% A trace message.
 
 -type trace_text_type() :: 'text_only' | 'pdf'.
 % Text traces are either in pure, raw text, or in PDF.
@@ -447,11 +447,21 @@ log( _LogEvent=#{ level := Level,
 			{ FmtStr, FmtValues } = logger:format_report( Report ),
 			text_utils:format( FmtStr, FmtValues );
 
-		  { string, S } ->
+		{ string, S } ->
 			S;
 
 		{ FmtStr, FmtValues } ->
-			text_utils:format( FmtStr, FmtValues );
+			% Always trying to return the most sensible output:
+			%text_utils:format( FmtStr, FmtValues );
+			try
+				io_lib:format( FmtStr, FmtValues )
+			catch
+
+				_:_ ->
+					% Expected never to fail:
+					text_utils:format_failsafe( FmtValues )
+
+			end;
 
 		Other ->
 			throw( { unexpected_log_message, Other } )
