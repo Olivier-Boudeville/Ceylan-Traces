@@ -43,7 +43,6 @@
 
 
 
-
 % Allows to set the right emitter categorization, which is the first, childmost
 % class of the hierarchy of an instance.
 %
@@ -74,30 +73,29 @@
 %                                   emitter_info().
 -define( trace_categorize( TracesInitialisationTermInternal ),
 
-		 % As few variables bound as possible, and longer variable names chosen
-		 % (prefixed with 'Traces'), to avoid clashes with user-defined
-		 % variables:
-		 %
-		 case TracesInitialisationTermInternal of
+	% As few variables bound as possible, and longer variable names chosen
+	% (prefixed with 'Traces'), to avoid clashes with user-defined variables:
+	%
+	case TracesInitialisationTermInternal of
 
-			 % Emitter categorization already set, just propagate as is to next
-			 % mother class:
-			 %
-			 %{ _TraceName, _TraceCategorization } ->
-			 { _, _ } ->
-				 TracesInitialisationTermInternal;
+		% Emitter categorization already set, just propagate as is to next
+		% mother class:
+		%
+		%{ _TraceName, _TraceCategorization } ->
+		{ _, _ } ->
+			TracesInitialisationTermInternal;
 
-			 % Expecting here only a string (we are at the level of the actual,
-			 % effective class), it is the place where the emitter
-			 % categorisation shall be introduced:
-			 %
-			 %TracesStandaloneEmitterName ->
-			 _ ->
-				 { TracesInitialisationTermInternal,
-				   ?trace_emitter_categorization }
+		% Expecting here only a string (we are at the level of the actual,
+		% effective class), it is the place where the emitter categorisation
+		% shall be introduced:
+		%
+		%TracesStandaloneEmitterName ->
+		_ ->
+			{ TracesInitialisationTermInternal,
+			  ?trace_emitter_categorization }
 
-		 end
-).
+	end ).
+
 
 
 % To obtain a proper string-like name, whether a trace categorization has been
@@ -109,21 +107,19 @@
 %                                   emitter_name().
 -define( trace_name( TracesInitialisationTermForNameInternal ),
 
-		 % As few variables bound as possible, and longer variable names chosen
-		 % (prefixed with 'Traces'), to avoid clashes with user-defined
-		 % variables:
-		 %
-		 case TracesInitialisationTermForNameInternal of
+	% As few variables bound as possible, and longer variable names chosen
+	% (prefixed with 'Traces'), to avoid clashes with user-defined variables:
+	%
+	case TracesInitialisationTermForNameInternal of
 
-			 %{ TraceName, _TraceCategorization } ->
-			 { TraceNameForNameInternal, _ } ->
-				 TraceNameForNameInternal;
+		%{ TraceName, _TraceCategorization } ->
+		{ TraceNameForNameInternal, _ } ->
+			TraceNameForNameInternal;
 
-			 TraceNameForNameInternal ->
-				 TraceNameForNameInternal
+		TraceNameForNameInternal ->
+			TraceNameForNameInternal
 
-		 end
-).
+	end ).
 
 
 

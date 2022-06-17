@@ -46,6 +46,7 @@
 -type ustring() :: text_utils:ustring().
 -type bin_string() :: text_utils:bin_string().
 
+-type emitter_info() :: traces:emitter_info().
 -type trace_severity() :: traces:trace_severity().
 -type message() :: traces:message().
 -type message_categorization() :: traces:message_categorization().
@@ -516,6 +517,37 @@ register_as_bridge( TraceEmitterName, TraceCategory, TraceAggregatorPid ) ->
 		text_utils:ensure_binary( TraceCategory ), TraceAggregatorPid } ),
 
 	wooper:return_static_void().
+
+
+
+% @doc Subcategorizes a given emitter name, to introduce an additional grouping
+% for trace supervisors grouping emitter names based on dots.
+%
+% Ex: if the specified emitter name is "foobar", returns "f.foobar", resulting
+% in this name to be sorted among all entries whose name starts with "f".
+%
+-spec subcategorize( emitter_name() ) -> static_return( emitter_name() );
+				   ( emitter_info() ) -> static_return( emitter_info() ).
+% We do not alter the name as any dot in it will be replaced with ':'; we update
+% the categorization instead:
+%
+%subcategorize( _EmitterInfo={ Name, Categ } ) ->
+%   wooper:return_static( { subcategorize_name( Name ), Categ } );
+
+%subcategorize( EmmiterName ) ->
+%   wooper:return_static( subcategorize_name( EmmiterName ) ).
+
+subcategorize( _EmitterInfo={ EmitterName=[ FirstChar | _T ], Categ } ) ->
+	NewCateg = text_utils:format( "~ts.~c", [ Categ, FirstChar ] ),
+	wooper:return_static( { EmitterName, NewCateg } );
+
+subcategorize( EmmiterName ) ->
+	wooper:return_static( EmmiterName ).
+
+
+% (helper)
+%subcategorize_name( EmitterName=[ FirstChar | _T ] ) ->
+%   text_utils:format( "~c.~ts", [ FirstChar, EmitterName ] ).
 
 
 
