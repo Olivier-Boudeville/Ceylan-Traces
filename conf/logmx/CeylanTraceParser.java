@@ -237,9 +237,15 @@ public class CeylanTraceParser extends LogFileParser
 		else if (entry != null)
 		{
 
+			/* Such lines are perfectly normal, they correspond to any message
+			 * comprising more than one line:
+			 *
+
 			System.out.println(
 			  "[Ceylan-Traces parser] Warning: non-matching line '"
 			  + line + "'.");
+
+			 */
 
 			// Appending this line to previous entry's text:
 			entryMsgBuffer.append('\n').append(line);
