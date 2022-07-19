@@ -91,7 +91,7 @@
 % trace_categorization value).
 
 
--type emitter_name() :: ustring() | bin_string().
+-type emitter_name() :: text_utils:any_string().
 % The name of a trace emitter.
 %
 % It is a plain string or a binary one, containing the name of a trace emitter.
