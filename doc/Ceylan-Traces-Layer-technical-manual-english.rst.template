@@ -422,7 +422,21 @@ Notably normal traces (as opposed to error-like ones) are sent in a "fire and fo
 Trace Emitters
 ==============
 
-When sending a trace, an emitter relies on its ``trace_timestamp`` attribute, and sends a (binarised) string representation thereof (obtained thanks to the ``~p`` quantifier of ``io:format/2`` ). This allows the trace subsystem to support all kinds of application-specific traces (ex: integers, floats, tuples, strings, etc.).
+Any class deriving, directly or not, from ``class_TraceEmitter``, is, once constructed as a trace emitter, able to send traces.
+
+
+Timestamps
+----------
+
+When sending a trace, an emitter relies on its ``trace_timestamp`` attribute, and sends a (binarised) string representation thereof (obtained thanks to the ``~p`` quantifier of ``io:format/2`` ). This allows the trace subsystem to support all kinds of application-specific timestamps (ex: integers, floats, tuples, strings, etc.).
+
+
+Multiple Inheritance
+--------------------
+
+Often, in an application, many classes derive - directly or not - from ``class_TraceEmitter``. The constructor of this class is designed to perform its initialisation exactly once (as opposed to as many times as a given class inherits from ``class_TraceEmitter``), the first time it is called (leading typically to the most relevant emitter state in terms of name, categorization, etc.).
+
+Refer to `this WOOPER section about diamond-shaped inheritance <https://wooper.esperide.org/#the-special-case-of-diamond-shaped-inheritance>`_ for further details.
 
 
 
