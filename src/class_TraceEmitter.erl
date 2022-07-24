@@ -219,21 +219,34 @@ construct( State, _EmitterInit={ EmitterName, EmitterCategorization } ) ->
 	%   "whose PID is ~w and whose categorization is '~ts'.",
 	%   [ ?LogPrefix, EmitterName, self(), EmitterCategorization ] ),
 
-	InitState = init( State ),
+	% Often classes inherit more than once from trace emitter; in this case, to
+	% avoid multiple initialisations, we consider that the first construction is
+	% the one that shall be retained, all next ones (if any) being then skipped:
+	%
+	case hasAttribute( State, trace_aggregator_pid ) of
 
-	BinName = check_and_binarise_name( EmitterName ),
+		% Already initialised:
+		true ->
+			State;
 
-	BinCategorization = text_utils:ensure_binary( EmitterCategorization ),
+		false ->
+			InitState = init( State ),
 
-	setAttributes( InitState, [
-		{ name, BinName },
-		{ trace_categorization, BinCategorization },
-		{ trace_timestamp, undefined } ] );
+			BinName = check_and_binarise_name( EmitterName ),
 
+			BinCategorization =
+				text_utils:ensure_binary( EmitterCategorization ),
+
+			setAttributes( InitState, [
+				{ name, BinName },
+				{ trace_categorization, BinCategorization },
+				{ trace_timestamp, undefined } ] )
+
+	end;
 
 % Should no mother class have set it:
 construct( State, EmitterName ) ->
-		% Useless, as checked afterwards: when is_list( EmitterName ) ->
+	% Useless, as checked afterwards: when is_list( EmitterName ) ->
 	construct( State, _EmitterInit={ EmitterName,
 									 ?default_trace_emitter_categorization } ).
 
