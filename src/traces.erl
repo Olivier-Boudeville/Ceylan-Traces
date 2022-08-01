@@ -40,8 +40,19 @@
 
 -type emitter_name() :: ustring().
 
+
 -type emitter_categorization() :: ustring().
+% The categorization of a trace emitter.
+%
+% It is a plain string listing increasingly detailed trace sub-categories,
+% separated by dots.
+%
+% Ex: "topics.sports.basketball"
+
+
 -type emitter_bin_categorization() :: bin_string().
+% Ex: `<<"topics.sports.basketball">>'.
+
 
 -type emitter_info() :: { emitter_name(), emitter_categorization() }.
 

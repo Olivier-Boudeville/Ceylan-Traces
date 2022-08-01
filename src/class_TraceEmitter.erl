@@ -50,6 +50,8 @@
 -type trace_severity() :: traces:trace_severity().
 -type message() :: traces:message().
 -type message_categorization() :: traces:message_categorization().
+-type emitter_categorization() :: traces:emitter_categorization().
+-type bin_emitter_categorization() :: traces:bin_emitter_categorization().
 -type app_timestamp() :: traces:app_timestamp().
 -type priority() :: traces:priority().
 
@@ -100,20 +102,6 @@
 % separator).
 %
 % Ex: "MyObject 16", or `<<"First Talker">>'.
-
-
-
--type emitter_categorization() :: ustring().
-% The categorization of a trace emitter.
-%
-% It is a plain string listing increasingly detailed trace sub-categories,
-% separated by dots.
-%
-% Ex: "topics.sports.basketball"
-%
-
--type bin_emitter_categorization() :: bin_string().
-% Ex: `<<"topics.sports.basketball">>'.
 
 
 -type emitter_init() :: emitter_name()
@@ -547,7 +535,7 @@ register_as_bridge( TraceEmitterName, TraceCategory, TraceAggregatorPid ) ->
 %subcategorize( _EmitterInfo={ Name, Categ } ) ->
 %   wooper:return_static( { subcategorize_name( Name ), Categ } );
 
-%subcategorize( EmmiterName ) ->
+%subcategorize( EmitterName ) ->
 %   wooper:return_static( subcategorize_name( EmmiterName ) ).
 
 subcategorize( _EmitterInfo={ EmitterName=[ FirstChar | _T ], Categ } ) ->
