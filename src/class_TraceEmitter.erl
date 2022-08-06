@@ -320,15 +320,8 @@ check_string_name( Name ) ->
 	% Dots are not allowed in emitter names (as they are interpreted as
 	% subcategories), whereas for example FQDNs have such characters:
 
-	%case text_utils:split_at_first( _Marker=$., Name ) of
-	%
-	%   none_found ->
-	%       ok;
-	%
-	%   _ ->
-	%       throw( { no_dot_allowed_in_emitter_name, FlatName } )
-	%
-	%end.
+	% text_utils:split_at_first( _Marker=$., Name ) =:= none_found orelse
+	%     throw( { no_dot_allowed_in_emitter_name, FlatName }
 
 	text_utils:substitute( _Source=$., _Target=$:, FlatName ).
 
@@ -952,16 +945,9 @@ send_standalone_safe( TraceSeverity, Message, EmitterName,
 				_Priority=trace_utils:get_priority_for( TraceSeverity ),
 				BinMessage ], self() },
 
-			case trace_utils:is_error_like( TraceSeverity ) of
-
-				true ->
+			trace_utils:is_error_like( TraceSeverity ) andalso
 					trace_utils:echo( Message, TraceSeverity,
-									  MessageCategorization, TimestampText );
-
-				false ->
-					ok
-
-			end,
+									  MessageCategorization, TimestampText ),
 
 			wait_aggregator_sync()
 
@@ -1207,7 +1193,7 @@ send_synchronised( TraceSeverity, State, Message ) ->
 % Message is a plain string, MessageCategorization as well unless it is the
 % 'uncategorized' atom.
 %
-% All information available but the timestamp, determining its availability:
+% All information available but the timestamp, determining its availability.
 %
 % (helper)
 %
@@ -1221,7 +1207,7 @@ send( TraceSeverity, State, Message, MessageCategorization ) ->
 
 % @doc Sends specified trace message.
 %
-% All information available but the timestamp, determining its availability:
+% All information available but the timestamp, determining its availability.
 %
 % (helper)
 %
@@ -1241,7 +1227,7 @@ send_safe( TraceSeverity, State, Message, MessageCategorization ) ->
 % Sends specified synchronised trace message (the synchronisation answer is
 % requested and waited).
 %
-% All information available but the timestamp, determining its availability:
+% All information available but the timestamp, determining its availability.
 %
 % (helper)
 %
@@ -1302,18 +1288,17 @@ send( TraceSeverity, State, Message, MessageCategorization, AppTimestamp ) ->
 	% but a pair with the trace categorization, or it may be a string whereas we
 	% expect now a binary string)
 	%
-	cond_utils:if_debug( case text_utils:is_bin_string( TraceEmitterName ) of
+	cond_utils:if_debug(
+		text_utils:is_bin_string( TraceEmitterName ) orelse
+			begin
 
-		true ->
-			ok;
+				trace_utils:notice( "Hint: did you set the 'name' attribute "
+					"after the construction of mother classes to, for example, "
+					"a value of type string (instead of binary string)?" ),
 
-		false ->
-			trace_utils:notice( "Hint: did you set the 'name' attribute "
-				"after the construction of mother classes to, for example, "
-				"a value of type string (instead of binary string)?" ),
-			throw( { non_binary_string_emitter_name, TraceEmitterName } )
+				throw( { non_binary_string_emitter_name, TraceEmitterName } )
 
-						 end ),
+			end ),
 
 	?getAttr(trace_aggregator_pid) ! { send, [
 		_TraceEmitterPid=self(),
