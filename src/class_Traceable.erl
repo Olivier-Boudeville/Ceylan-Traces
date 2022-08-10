@@ -26,10 +26,11 @@
 % Creation date: Saturday, August 6, 2022.
 
 
-% @doc Interface class implementing the Traceable trait, so that the instances
-% having that trait can send traces by whichever means is the most appropriate,
-% whether or not they are actually full-blown class_TraceEmitter instances, or
-% have a trace_bridge registered, or just have to rely on the most basic traces.
+% @doc Interface class implementing the <b>Traceable trait</b>, so that the
+% instances having that trait can <b>emit traces</b> by whichever means is the
+% most appropriate, whether or not they are actually full-blown
+% class_TraceEmitter instances, or have a trace_bridge registered, or just have
+% to rely on the most basic traces.
 %
 % By providing the most lightweight way of emitting traces, such a trait favors
 % composition over multiple inheritance; otherwise many concrete classes would
@@ -39,12 +40,18 @@
 % introducing the use of actual classes is not felt desirable; we prefer that
 % such interfaces derive from this Traceable one).
 %
+% This interface does not define attributes or methods of its own, and does not
+% require specific initialisation or termination (it is mostly useful thanks to
+% its header file). As such, it could even be omitted in the declarations of
+% superclasses and composed interfaces, although we recommend listing it
+% explicitly, for clarity reasons.
+%
 -module(class_Traceable).
 
 
 -define( class_description,
-		 "Interface to be implemented by all instances implementing the Trace "
-		 "API, that is are able to emit some kind of trace." ).
+		 "Interface to be implemented by all instances supporting the Trace "
+		 "API, that is are able to emit some kind of traces." ).
 
 
 % No superclasses.
@@ -84,25 +91,18 @@
 % Helper functions:
 -export([ send/3, send_safe/3 ]).
 
-
-
--export_type([  ]).
+% Exported helper functions that can be applied to any WOOPER state:
+-export([ to_maybe_string/1 ]).
 
 
 % Allows to define WOOPER base variables and methods for that class:
 -include_lib("wooper/include/wooper.hrl").
 
 
-% For send_from_* and all:
-%-include("class_TraceAggregator.hrl").
-
-
-% For trace_aggregator_name:
-%-include("class_TraceEmitter.hrl").
-
-
 
 % Shorthands:
+
+-type ustring() :: text_utils:ustring().
 
 -type trace_severity() :: traces:trace_severity().
 -type message() :: traces:message().
@@ -189,5 +189,37 @@ send_safe( Severity, State, Message ) ->
 
 		false ->
 			trace_bridge:send( Severity, Message )
+
+	end.
+
+
+
+% The following helper functions can be used in the context of any class,
+% whether or not it implements the Traceable interface.
+
+
+% @doc Returns a textual element of description of the corresponding instance,
+% should it implement the Traceable interface.
+%
+% (exported helper)
+%
+-spec to_maybe_string( wooper:state() ) -> maybe( ustring() ).
+to_maybe_string( State ) ->
+	case ?getMaybeAttr(name) of
+
+		undefined ->
+			undefined;
+
+		Name ->
+			case ?getMaybeAttr(trace_emitter_categorization) of
+
+				undefined ->
+					text_utils:format( "named '~ts'", [ Name ] );
+
+				EmitterCateg ->
+					text_utils:format( "named '~ts', categorized as ~ts",
+									   [ Name, EmitterCateg ] )
+
+			end
 
 	end.
