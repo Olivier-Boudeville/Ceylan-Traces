@@ -43,8 +43,8 @@
 % This interface does not define attributes or methods of its own, and does not
 % require specific initialisation or termination (it is mostly useful thanks to
 % its header file). As such, it could even be omitted in the declarations of
-% superclasses and composed interfaces, although we recommend listing it
-% explicitly, for clarity reasons.
+% superclasses and possibly any composed interfaces, although we recommend
+% listing it explicitly, for clarity reasons.
 %
 -module(class_Traceable).
 
