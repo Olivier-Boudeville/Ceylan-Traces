@@ -10,24 +10,32 @@
 <hr>
 
 <h1>Module class_Traceable</h1>
-<ul class="index"><li><a href="#description">Description</a></li><li><a href="#types">Data Types</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>Interface class implementing the Traceable trait, so that the instances 
-having that trait can send traces by whichever means is the most appropriate, 
-whether or not they are actually full-blown class_TraceEmitter instances, or 
-have a trace_bridge registered, or just have to rely on the most basic traces.
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#types">Data Types</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>Interface class implementing the <b>Traceable trait</b>, so that the
+ instances having that trait can <b>emit traces</b> by whichever means is the 
+most appropriate, whether or not they are actually full-blown 
+class_TraceEmitter instances, or have a trace_bridge registered, or just have 
+to rely on the most basic traces.
 
 
-<h2><a name="description">Description</a></h2><p>Interface class implementing the Traceable trait, so that the instances 
-having that trait can send traces by whichever means is the most appropriate, 
-whether or not they are actually full-blown class_TraceEmitter instances, or 
-have a trace_bridge registered, or just have to rely on the most basic traces.</p>
+<h2><a name="description">Description</a></h2><p>Interface class implementing the <b>Traceable trait</b>, so that the
+ instances having that trait can <b>emit traces</b> by whichever means is the 
+most appropriate, whether or not they are actually full-blown 
+class_TraceEmitter instances, or have a trace_bridge registered, or just have 
+to rely on the most basic traces.</p>
 
- By providing the most lightweight way of emitting traces, such a trait favors
- composition over multiple inheritance; otherwise many concrete classes would
- derive more than once from the class_TraceEmitter one (this would be a minor
- nuisance) or, worse, other traits would induce in turn a class_TraceEmitter
- inheritance, each time they would have to send a trace (whereas interfaces
- introducing the use of actual classes is not felt desirable; we prefer that
- such interfaces derive from this Traceable one).
+ <p>By providing the most lightweight way of emitting traces, such a trait favors 
+composition over multiple inheritance; otherwise many concrete classes would 
+derive more than once from the class_TraceEmitter one (this would be a minor 
+nuisance) or, worse, other traits would induce in turn a class_TraceEmitter 
+inheritance, each time they would have to send a trace (whereas interfaces 
+introducing the use of actual classes is not felt desirable; we prefer that 
+such interfaces derive from this Traceable one).</p>
+
+ This interface does not define attributes or methods of its own, and does not
+ require specific initialisation or termination (it is mostly useful thanks to
+ its header file). As such, it could even be omitted in the declarations of
+ superclasses and possibly any composed interfaces, although we recommend
+ listing it explicitly, for clarity reasons.
 
 <h2><a name="types">Data Types</a></h2>
 
@@ -103,6 +111,10 @@ have a trace_bridge registered, or just have to rely on the most basic traces.</
 <p><tt>trace_severity() = <a href="traces.html#type-trace_severity">traces:trace_severity()</a></tt></p>
 
 
+<h3 class="typedecl"><a name="type-ustring">ustring()</a></h3>
+<p><tt>ustring() = <a href="text_utils.html#type-ustring">text_utils:ustring()</a></tt></p>
+
+
 <h2><a name="index">Function Index</a></h2>
 <table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#addKeyValueToAttribute-4">addKeyValueToAttribute/4</a></td><td></td></tr>
 <tr><td valign="top"><a href="#addToAttribute-3">addToAttribute/3</a></td><td></td></tr>
@@ -141,6 +153,8 @@ traces as well.</td></tr>
 <tr><td valign="top"><a href="#setAttributes-2">setAttributes/2</a></td><td></td></tr>
 <tr><td valign="top"><a href="#subtractFromAttribute-3">subtractFromAttribute/3</a></td><td></td></tr>
 <tr><td valign="top"><a href="#swapInAttribute-3">swapInAttribute/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#to_maybe_string-1">to_maybe_string/1</a></td><td>Returns a textual element of description of the corresponding instance, 
+should it implement the Traceable interface.</td></tr>
 <tr><td valign="top"><a href="#toggleAttribute-2">toggleAttribute/2</a></td><td></td></tr>
 <tr><td valign="top"><a href="#wooper_destruct-1">wooper_destruct/1</a></td><td></td></tr>
 <tr><td valign="top"><a href="#wooper_effective_method_execution-4">wooper_effective_method_execution/4</a></td><td></td></tr>
@@ -302,7 +316,7 @@ traces as well.</td></tr>
 
 <h3 class="function"><a name="getMaybeAttribute-2">getMaybeAttribute/2</a></h3>
 <div class="spec">
-<p><tt>getMaybeAttribute(State::<a href="wooper.html#type-state">wooper:state()</a>, AttributeName::<a href="#type-attribute_name">attribute_name()</a>) -&gt; <a href="#type-maybe">maybe</a>({value, <a href="#type-attribute_value">attribute_value()</a>})</tt><br></p>
+<p><tt>getMaybeAttribute(State::<a href="wooper.html#type-state">wooper:state()</a>, AttributeName::<a href="#type-attribute_name">attribute_name()</a>) -&gt; <a href="#type-maybe">maybe</a>(<a href="#type-attribute_value">attribute_value()</a>)</tt><br></p>
 <p> </p>
 </div>
 
@@ -382,6 +396,16 @@ traces as well.</p>
 <p><tt>swapInAttribute(State::<a href="wooper.html#type-state">wooper:state()</a>, AttributeName::<a href="#type-attribute_name">attribute_name()</a>, NewAttributeValue::<a href="#type-attribute_value">attribute_value()</a>) -&gt; {<a href="wooper.html#type-state">wooper:state()</a>, <a href="#type-attribute_value">attribute_value()</a>}</tt><br></p>
 <p> </p>
 </div>
+
+<h3 class="function"><a name="to_maybe_string-1">to_maybe_string/1</a></h3>
+<div class="spec">
+<p><tt>to_maybe_string(State::<a href="wooper.html#type-state">wooper:state()</a>) -&gt; <a href="#type-maybe">maybe</a>(<a href="#type-ustring">ustring()</a>)</tt><br></p>
+<p> </p>
+</div><p><p>Returns a textual element of description of the corresponding instance, 
+should it implement the Traceable interface.</p>
+
+ (exported helper)
+</p>
 
 <h3 class="function"><a name="toggleAttribute-2">toggleAttribute/2</a></h3>
 <div class="spec">
