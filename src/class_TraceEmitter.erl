@@ -77,7 +77,7 @@
 		  send_synchronised/3, send_synchronised/4, send_synchronised/5,
 		  get_trace_timestamp/1, get_trace_timestamp_as_binary/1,
 		  get_plain_name/1, get_short_description/1,
-		  sync/1, await_output_completion/0 ]).
+		  sync/1, await_output_completion/0, send_standalone/2 ]).
 
 
 % The class-specific trace_emitter_categorization define will be set in the
