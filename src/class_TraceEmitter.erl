@@ -190,8 +190,11 @@
 -type trace_severity() :: traces:trace_severity().
 -type message() :: traces:message().
 -type message_categorization() :: traces:message_categorization().
+
 -type emitter_categorization() :: traces:emitter_categorization().
 -type bin_emitter_categorization() :: traces:bin_emitter_categorization().
+-type emitter_any_categorization() :: traces:emitter_any_categorization().
+
 -type app_timestamp() :: traces:app_timestamp().
 -type priority() :: traces:priority().
 
@@ -1148,15 +1151,15 @@ get_categorization( State ) ->
 %
 % Setting that categorization early in the constructor, before sending any
 % trace, allows to have all traces for a given emitter be correctly gathered in
-% the same category, which is a lot clearer when browsing afterwards.
+% the same category, which is a lot clearer when browsing traces afterwards.
 %
 % (helper)
 %
--spec set_categorization( emitter_categorization(), wooper:state() ) ->
+-spec set_categorization( emitter_any_categorization(), wooper:state() ) ->
 								wooper:state().
-set_categorization( TraceEmitterCategorization, State ) ->
+set_categorization( TraceEmitterAnyCategorization, State ) ->
 	setAttribute( State, trace_emitter_categorization,
-				  text_utils:string_to_binary( TraceEmitterCategorization ) ) .
+				  text_utils:ensure_binary( TraceEmitterAnyCategorization ) ) .
 
 
 

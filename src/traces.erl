@@ -54,6 +54,10 @@
 % Ex: `<<"topics.sports.basketball">>'.
 
 
+-type emitter_any_categorization() :: emitter_categorization()
+									| emitter_bin_categorization().
+% Any kind of categorization of a trace emitter.
+
 -type emitter_info() :: { emitter_name(), emitter_categorization() }.
 
 -type app_timestamp() :: trace_utils:trace_timestamp().
@@ -96,7 +100,10 @@
 
 
 -export_type([ emitter_name/0,
+
 			   emitter_categorization/0, emitter_bin_categorization/0,
+			   emitter_any_categorization/0,
+
 			   emitter_info/0,
 			   app_timestamp/0, time/0, location/0, message_categorization/0,
 			   priority/0, message/0, trace_severity/0,
@@ -253,7 +260,7 @@ manage_supervision() ->
 
 			% Expected to be already created:
 			TraceAggregatorPid = class_TraceAggregator:get_aggregator(
-									_CreateIfNotAvailable=false ),
+											_CreateIfNotAvailable=false ),
 
 			% Not blocking the calling process until the supervision is over:
 			TraceAggregatorPid ! { launchTraceSupervisor, [], self() },
@@ -465,7 +472,9 @@ log( _LogEvent=#{ level := Level,
 			% Always trying to return the most sensible output:
 			%text_utils:format( FmtStr, FmtValues );
 			try
+
 				io_lib:format( FmtStr, FmtValues )
+
 			catch
 
 				_:_ ->
