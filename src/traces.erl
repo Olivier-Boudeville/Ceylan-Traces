@@ -27,7 +27,8 @@
 
 
 % @doc Module gathering all code, common to tests and applications, that allows
-% to <b>lighten the trace macros or to share defines and types</b>.
+% to <b>lighten the trace macros, share defines and types, or manage log
+% handlers</b>.
 %
 -module(traces).
 
@@ -407,7 +408,7 @@ get_handler_config() ->
 
 		% Most probably trace_aggregator_not_found:
 		Error ->
-			throw( Error )
+			throw( { no_handler_config_obtained, Error } )
 
 	end,
 
