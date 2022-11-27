@@ -395,22 +395,15 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 			% globally), we plug ourselves as the (single) logger handler from
 			% now:
 			%
-			% (we relaxed the "global" constraint as we do not see anymore its
-			% necessity and we tend to increasingly use local scopes in order to
-			% have multiple instances)
-			%
-			%case RegScope =:= global_only
-			%		orelse RegScope =:= local_and_global of
+			override_standard_logger_handler( RegScope ) andalso
+				begin
 
-			%	true ->
-					send_internal_deferred( info, "Self-registering as default "
-						"standard logger handler." ),
+					send_internal_deferred( info, "Self-registering as "
+						"the default standard logger handler." ),
+
 					traces:set_handler( self() )
 
-			%	false ->
-			%		ok
-
-			%end
+				end
 
 	end,
 
@@ -540,12 +533,8 @@ destruct( State ) ->
 
 				{ _ExitCode=0, _Output } ->
 
-					case ?getAttr(is_batch) of
-
-						true ->
-							ok;
-
-						false ->
+					?getAttr(is_batch) orelse
+						begin
 							trace_utils:info_fmt( "~ts Displaying PDF trace "
 								"report.", [ ?LogPrefix ] ),
 
@@ -564,15 +553,11 @@ destruct( State ) ->
 
 	end,
 
-	case RegScope =:= global_only orelse RegScope =:= local_and_global of
-
-		true ->
-			traces:reset_handler();
-
-		false ->
-			ok
-
-	end,
+	% Otherwise would block the proper termination of the OTP Traces application
+	% (see traces_otp_application_test.erl):
+	%
+	override_standard_logger_handler( RegScope ) andalso
+		traces:reset_handler(),
 
 	%trace_utils:info_fmt( "~ts Aggregator deleted.", [ ?LogPrefix ] ),
 
@@ -1520,6 +1505,32 @@ initialize_supervision( State ) ->
 	%trace_utils:debug_fmt( "Created supervisor: ~w.", [ MaybeSupervPid ] ),
 
 	setAttribute( SentState, supervisor_pid, MaybeSupervPid ).
+
+
+
+
+% @doc Tells whether this aggregator shall be used as the default standard
+% logger handler.
+%
+% Centralised to avoid unmatched setting/unsetting of the standard handler.
+%
+-spec override_standard_logger_handler( registration_scope() ) -> void().
+
+% We relaxed the "global" constraint, as we do not see anymore its necessity;
+% moreover we tend to increasingly use local scopes in order to have multiple
+% instances coexist independently, and we surely do not want to miss any
+% (standard) log message that would be only in erlang.log.* files; so:
+
+%override_standard_logger_handler( _RegScope=global_only ) ->
+%	true;
+
+%override_standard_logger_handler( _RegScope=local_and_global ) ->
+%	true;
+
+%override_standard_logger_handler( _RegScope ) ->
+%	false;
+override_standard_logger_handler( _RegScope ) ->
+	true.
 
 
 
