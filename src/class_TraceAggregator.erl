@@ -395,18 +395,22 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 			% globally), we plug ourselves as the (single) logger handler from
 			% now:
 			%
-			case RegScope =:= global_only
-						orelse RegScope =:= local_and_global of
+			% (we relaxed the "global" constraint as we do not see anymore its
+			% necessity and we tend to increasingly use local scopes in order to
+			% have multiple instances)
+			%
+			%case RegScope =:= global_only
+			%		orelse RegScope =:= local_and_global of
 
-				true ->
-					send_internal_deferred( info, "Self registering as default "
+			%	true ->
+					send_internal_deferred( info, "Self-registering as default "
 						"standard logger handler." ),
-					traces:set_handler( self() );
+					traces:set_handler( self() )
 
-				false ->
-					ok
+			%	false ->
+			%		ok
 
-			end
+			%end
 
 	end,
 
