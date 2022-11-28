@@ -222,8 +222,9 @@
 % The aggregator can be (optionally) plugged to an OTP supervision tree, thanks
 % to the Traces supervisor bridge (see the traces_sup module).
 %
-% The most usual registration scope for a trace aggregator is global_only; as
-% such this is the convention that was first prioritised and tuned for.
+% The most usual registration scope for a trace aggregator used to be
+% global_only, as such this is the convention that was first prioritised and
+% tuned for, yet it is now increasingly local, to uncouple applications.
 
 
 
@@ -458,6 +459,18 @@ destruct( State ) ->
 
 	%trace_utils:debug_fmt( "~ts Deleting trace aggregator.", [ ?LogPrefix ] ),
 
+	% Otherwise would block the proper termination of the OTP Traces application
+	% (see traces_otp_application_test.erl):
+	%
+	% (reset now rather than later, as no trace will be written anymore; we want
+	% to minimise the risk that any standard log is lost because of this
+	% termination)
+
+	RegScope = ?getAttr(registration_scope),
+
+	override_standard_logger_handler( RegScope ) andalso
+		traces:reset_handler(),
+
 	?getAttr(overload_monitor_pid) ! delete,
 
 	case ?getAttr(watchdog_pid) of
@@ -470,21 +483,8 @@ destruct( State ) ->
 
 	end,
 
-
-	% Class-specific actions:
-
-	RegScope = ?getAttr(registration_scope),
-
-	case RegScope of
-
-		undefined ->
-			ok;
-
-		RegScope ->
-			% (handler reset in this function, below)
-			naming_utils:unregister( ?trace_aggregator_name, RegScope )
-
-	end,
+	RegScope =:= undefined orelse
+		naming_utils:unregister( ?trace_aggregator_name, RegScope ),
 
 	FooterState = manage_trace_footer( State ),
 
@@ -552,12 +552,6 @@ destruct( State ) ->
 			end
 
 	end,
-
-	% Otherwise would block the proper termination of the OTP Traces application
-	% (see traces_otp_application_test.erl):
-	%
-	override_standard_logger_handler( RegScope ) andalso
-		traces:reset_handler(),
 
 	%trace_utils:info_fmt( "~ts Aggregator deleted.", [ ?LogPrefix ] ),
 
@@ -1005,7 +999,7 @@ sync( State ) ->
 -spec setMinimumTraceFileSizeForRotation( wooper:state(), byte_size() ) ->
 												oneway_return().
 setMinimumTraceFileSizeForRotation( State, MinFileSize )
-  when is_integer( MinFileSize ) ->
+										when is_integer( MinFileSize ) ->
 
 	send_internal_deferred( info, "Setting minimum size for trace file to ~ts.",
 		[ system_utils:interpret_byte_size_with_unit( MinFileSize ) ] ),
@@ -1514,7 +1508,7 @@ initialize_supervision( State ) ->
 %
 % Centralised to avoid unmatched setting/unsetting of the standard handler.
 %
--spec override_standard_logger_handler( registration_scope() ) -> void().
+-spec override_standard_logger_handler( registration_scope() ) -> boolean().
 
 % We relaxed the "global" constraint, as we do not see anymore its necessity;
 % moreover we tend to increasingly use local scopes in order to have multiple
@@ -1641,15 +1635,8 @@ send_internal_deferred( TraceSeverity, Message ) ->
 		_Priority=trace_utils:get_priority_for( TraceSeverity ),
 		Message ] },
 
-	case trace_utils:is_error_like( TraceSeverity ) of
-
-		true ->
-			trace_utils:echo( Message, TraceSeverity );
-
-		false ->
-			ok
-
-	end.
+	trace_utils:is_error_like( TraceSeverity ) andalso
+		trace_utils:echo( Message, TraceSeverity ).
 
 
 
