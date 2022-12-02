@@ -68,6 +68,7 @@
 % defined
 %
 -ifndef(TraceType).
+
 	-define( TraceType, advanced_traces ).
 	%-define( TraceType, { text_traces, pdf } ).
 	%-define( TraceType, { text_traces, text_only } ).
