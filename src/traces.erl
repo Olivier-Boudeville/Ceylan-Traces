@@ -86,7 +86,7 @@
 
 
 -type trace_supervision_type() :: 'advanced_traces'
-								| { 'text_traces', trace_text_type() }.
+							  | { 'text_traces', trace_text_type() }.
 % A trace type must be selected so that, when the traces are aggregated, the
 % corresponding output is compliant with the tools to be used for supervision.
 %
