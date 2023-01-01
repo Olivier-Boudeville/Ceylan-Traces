@@ -23,7 +23,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Organisation:</th><td class="field-body"><p class="first">Copyright (C) 2010-2022 Olivier Boudeville</p>
+<tr class="field"><th class="field-name">Organisation:</th><td class="field-body"><p class="first">Copyright (C) 2010-2023 Olivier Boudeville</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Contact:</th><td class="field-body"><p class="first">about (dash) traces (at) esperide (dot) com</p>
@@ -32,10 +32,10 @@
 <tr class="field"><th class="field-name">Creation date:</th><td class="field-body"><p class="first">Sunday, August 15, 2010</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Wednesday, September 7, 2022</p>
+<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Sunday, January 1, 2023</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">1.0.14</p>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">1.0.15</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Status:</th><td class="field-body"><p class="first">Stable</p>
@@ -169,9 +169,15 @@ The next level of information is either to browse the <a class="reference extern
 </tbody>
 </table>
 <p><span class="raw-html"></center></span></p>
-<p>Starting from <tt class="docutils literal">warning</tt> onward (thus included), these severities are considered as error-like, and as such will never be disabled and will be echoed on the console as well.</p>
-<p>There is also an addition trace severity, <tt class="docutils literal">void</tt>, that designates traces that shall be muted in all cases.</p>
-<p>Its purpose is to provide another means of muting/unmuting some traces, instead of commenting out/uncommenting said traces.</p>
+<p>Starting from <tt class="docutils literal">notice</tt> <a class="footnote-reference" href="#footnote-2" id="footnote-reference-2">[2]</a> onward (thus included), these severities are considered as significant enough to never be disabled (thus their messages will be created and sent to the trace aggregator in all cases).</p>
+<table class="docutils footnote" frame="void" id="footnote-2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#footnote-reference-2">[2]</a></td><td>A good practice is to only send few <tt class="docutils literal">notice</tt> messages (a fixed/bounded number of them). For example, one of such messages may be sent once a singleton instance is fully constructed (avoiding one notice message per call of a given request, or one per instance - should there may be many of them).</td></tr>
+</tbody>
+</table>
+<p>Moreover the severities that are &quot;error-like&quot; (starting from <tt class="docutils literal">warning</tt> onward) will be synchronously sent to the trace aggregator, and echoed on the console as well, to ensure none is lost. Doing so is certainly a bit more resource-demanding, yet such traces shall denote exceptional conditions anyway.</p>
+<p>There is also an additional trace severity, <tt class="docutils literal">void</tt>, that designates traces that shall be muted in all cases. Its purpose is to provide another means of muting/unmuting some traces, instead of commenting out/uncommenting said traces, or relying, thanks to <tt class="docutils literal">cond_utils</tt>, on conditionally-compiled code.</p>
 <p></p>
 </div>
 <div class="section" id="trace-content-1">
@@ -259,11 +265,11 @@ The next level of information is either to browse the <a class="reference extern
 <pre class="code erlang literal-block">
 <span class="p">-</span><span class="ni">define</span><span class="p">(</span><span class="no">trace_emitter_categorization</span><span class="p">,</span><span class="s">&quot;Animals.Cats&quot;</span><span class="p">).</span>
 </pre>
-<p>and use it in the constructor like the following example, where <tt class="docutils literal">class_Cat</tt> inherits directly from <tt class="docutils literal">class_Creature</tt> <a class="footnote-reference" href="#footnote-2" id="footnote-reference-2">[2]</a> - supposingly itself a child class of <tt class="docutils literal">class_TraceEmitter</tt>:</p>
-<table class="docutils footnote" frame="void" id="footnote-2" rules="none">
+<p>and use it in the constructor like the following example, where <tt class="docutils literal">class_Cat</tt> inherits directly from <tt class="docutils literal">class_Creature</tt> <a class="footnote-reference" href="#footnote-3" id="footnote-reference-3">[3]</a> - supposingly itself a child class of <tt class="docutils literal">class_TraceEmitter</tt>:</p>
+<table class="docutils footnote" frame="void" id="footnote-3" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#footnote-reference-2">[2]</a></td><td>We chose on purpose, with <tt class="docutils literal">class_Creature</tt>, a classname that differs from <tt class="docutils literal">class_Animal</tt>, to better illustrate that trace categories can be freely specified.</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#footnote-reference-3">[3]</a></td><td>We chose on purpose, with <tt class="docutils literal">class_Creature</tt>, a classname that differs from <tt class="docutils literal">class_Animal</tt>, to better illustrate that trace categories can be freely specified.</td></tr>
 </tbody>
 </table>
 <pre class="code erlang literal-block">
@@ -282,11 +288,11 @@ The next level of information is either to browse the <a class="reference extern
   </span><span class="nv">FinalState</span><span class="p">.</span>
 </pre>
 <p>Then all traces sent by all cats will be automatically registered with this trace emitter category.</p>
-<p>The purpose of the <tt class="docutils literal">trace_categorize</tt> macro used in the above example is to register the trace categorisation defined through the inheritance tree so that, right from the start, the most precise category is used for all emitted traces <a class="footnote-reference" href="#footnote-3" id="footnote-reference-3">[3]</a>.</p>
-<table class="docutils footnote" frame="void" id="footnote-3" rules="none">
+<p>The purpose of the <tt class="docutils literal">trace_categorize</tt> macro used in the above example is to register the trace categorisation defined through the inheritance tree so that, right from the start, the most precise category is used for all emitted traces <a class="footnote-reference" href="#footnote-4" id="footnote-reference-4">[4]</a>.</p>
+<table class="docutils footnote" frame="void" id="footnote-4" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#footnote-reference-3">[3]</a></td><td>Otherwise, should the various constructors involved declare their own categorisation (which is the general case) and send traces, creating a cat instance would result in having these traces sorted under different emitter categories (ex: the one declared by <tt class="docutils literal">class_Creature</tt>, then by <tt class="docutils literal">class_Cat</tt>, etc.). Tracking the messages emitted by a given instance would be made more difficult than needed, using this macro allows to have them gathered all in the most precise category from the start.</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#footnote-reference-4">[4]</a></td><td>Otherwise, should the various constructors involved declare their own categorisation (which is the general case) and send traces, creating a cat instance would result in having these traces sorted under different emitter categories (ex: the one declared by <tt class="docutils literal">class_Creature</tt>, then by <tt class="docutils literal">class_Cat</tt>, etc.). Tracking the messages emitted by a given instance would be made more difficult than needed, using this macro allows to have them gathered all in the most precise category from the start.</td></tr>
 </tbody>
 </table>
 </div>
@@ -323,11 +329,11 @@ The next level of information is either to browse the <a class="reference extern
 <div class="section" id="trace-ordering">
 <h1><a class="toc-backref" href="#toc-entry-11">Trace Ordering</a></h1>
 <p>It should be noted that the ordering of the reported traces is the one seen by the trace aggregator, based on their receiving order by this process (not for example based on any sending order of the various emitters involved - there is hardly any distributed global time available anyway).</p>
-<p>So, due to network and emitter latencies, it may happen (rather infrequently) that in a distributed setting a trace message associated to a cause ends up being listed, among the registered traces, <em>after</em> a trace message associated to a consequence thereof <a class="footnote-reference" href="#footnote-4" id="footnote-reference-4">[4]</a>; nevertheless each trace includes a wall-clock timestamp corresponding to its sending (hence expressed according to the local time of its trace emitter).</p>
-<table class="docutils footnote" frame="void" id="footnote-4" rules="none">
+<p>So, due to network and emitter latencies, it may happen (rather infrequently) that in a distributed setting a trace message associated to a cause ends up being listed, among the registered traces, <em>after</em> a trace message associated to a consequence thereof <a class="footnote-reference" href="#footnote-5" id="footnote-reference-5">[5]</a>; nevertheless each trace includes a wall-clock timestamp corresponding to its sending (hence expressed according to the local time of its trace emitter).</p>
+<table class="docutils footnote" frame="void" id="footnote-5" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#footnote-reference-4">[4]</a></td><td>A total, reproducible order on the distributed traces could be implemented, yet its runtime synchronisation cost would be sufficiently high to have a far larger impact onto the executions that this trace system is to instrument than the current system (and such an impact would of course not be desirable).</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#footnote-reference-5">[5]</a></td><td>A total, reproducible order on the distributed traces could be implemented, yet its runtime synchronisation cost would be sufficiently high to have a far larger impact onto the executions that this trace system is to instrument than the current system (and such an impact would of course not be desirable).</td></tr>
 </tbody>
 </table>
 </div>
@@ -362,13 +368,13 @@ The next level of information is either to browse the <a class="reference extern
 </p>
 <p>Traces can be browsed with this tool:</p>
 <ul class="simple">
-<li><strong>live</strong> (i.e. during the execution of the program), either from its start or upon connection to the instrumented program whilst it is already running <a class="footnote-reference" href="#footnote-5" id="footnote-reference-5">[5]</a> (see <tt class="docutils literal">class_TraceListener.erl</tt> and <tt class="docutils literal">trace_listening_test.erl</tt>)</li>
+<li><strong>live</strong> (i.e. during the execution of the program), either from its start or upon connection to the instrumented program whilst it is already running <a class="footnote-reference" href="#footnote-6" id="footnote-reference-6">[6]</a> (see <tt class="docutils literal">class_TraceListener.erl</tt> and <tt class="docutils literal">trace_listening_test.erl</tt>)</li>
 <li><strong>post mortem</strong> (i.e. after the program terminated for any reason, based on the trace file that it left)</li>
 </ul>
-<table class="docutils footnote" frame="void" id="footnote-5" rules="none">
+<table class="docutils footnote" frame="void" id="footnote-6" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#footnote-reference-5">[5]</a></td><td>In which case the trace supervisor will first receive, transactionally, a compressed version of all past traces; then all new ones will be sent to this new listener, resulting in no trace being possibly lost.</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#footnote-reference-6">[6]</a></td><td>In which case the trace supervisor will first receive, transactionally, a compressed version of all past traces; then all new ones will be sent to this new listener, resulting in no trace being possibly lost.</td></tr>
 </tbody>
 </table>
 <p>The trace supervision solution can be switched at compile time (see the <tt class="docutils literal">TraceType</tt> defined in <tt class="docutils literal">traces/include/traces.hrl</tt>); the <tt class="docutils literal">Traces</tt> layer shall then be rebuilt.</p>
@@ -381,11 +387,11 @@ The next level of information is either to browse the <a class="reference extern
 <p>In the vast majority of cases, all these emitters send their traces to a single trace aggregator, in charge of collecting them and storing them on-disk (for most uses, their memory footprint would be quickly too large for RAM), according to an adequate trace format.</p>
 <p>This trace format can be parsed by various trace supervisors, the most popular being <a class="reference external" href="http://www.logmx.com">LogMX</a>.</p>
 <p>Various measures have been taken in order to reduce the overhead induced by the overall trace system.</p>
-<p>Notably normal traces (as opposed to error-like ones) are sent in a &quot;fire and forget&quot;, non-blocking manner (thanks to oneways, which are not specifically acknowledged). The number of messages exchanged is thus reduced, at the cost of a lesser synchronization of the traces (i.e. there is no strong guarantee that the traces will be ultimately recorded and displayed in the order of their emission in wallclock-time, as they will be directly and sequentially stored in their actual order of receiving by the trace aggregator <a class="footnote-reference" href="#footnote-6" id="footnote-reference-6">[6]</a>, an order that depends itself on the potentially varied network latencies experienced from the potential multiple sources to the trace aggregator).</p>
-<table class="docutils footnote" frame="void" id="footnote-6" rules="none">
+<p>Notably normal traces (as opposed to error-like ones) are sent in a &quot;fire and forget&quot;, non-blocking manner (thanks to oneways, which are not specifically acknowledged). The number of messages exchanged is thus reduced, at the cost of a lesser synchronization of the traces (i.e. there is no strong guarantee that the traces will be ultimately recorded and displayed in the order of their emission in wallclock-time, as they will be directly and sequentially stored in their actual order of receiving by the trace aggregator <a class="footnote-reference" href="#footnote-7" id="footnote-reference-7">[7]</a>, an order that depends itself on the potentially varied network latencies experienced from the potential multiple sources to the trace aggregator).</p>
+<table class="docutils footnote" frame="void" id="footnote-7" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#footnote-reference-6">[6]</a></td><td>For example, if both the trace aggregator and a process B are running on the same host, and if a process A, running on another host, emits a trace then sends a message to B so that B sends in turn a trace, then the trace from  B <em>might</em> in some cases be received - and thus be listed - by the aggregator <em>before</em> the trace for A (it depends on the network congestion, relative scheduling of processes, etc.).</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#footnote-reference-7">[7]</a></td><td>For example, if both the trace aggregator and a process B are running on the same host, and if a process A, running on another host, emits a trace then sends a message to B so that B sends in turn a trace, then the trace from  B <em>might</em> in some cases be received - and thus be listed - by the aggregator <em>before</em> the trace for A (it depends on the network congestion, relative scheduling of processes, etc.).</td></tr>
 </tbody>
 </table>
 </div>

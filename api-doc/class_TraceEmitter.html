@@ -47,6 +47,10 @@
 <p><tt>classname() = <a href="wooper.html#type-classname">wooper:classname()</a></tt></p>
 
 
+<h3 class="typedecl"><a name="type-emitter_any_categorization">emitter_any_categorization()</a></h3>
+<p><tt>emitter_any_categorization() = <a href="traces.html#type-emitter_any_categorization">traces:emitter_any_categorization()</a></tt></p>
+
+
 <h3 class="typedecl"><a name="type-emitter_categorization">emitter_categorization()</a></h3>
 <p><tt>emitter_categorization() = <a href="traces.html#type-emitter_categorization">traces:emitter_categorization()</a></tt></p>
 
@@ -70,7 +74,7 @@ the class_TraceEmitter constructor.</p>
  <p>Note: dots are not allowed in an emitter name (they are used as naming 
 separator).</p>
 
- Ex: "MyObject 16", or <code>&lt;&lt;"First Talker"&gt;&gt;</code>.</p>
+ For example  "MyObject 16", or <code>&lt;&lt;"First Talker"&gt;&gt;</code>.</p>
 
 <h3 class="typedecl"><a name="type-emitter_pid">emitter_pid()</a></h3>
 <p><tt>emitter_pid() = <a href="wooper.html#type-instance_pid">wooper:instance_pid()</a></tt></p>
@@ -171,8 +175,8 @@ separator).</p>
 <tr><td valign="top"><a href="#get_plain_name-1">get_plain_name/1</a></td><td>Returns the name of this trace emitter, as a plain string (not as a 
 binary).</td></tr>
 <tr><td valign="top"><a href="#get_short_description-1">get_short_description/1</a></td><td>Returns a short description of this trace emitter.</td></tr>
-<tr><td valign="top"><a href="#get_trace_timestamp-1">get_trace_timestamp/1</a></td><td>Returns the current trace-level timestamp (ex: possibly an execution tick 
-offset), or the atom 'none' if the emitter time is not known.</td></tr>
+<tr><td valign="top"><a href="#get_trace_timestamp-1">get_trace_timestamp/1</a></td><td>Returns the current trace-level timestamp (that is possibly an execution 
+tick offset), or the atom 'none' if the emitter time is not known.</td></tr>
 <tr><td valign="top"><a href="#get_trace_timestamp_as_binary-1">get_trace_timestamp_as_binary/1</a></td><td>Returns the current trace-level timestamp, as a binary string.</td></tr>
 <tr><td valign="top"><a href="#hasAttribute-2">hasAttribute/2</a></td><td></td></tr>
 <tr><td valign="top"><a href="#incrementAttribute-2">incrementAttribute/2</a></td><td></td></tr>
@@ -407,8 +411,8 @@ binary).</p>
 <div class="spec">
 <p><tt>get_trace_timestamp(State::<a href="wooper.html#type-state">wooper:state()</a>) -&gt; <a href="#type-app_timestamp">app_timestamp()</a></tt><br></p>
 <p> </p>
-</div><p><p>Returns the current trace-level timestamp (ex: possibly an execution tick 
-offset), or the atom 'none' if the emitter time is not known.</p>
+</div><p><p>Returns the current trace-level timestamp (that is possibly an execution 
+tick offset), or the atom 'none' if the emitter time is not known.</p>
 
  (helper)
 </p>
@@ -596,13 +600,13 @@ requested and waited).</p>
 
 <h3 class="function"><a name="set_categorization-2">set_categorization/2</a></h3>
 <div class="spec">
-<p><tt>set_categorization(TraceEmitterCategorization::<a href="#type-emitter_categorization">emitter_categorization()</a>, State::<a href="wooper.html#type-state">wooper:state()</a>) -&gt; <a href="wooper.html#type-state">wooper:state()</a></tt><br></p>
+<p><tt>set_categorization(TraceEmitterAnyCategorization::<a href="#type-emitter_any_categorization">emitter_any_categorization()</a>, State::<a href="wooper.html#type-state">wooper:state()</a>) -&gt; <a href="wooper.html#type-state">wooper:state()</a></tt><br></p>
 <p> </p>
 </div><p><p>Sets the categorization of this trace emitter.</p>
 
  <p>Setting that categorization early in the constructor, before sending any 
 trace, allows to have all traces for a given emitter be correctly gathered in 
-the same category, which is a lot clearer when browsing afterwards.</p>
+the same category, which is a lot clearer when browsing traces afterwards.</p>
 
  (helper)
 </p>

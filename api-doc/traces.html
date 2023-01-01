@@ -11,11 +11,13 @@
 
 <h1>Module traces</h1>
 <ul class="index"><li><a href="#description">Description</a></li><li><a href="#types">Data Types</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>Module gathering all code, common to tests and applications, that allows
- to <b>lighten the trace macros or to share defines and types</b>.
+ to <b>lighten the trace macros, share defines and types, or manage log
+ handlers</b>.
 
 
 <h2><a name="description">Description</a></h2>Module gathering all code, common to tests and applications, that allows
- to <b>lighten the trace macros or to share defines and types</b>.
+ to <b>lighten the trace macros, share defines and types, or manage log
+ handlers</b>.
 
 <h2><a name="types">Data Types</a></h2>
 
@@ -30,6 +32,10 @@
 <h3 class="typedecl"><a name="type-bin_string">bin_string()</a></h3>
 <p><tt>bin_string() = <a href="text_utils.html#type-bin_string">text_utils:bin_string()</a></tt></p>
 
+
+<h3 class="typedecl"><a name="type-emitter_any_categorization">emitter_any_categorization()</a></h3>
+<p><tt>emitter_any_categorization() = <a href="#type-emitter_categorization">emitter_categorization()</a> | <a href="#type-emitter_bin_categorization">emitter_bin_categorization()</a></tt></p>
+<p> Any kind of categorization of a trace emitter.</p>
 
 <h3 class="typedecl"><a name="type-emitter_bin_categorization">emitter_bin_categorization()</a></h3>
 <p><tt>emitter_bin_categorization() = <a href="#type-bin_string">bin_string()</a></tt></p>
