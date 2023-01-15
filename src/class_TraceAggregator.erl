@@ -88,7 +88,7 @@
 	{ is_batch, boolean(),
 	  "tells whether the aggregator runs on batch (non-interactive) mode" },
 
-	{ init_supervision, initialize_supervision(),
+	{ init_supervision, initialise_supervision(),
 	  "tells whether/when the trace supervisor shall be launched" },
 
 	{ supervisor_pid, maybe( supervisor_pid() ),
@@ -123,10 +123,10 @@
 		  inspect_fields/1 ]).
 
 
-% Tells whether/when the trace supervision shall be initialized:
--type initialize_supervision() :: boolean() | 'later'.
+% Tells whether/when the trace supervision shall be initialised:
+-type initialise_supervision() :: boolean() | 'later'.
 
--export_type([ initialize_supervision/0 ]).
+-export_type([ initialise_supervision/0 ]).
 
 
 
@@ -287,7 +287,7 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 %
 % Main constructor:
 -spec construct( wooper:state(), file_name(), trace_supervision_type(), title(),
-		maybe( registration_scope() ), boolean(), initialize_supervision() ) ->
+		maybe( registration_scope() ), boolean(), initialise_supervision() ) ->
 						wooper:state().
 construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 		   MaybeRegistrationScope, IsBatch, InitTraceSupervisor ) ->
@@ -434,7 +434,7 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 	case ShouldInitTraceSupervisor of
 
 		true ->
-			initialize_supervision( TraceState );
+			initialise_supervision( TraceState );
 
 		_FalseOrLater ->
 			TraceState
@@ -723,7 +723,7 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 renameTraceFile( State, NewTraceFilename ) when is_binary( NewTraceFilename ) ->
 
 	RenamedState = renameTraceFile( State,
-						text_utils:binary_to_string( NewTraceFilename ) ),
+		text_utils:binary_to_string( NewTraceFilename ) ),
 
 	wooper:return_state( RenamedState );
 
@@ -738,8 +738,8 @@ renameTraceFile( State, NewTraceFilename ) ->
 	InitSupervision = ?getAttr(init_supervision),
 
 	Msg = text_utils:format( "Trace aggregator renaming atomically trace file "
-			"from '~ts' to '~ts' (init supervision: ~ts).",
-			[ BinTraceFilename, AbsNewTraceFilename, InitSupervision ] ),
+		"from '~ts' to '~ts' (init supervision: ~ts).",
+		[ BinTraceFilename, AbsNewTraceFilename, InitSupervision ] ),
 
 	%trace_utils:debug( Msg ),
 
@@ -757,10 +757,10 @@ renameTraceFile( State, NewTraceFilename ) ->
 	SupState = case InitSupervision of
 
 		later ->
-			initialize_supervision( RenState );
+			initialise_supervision( RenState );
 
 		IS when is_boolean( IS ) ->
-			%trace_utils:debug_fmt( "Not initializing trace supervision (~ts).",
+			%trace_utils:debug_fmt( "Not initialising trace supervision (~ts).",
 			%                       [ IS ] ),
 			RenState
 
@@ -1209,7 +1209,7 @@ get_aggregator( CreateIfNotAvailable, LookupScope ) ->
 
 	% If launching multiple trace emitters in a row, first emitter may trigger
 	% the launch of trace aggregator, but second emitter might do the same if
-	% the aggregator is still being initialized:
+	% the aggregator is still being initialised:
 	%
 	AggRes = try
 
@@ -1471,8 +1471,8 @@ end.
 % Helper functions.
 
 
--spec initialize_supervision( wooper:state() ) -> wooper:state().
-initialize_supervision( State ) ->
+-spec initialise_supervision( wooper:state() ) -> wooper:state().
+initialise_supervision( State ) ->
 
 	% Check:
 	undefined = ?getAttr(supervisor_pid),
@@ -1480,7 +1480,7 @@ initialize_supervision( State ) ->
 	TraceFilename = ?getAttr(trace_filename),
 
 	SentState = send_internal_immediate( trace,
-		text_utils:format( "Initializing now trace supervision for '~ts'.",
+		text_utils:format( "Initialising now trace supervision for '~ts'.",
 						   [ TraceFilename ] ), State ),
 
 	MaybeSupervPid = class_TraceSupervisor:create( _MaybeWaitingPid=self(),
