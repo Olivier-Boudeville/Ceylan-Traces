@@ -75,6 +75,7 @@
 		  get_categorization/1, set_categorization/2,
 		  send/3, send_safe/3, send/4, send_safe/4, send/5, send_safe/5,
 		  send_synchronised/3, send_synchronised/4, send_synchronised/5,
+		  send_categorized_emitter/4,
 		  get_trace_timestamp/1, get_trace_timestamp_as_binary/1,
 		  get_plain_name/1, get_short_description/1,
 		  sync/1, await_output_completion/0 ]).
@@ -240,6 +241,7 @@ construct( State, _EmitterInit={ EmitterName, EmitterCategorization } ) ->
 			setAttributes( InitState, [
 				{ name, BinName },
 				{ trace_emitter_categorization, BinCategorization },
+				% (emitter_node and trace_aggregator_pid set by init/1)
 				{ trace_timestamp, undefined } ] )
 
 	end;
@@ -539,8 +541,8 @@ register_as_bridge( TraceEmitterName, TraceCategory, TraceAggregatorPid ) ->
 %
 -spec subcategorize( emitter_name() ) -> static_return( emitter_name() );
 				   ( emitter_info() ) -> static_return( emitter_info() ).
-% We do not alter the name as any dot in it will be replaced with ':'; we update
-% the categorization instead:
+% We do not alter the name, as any dot in it will be replaced with ':'; we
+% update the categorization instead:
 %
 %subcategorize( _EmitterInfo={ Name, Categ } ) ->
 %   wooper:return_static( { subcategorize_name( Name ), Categ } );
@@ -1169,7 +1171,7 @@ set_categorization( TraceEmitterAnyCategorization, State ) ->
 
 
 
-% @doc Sends a trace from that emitter.
+% @doc Sends the specified (unsynchronised) trace message from this emitter.
 %
 % Message is a plain string.
 %
@@ -1184,7 +1186,8 @@ send( TraceSeverity, State, Message ) ->
 
 
 
-% @doc Sends a trace from that emitter, echoing it through basic traces as well.
+% @doc Sends the specified (unsynchronised) trace message from this emitter,
+% echoing it through basic traces as well.
 %
 % Message is a plain string.
 %
@@ -1200,8 +1203,8 @@ send_safe( TraceSeverity, State, Message ) ->
 
 
 
-% @doc Sends a synchronised trace message (the synchronisation answer is
-% requested and waited).
+% @doc Sends the specified synchronised trace message (the synchronisation
+% answer is requested and waited) from this emitter.
 %
 % All information are available here, except the trace timestamp and the message
 % categorization.
@@ -1216,7 +1219,7 @@ send_synchronised( TraceSeverity, State, Message ) ->
 
 
 
-% @doc Sends specified trace message.
+% @doc Sends the specified (unsynchronised) trace message from this emitter.
 %
 % Message is a plain string, MessageCategorization as well unless it is the
 % 'uncategorized' atom.
@@ -1233,7 +1236,7 @@ send( TraceSeverity, State, Message, MessageCategorization ) ->
 
 
 
-% @doc Sends specified trace message.
+% @doc Sends the specified (unsynchronised) trace message from this emitter.
 %
 % All information available but the timestamp, determining its availability.
 %
@@ -1252,8 +1255,8 @@ send_safe( TraceSeverity, State, Message, MessageCategorization ) ->
 
 
 
-% Sends specified synchronised trace message (the synchronisation answer is
-% requested and waited).
+% @doc Sends the specified synchronised trace message (the synchronisation
+% answer is requested and waited) from this emitter.
 %
 % All information available but the timestamp, determining its availability.
 %
@@ -1267,10 +1270,9 @@ send_synchronised( TraceSeverity, State, Message, MessageCategorization ) ->
 
 
 
-
-% Sends specified (unsynchronised) trace message.
+% @doc Sends the specified (unsynchronised) trace message from this emitter.
 %
-% By far the main sending primitive.
+% By far the most used sending primitive.
 %
 % (helper)
 %
@@ -1341,9 +1343,37 @@ send( TraceSeverity, State, Message, MessageCategorization, AppTimestamp ) ->
 
 
 
-% Sends specified synchronisable trace message.
+% Sends the specified (unsynchronised) trace message from this emitter.
 %
-% The synchronisation answer is requested yet not waited here, to allow for any
+% Primitive defined to be able to override notably the emitter categorization,
+% typically to create from this emitter "sub-channels".
+%
+% (helper)
+%
+-spec send_categorized_emitter( trace_severity(), wooper:state(), message(),
+								emitter_categorization() ) -> void().
+send_categorized_emitter( TraceSeverity, State, Message,
+						  EmitterCategorization ) ->
+
+	AppTimestamp = get_trace_timestamp( State ),
+	AppTimestampString = text_utils:term_to_binary( AppTimestamp ),
+
+	?getAttr(trace_aggregator_pid) ! { send, [
+		_TraceEmitterPid=self(),
+		_TraceEmitterName=?getAttr(name),
+		EmitterCategorization, % Not: ?getAttr(trace_emitter_categorization)
+		AppTimestampString,
+		_Time=time_utils:get_bin_textual_timestamp(),
+		_Location=?getAttr(emitter_node),
+		_MessageCategorization=uncategorized,
+		_Priority=trace_utils:get_priority_for( TraceSeverity ),
+		_Message=text_utils:string_to_binary( Message ) ] }.
+
+
+
+% @doc Sends the specified synchronisable trace message from this emitter.
+%
+% The synchronisation answer is requested yet not awaited here, to allow for any
 % interleaving.
 %
 -spec send_synchronisable( trace_severity(), wooper:state(), message(),
@@ -1392,8 +1422,8 @@ send_synchronisable( TraceSeverity, State, Message, MessageCategorization,
 
 
 
-% @doc Sends specified synchronised trace message (the synchronisation answer is
-% requested and waited).
+% @doc Sends the specified synchronised trace message (the synchronisation
+% answer is requested and awaited) from this emitter.
 %
 % (helper)
 %
@@ -1409,11 +1439,11 @@ send_synchronised( TraceSeverity, State, Message, MessageCategorization,
 
 
 
-% @doc Sends specified synchronised trace message (the synchronisation answer is
-% requested and waited) that is furthermore echoed.
+% @doc Sends the specified synchronised trace message that is furthermore
+% echoed, from this emitter.
 %
 % Sends all types of synchronised traces (the synchronisation answer is
-% requested and waited).
+% requested and awaited).
 %
 % (helper)
 %
@@ -1457,7 +1487,7 @@ wait_aggregator_sync() ->
 get_trace_timestamp( State ) ->
 
 	% Note: if an exception "No key 'trace_timestamp' found in following table:
-	% empty hashtable" is triggered, probably that State is not (yet?) a
+	% empty hashtable" is triggered, probably that this State is not (yet?) a
 	% TraceEmitter one (e.g. if using the blank state of a constructor in
 	% ?debug(...) instead of using ?send_debug(ATraceState,...)).
 	%
