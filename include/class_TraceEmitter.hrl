@@ -152,6 +152,9 @@
 % emitter. It could be deduced from superclasses as well, although it would be
 % generally uselessly long and would cause issues in case of multiple
 % inheritance.
+%
+% Call class_TraceEmitter:send_categorized_emitter/* if needing to override the
+% trace_emitter_categorization attribute.
 
 
 % User timestamp will be the current date, as determined by the trace emitter.
