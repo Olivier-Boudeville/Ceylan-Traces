@@ -48,11 +48,11 @@
 % It is a plain string listing increasingly detailed trace sub-categories,
 % separated by dots.
 %
-% Ex: "topics.sports.basketball"
+% For example "topics.sports.basketball".
 
 
 -type emitter_bin_categorization() :: bin_string().
-% Ex: `<<"topics.sports.basketball">>'.
+% For example `<<"topics.sports.basketball">>'.
 
 
 -type emitter_any_categorization() :: emitter_categorization()
