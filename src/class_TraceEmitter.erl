@@ -75,7 +75,7 @@
 		  get_categorization/1, set_categorization/2,
 		  send/3, send_safe/3, send/4, send_safe/4, send/5, send_safe/5,
 		  send_synchronised/3, send_synchronised/4, send_synchronised/5,
-		  send_categorized_emitter/4,
+		  send_categorized_emitter/4, send_named_emitter/4,
 		  get_trace_timestamp/1, get_trace_timestamp_as_binary/1,
 		  get_plain_name/1, get_short_description/1,
 		  sync/1, await_output_completion/0 ]).
@@ -1343,10 +1343,12 @@ send( TraceSeverity, State, Message, MessageCategorization, AppTimestamp ) ->
 
 
 
-% Sends the specified (unsynchronised) trace message from this emitter.
+% Sends the specified (unsynchronised) trace message from this emitter, based on
+% the specified emitter categorization.
 %
-% Primitive defined to be able to override notably the emitter categorization,
-% typically to create from this emitter "sub-channels".
+% Primitive defined to be able to override the emitter categorization, typically
+% to create from this emitter "sub-channels". Note that the emitter name will be
+% still added at the end of it.
 %
 % (helper)
 %
@@ -1362,6 +1364,33 @@ send_categorized_emitter( TraceSeverity, State, Message,
 		_TraceEmitterPid=self(),
 		_TraceEmitterName=?getAttr(name),
 		EmitterCategorization, % Not: ?getAttr(trace_emitter_categorization)
+		AppTimestampString,
+		_Time=time_utils:get_bin_textual_timestamp(),
+		_Location=?getAttr(emitter_node),
+		_MessageCategorization=uncategorized,
+		_Priority=trace_utils:get_priority_for( TraceSeverity ),
+		_Message=text_utils:string_to_binary( Message ) ] }.
+
+
+
+% Sends the specified (unsynchronised) trace message from this emitter, based on
+% the specified emitter name.
+%
+% Primitive defined to be able to override the emitter full name.
+%
+% (helper)
+%
+-spec send_named_emitter( trace_severity(), wooper:state(), message(),
+						  emitter_name() ) -> void().
+send_named_emitter( TraceSeverity, State, Message, EmitterName ) ->
+
+	AppTimestamp = get_trace_timestamp( State ),
+	AppTimestampString = text_utils:term_to_binary( AppTimestamp ),
+
+	?getAttr(trace_aggregator_pid) ! { send, [
+		_TraceEmitterPid=self(),
+		EmitterName,
+		_TraceEmitterCategorization=?getAttr(trace_emitter_categorization),
 		AppTimestampString,
 		_Time=time_utils:get_bin_textual_timestamp(),
 		_Location=?getAttr(emitter_node),
