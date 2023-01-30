@@ -67,13 +67,13 @@
 
 	{ trace_filename, file_utils:bin_file_path(),
 	  "the path of the file in which traces are to be stored, as a binary "
-	  "(ex: <<\"/tmp/foobar.traces\">>)" },
+	  "(e.g. <<\"/tmp/foobar.traces\">>)" },
 
 	{ trace_file, file_utils:file(),
-	  "the actual file in which traces are written" },
+	  "the actual file device in which traces are written" },
 
 	{ trace_type, trace_type(),
-	  "the type of traces to be written (ex: advanced_traces)" },
+	  "the type of traces to be written (e.g. advanced_traces)" },
 
 	{ trace_title, text_utils:title(),
 	  "the title assigned to the traces that will be stored" },
@@ -212,9 +212,9 @@
 
 % Implementation notes:
 %
-% The aggregator could store per-emitter constant settings (ex: emitter name and
-% categorization) instead of having them sent to it each time, but more look-ups
-% would be involved.
+% The aggregator could store per-emitter constant settings (e.g. emitter name
+% and categorization) instead of having them sent to it each time, but more
+% look-ups would be involved.
 %
 % The aggregator is not a standard trace emitter; do not use for example
 % ?debug-like macros.
@@ -620,7 +620,7 @@ send( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 
 	%trace_utils:debug_fmt( "Received sent message '~ts'.", [ Message ] ),
 
-	% Useful to check that all fields are of minimal sizes (ex: binaries):
+	% Useful to check that all fields are of minimal sizes (e.g. binaries):
 	%inspect_fields( [ TraceEmitterPid, TraceEmitterName,
 	%   TraceEmitterCategorization, AppTimestamp, Time, Location,
 	%   MessageCategorization, Priority, Message ] ),
@@ -666,7 +666,7 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 		  AppTimestamp, Time, Location, MessageCategorization, Priority,
 		  Message ) ->
 
-	% Useful to check that all fields are of minimal sizes (ex: binaries):
+	% Useful to check that all fields are of minimal sizes (e.g. binaries):
 	%inspect_fields( [ TraceEmitterPid, TraceEmitterName,
 	%   TraceEmitterCategorization, AppTimestamp, Time, Location,
 	%   MessageCategorization, Priority, Message ] ),
@@ -715,8 +715,8 @@ sendSync( State, TraceEmitterPid, TraceEmitterName, TraceEmitterCategorization,
 % hence the creation of a supervisor is deferred until a later renaming is
 % done; see the init_supervision attribute).
 %
-% Note: if another process is reading that file (ex: a trace supervisor), an I/O
-% error will be triggered at its level (hence this is not a solution to
+% Note: if another process is reading that file (e.g. a trace supervisor), an
+% I/O error will be triggered at its level (hence this is not a solution to
 % transparently rename a file).
 %
 -spec renameTraceFile( wooper:state(), any_file_name() ) -> oneway_return().
@@ -816,7 +816,7 @@ launchTraceSupervisor( State ) ->
 
 
 
-% @doc Registers specified trace listener to this aggregator.
+% @doc Registers the specified trace listener to this aggregator.
 -spec addTraceListener( wooper:state(), listener_pid() ) -> oneway_return().
 addTraceListener( State, ListenerPid ) ->
 
@@ -838,15 +838,15 @@ addTraceListener( State, ListenerPid ) ->
 			% ...so we have also to close and re-open later:
 			file_utils:close( TraceFile ),
 
-			% Not a trace emitter but still able to send traces (to itself);
+			% Transfers file:
+			BinTraceFilename = ?getAttr(trace_filename),
+
+			% Not a trace emitter, but still able to send traces (to itself);
 			% will be read from mailbox as first live-forwarded message:
 			%
 			send_internal_deferred( info, "Trace aggregator adding trace "
-				"listener ~w, and sending it previous traces.~n",
-				[ ListenerPid ] ),
-
-			% Transfers file:
-			BinTraceFilename = ?getAttr(trace_filename),
+				"listener ~w, and sending it previous traces (from '~ts').~n",
+				[ ListenerPid, BinTraceFilename ] ),
 
 			TraceFilename = text_utils:binary_to_string( BinTraceFilename ),
 
@@ -862,11 +862,11 @@ addTraceListener( State, ListenerPid ) ->
 
 			% If compressing 'traceManagement_test.traces' for example, we do
 			% not want to specify as a filename, literally,
-			% 'traceManagement_test.traces.xz', as if the listener (ex:
+			% 'traceManagement_test.traces.xz', as if the listener (e.g.
 			% traceListening_test) happens to decompress the received file on
 			% the same directory, it will overwrite the first file.
 			%
-			% So we relied on a specifically named file (ex:
+			% So we relied on a specifically named file (e.g.
 			% "Listener-traceManagement_test.traces" for example).
 			%
 			% Yet, the client will have nevertheless to receive this file to a
@@ -963,7 +963,7 @@ requestReadyNotification( State ) ->
 % @doc Requests this aggregator to flush any trace not already written in file
 % and to acknowledge this message (like a ping).
 %
-% The purpose is to ensure that all pending operations are performed (ex: so
+% The purpose is to ensure that all pending operations are performed (e.g. so
 % that any next crash will not result in the loss of traces).
 %
 -spec sync( wooper:state() ) ->
@@ -1163,7 +1163,7 @@ get_aggregator() ->
 % notification (if false).
 %
 % Note: to avoid race conditions between concurrent calls to this static method
-% (ex: due to multiple trace emitter instances created in parallel), an
+% (e.g. due to multiple trace emitter instances created in parallel), an
 % execution might start with a call to this method with a blocking wait until
 % the aggregator pops up in registry services.
 %
@@ -1188,7 +1188,7 @@ get_aggregator( CreateIfNotAvailable ) ->
 % notification (if false).
 %
 % Note: to avoid race conditions between concurrent calls to this static method
-% (ex: due to multiple trace emitter instances created in parallel), an
+% (e.g. due to multiple trace emitter instances created in parallel), an
 % execution might start with a call to this method with a blocking wait until
 % the aggregator pops up in registry services.
 %
@@ -1427,38 +1427,38 @@ end.
 % categorization are not written.
 
 
-% For Pid (ex: locally, <0.33.0>):
+% For Pid (e.g. locally, <0.33.0>):
 -define( PidWidth, 8 ).
 
 
-% For EmitterName (ex: "First soda machine"):
+% For EmitterName (e.g. "First soda machine"):
 -define( EmitterNameWidth, 12 ).
 
 
-% For EmitterCategorization (ex: "TimeManagement"):
+% For EmitterCategorization (e.g. "TimeManagement"):
 %-define( EmitterCategorizationWidth,12 ).
 -define( EmitterCategorizationWidth, 0 ).
 
 
-% For Tick (ex: unknown, 3169899360000) or any application-specific timestamp:
+% For Tick (e.g. unknown, 3169899360000) or any application-specific timestamp:
 -define( AppTimestampWidth, 14 ).
 
 
-% For Time (ex: "18/6/2009 16:32:14"):
+% For Time (e.g. "18/6/2009 16:32:14"):
 -define( TimeWidth, 10 ).
 
 
-% For Location (ex: "soda_deterministic_integration_run@a_example.org"):
+% For Location (e.g. "soda_deterministic_integration_run@a_example.org"):
 %-define( LocationWidth,12 ).
 -define( LocationWidth, 0 ).
 
 
-% For MessageCategorization (ex: "Execution.Uncategorized"):
+% For MessageCategorization (e.g. "Execution.Uncategorized"):
 %-define( MessageCategorizationWidth, 4 ).
 -define( MessageCategorizationWidth, 0 ).
 
 
-% For Priority (ex: warning):
+% For Priority (e.g. warning):
 -define( PriorityWidth, 7 ).
 
 
