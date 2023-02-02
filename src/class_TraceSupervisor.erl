@@ -78,7 +78,7 @@
 -include("class_TraceAggregator.hrl").
 
 
--define( LogPrefix, "[Trace Supervisor]" ).
+-define( log_prefix, "[Trace Supervisor]" ).
 
 
 % Use global:registered_names() to check supervisor presence.
@@ -94,7 +94,7 @@
 % Total width (expressed as a number of characters) of a line of log, in text
 % mode (text_traces).
 %
--define( TextWidth, 110 ).
+-define( text_width, 110 ).
 
 
 % Shorthands:
@@ -139,7 +139,7 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 	trace_utils:debug_fmt( "~ts Creating a trace supervisor, whose PID is ~w "
 		"(trace filename: '~ts', trace type: '~ts', monitor now: ~w, "
 		"blocking: ~w).",
-		[ ?LogPrefix, self(), TraceFilename, TraceType, MonitorNow,
+		[ ?log_prefix, self(), TraceFilename, TraceType, MonitorNow,
 		  MaybeWaitingPid ] ),
 
 	NewState = setAttributes( State, [
@@ -236,7 +236,7 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 
 	end,
 
-	%trace_utils:debug_fmt( "~ts Supervisor created.", [ ?LogPrefix ] ),
+	%trace_utils:debug_fmt( "~ts Supervisor created.", [ ?log_prefix ] ),
 
 	EndState.
 
@@ -258,7 +258,7 @@ monitor( State ) ->
 		{ text_traces, pdf } ->
 			trace_utils:notice_fmt( "~ts Supervisor has nothing to monitor, "
 				"as the PDF trace report will be generated only on "
-				"execution termination.", [ ?LogPrefix ] ),
+				"execution termination.", [ ?log_prefix ] ),
 			wooper:const_return();
 
 
@@ -266,22 +266,20 @@ monitor( State ) ->
 
 			{ Command, ActualFilename } = get_viewer_settings( State ),
 
-			case file_utils:is_existing_file( ActualFilename ) of
+			file_utils:is_existing_file( ActualFilename ) orelse
+				begin
 
-				true ->
-					ok;
-
-				false ->
 					trace_utils:error_fmt( "class_TraceSupervisor:monitor "
 						"unable to find trace file '~ts'.",
 						[ ActualFilename ] ),
+
 					throw( { trace_file_not_found, ActualFilename } )
 
-			end,
+				end,
 
 			trace_utils:notice_fmt(
 				"~ts Supervisor will monitor file '~ts' now, "
-				"with '~ts'.", [ ?LogPrefix, ActualFilename, Command ] ),
+				"with '~ts'.", [ ?log_prefix, ActualFilename, Command ] ),
 
 			Cmd = Command ++ " '" ++ ActualFilename ++ "'",
 
@@ -307,7 +305,7 @@ blocking_monitor( State ) ->
 		{ text_traces, pdf } ->
 			trace_utils:notice_fmt( "~ts Supervisor has nothing to monitor, "
 				"as the PDF trace report will be generated only on "
-				"execution termination.", [ ?LogPrefix ] ),
+				"execution termination.", [ ?log_prefix ] ),
 			wooper:const_return_result( monitor_ok );
 
 		_Other ->
@@ -335,7 +333,7 @@ blocking_monitor( State ) ->
 
 			trace_utils:notice_fmt( "~ts Supervisor will monitor file '~ts' "
 				"now with '~ts', blocking until the user closes the viewer "
-				"window.", [ ?LogPrefix, ActualFilename, Command ] ),
+				"window.", [ ?log_prefix, ActualFilename, Command ] ),
 
 			% Blocking:
 			case system_utils:run_command(
@@ -346,7 +344,7 @@ blocking_monitor( State ) ->
 				{ _ExitStatus=0, _Output } ->
 					trace_utils:notice_fmt(
 						"~ts Supervisor ended monitoring of '~ts'.",
-						[ ?LogPrefix, ActualFilename ] ),
+						[ ?log_prefix, ActualFilename ] ),
 					wooper:const_return_result( monitor_ok );
 
 				{ ExitStatus, _ErrorOutput="" } ->
@@ -387,9 +385,7 @@ blocking_monitor( State ) ->
 %
 -spec create() -> static_return( supervisor_pid() ).
 create() ->
-
 	SupervisorPid = create( _MaybeWaitingPid=undefined ),
-
 	wooper:return_static( SupervisorPid ).
 
 
@@ -404,9 +400,7 @@ create() ->
 %
 -spec create( maybe( pid() ) ) -> static_return( supervisor_pid() ).
 create( MaybeWaitingPid ) ->
-
 	SupervisorPid = create( MaybeWaitingPid, ?trace_aggregator_filename ),
-
 	wooper:return_static( SupervisorPid ).
 
 
@@ -582,6 +576,7 @@ wait_for() ->
 		true ->
 			% No supervisor was launched.
 			% Let live the system for some time instead:
+			%
 			system_utils:await_output_completion();
 
 		false ->
@@ -636,13 +631,13 @@ get_viewer_settings( State ) ->
 			{ executable_utils:get_default_trace_viewer_path(), Filename };
 
 		{ text_traces, text_only } ->
-			{ executable_utils:get_default_wide_text_viewer_path( ?TextWidth ),
+			{ executable_utils:get_default_wide_text_viewer_path( ?text_width ),
 			  Filename };
 
 		{ text_traces, pdf } ->
 
 			PdfTargetFilename = file_utils:replace_extension( Filename,
-													?TraceExtension, ".pdf" ),
+				?TraceExtension, ".pdf" ),
 
 			{ executable_utils:get_default_pdf_viewer_path(),
 			  PdfTargetFilename }
