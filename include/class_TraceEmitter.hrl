@@ -204,29 +204,11 @@
 
 
 
+
 % Section dedicated to trace emitters that are not WOOPER-based and are
 % dedicated to tests.
 %
 % See also: test_constructs.hrl.
-%
--define( default_test_message_categorization, "Test" ).
-
-
-% Section dedicated to trace emitters that are not WOOPER-based and are
-% dedicated to cases.
-%
-% See also: case_constructs.hrl.
-%
--define( default_case_message_categorization, "Case" ).
-
-
-% Section dedicated to trace emitters that are not WOOPER-based and dedicated to
-% classical functions (as opposed to methods from class_TraceEmitter).
-%
-% See also: traces.hrl.
-%
--define( default_standalone_message_categorization, "Standalone" ).
-
 
 
 % When no emitter is specified:
@@ -237,6 +219,30 @@
 -define( default_standalone_emitter_categorization, "Standalone" ).
 
 -define( default_trace_emitter_categorization, "uncategorized" ).
+
+
+% For messages, we may use either strings or atoms (that is the most compact
+% repeated form):
+%
+-define( default_test_message_categorization, 'test' ).
+
+
+% Section dedicated to trace emitters that are not WOOPER-based and are
+% dedicated to cases.
+%
+% See also: case_constructs.hrl.
+%
+-define( default_case_message_categorization, 'case' ).
+
+
+% Section dedicated to trace emitters that are not WOOPER-based and dedicated to
+% classical functions (as opposed to methods from class_TraceEmitter).
+%
+% See also: traces.hrl.
+
+
+-define( default_standalone_message_categorization, 'standalone' ).
+
 
 
 % We moved away from the tracing_activated conditional sections the most severe
@@ -2146,7 +2152,7 @@
 
 
 % Defined here once for all (warning about their being unused suppressed),
-% regardless of the tracing_activated flag as always needed for void_* traces:
+% regardless of the tracing_activated flag, as always needed for void_* traces:
 
 -spec trace_disabled( any() ) -> void().
 trace_disabled( _ ) ->
