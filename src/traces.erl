@@ -27,7 +27,7 @@
 
 
 % @doc Module gathering all code, common to tests and applications, that allows
-% to <b>lighten the trace macros, share defines and types, or manage log
+% to <b>lighten the trace macros, share defines and types, manage log
 % handlers</b>.
 %
 -module(traces).
@@ -40,6 +40,10 @@
 
 
 -type emitter_name() :: ustring().
+% Name of a trace emitter.
+
+-type bin_emitter_name() :: bin_string().
+% Name of a trace emitter.
 
 
 -type emitter_categorization() :: ustring().
@@ -51,12 +55,12 @@
 % For example "topics.sports.basketball".
 
 
--type emitter_bin_categorization() :: bin_string().
+-type bin_emitter_categorization() :: bin_string().
 % For example `<<"topics.sports.basketball">>'.
 
 
 -type emitter_any_categorization() :: emitter_categorization()
-									| emitter_bin_categorization().
+									| bin_emitter_categorization().
 % Any kind of categorization of a trace emitter.
 
 -type emitter_info() :: { emitter_name(), emitter_categorization() }.
@@ -64,11 +68,29 @@
 -type app_timestamp() :: trace_utils:trace_timestamp().
 
 -type time() :: ustring().
+% A trace time.
+
+-type bin_time() :: bin_string().
+% A (binary) trace time.
+
 
 -type location() :: ustring().
+% The location (free text, typically host) of a trace emitter.
+
+-type bin_location() :: bin_string().
+
 
 -type message_categorization() :: ustring() | 'uncategorized'.
-% A message may or may not (which is the default) by categorized.
+% A message may or may not (which is the default and general case) be
+% categorized.
+
+
+-type bin_message_categorization() :: bin_string() | 'uncategorized'.
+% A message may or may not (which is the default and general case) be
+% categorized.
+%
+% Note that the 'bin_' prefix is a bit misleading here, as an atom can still be
+% used.
 
 
 -type priority() :: trace_utils:trace_priority().
@@ -78,6 +100,9 @@
 % Textual version of the severity of a message: 'emergency', 'alert', and all.
 
 -type message() :: ustring().
+% A trace message.
+
+-type bin_message() :: bin_string().
 % A trace message.
 
 -type trace_text_type() :: 'text_only' | 'pdf'.
@@ -100,15 +125,16 @@
 % - or {'text_traces', trace_text_type()}
 
 
--export_type([ emitter_name/0,
+-export_type([ emitter_name/0, bin_emitter_name/0,
 
-			   emitter_categorization/0, emitter_bin_categorization/0,
+			   emitter_categorization/0, bin_emitter_categorization/0,
 			   emitter_any_categorization/0,
 
-			   emitter_info/0,
-			   app_timestamp/0, time/0, location/0, message_categorization/0,
-			   priority/0, message/0, trace_severity/0,
-			   trace_supervision_type/0 ]).
+			   emitter_info/0, app_timestamp/0, time/0, bin_time/0,
+			   location/0, bin_location/0,
+			   message_categorization/0, bin_message_categorization/0,
+			   priority/0, message/0, bin_message/0,
+			   trace_severity/0, trace_supervision_type/0 ]).
 
 
 % Logger-related API (see https://erlang.org/doc/apps/kernel/logger_chapter.html
