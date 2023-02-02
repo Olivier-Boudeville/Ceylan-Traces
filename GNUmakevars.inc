@@ -66,9 +66,12 @@ endif
 # conditional compilation primitives (see cond_utils for their management):
 
 # Topics covered by flags:
+#
 # - registration: regarding the naming registration/look-up, notably of the
 #   trace aggregator
-
+#
+# - efficiency: regarding the overhead induced by the traces system
+#
 # Defining debug flags (at least the most verbose are by default commented-out):
 ifeq ($(ENABLE_DEBUG),true)
 	#TRACES_DEBUG_FLAGS += -Dtraces_debug_registration
@@ -76,7 +79,8 @@ endif
 
 # Defining check flags:
 ifeq ($(EXECUTION_TARGET),development)
-	# Does not exist: TRACES_CHECK_FLAGS += -Dtraces_check_xx
+	# To be left commented in general terms:
+	TRACES_CHECK_FLAGS += -Dtraces_check_efficiency
 endif
 
 # As soon as Traces is used, no need to ellipse traces anymore, they can be
