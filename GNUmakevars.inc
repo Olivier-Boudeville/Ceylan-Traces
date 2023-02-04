@@ -61,6 +61,12 @@ else
 endif
 
 
+# Restrains the use to the 'advanced_traces' type, but should lessen
+# considerably the overall traces overhead:
+#
+TRACES_OPT_FLAGS = -Dtraces_are_preformatted
+#TRACES_OPT_FLAGS =
+
 
 # Defining (optional) layer-specific flags, typically used by in-code
 # conditional compilation primitives (see cond_utils for their management):
@@ -70,7 +76,8 @@ endif
 # - registration: regarding the naming registration/look-up, notably of the
 #   trace aggregator
 #
-# - efficiency: regarding the overhead induced by the traces system
+# - types: regarding the overhead induced by the traces system (useful to ensure
+# a good efficiency/compactness is met)
 #
 # Defining debug flags (at least the most verbose are by default commented-out):
 ifeq ($(ENABLE_DEBUG),true)
@@ -79,14 +86,15 @@ endif
 
 # Defining check flags:
 ifeq ($(EXECUTION_TARGET),development)
-	# To be left commented in general terms:
-	TRACES_CHECK_FLAGS += -Dtraces_check_efficiency
+	# To be left commented in general terms (as checking is expensive):
+	TRACES_CHECK_FLAGS += -Dtraces_check_types
 endif
 
 # As soon as Traces is used, no need to ellipse traces anymore, they can be
 # fully preserved:
 #
-ERLANG_COMPILER_OPT_BASE += $(TRACES_DEBUG_FLAGS) \
+ERLANG_COMPILER_OPT_BASE += $(TRACES_OPT_FLAGS)   \
+							$(TRACES_DEBUG_FLAGS) \
 							$(TRACES_CHECK_FLAGS) \
 							-Dwooper_preserve_traces
 
