@@ -388,7 +388,7 @@
 % state.
 %
 -define( send_emergency_fmt_cat( State, Message, FormatValues,
-							 MessageCategorization ),
+								 MessageCategorization ),
 		 class_TraceEmitter:send_safe( emergency, State,
 			text_utils:format( Message, FormatValues ), MessageCategorization )
 ).
