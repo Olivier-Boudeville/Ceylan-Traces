@@ -454,14 +454,14 @@ Refer to `this WOOPER section about diamond-shaped inheritance <https://wooper.e
 Lowering the Trace-Induced Overhead
 ===================================
 
-In addition to the general efficiency measures already taken, an (optional) "preformatted" mode has been introduced in order to further lower the cost induced by the management of traces (this mode can be freely used in parallel to the normal, "legacy" mode, in the same program).
+In addition to the general efficiency measures already taken, an (optional) "preformatted" mode has been introduced in order to further lower the cost induced by the processing of traces; this mode can be freely used in parallel to the normal, "legacy" mode, in the same program.
 
 At the expense of supporting only our "advanced" trace supervision type (as opposed to the "text" one typically useful for PDF generation), this mode strives to:
 
 - reduce the volume of data sent for each trace (from a richer tuple per trace to a single, compact binary)
 - increase overall concurrency by, as much as possible, offsetting the load from the trace aggregator (which by design is a singleton) to the many trace emitters
 
-Using this mode is transparent and a significant decrease in resource use could be measured in case of heavy trace sending.
+Using this mode is transparent, and, in case of heavy trace sending, a significant decrease in resource usage could be measured.
 
 To enable/disable this mode, refer to the ``traces_are_preformatted`` define, which is now set by default (see the ``TRACES_OPT_FLAGS`` variable in ``GNUmakevars.inc``).
 
