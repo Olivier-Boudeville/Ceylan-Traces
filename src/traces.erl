@@ -339,7 +339,7 @@ set_handler() ->
 		ok ->
 			ok;
 
-		{ error, AddErrReason, TargetHandler } ->
+		{ error, AddErrReason } ->
 			throw( { unable_to_set_traces_log_handler, AddErrReason,
 					 TargetHandler } )
 
@@ -375,7 +375,7 @@ set_handler( AggregatorPid ) ->
 		ok ->
 			ok;
 
-		{ error, AddErrReason, TargetHandler } ->
+		{ error, AddErrReason } ->
 			throw( { unable_to_set_traces_log_handler, AddErrReason,
 					 TargetHandler } )
 

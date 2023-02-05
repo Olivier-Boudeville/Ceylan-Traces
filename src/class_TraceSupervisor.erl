@@ -47,10 +47,10 @@
 
 	{ trace_filename, file_utils:bin_file_path(),
 	  "the name of the file in which traces are to be read "
-	  "(ex: <<\"foobar.traces\">>" },
+	  "(e.g. <<\"foobar.traces\">>" },
 
 	{ trace_type, trace_type(),
-	  "the type of traces to be written (ex: advanced_traces)" },
+	  "the type of traces to be written (e.g. advanced_traces)" },
 
 	% Needed if wanting to wait for the trace file to exist before launching the
 	% supervision tool:
@@ -117,7 +117,7 @@
 %
 %   - TraceFilename is the name of the file whence traces should be read
 %
-%   - TraceType the type of traces to expect (ex: advanced_traces, text_traces)
+%   - TraceType the type of traces to expect (e.g. advanced_traces, text_traces)
 %
 %   - MaybeTraceAggregatorPid is the PID of the trace aggregator to wait for (if
 %   any)
@@ -152,7 +152,7 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 		AggPid when is_pid( AggPid ) ->
 
 			% We have a PID; avoid the race condition that could happen if the
-			% trace viewer (ex: LogMX) was launched before a first trace was
+			% trace viewer (e.g. LogMX) was launched before a first trace was
 			% written by the aggregator in the trace file:
 
 			%trace_utils:debug(
@@ -454,7 +454,8 @@ create( MaybeWaitingPid, TraceFilename, TraceType, TraceAggregatorPid ) ->
 %
 % - TraceFilename the trace file to monitor
 %
-% - TraceType the expected type of the traces (ex: advanced_traces, text_traces)
+% - TraceType the expected type of the traces (e.g. advanced_traces,
+% text_traces)
 %
 % - MaybeTraceAggregatorPid is either the PID of the trace aggregator, or the
 % 'undefined' atom
@@ -490,10 +491,10 @@ create( MaybeWaitingPid, MonitorNow, TraceFilename, TraceType,
 
 
 % @doc Inits a trace supervisor; especially useful when the trace supervisor
-% cannot be created at the same time as the trace aggregator (ex: if the trace
+% cannot be created at the same time as the trace aggregator (e.g. if the trace
 % filename is to change at runtime).
 %
-% Use the --batch option (ex: erl --batch, or, with our make system, 'make
+% Use the --batch option (e.g. erl --batch, or, with our make system, 'make
 % MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
 %
 -spec init( file_name(), aggregator_pid() ) ->
@@ -508,10 +509,10 @@ init( TraceFilename, TraceAggregatorPid ) ->
 
 
 % @doc Inits a trace supervisor; especially useful when the trace supervisor
-% cannot be created at the same time as the trace aggregator (ex: if the trace
+% cannot be created at the same time as the trace aggregator (e.g. if the trace
 % filename is to change at runtime).
 %
-% Use the --batch option (ex: erl --batch, or, with our make system, 'make
+% Use the --batch option (e.g. erl --batch, or, with our make system, 'make
 % MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
 %
 -spec init( file_name(), trace_supervision_type(), aggregator_pid() ) ->
@@ -527,9 +528,9 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 
 % @doc Inits a trace supervisor and records a waiting process; especially useful
 % when the trace supervisor cannot be created at the same time as the trace
-% aggregator (ex: if the trace filename is to change at runtime).
+% aggregator (e.g. if the trace filename is to change at runtime).
 %
-% Use the --batch option (ex: erl --batch, or, with our make system, 'make
+% Use the --batch option (e.g. erl --batch, or, with our make system, 'make
 % MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
 %
 -spec init( file_name(), trace_supervision_type(), aggregator_pid(),

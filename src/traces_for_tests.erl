@@ -78,7 +78,7 @@
 % sitting in the mailbox of the app process).
 %
 -spec test_start( module_name(),
-		class_TraceAggregator:initialize_supervision() ) -> aggregator_pid().
+		class_TraceAggregator:initialise_supervision() ) -> aggregator_pid().
 % All values possible for InitTraceSupervisor here:
 test_start( ModuleName, InitTraceSupervisor ) ->
 
