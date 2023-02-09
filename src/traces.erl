@@ -80,17 +80,25 @@
 -type bin_location() :: bin_string().
 
 
--type message_categorization() :: ustring() | 'uncategorized'.
-% A message may or may not (which is the default and general case) be
-% categorized.
-
-
--type bin_message_categorization() :: bin_string() | 'uncategorized'.
-% A message may or may not (which is the default and general case) be
-% categorized.
+% Previously was only ustring() | 'uncategorized':
+-type message_categorization() :: ustring() | atom().
+% A message may or may not (which is the default and general case - resulting in
+% the use of the 'uncategorized' atom) be categorized.
 %
-% Note that the 'bin_' prefix is a bit misleading here, as an atom can still be
-% used.
+% Atoms are supported as well, as a limited number of message categorization
+% generally applies.
+
+
+% Previously was only bin_string() | 'uncategorized':
+-type bin_message_categorization() :: bin_string() | atom().
+% A message may or may not (which is the default and general case - resulting in
+% the use of the 'uncategorized' atom) be categorized.
+%
+% Note that the 'bin_' prefix may be a bit misleading here, as an atom can still
+% be used.
+%
+% Atoms are supported as well, as a limited number of message categorization
+% generally applies.
 
 
 -type priority() :: trace_utils:trace_priority().
