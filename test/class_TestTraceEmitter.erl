@@ -298,9 +298,9 @@ send_debug_trace( State ) ->
 
 	Format = [ debug ],
 
-	Categ = ?application_start,
+	MsgCateg = ?application_start,
 
-	?debug_fmt_cat( Message, Format, Categ ).
+	?debug_fmt_cat( Message, Format, MsgCateg ).
 
 
 
@@ -331,22 +331,22 @@ send_traces_benchmark( State ) ->
 	% Not replaced:
 
 	%?emergency_cat( "Still livin' in an emergency world! (cat)",
-	%				?application_start ),
+	%                ?application_start ),
 
 	%?alert_cat( "Still livin' in an alert world! (cat)",
-	%			?application_start ),
+	%            ?application_start ),
 
 	%?critical_cat( "Still livin' in a critical world! (cat)",
-	%			   ?application_start ),
+	%               ?application_start ),
 
 	%?error_cat( "Still livin' in an error world! (cat)",
-	%			?application_save ),
+	%            ?application_save ),
 
 	%?warning_cat( "Still livin' in a warning world! (cat)",
-	%			  ?time ),
+	%              ?time ),
 
 	%?notice_cat( "Still livin' in a notice world! (cat)",
-	%			 ?execution ),
+	%             ?execution ),
 
 	?info_cat( "Still livin' in an info world! (cat)",
 				?application_start ),
@@ -360,25 +360,25 @@ send_traces_benchmark( State ) ->
 
 
 	%?emergency_full( "Still livin' in an emergency world! (full)",
-	%				 ?application_start, 5 ),
+	%                 ?application_start, 5 ),
 
 	%?alert_full( "Still livin' in an alert world! (full)",
-	%			 ?application_start, 5 ),
+	%             ?application_start, 5 ),
 
 	%?critical_full( "Still livin' in a critical world! (full)",
-	%				?application_start, 5 ),
+	%                ?application_start, 5 ),
 
 	%?error_full( "Still livin' in an error world! (full)",
-	%			 ?application_save, 6 ),
+	%             ?application_save, 6 ),
 
 	%?warning_full( "Still livin' in a warning world! (full)",
-	%			   ?time, 7 ),
+	%               ?time, 7 ),
 
 	% Useful also to test non-integer timestamps (works correctly with the trace
 	% supervisors as they are):
 	%
 	%?notice_full( "Still livin' in a notice world! (full)",
-	%			  ?execution, {8,2} ),
+	%              ?execution, {8,2} ),
 
 	?info_full( "Still livin' in an info world! (full)",
 				 ?application_start, 9 ),
