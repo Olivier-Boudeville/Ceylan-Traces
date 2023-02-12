@@ -1261,21 +1261,41 @@ create( _UseSynchronousNew=true, TraceSeverity ) ->
 
 
 % @doc Returns the PID of the current trace aggregator, supposed to be already
-% available.
+% available, or an error atom.
 %
 % Waits a bit before giving up: useful when client and aggregator processes are
 % launched almost simultaneously.
 %
--spec get_aggregator() ->
+-spec try_get_aggregator() ->
 		static_return( 'trace_aggregator_not_found' | aggregator_pid() ).
-get_aggregator() ->
+try_get_aggregator() ->
 	AggRes = get_aggregator( _CreateIfNotAvailable=false ),
 	wooper:return_static( AggRes ).
 
 
+% @doc Returns the PID of the current trace aggregator, supposed to be already
+% available, or throws an exception.
+%
+% Waits a bit before giving up: useful when client and aggregator processes are
+% launched almost simultaneously.
+%
+-spec get_aggregator() -> static_return(  aggregator_pid() ).
+get_aggregator() ->
+
+	case try_get_aggregator() of
+
+		trace_aggregator_not_found ->
+			throw( trace_aggregator_not_found );
+
+		AggPid ->
+			wooper:return_static( AggPid )
+
+	end.
+
+
 
 % @doc Returns the PID of the current trace aggregator, using the default
-% look-up scope.
+% look-up scope, or an error atom.
 %
 % The parameter is a boolean telling whether the aggregator should be created if
 % not available (if true), or if this method should just return a failure
@@ -1289,18 +1309,17 @@ get_aggregator() ->
 % Waits a bit before giving up: useful when client and aggregator processes are
 % launched almost simultaneously.
 %
--spec get_aggregator( boolean() ) ->
+-spec try_get_aggregator( boolean() ) ->
 			static_return( 'trace_aggregator_launch_failed'
 						 | 'trace_aggregator_not_found' | aggregator_pid() ).
-get_aggregator( CreateIfNotAvailable ) ->
+try_get_aggregator( CreateIfNotAvailable ) ->
 	AggRes = get_aggregator( CreateIfNotAvailable,
 							 ?default_trace_aggregator_look_up_scope ),
 	wooper:return_static( AggRes ).
 
 
-
-% @doc Returns the PID of the current trace aggregator, using specified look-up
-% scope.
+% @doc Returns the PID of the current trace aggregator, using the default
+% look-up scope, or throws an exception.
 %
 % The parameter is a boolean telling whether the aggregator should be created if
 % not available (if true), or if this method should just return a failure
@@ -1314,10 +1333,39 @@ get_aggregator( CreateIfNotAvailable ) ->
 % Waits a bit before giving up: useful when client and aggregator processes are
 % launched almost simultaneously.
 %
--spec get_aggregator( boolean(), look_up_scope() ) ->
+-spec get_aggregator( boolean() ) -> static_return( aggregator_pid() ).
+get_aggregator( CreateIfNotAvailable ) ->
+	case try_get_aggregator( CreateIfNotAvailable ) of
+
+		AggPid when is_pid( AggPid ) ->
+			wooper:return_static( AggPid );
+
+		ErrorAtom ->
+			throw( ErrorAtom )
+
+	end.
+
+
+
+% @doc Returns the PID of the current trace aggregator, using specified look-up
+% scope, or an error atom.
+%
+% The parameter is a boolean telling whether the aggregator should be created if
+% not available (if true), or if this method should just return a failure
+% notification (if false).
+%
+% Note: to avoid race conditions between concurrent calls to this static method
+% (e.g. due to multiple trace emitter instances created in parallel), an
+% execution might start with a call to this method with a blocking wait until
+% the aggregator pops up in registry services.
+%
+% Waits a bit before giving up: useful when client and aggregator processes are
+% launched almost simultaneously.
+%
+-spec try_get_aggregator( boolean(), look_up_scope() ) ->
 			static_return( 'trace_aggregator_launch_failed'
 						 | 'trace_aggregator_not_found' | aggregator_pid() ).
-get_aggregator( CreateIfNotAvailable, LookupScope ) ->
+try_get_aggregator( CreateIfNotAvailable, LookupScope ) ->
 
 	AggRegName = ?trace_aggregator_name,
 
@@ -1371,6 +1419,37 @@ get_aggregator( CreateIfNotAvailable, LookupScope ) ->
 	end,
 
 	wooper:return_static( AggRes ).
+
+
+
+% @doc Returns the PID of the current trace aggregator, using specified look-up
+% scope, or throws an exception.
+%
+% The parameter is a boolean telling whether the aggregator should be created if
+% not available (if true), or if this method should just return a failure
+% notification (if false).
+%
+% Note: to avoid race conditions between concurrent calls to this static method
+% (e.g. due to multiple trace emitter instances created in parallel), an
+% execution might start with a call to this method with a blocking wait until
+% the aggregator pops up in registry services.
+%
+% Waits a bit before giving up: useful when client and aggregator processes are
+% launched almost simultaneously.
+%
+-spec get_aggregator( boolean(), look_up_scope() ) ->
+								static_return( aggregator_pid() ).
+get_aggregator( CreateIfNotAvailable, LookupScope ) ->
+	case try_get_aggregator( CreateIfNotAvailable, LookupScope ) of
+
+		AggPid when is_pid( AggPid ) ->
+			wooper:return_static( AggPid );
+
+		ErrorAtom ->
+			throw( ErrorAtom )
+
+	end.
+
 
 
 
