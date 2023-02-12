@@ -99,7 +99,7 @@ ERLANG_COMPILER_OPT_BASE += $(TRACES_OPT_FLAGS)   \
 							-Dwooper_preserve_traces
 
 
-# Useful to target for example the root of the current layer (ex: to locate the
+# Useful to target for example the root of the current layer (e.g. to locate the
 # relevant, layer-local '_build' directory):
 #
 ifndef LAYER_TOP
@@ -130,7 +130,7 @@ endif
 # The uniquely-defined version of this layer, for all uses (including rebar and
 # hex):
 #
-TRACES_VERSION := 1.0.15
+TRACES_VERSION := 1.0.16
 
 
 # PROJECT_VERSION should be defined on a per-project basis.
@@ -211,7 +211,7 @@ ERLANG_COMPILER_OPT_BASE += $(ENABLE_TRACE_OPT)
 #ERLANG_COMPILER_OPT_BASE += "+{nowarn_unused_function,[{trace_disabled,1},{trace_disabled,2},{trace_disabled,3},{trace_disabled,4},{trace_disabled,5},{test_trace_disabled,1},{test_trace_disabled,2}]}"
 
 
-# Not wanting to trigger WOOPER-specific settings (ex: the modules bootstrapped
+# Not wanting to trigger WOOPER-specific settings (e.g. the modules bootstrapped
 # for it, like wooper_info), hence we define the corresponding Make variables
 # with an empty value (otherwise if using 'MY_VAR= ', MY_VAR would be deemed not
 # defined); however of course most rules/variables still apply.
@@ -285,8 +285,8 @@ TRACES_PLT_FILE := $(TRACES_TOP)/traces.plt
 # This is the merged PLT of the level just below in the software stack.
 # For Traces, it is the PLT of 'WOOPER':
 #
-ifndef PREDECESSOR_PLT
-	PREDECESSOR_PLT = $(WOOPER_PLT_FILE)
+ifndef PREDECESSOR_PLT_FILE
+	PREDECESSOR_PLT_FILE = $(WOOPER_PLT_FILE)
 endif
 
 
@@ -303,8 +303,8 @@ endif
 # them and if all the packages mentioned here are themselves dependencies (in
 # which case they are all sitting together in the _checkouts child directory).
 #
-# Note also we rely on the names of build roots (ex: myriad) as opposed to
-# project/repository names (ex: Ceylan-Myriad):
+# Note also we rely on the names of build roots (e.g. myriad) as opposed to
+# project/repository names (e.g. Ceylan-Myriad):
 #
 # First priority is an existing checkout directory:
 ifneq ($(wildcard $(TRACES_TOP)/_checkouts/wooper/.),)
