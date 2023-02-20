@@ -87,7 +87,7 @@ endif
 # Defining check flags:
 ifeq ($(EXECUTION_TARGET),development)
 	# To be left commented in general terms (as checking is expensive):
-	TRACES_CHECK_FLAGS += -Dtraces_check_types
+	#TRACES_CHECK_FLAGS += -Dtraces_check_types
 endif
 
 # As soon as Traces is used, no need to ellipse traces anymore, they can be
