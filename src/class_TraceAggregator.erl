@@ -548,7 +548,6 @@ destruct( State ) ->
 
 					?getAttr(is_batch) orelse
 						begin
-
 							trace_utils:info_fmt( "~ts Displaying PDF trace "
 								"report.", [ ?log_prefix ] ),
 
@@ -892,7 +891,7 @@ renameTraceFile( State, NewTraceFilename ) ->
 % Useful for example to launch a relevant trace supervision.
 %
 -spec getTraceType( wooper:state() ) ->
-				const_request_return( { 'notify_trace_types', trace_type() } ).
+				const_request_return( { 'notify_trace_type', trace_type() } ).
 getTraceType( State ) ->
 
 	Res = { notify_trace_type, ?getAttr(trace_type) },
@@ -1671,7 +1670,7 @@ initialise_supervision( State ) ->
 
 	TraceFilename = ?getAttr(trace_filename),
 
-	SentState = send_internal_immediate( trace,
+	SentState = send_internal_immediate( info,
 		text_utils:format( "Initialising now trace supervision for '~ts'.",
 						   [ TraceFilename ] ), State ),
 

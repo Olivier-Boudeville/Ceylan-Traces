@@ -80,26 +80,10 @@
 -type bin_location() :: bin_string().
 
 
-% Previously was only ustring() | 'uncategorized':
--type message_categorization() :: ustring() | atom().
-% A message may or may not (which is the default and general case - resulting in
-% the use of the 'uncategorized' atom) be categorized.
-%
-% Atoms are supported as well, as a limited number of message categorization
-% generally applies.
+-type message_categorization() :: trace_utils:trace_message_categorization().
 
-
-% Previously was only bin_string() | 'uncategorized':
--type bin_message_categorization() :: bin_string() | atom().
-% A message may or may not (which is the default and general case - resulting in
-% the use of the 'uncategorized' atom) be categorized.
-%
-% Note that the 'bin_' prefix may be a bit misleading here, as an atom can still
-% be used.
-%
-% Atoms are supported as well, as a limited number of message categorization
-% generally applies.
-
+-type bin_message_categorization() ::
+		trace_utils:trace_bin_message_categorization().
 
 -type priority() :: trace_utils:trace_priority().
 % Numerical version of the severity of a message.
@@ -107,11 +91,11 @@
 -type trace_severity() :: trace_utils:trace_severity().
 % Textual version of the severity of a message: 'emergency', 'alert', and all.
 
--type message() :: ustring().
-% A trace message.
+-type message() :: trace_utils:trace_message().
+% An actual trace message.
 
--type bin_message() :: bin_string().
-% A trace message.
+-type bin_message() :: trace_utils:trace_bin_message().
+% An actual (binary) trace message.
 
 -type trace_text_type() :: 'text_only' | 'pdf'.
 % Text traces are either in pure, raw text, or in PDF.

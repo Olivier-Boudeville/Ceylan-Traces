@@ -61,8 +61,8 @@ else
 endif
 
 
-# Restrains the use to the 'advanced_traces' type, but should lessen
-# considerably the overall traces overhead:
+# Preformatting implies the use to the 'advanced_traces' type, but should lessen
+# considerably the overall traces overhead, so this is worth it:
 #
 TRACES_OPT_FLAGS = -Dtraces_are_preformatted
 #TRACES_OPT_FLAGS =
@@ -93,9 +93,9 @@ endif
 # As soon as Traces is used, no need to ellipse traces anymore, they can be
 # fully preserved:
 #
-ERLANG_COMPILER_OPT_BASE += $(TRACES_OPT_FLAGS)   \
-							$(TRACES_DEBUG_FLAGS) \
-							$(TRACES_CHECK_FLAGS) \
+ERLANG_COMPILER_OPT_BASE += $(TRACES_OPT_FLAGS)      \
+							$(TRACES_DEBUG_FLAGS)    \
+							$(TRACES_CHECK_FLAGS)    \
 							-Dwooper_preserve_traces
 
 

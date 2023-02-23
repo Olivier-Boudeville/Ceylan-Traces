@@ -362,11 +362,14 @@ getName( State ) ->
 
 
 
-% @doc Sets the name of this trace emitter from the specified plain string.
+% @doc Sets the name of this trace emitter from the specified string.
 -spec setName( wooper:state(), emitter_name() ) -> oneway_return().
 setName( State, NewName ) ->
 
-	BinName = text_utils:string_to_binary( NewName ),
+	BinName = text_utils:ensure_binary( NewName ),
+
+	%trace_utils:debug_fmt( "Renaming trace emitter from '~ts' to '~ts'.",
+	%                       [ ?getAttr(name), BinName ] ),
 
 	wooper:return_state( setAttribute( State, name, BinName ) ).
 
