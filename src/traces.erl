@@ -80,17 +80,11 @@
 -type bin_location() :: bin_string().
 
 
--type message_categorization() :: ustring() | 'uncategorized'.
-% A message may or may not (which is the default and general case) be
-% categorized.
+-type message_categorization() :: trace_utils:trace_message_categorization().
 
 
--type bin_message_categorization() :: bin_string() | 'uncategorized'.
-% A message may or may not (which is the default and general case) be
-% categorized.
-%
-% Note that the 'bin_' prefix is a bit misleading here, as an atom can still be
-% used.
+-type bin_message_categorization() ::
+		trace_utils:trace_bin_message_categorization().
 
 
 -type priority() :: trace_utils:trace_priority().
@@ -99,11 +93,11 @@
 -type trace_severity() :: trace_utils:trace_severity().
 % Textual version of the severity of a message: 'emergency', 'alert', and all.
 
--type message() :: ustring().
-% A trace message.
+-type message() :: trace_utils:trace_message().
+% An actual trace message.
 
--type bin_message() :: bin_string().
-% A trace message.
+-type bin_message() :: trace_utils:trace_bin_message().
+% An actual (binary) trace message.
 
 -type trace_text_type() :: 'text_only' | 'pdf'.
 % Text traces are either in pure, raw text, or in PDF.
@@ -339,7 +333,7 @@ set_handler() ->
 		ok ->
 			ok;
 
-		{ error, AddErrReason, TargetHandler } ->
+		{ error, AddErrReason } ->
 			throw( { unable_to_set_traces_log_handler, AddErrReason,
 					 TargetHandler } )
 
@@ -375,7 +369,7 @@ set_handler( AggregatorPid ) ->
 		ok ->
 			ok;
 
-		{ error, AddErrReason, TargetHandler } ->
+		{ error, AddErrReason } ->
 			throw( { unable_to_set_traces_log_handler, AddErrReason,
 					 TargetHandler } )
 

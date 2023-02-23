@@ -128,7 +128,7 @@ Starting from ``notice`` [#]_ onward (thus included), these severities are consi
 .. [#] A good practice is to only send few ``notice`` messages (a fixed/bounded number of them). For example, one of such messages may be sent once a singleton instance is fully constructed (avoiding one notice message per call of a given request, or one per instance - should there may be many of them).
 
 
-Moreover the severities that are "error-like" (starting from ``warning`` onward) will be synchronously sent to the trace aggregator, and echoed on the console as well, to ensure none is lost. Doing so is certainly a bit more resource-demanding, yet such traces shall denote exceptional conditions anyway.
+Moreover the severities that are "error-like" (starting from ``warning`` onward) will be sent *synchronously* to the trace aggregator, and echoed on the console as well, to ensure none is lost. Doing so is certainly a bit more resource-demanding, yet such traces shall denote exceptional conditions anyway.
 
 There is also an additional trace severity, ``void``, that designates traces that shall be muted in all cases. Its purpose is to provide another means of muting/unmuting some traces, instead of commenting out/uncommenting said traces, or relying, thanks to ``cond_utils``, on conditionally-compiled code.
 
@@ -449,6 +449,21 @@ Multiple Inheritance
 Often, in an application, many classes derive - directly or not - from ``class_TraceEmitter``. The constructor of this class is designed to perform its initialisation exactly once (as opposed to as many times as a given class inherits from ``class_TraceEmitter``), the first time it is called (leading typically to the most relevant emitter state in terms of name, categorization, etc.).
 
 Refer to `this WOOPER section about diamond-shaped inheritance <https://wooper.esperide.org/#the-special-case-of-diamond-shaped-inheritance>`_ for further details.
+
+
+Lowering the Trace-Induced Overhead
+===================================
+
+In addition to the general efficiency measures already taken, an (optional) "preformatted" mode has been introduced in order to further lower the cost induced by the processing of traces; this mode can be freely used in parallel to the normal, "legacy" mode, in the same program.
+
+At the expense of supporting only our "advanced" trace supervision type (as opposed to the "text" one typically useful for PDF generation), this mode strives to:
+
+- reduce the volume of data sent for each trace (from a richer tuple per trace to a single, compact binary)
+- increase overall concurrency by, as much as possible, offsetting the load from the trace aggregator (which by design is a singleton) to the many trace emitters
+
+Using this mode is transparent, and, in case of heavy trace sending, a significant decrease in resource usage could be measured.
+
+To enable/disable this mode, refer to the ``traces_are_preformatted`` define, which is now set by default (see the ``TRACES_OPT_FLAGS`` variable in ``GNUmakevars.inc``).
 
 
 

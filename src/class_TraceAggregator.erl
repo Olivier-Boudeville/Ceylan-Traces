@@ -171,9 +171,13 @@
 -define( watchdog_emitter_categ, <<"Traces.Trace Watchdog">> ).
 
 
+-define( advanced_traces_format, "~w|~ts|~ts|~ts|~ts|~ts|~ts|~B|~ts~n" ).
+
+
 % Shorthands:
 
 -type ustring() :: text_utils:ustring().
+-type bin_string() :: text_utils:bin_string().
 -type title() :: text_utils:title().
 -type format_string() :: text_utils:format_string().
 -type format_values() :: text_utils:format_values().
@@ -192,9 +196,8 @@
 -type registration_scope() :: naming_utils:registration_scope().
 -type look_up_scope() :: naming_utils:look_up_scope().
 
--type trace_type() :: traces:trace_supervision_type().
--type listener_pid() :: class_TraceListener:listener_pid().
 
+-type trace_type() :: traces:trace_supervision_type().
 -type message() :: traces:message().
 -type bin_message() :: traces:bin_message().
 -type trace_severity() :: traces:trace_severity().
@@ -207,7 +210,11 @@
 -type bin_time() :: traces:bin_time().
 -type bin_location() :: traces:bin_location().
 
+-type listener_pid() :: class_TraceListener:listener_pid().
+
 -type emitter_pid() :: class_TraceEmitter:emitter_pid().
+-type preformatted_trace() :: class_TraceEmitter:preformatted_trace().
+
 -type supervisor_pid() :: class_TraceSupervisor:supervisor_pid().
 
 
@@ -541,7 +548,6 @@ destruct( State ) ->
 
 					?getAttr(is_batch) orelse
 						begin
-
 							trace_utils:info_fmt( "~ts Displaying PDF trace "
 								"report.", [ ?log_prefix ] ),
 
@@ -622,14 +628,14 @@ send( State, TraceEmitterPid, BinTraceEmitterName,
 	  BinTraceEmitterCategorization, AppTimestamp, BinTime, BinLocation,
 	  BinMessageCategorization, Priority, BinMessage ) ->
 
-	%trace_utils:debug_fmt( "Received sent message '~ts'.", [ Message ] ),
+	%trace_utils:debug_fmt( "Received trace message '~ts'.", [ Message ] ),
 
 	% Useful to check that all fields are of minimal sizes (e.g. binaries):
 	%inspect_fields( [ TraceEmitterPid, BinTraceEmitterName,
 	%   BinTraceEmitterCategorization, AppTimestamp, BinTime, BinLocation,
 	%   BinMessageCategorization, Priority, BinMessage ] ),
 	% Wanting notably to avoid that plain strings get used silently:
-	cond_utils:if_defined( traces_check_efficiency,
+	cond_utils:if_defined( traces_check_types,
 		begin
 
 			% As AppTimestamp :: any():
@@ -673,11 +679,39 @@ send( State, TraceEmitterPid, BinTraceEmitterName,
 
 
 
+% @doc Sends a preformatted trace to this aggregator to have it processed, that
+% is stored or directly written.
+%
+-spec sendPreformatted( wooper:state(), preformatted_trace() ) ->
+								const_oneway_return().
+sendPreformatted( State, PreformattedTrace ) ->
+
+	% Mostly like send/10 above:
+
+	%trace_utils:debug_fmt( "Received preformatted trace '~ts'.",
+	%                       [ PreformattedTrace ] ),
+
+	cond_utils:if_defined( traces_check_types,
+		type_utils:check_binary( PreformattedTrace ) ),
+
+	file_utils:write( ?getAttr(trace_file), PreformattedTrace ),
+
+	Listeners = ?getAttr(trace_listeners),
+
+	Listeners =:= [] orelse
+		begin
+			[ L ! { addTrace, PreformattedTrace } || L <- Listeners ]
+		end,
+
+	wooper:const_return().
+
+
+
 % @doc Sends a full synchronised trace to this aggregator to have it processed,
 % that is stored or directly written.
 %
-% Same as the send/10 oneway, except a synchronisation message is sent back to
-% the caller.
+% Same as the send/10 oneway, except that a synchronisation message is sent back
+% to the caller.
 %
 -spec sendSync( wooper:state(), pid(), bin_emitter_name(),
 		bin_emitter_categorization(), app_timestamp(), bin_time(),
@@ -694,7 +728,7 @@ sendSync( State, TraceEmitterPid, BinTraceEmitterName,
 	%   BinMessageCategorization, Priority, BinMessage ] ),
 
 	% Wanting notably to avoid that plain strings get used silently:
-	cond_utils:if_defined( traces_check_efficiency,
+	cond_utils:if_defined( traces_check_types,
 		begin
 
 			% As AppTimestamp :: any():
@@ -736,6 +770,48 @@ sendSync( State, TraceEmitterPid, BinTraceEmitterName,
 		end,
 
 	%trace_utils:debug_fmt( "Sync trace '~ts' written.", [ Trace ] ),
+
+	% Done as late as possible, and strictly necessary (and apparently
+	% sufficient), otherwise at least some crashes could prevent the trace to be
+	% actually written on disk (actually seen in the wild):
+	%
+	file:sync( TraceFile ),
+
+	wooper:const_return_result( trace_aggregator_synchronised ).
+
+
+
+% @doc Sends a preformatted, synchronised trace to this aggregator to have it
+% processed, that is stored or directly written.
+%
+% Same as the sendPreformatted/10 oneway, except that a synchronisation message
+% is sent back to the caller.
+%
+-spec sendPreformattedSync( wooper:state(), preformatted_trace() ) ->
+			const_request_return( 'trace_aggregator_synchronised' ).
+sendPreformattedSync( State, PreformattedTrace ) ->
+
+	% Mostly like sendSync/10 above:
+
+	cond_utils:if_defined( traces_check_types,
+		type_utils:check_binary( PreformattedTrace ) ),
+
+	%trace_utils:debug_fmt( "Writing sync preformatted trace '~ts'.",
+	%   [ Trace ] ),
+
+	TraceFile = ?getAttr(trace_file),
+
+	file_utils:write( TraceFile, PreformattedTrace ),
+
+	Listeners = ?getAttr(trace_listeners),
+
+	Listeners =:= [] orelse
+		begin
+			[ L ! { addTrace, PreformattedTrace } || L <- Listeners ]
+		end,
+
+	%trace_utils:debug_fmt( "Sync preformatted trace '~ts' written.",
+	%    [ PreformattedTrace ] ),
 
 	% Done as late as possible, and strictly necessary (and apparently
 	% sufficient), otherwise at least some crashes could prevent the trace to be
@@ -815,7 +891,7 @@ renameTraceFile( State, NewTraceFilename ) ->
 % Useful for example to launch a relevant trace supervision.
 %
 -spec getTraceType( wooper:state() ) ->
-				const_request_return( { 'notify_trace_types', trace_type() } ).
+				const_request_return( { 'notify_trace_type', trace_type() } ).
 getTraceType( State ) ->
 
 	Res = { notify_trace_type, ?getAttr(trace_type) },
@@ -1184,21 +1260,41 @@ create( _UseSynchronousNew=true, TraceSeverity ) ->
 
 
 % @doc Returns the PID of the current trace aggregator, supposed to be already
-% available.
+% available, or an error atom.
 %
 % Waits a bit before giving up: useful when client and aggregator processes are
 % launched almost simultaneously.
 %
--spec get_aggregator() ->
+-spec try_get_aggregator() ->
 		static_return( 'trace_aggregator_not_found' | aggregator_pid() ).
-get_aggregator() ->
+try_get_aggregator() ->
 	AggRes = get_aggregator( _CreateIfNotAvailable=false ),
 	wooper:return_static( AggRes ).
 
 
+% @doc Returns the PID of the current trace aggregator, supposed to be already
+% available, or throws an exception.
+%
+% Waits a bit before giving up: useful when client and aggregator processes are
+% launched almost simultaneously.
+%
+-spec get_aggregator() -> static_return(  aggregator_pid() ).
+get_aggregator() ->
+
+	case try_get_aggregator() of
+
+		trace_aggregator_not_found ->
+			throw( trace_aggregator_not_found );
+
+		AggPid ->
+			wooper:return_static( AggPid )
+
+	end.
+
+
 
 % @doc Returns the PID of the current trace aggregator, using the default
-% look-up scope.
+% look-up scope, or an error atom.
 %
 % The parameter is a boolean telling whether the aggregator should be created if
 % not available (if true), or if this method should just return a failure
@@ -1212,18 +1308,17 @@ get_aggregator() ->
 % Waits a bit before giving up: useful when client and aggregator processes are
 % launched almost simultaneously.
 %
--spec get_aggregator( boolean() ) ->
+-spec try_get_aggregator( boolean() ) ->
 			static_return( 'trace_aggregator_launch_failed'
 						 | 'trace_aggregator_not_found' | aggregator_pid() ).
-get_aggregator( CreateIfNotAvailable ) ->
+try_get_aggregator( CreateIfNotAvailable ) ->
 	AggRes = get_aggregator( CreateIfNotAvailable,
 							 ?default_trace_aggregator_look_up_scope ),
 	wooper:return_static( AggRes ).
 
 
-
-% @doc Returns the PID of the current trace aggregator, using specified look-up
-% scope.
+% @doc Returns the PID of the current trace aggregator, using the default
+% look-up scope, or throws an exception.
 %
 % The parameter is a boolean telling whether the aggregator should be created if
 % not available (if true), or if this method should just return a failure
@@ -1237,10 +1332,39 @@ get_aggregator( CreateIfNotAvailable ) ->
 % Waits a bit before giving up: useful when client and aggregator processes are
 % launched almost simultaneously.
 %
--spec get_aggregator( boolean(), look_up_scope() ) ->
+-spec get_aggregator( boolean() ) -> static_return( aggregator_pid() ).
+get_aggregator( CreateIfNotAvailable ) ->
+	case try_get_aggregator( CreateIfNotAvailable ) of
+
+		AggPid when is_pid( AggPid ) ->
+			wooper:return_static( AggPid );
+
+		ErrorAtom ->
+			throw( ErrorAtom )
+
+	end.
+
+
+
+% @doc Returns the PID of the current trace aggregator, using specified look-up
+% scope, or an error atom.
+%
+% The parameter is a boolean telling whether the aggregator should be created if
+% not available (if true), or if this method should just return a failure
+% notification (if false).
+%
+% Note: to avoid race conditions between concurrent calls to this static method
+% (e.g. due to multiple trace emitter instances created in parallel), an
+% execution might start with a call to this method with a blocking wait until
+% the aggregator pops up in registry services.
+%
+% Waits a bit before giving up: useful when client and aggregator processes are
+% launched almost simultaneously.
+%
+-spec try_get_aggregator( boolean(), look_up_scope() ) ->
 			static_return( 'trace_aggregator_launch_failed'
 						 | 'trace_aggregator_not_found' | aggregator_pid() ).
-get_aggregator( CreateIfNotAvailable, LookupScope ) ->
+try_get_aggregator( CreateIfNotAvailable, LookupScope ) ->
 
 	AggRegName = ?trace_aggregator_name,
 
@@ -1294,6 +1418,37 @@ get_aggregator( CreateIfNotAvailable, LookupScope ) ->
 	end,
 
 	wooper:return_static( AggRes ).
+
+
+
+% @doc Returns the PID of the current trace aggregator, using specified look-up
+% scope, or throws an exception.
+%
+% The parameter is a boolean telling whether the aggregator should be created if
+% not available (if true), or if this method should just return a failure
+% notification (if false).
+%
+% Note: to avoid race conditions between concurrent calls to this static method
+% (e.g. due to multiple trace emitter instances created in parallel), an
+% execution might start with a call to this method with a blocking wait until
+% the aggregator pops up in registry services.
+%
+% Waits a bit before giving up: useful when client and aggregator processes are
+% launched almost simultaneously.
+%
+-spec get_aggregator( boolean(), look_up_scope() ) ->
+								static_return( aggregator_pid() ).
+get_aggregator( CreateIfNotAvailable, LookupScope ) ->
+	case try_get_aggregator( CreateIfNotAvailable, LookupScope ) of
+
+		AggPid when is_pid( AggPid ) ->
+			wooper:return_static( AggPid );
+
+		ErrorAtom ->
+			throw( ErrorAtom )
+
+	end.
+
 
 
 
@@ -1515,7 +1670,7 @@ initialise_supervision( State ) ->
 
 	TraceFilename = ?getAttr(trace_filename),
 
-	SentState = send_internal_immediate( trace,
+	SentState = send_internal_immediate( info,
 		text_utils:format( "Initialising now trace supervision for '~ts'.",
 						   [ TraceFilename ] ), State ),
 
@@ -1784,14 +1939,13 @@ get_row_separator( DashType ) ->
 format_trace_for( _TraceType=advanced_traces, { TraceEmitterPid,
 		TraceEmitterName, BinTraceEmitterCategorization, AppTimestamp, BinTime,
 		BinLocation, BinMessageCategorization, Priority, BinMessage } ) ->
-   lists:flatten(
+	lists:flatten(
 
 		% For debugging, use io_lib:format/2 if wanting to crash on abnormal
 		% input:
 		%
 		%io_lib:format(
-		text_utils:format(
-			"~w|~ts|~ts|~ts|~ts|~ts|~ts|~B|~ts~n",
+		text_utils:format( ?advanced_traces_format,
 			[ TraceEmitterPid, TraceEmitterName, BinTraceEmitterCategorization,
 			  AppTimestamp, BinTime, BinLocation, BinMessageCategorization,
 			  Priority, BinMessage ] ) );
@@ -1880,6 +2034,51 @@ format_full_lines( _Rows=[ { [ Line | OtherLines ], Width } | ColumnPairs ],
 				   Acc, RemainingLineCount, Res, CurrentLine ) ->
 	format_full_lines( ColumnPairs, [ { OtherLines, Width } | Acc ],
 					   RemainingLineCount, Res, CurrentLine ++ "|" ++ Line ).
+
+
+
+% @doc Formats directly, typically client-side, a message from the specified
+% information, assuming a trace supervision type of type 'advanced_traces'.
+%
+% Doing so should be more efficient that sending as messages separate
+% parameters: the resulting binary should be smaller than the sum of these
+% terms, and the processing is shifted from a singleton (the trace aggregator)
+% to the many emitters involved.
+%
+% The target trace supervision type is the only degree of freedom that
+% intervenes (the only attribute from the aggregator that is to be taken into
+% account).
+%
+-spec format_as_advanced_trace( emitter_pid(), bin_emitter_name(),
+	bin_emitter_categorization(), app_timestamp(), bin_time(), bin_location(),
+	bin_message_categorization(), priority(), bin_message() ) ->
+		static_return( bin_string() ).
+format_as_advanced_trace( TraceEmitterPid, BinTraceEmitterName,
+		BinTraceEmitterCategorization, AppTimestamp, BinTime, BinLocation,
+		BinMessageCategorization, Priority, BinMessage ) ->
+
+	% Like done by receiving primitives:
+	cond_utils:if_defined( traces_check_types,
+		begin
+
+			% As AppTimestamp :: any():
+			type_utils:check_pid( TraceEmitterPid ),
+			type_utils:check_integer( Priority ),
+			type_utils:check_binaries( [ BinTraceEmitterName,
+				BinTraceEmitterCategorization, BinTime, BinLocation,
+				BinMessage ] ),
+
+			( is_atom( BinMessageCategorization )
+				orelse is_binary( BinMessageCategorization ) ) orelse
+					throw( { non_binary_message_categorization,
+							 BinMessageCategorization } )
+
+		end ),
+
+	wooper:return_static( text_utils:bin_format( ?advanced_traces_format,
+		[ TraceEmitterPid, BinTraceEmitterName, BinTraceEmitterCategorization,
+		  AppTimestamp, BinTime, BinLocation, BinMessageCategorization,
+		  Priority, BinMessage ] ) ).
 
 
 

@@ -388,7 +388,7 @@
 % state.
 %
 -define( send_emergency_fmt_cat( State, Message, FormatValues,
-							 MessageCategorization ),
+								 MessageCategorization ),
 		 class_TraceEmitter:send_safe( emergency, State,
 			text_utils:format( Message, FormatValues ), MessageCategorization )
 ).
@@ -414,7 +414,7 @@
 % state.
 %
 -define( send_emergency_fmt_full( State, Message, FormatValues,
-							  MessageCategorization, ApplicationTimestamp ),
+								  MessageCategorization, ApplicationTimestamp ),
 		 class_TraceEmitter:send_safe( emergency, State,
 			text_utils:format( Message, FormatValues ),
 			MessageCategorization, ApplicationTimestamp )
@@ -426,7 +426,7 @@
 % of a variable named 'State'.
 %
 -define( emergency_fmt_full( Message, FormatValues, MessageCategorization,
-						 ApplicationTimestamp ),
+							 ApplicationTimestamp ),
 		 class_TraceEmitter:send_safe( emergency, State,
 			text_utils:format( Message, FormatValues ),
 			MessageCategorization, ApplicationTimestamp )
