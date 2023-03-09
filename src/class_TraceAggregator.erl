@@ -65,7 +65,7 @@
 % Describes the class-specific attributes:
 -define( class_attributes, [
 
-	{ trace_filename, file_utils:bin_file_path(),
+	{ trace_filename, bin_file_path(),
 	  "the path of the file in which traces are to be stored, as a binary "
 	  "(e.g. <<\"/tmp/foobar.traces\">>)" },
 
@@ -863,7 +863,7 @@ renameTraceFile( State, NewTraceFilename ) ->
 
 	% Switching gracefully:
 	file_utils:close( ?getAttr(trace_file) ),
-	file_utils:rename( BinTraceFilename, AbsNewTraceFilename ),
+	file_utils:rename_preserving( BinTraceFilename, AbsNewTraceFilename ),
 	NewFile = reopen_trace_file( AbsNewTraceFilename ),
 
 	RenState = setAttributes( SentState, [
@@ -2091,8 +2091,8 @@ open_trace_file( TraceFilename ) ->
 	%trace_utils:debug_fmt( "Creating trace file '~ts'.", [ TraceFilename ] ),
 
 	% 'exclusive' not needed:
-	file_utils:open( TraceFilename,
-					 [ write | get_trace_file_base_options() ] ).
+	file_utils:create_preserving( TraceFilename,
+								  get_trace_file_base_options() ).
 
 
 
