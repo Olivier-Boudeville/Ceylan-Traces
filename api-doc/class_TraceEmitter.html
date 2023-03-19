@@ -134,7 +134,7 @@ separator).</p>
 
 
 <h3 class="typedecl"><a name="type-request_return">request_return()</a></h3>
-<p><tt>request_return(T) = <a href="wooper.html#type-request_result">wooper:request_result</a>(T)</tt></p>
+<p><tt>request_return(T) = <a href="wooper.html#type-request_return">wooper:request_return</a>(T)</tt></p>
 
 
 <h3 class="typedecl"><a name="type-requests_outcome">requests_outcome()</a></h3>
@@ -513,9 +513,6 @@ categorization.</p>
 <p><tt>send(TraceSeverity::<a href="#type-trace_severity">trace_severity()</a>, State::<a href="wooper.html#type-state">wooper:state()</a>, Message::<a href="#type-message">message()</a>, MessageCategorization::<a href="#type-message_categorization">message_categorization()</a>) -&gt; <a href="#type-void">void()</a></tt><br></p>
 <p> </p>
 </div><p><p>Sends the specified (unsynchronised) trace message from this emitter.</p>
-
- <p>Message is a plain string, MessageCategorization as well unless it is the 
-'uncategorized' atom.</p>
 
  <p>All information available but the timestamp, determining its availability.</p>
 
