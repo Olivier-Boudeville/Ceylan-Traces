@@ -82,8 +82,8 @@
 	%
 	case TracesInitialisationTermInternal of
 
-		% Emitter categorization already set, just propagate as is to next
-		% mother class:
+		% Emitter categorization already set, just propagate as it is to the
+		% next mother class:
 		%
 		%{ _TraceName, _TraceCategorization } ->
 		{ _, _ } ->

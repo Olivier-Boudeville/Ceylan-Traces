@@ -278,8 +278,9 @@ TRACES_GENERATED_FILES := $(AUX_GENERATED_FILES) $(TEX_GENERATED_FILES)    \
 FILES_TO_CLEAN += $(TRACES_FILES) $(TRACES_GENERATED_FILES)
 
 
+
 # For later reuse in the next layer of the software stack:
-TRACES_PLT_FILE := $(TRACES_TOP)/traces.plt
+TRACES_PLT_FILE := $(TRACES_TOP)/Ceylan-Traces.plt
 
 
 # This is the merged PLT of the level just below in the software stack.
