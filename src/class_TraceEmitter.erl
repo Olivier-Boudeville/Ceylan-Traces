@@ -536,7 +536,7 @@ register_as_bridge( TraceEmitterName, TraceCategory, TraceAggregatorPid ) ->
 
 
 % @doc Subcategorizes a given emitter name, by introducing an additional
-% grouping level.
+% grouping level, based on the first character of the trace emitter name.
 %
 % This is typically useful to avoid that too many emitters are listed at a given
 % categorization level, if using a trace supervisor that groups the emitter

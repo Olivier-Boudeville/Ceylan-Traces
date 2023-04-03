@@ -31,8 +31,8 @@ help-traces:
 
 register-version-in-header:
 	@if [ -z "$(VERSION_FILE)" ]; then \
-	echo "Error, no version file defined." 1>&2; exit 52; else \
-	$(MAKE) register-traces; fi
+	echo "  Error, no version file defined." 1>&2; exit 52; else \
+	$(MAKE) -s register-traces; fi
 
 
 register-traces:
