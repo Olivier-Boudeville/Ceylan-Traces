@@ -389,8 +389,9 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 
 		undefined ->
 			trace_utils:info_fmt( "~ts Creating a private trace aggregator "
-				"whose PID is ~w, on host '~ts'.",
-				[ ?log_prefix, self(), Localhost ] );
+				"whose PID is ~w, on host '~ts', whose (initial) trace "
+				"file is '~ts'.",
+				[ ?log_prefix, self(), Localhost, AbsBinTraceFilename ] );
 
 		RegScope ->
 
@@ -401,8 +402,9 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 
 			trace_utils:info_fmt( "~ts Creating a trace aggregator, "
 				"whose PID is ~w, with name '~ts' and registration scope ~ts, "
-				"on host '~ts'.",
-				[ ?log_prefix, self(), RegName, RegScope, Localhost ] ),
+				"on host '~ts', whose (initial) trace file is '~ts'.",
+				[ ?log_prefix, self(), RegName, RegScope, Localhost,
+				  AbsBinTraceFilename ] ),
 
 			% As soon as possible (i.e. now that it is registered, provided that
 			% get_aggregator/1 can find it, i.e. that it is registered
@@ -424,9 +426,8 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 	% Closure used to avoid exporting the function (beware of self()):
 	AggregatorPid = self(),
 
-	OverloadMonitorPid = ?myriad_spawn_link( fun() ->
-								overload_monitor_main_loop( AggregatorPid )
-											 end ),
+	OverloadMonitorPid = ?myriad_spawn_link(
+		fun() -> overload_monitor_main_loop( AggregatorPid ) end ),
 
 	OverloadState = setAttribute( SetState, overload_monitor_pid,
 								  OverloadMonitorPid ),
