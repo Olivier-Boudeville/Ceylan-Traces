@@ -858,7 +858,8 @@ renameTraceFile( State, NewTraceFilename ) ->
 		"from '~ts' to '~ts' (init supervision: ~ts).",
 		[ BinTraceFilename, AbsNewTraceFilename, InitSupervision ] ),
 
-	%trace_utils:debug( Msg ),
+	% Otherwise tracking down renamings is really inconvenient:
+	trace_utils:notice( Msg ),
 
 	SentState = send_internal_immediate( info, Msg, State ),
 
@@ -1760,7 +1761,7 @@ send_internal_immediate( TraceSeverity, Message, State ) ->
 		_TraceEmitterPid=self(),
 		_TraceEmitterName= <<"Trace Aggregator">>,
 		_TraceEmitterCategorization=text_utils:string_to_binary(
-										?trace_emitter_categorization ),
+			?trace_emitter_categorization ),
 		_AppTimestamp=none,
 		_Time=time_utils:get_bin_textual_timestamp(),
 		_Location=net_utils:localnode_as_binary(),
