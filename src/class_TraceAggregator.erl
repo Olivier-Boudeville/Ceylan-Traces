@@ -485,7 +485,7 @@ destruct( State ) ->
 	override_standard_logger_handler( RegScope ) andalso
 		traces:reset_handler(),
 
-	?getAttr(overload_monitor_pid) ! delete,
+	?getAttr(overload_monitor_pid) ! terminate,
 
 	case ?getAttr(watchdog_pid) of
 
@@ -493,7 +493,7 @@ destruct( State ) ->
 			ok;
 
 		WatchdogPid ->
-			WatchdogPid ! delete
+			WatchdogPid ! terminate
 
 	end,
 
@@ -1510,11 +1510,14 @@ get_trace_file_base_options() ->
 -spec overload_monitor_main_loop( aggregator_pid() ) -> no_return().
 overload_monitor_main_loop( AggregatorPid ) ->
 
+	% Just an ad-hoc variation of
+	% process_utils:message_queue_monitor_main_loop/4.
+
 	receive
 
-		delete ->
-			%trace_utils:info( "(overload monitor deleted)" ),
-			deleted
+		terminate ->
+			%trace_utils:info( "(overload monitor terminated)" ),
+			terminated
 
 	% Every 2s:
 	after 2000 ->
@@ -1544,9 +1547,9 @@ watchdog_main_loop( RegName, RegScope, AggregatorPid, MsPeriod ) ->
 
 	receive
 
-		delete ->
-			%trace_utils:info( "(aggregator watchdog deleted)" ),
-			deleted
+		terminate ->
+			%trace_utils:info( "(aggregator watchdog terminated)" ),
+			terminated
 
 	after MsPeriod ->
 
