@@ -154,13 +154,13 @@ For example the traces for a test named ``my_foobar_test`` are typically stored 
 
 Following data is associated to a given trace:
 
-#. **technical identifier of the emitter**, as a string (ex: ``<9097.51.0>`` for the PID of a distributed Erlang process)
-#. **name of the emitter** (ex: ``"Instance tracker"``)
-#. **dotted categorization of the emitter** (ex: ``"Core.Tracker.Instances"``); here for example the emitter is an element of the service in charge of the instances, which itself belongs to the tracker services, which themselves belong to the (even more general) core services
-#. **application-level timestamp** (ex: operation count, relative tick, absolute timestep, or any complex, application-specific timestamp, etc.), possibly ``none``, or ``undefined`` if not applicable (ex: a simulation that would not be started yet)
-#. **wall-clock timestamp**, in the ``"Year/Month/Day Hour:Minute:Second"`` format (ex: ``"2016/6/10 15:43:31"``); this is an emitter-side timestamp (hence not related to the wallclock time known of the trace aggregator)
-#. **emitter location**, as a string (ex: the name of the Erlang node, possibly including the name of the application use case, of the user and of the host; ex: ``my_foobar_test_john@hurricane.org``)
-#. **dotted categorization of the trace message** itself (ex: ``MyApp.MyTopic.MyTheme``)
+#. **technical identifier of the emitter**, as a string (e.g. ``<9097.51.0>`` for the PID of a distributed Erlang process)
+#. **name of the emitter** (e.g. ``"Instance tracker"``)
+#. **dotted categorization of the emitter** (e.g. ``"Core.Tracker.Instances"``); here for example the emitter is an element of the service in charge of the instances, which itself belongs to the tracker services, which themselves belong to the (even more general) core services
+#. **application-level timestamp** (e.g. operation count, relative tick, absolute timestep, or any complex, application-specific timestamp, etc.), possibly ``none``, or ``undefined`` if not applicable (e.g. a simulation that would not be started yet)
+#. **wall-clock timestamp**, in the ``"Year/Month/Day Hour:Minute:Second"`` format (e.g. ``"2016/6/10 15:43:31"``); this is an emitter-side timestamp (hence not related to the wallclock time known of the trace aggregator)
+#. **emitter location**, as a string (e.g. the name of the Erlang node, possibly including the name of the application use case, of the user and of the host; e.g. ``my_foobar_test_john@hurricane.org``)
+#. **dotted categorization of the trace message** itself (e.g. ``MyApp.MyTopic.MyTheme``)
 #. **severity of the trace message** (mapped to an integer level, as discussed above)
 #. the **trace message** itself, an arbitrary text of arbitrary length
 
@@ -179,7 +179,7 @@ or, better, in an OTP-compliant fashion::
 
  -include_lib("traces/include/class_TraceEmitter.hrl").
 
-This process can be a standalone module (ex: a test or an application launcher, see `trace_management_test.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/trace_management_test.erl>`_) or, more frequently, it might correspond to a WOOPER (active or passive) instance, in which case it shall inherit, directly or not, from ``class_TraceEmitter`` (see `class_TestTraceEmitter.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/class_TestTraceEmitter.erl>`_ for a complete example of it).
+This process can be a standalone module (e.g. a test or an application launcher, see `trace_management_test.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/trace_management_test.erl>`_) or, more frequently, it might correspond to a WOOPER (active or passive) instance, in which case it shall inherit, directly or not, from ``class_TraceEmitter`` (see `class_TestTraceEmitter.erl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/test/class_TestTraceEmitter.erl>`_ for a complete example of it).
 
 
 .. _`trace bridge`:
@@ -202,7 +202,7 @@ or::
   ?info_fmt("The value ~B is the answer.",[MyValue])
 
 
-Many API variations exist (see `class_TraceEmitter.hrl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/include/class_TraceEmitter.hrl>`_), to account for the various `trace content`_, contexts, etc., but ``?S(Message)`` and ``?S_fmt(MessageFormat,MessageValues)``, for ``S`` corresponding to a `trace severity`_ (ex: ``S`` being ``notice``), are by far the most frequently used.
+Many API variations exist (see `class_TraceEmitter.hrl <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/include/class_TraceEmitter.hrl>`_), to account for the various `trace content`_, contexts, etc., but ``?S(Message)`` and ``?S_fmt(MessageFormat,MessageValues)``, for ``S`` corresponding to a `trace severity`_ (e.g. ``S`` being ``notice``), are by far the most frequently used.
 
 
 
@@ -220,7 +220,7 @@ As a result, the availability of a ``State`` variable in the scope of this macro
 
 This is not a problem in the most common case, when using traces in member methods (as by design they should be offering such a ``State``), yet in constructors the initial state (i.e. the ``State`` variable directly fed to the ``construct`` operator of this class) is generally not the one of a trace emitter already (it is a blank state).
 
-As a result, an instance will not be able to send traces until the completion of its own ``class_TraceEmitter`` constructor, and then it shall rely on that resulting state (for example named ``TraceState``). Sending a trace of severity ``S`` from that point should be done using a ``send_S`` macro (ex: ``?send_debug(TraceState,Message)``) - so that an appropriate state is used.
+As a result, an instance will not be able to send traces until the completion of its own ``class_TraceEmitter`` constructor, and then it shall rely on that resulting state (for example named ``TraceState``). Sending a trace of severity ``S`` from that point should be done using a ``send_S`` macro (e.g. ``?send_debug(TraceState,Message)``) - so that an appropriate state is used.
 
 An example of some class ``Foobar`` inheriting directly from ``TraceEmitter`` will be clearer:
 
@@ -285,7 +285,7 @@ Then all traces sent by all cats will be automatically registered with this trac
 
 The purpose of the ``trace_categorize`` macro used in the above example is to register the trace categorisation defined through the inheritance tree so that, right from the start, the most precise category is used for all emitted traces [#]_.
 
-.. [#] Otherwise, should the various constructors involved declare their own categorisation (which is the general case) and send traces, creating a cat instance would result in having these traces sorted under different emitter categories (ex: the one declared by ``class_Creature``, then by ``class_Cat``, etc.). Tracking the messages emitted by a given instance would be made more difficult than needed, using this macro allows to have them gathered all in the most precise category from the start.
+.. [#] Otherwise, should the various constructors involved declare their own categorisation (which is the general case) and send traces, creating a cat instance would result in having these traces sorted under different emitter categories (e.g. the one declared by ``class_Creature``, then by ``class_Cat``, etc.). Tracking the messages emitted by a given instance would be made more difficult than needed, using this macro allows to have them gathered all in the most precise category from the start.
 
 
 Sometimes a very large number of trace emitters exist, to the point that selecting them becomes tedious. One workaround is to sort them according to their prefixes (first characters), for an easier browsing thereof.
@@ -316,7 +316,7 @@ Switching from Basic Console Traces
 
 In some cases, it may be convenient to have first one's lower-level, debugging traces be directly output on the console.
 
-Then, once the most basic bugs are fixed (ex: the program is not crashing anymore), the full power of this ``Traces`` layer can be best used, by switching the initial basic traces to the more advanced traces presented here.
+Then, once the most basic bugs are fixed (e.g. the program is not crashing anymore), the full power of this ``Traces`` layer can be best used, by switching the initial basic traces to the more advanced traces presented here.
 
 To output (basic) console traces, one may use the `trace_utils <https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/src/utils/trace_utils.erl>`_ module of the ``Myriad`` layer. For example:
 
@@ -324,7 +324,7 @@ To output (basic) console traces, one may use the `trace_utils <https://github.c
 
    trace_utils:debug_fmt("Hello world #~B",[2])
 
-Then switching to the more advanced traces discussed here is just a matter of replacing, for a given trace type ``T`` (ex: ``debug``), ``trace_utils:T`` with ``?T``, like in:
+Then switching to the more advanced traces discussed here is just a matter of replacing, for a given trace type ``T`` (e.g. ``debug``), ``trace_utils:T`` with ``?T``, like in:
 
 .. code:: erlang
 
@@ -448,7 +448,7 @@ Any class deriving, directly or not, from ``class_TraceEmitter``, is, once const
 Timestamps
 ----------
 
-When sending a trace, an emitter relies on its ``trace_timestamp`` attribute, and sends a (binarised) string representation thereof (obtained thanks to the ``~p`` quantifier of ``io:format/2`` ). This allows the trace subsystem to support all kinds of application-specific timestamps (ex: integers, floats, tuples, strings, etc.).
+When sending a trace, an emitter relies on its ``trace_timestamp`` attribute, and sends a (binarised) string representation thereof (obtained thanks to the ``~p`` quantifier of ``io:format/2`` ). This allows the trace subsystem to support all kinds of application-specific timestamps (e.g. integers, floats, tuples, strings, etc.).
 
 
 Multiple Inheritance
@@ -478,7 +478,7 @@ To enable/disable this mode, refer to the ``traces_are_preformatted`` define, wh
 LogMX-related Hints
 ===================
 
-One can find `here <https://github.com/Olivier-Boudeville/Ceylan-Traces/tree/master/conf/logmx>`_ various elements in order to better integrate LogMX (ex: parser, configuration files, etc.).
+One can find `here <https://github.com/Olivier-Boudeville/Ceylan-Traces/tree/master/conf/logmx>`_ various elements in order to better integrate LogMX (e.g. parser, configuration files, etc.).
 
 
 .. _`max memory`:
@@ -544,7 +544,7 @@ This allows the use of the Traces code in as wide a variety of software projects
 
 Being triple-licensed means that someone (the licensee) who modifies and/or distributes it can choose which of the available sets of licence terms he/she is operating under.
 
-We hope that enhancements will be back-contributed (ex: thanks to pull requests), so that everyone will be able to benefit from them.
+We hope that enhancements will be back-contributed (e.g. thanks to pull requests), so that everyone will be able to benefit from them.
 
 
 
@@ -674,7 +674,7 @@ Once the prerequisites (`Myriad <https://myriad.esperide.org>`_ and `WOOPER <htt
 The testing shall complete successfully (if it is not the case, see our support_ section).
 
 .. Note:: Traces is built and tested at each commit through `continuous integration <https://github.com/Olivier-Boudeville/Ceylan-Traces/actions?query=workflow%3A%22Erlang+CI%22>`_, and the same holds for its two prerequisites (`Myriad <https://myriad.esperide.org>`_ and `WOOPER <https://wooper.esperide.org>`_).
-		  Reciprocally this procedure applies to the projects based on it (ex: `US-Web <https://us-web.esperide.org/>`_), so in terms of usability, confidence should be high.
+		  Reciprocally this procedure applies to the projects based on it (e.g. `US-Web <https://us-web.esperide.org/>`_), so in terms of usability, confidence should be high.
 
 
 ---------------

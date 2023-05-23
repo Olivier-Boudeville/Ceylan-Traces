@@ -1,7 +1,7 @@
 TRACES_TOP = .
 
 
-.PHONY: help help-intro help-traces                                    \
+.PHONY: help help-traces                                               \
 		all register-version-in-header register-traces list-beam-dirs  \
 		add-prerequisite-plts link-plt                                 \
 		stats                                                          \
@@ -18,10 +18,6 @@ BASE_MAKEFILE = true
 
 # Default target:
 help: help-intro help-traces
-
-
-help-intro:
-	@echo " Following main make targets are available for package $(PACKAGE_NAME):"
 
 
 help-traces:

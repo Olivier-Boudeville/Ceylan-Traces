@@ -65,7 +65,7 @@
 % Describes the class-specific attributes:
 -define( class_attributes, [
 
-	{ trace_filename, file_utils:bin_file_path(),
+	{ trace_filename, bin_file_path(),
 	  "the path of the file in which traces are to be stored, as a binary "
 	  "(e.g. <<\"/tmp/foobar.traces\">>)" },
 
@@ -389,8 +389,9 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 
 		undefined ->
 			trace_utils:info_fmt( "~ts Creating a private trace aggregator "
-				"whose PID is ~w, on host '~ts'.",
-				[ ?log_prefix, self(), Localhost ] );
+				"whose PID is ~w, on host '~ts', whose (initial) trace "
+				"file is '~ts'.",
+				[ ?log_prefix, self(), Localhost, AbsBinTraceFilename ] );
 
 		RegScope ->
 
@@ -401,8 +402,9 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 
 			trace_utils:info_fmt( "~ts Creating a trace aggregator, "
 				"whose PID is ~w, with name '~ts' and registration scope ~ts, "
-				"on host '~ts'.",
-				[ ?log_prefix, self(), RegName, RegScope, Localhost ] ),
+				"on host '~ts', whose (initial) trace file is '~ts'.",
+				[ ?log_prefix, self(), RegName, RegScope, Localhost,
+				  AbsBinTraceFilename ] ),
 
 			% As soon as possible (i.e. now that it is registered, provided that
 			% get_aggregator/1 can find it, i.e. that it is registered
@@ -424,9 +426,8 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 	% Closure used to avoid exporting the function (beware of self()):
 	AggregatorPid = self(),
 
-	OverloadMonitorPid = ?myriad_spawn_link( fun() ->
-								overload_monitor_main_loop( AggregatorPid )
-											 end ),
+	OverloadMonitorPid = ?myriad_spawn_link(
+		fun() -> overload_monitor_main_loop( AggregatorPid ) end ),
 
 	OverloadState = setAttribute( SetState, overload_monitor_pid,
 								  OverloadMonitorPid ),
@@ -484,7 +485,7 @@ destruct( State ) ->
 	override_standard_logger_handler( RegScope ) andalso
 		traces:reset_handler(),
 
-	?getAttr(overload_monitor_pid) ! delete,
+	?getAttr(overload_monitor_pid) ! terminate,
 
 	case ?getAttr(watchdog_pid) of
 
@@ -492,7 +493,7 @@ destruct( State ) ->
 			ok;
 
 		WatchdogPid ->
-			WatchdogPid ! delete
+			WatchdogPid ! terminate
 
 	end,
 
@@ -857,13 +858,14 @@ renameTraceFile( State, NewTraceFilename ) ->
 		"from '~ts' to '~ts' (init supervision: ~ts).",
 		[ BinTraceFilename, AbsNewTraceFilename, InitSupervision ] ),
 
-	%trace_utils:debug( Msg ),
+	% Otherwise tracking down renamings is really inconvenient:
+	trace_utils:notice( Msg ),
 
 	SentState = send_internal_immediate( info, Msg, State ),
 
 	% Switching gracefully:
 	file_utils:close( ?getAttr(trace_file) ),
-	file_utils:rename( BinTraceFilename, AbsNewTraceFilename ),
+	file_utils:rename_preserving( BinTraceFilename, AbsNewTraceFilename ),
 	NewFile = reopen_trace_file( AbsNewTraceFilename ),
 
 	RenState = setAttributes( SentState, [
@@ -1508,11 +1510,14 @@ get_trace_file_base_options() ->
 -spec overload_monitor_main_loop( aggregator_pid() ) -> no_return().
 overload_monitor_main_loop( AggregatorPid ) ->
 
+	% Just an ad-hoc variation of
+	% process_utils:message_queue_monitor_main_loop/4.
+
 	receive
 
-		delete ->
-			%trace_utils:info( "(overload monitor deleted)" ),
-			deleted
+		terminate ->
+			%trace_utils:info( "(overload monitor terminated)" ),
+			terminated
 
 	% Every 2s:
 	after 2000 ->
@@ -1542,9 +1547,9 @@ watchdog_main_loop( RegName, RegScope, AggregatorPid, MsPeriod ) ->
 
 	receive
 
-		delete ->
-			%trace_utils:info( "(aggregator watchdog deleted)" ),
-			deleted
+		terminate ->
+			%trace_utils:info( "(aggregator watchdog terminated)" ),
+			terminated
 
 	after MsPeriod ->
 
@@ -1759,7 +1764,7 @@ send_internal_immediate( TraceSeverity, Message, State ) ->
 		_TraceEmitterPid=self(),
 		_TraceEmitterName= <<"Trace Aggregator">>,
 		_TraceEmitterCategorization=text_utils:string_to_binary(
-										?trace_emitter_categorization ),
+			?trace_emitter_categorization ),
 		_AppTimestamp=none,
 		_Time=time_utils:get_bin_textual_timestamp(),
 		_Location=net_utils:localnode_as_binary(),
@@ -2091,8 +2096,8 @@ open_trace_file( TraceFilename ) ->
 	%trace_utils:debug_fmt( "Creating trace file '~ts'.", [ TraceFilename ] ),
 
 	% 'exclusive' not needed:
-	file_utils:open( TraceFilename,
-					 [ write | get_trace_file_base_options() ] ).
+	file_utils:create_preserving( TraceFilename,
+								  get_trace_file_base_options() ).
 
 
 

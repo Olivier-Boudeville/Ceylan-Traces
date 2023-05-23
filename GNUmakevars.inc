@@ -130,7 +130,7 @@ endif
 # The uniquely-defined version of this layer, for all uses (including rebar and
 # hex):
 #
-TRACES_VERSION := 1.0.16
+TRACES_VERSION := 1.0.17
 
 
 # PROJECT_VERSION should be defined on a per-project basis.
