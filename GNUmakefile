@@ -19,10 +19,8 @@ BASE_MAKEFILE = true
 # Default target:
 help: help-intro help-traces
 
-
 help-traces:
 	@cd $(WOOPER_TOP) && $(MAKE) -s help-wooper
-
 
 
 register-version-in-header:
