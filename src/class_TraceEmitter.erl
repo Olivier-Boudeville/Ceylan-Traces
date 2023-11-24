@@ -100,7 +100,7 @@
 
 -type emitter_init() :: emitter_name()
 					  | { emitter_name(), emitter_categorization() }.
-% Initializing a trace emitter is specifying its name to the constructor of its
+% Initialising a trace emitter is specifying its name to the constructor of its
 % actual class, which will augment that information with the correspond
 % class-specific emitter categorization. Then, the pair resulting from this
 % one-shot, initial operation will climb up the class hierarchy until reaching
