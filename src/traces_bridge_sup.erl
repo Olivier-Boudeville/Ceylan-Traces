@@ -100,7 +100,7 @@ start_link( TraceSupervisorWanted, AggRegScope ) ->
 							| 'ignore' | { 'error', Error :: term() }.
 init( { TraceSupervisorWanted, AggRegScope } ) ->
 
-	trace_utils:info_fmt( "Initializing the Traces supervisor bridge ~w "
+	trace_utils:info_fmt( "Initialising the Traces supervisor bridge ~w "
 		"(trace supervisor wanted: ~ts).", [ self(), TraceSupervisorWanted ] ),
 
 	% This is an OTP blind start, the Traces application being started with no

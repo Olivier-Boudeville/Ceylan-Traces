@@ -117,7 +117,7 @@ endif
 
 # PROJECT_SHORT_NAME should be defined on a per-project basis.
 ifndef PROJECT_SHORT_NAME
- PROJECT_SHORT_NAME := traces
+	PROJECT_SHORT_NAME := traces
 endif
 
 
@@ -130,7 +130,7 @@ endif
 # The uniquely-defined version of this layer, for all uses (including rebar and
 # hex):
 #
-TRACES_VERSION := 1.0.17
+TRACES_VERSION := 1.0.19
 
 
 # PROJECT_VERSION should be defined on a per-project basis.
