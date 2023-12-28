@@ -2,7 +2,7 @@ TRACES_TOP = ..
 
 .PHONY: all test-local prepare-otp-test
 
-# To allow local tests (ex: trace_bridging_test.erl) to depend on Myriad ones:
+# To allow local tests (e.g. trace_bridging_test.erl) to depend on Myriad ones:
 BEAM_DIRS += $(MYRIAD_TOP)/test/utils
 
 # So that traces_otp_application_test reads my-traces-test.config:

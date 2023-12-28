@@ -27,7 +27,7 @@
 
 
 % Note: the test_info macro is expected to be defined prior to the
-% class_TraceSupervisor.hrl inclusion (ex: included from test_constructs.hrl).
+% class_TraceSupervisor.hrl inclusion (e.g. included from test_constructs.hrl).
 
 
 % Allows to use an interactive trace supervisor (LogMX) if true, otherwise a

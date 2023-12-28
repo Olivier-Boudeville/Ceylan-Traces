@@ -145,7 +145,7 @@
 %
 % Returns the received value.
 %
-% Ex: Pid ! {getBaz, [], self()}, MyBaz = test_receive(), ...
+% For example: Pid ! {getBaz, [], self()}, MyBaz = test_receive(), ...
 %
 % to be used instead of:
 %
@@ -204,7 +204,7 @@ test_failed( Reason ) ->
 
 
 % @doc Handles a test failure, using specified first string as an advertised
-% reason with format characters (ex: '~w') and specified list as actual values
+% reason with format characters (e.g. '~w') and specified list as actual values
 % to be formatted.
 %
 -spec test_failed( text_utils:format_string(), text_utils:format_values() ) ->

@@ -61,7 +61,7 @@
 -spec get_aggregator_registration_scope() -> registration_scope().
 get_aggregator_registration_scope() ->
 
-	% Possibly read from any *.config file specified (ex: refer to the
+	% Possibly read from any *.config file specified (e.g. refer to the
 	% INTERNAL_OPTIONS make variable):
 	%
 	% Supporting this not deemed useful:

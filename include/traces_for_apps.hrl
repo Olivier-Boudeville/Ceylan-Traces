@@ -148,7 +148,7 @@
 %
 % Returns the received value.
 %
-% Ex: Pid ! {getBaz, [], self()}, MyBaz = app_receive(), ...
+% For example: Pid ! {getBaz, [], self()}, MyBaz = app_receive(), ...
 %
 % to be used instead of:
 %
@@ -205,7 +205,7 @@ app_failed( Reason ) ->
 
 
 % Handles an application failure, using specified first string as an advertised
-% reason with format characters (ex: '~w') and specified list as actual values
+% reason with format characters (e.g. '~w') and specified list as actual values
 % to be formatted.
 %
 -spec app_failed( text_utils:format_string(), text_utils:format_values() ) ->
