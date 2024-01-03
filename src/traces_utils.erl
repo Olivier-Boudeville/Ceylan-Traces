@@ -29,7 +29,9 @@
 % @doc Module gathering various <b>trace-related facilities</b>, notably in link
 % with OTP.
 %
-% Note: not to be mixed up with the trace_utils module from Myriad.
+% This module should not be mixed up with the trace_utils module from Myriad
+% (note that the names of these modules differ, therefore their BEAM files
+% cannot clash).
 %
 -module(traces_utils).
 
