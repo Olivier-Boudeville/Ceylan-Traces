@@ -1225,11 +1225,11 @@ init( State ) ->
 % Myriad) that are called directly from this instance process, or helper
 % functions with no corresponding WOOPER state, to plug to the same trace
 % aggregator as used by this instance with mostly the same settings, through a
-% corresponding trace bridge.
+% corresponding trace bridge (refer to the trace_bridge module).
 %
-% See also: the register_as_bridge/{2,3} static methods, offered to normal
-% (non-TraceEmitter, probably not even non-WOOPER) processes that nevertheless
-% need to send traces.
+% See also: the register_as_bridge/{2,3} static methods, offered to extra,
+% plain (non-TraceEmitter, probably not even non-WOOPER) processes that
+% nevertheless need to send traces.
 %
 % (helper)
 %
@@ -1238,6 +1238,7 @@ register_bridge( State ) ->
 	trace_bridge:register( _BridgeSpec={ ?getAttr(name),
 		?getAttr(trace_emitter_categorization),
 		?getAttr(trace_aggregator_pid) } ).
+
 
 
 
