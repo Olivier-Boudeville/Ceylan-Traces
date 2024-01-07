@@ -17,7 +17,7 @@ test-local: prepare-otp-test
 
 
 prepare-otp-test:
-	@cd $(TRACES_TOP) && $(MAKE) -s rebar3-create-app-file
+	@cd $(TRACES_TOP) && $(MAKE) -s create-app-file
 
 
 include $(TRACES_TOP)/GNUmakesettings.inc

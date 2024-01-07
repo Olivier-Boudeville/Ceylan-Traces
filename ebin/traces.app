@@ -10,8 +10,8 @@
 % ./ebin/traces.app
 % ./src/traces.app.src -> ../ebin/traces.app
 %
-% For more information see the Ceylan-Myriad 'rebar3-create-app-file' make
-% target and its associated comments.
+% For more information see the Ceylan-Myriad 'create-app-file' make target and
+% its associated comments.
 
 
 % See also:
@@ -21,7 +21,7 @@
 
 {application, traces,
  [{description, "Ceylan-Traces, an advanced trace service, so that the user of an Erlang application can efficiently log, browse and search through detailed runtime messages that may be emitted concurrently (see http://traces.esperide.org)"},
-  {vsn, "1.0.20"},
+  {vsn, "1.0.21"},
 
   % See class_TraceAggregator.hrl:
   {registered, [ceylan_trace_aggregator]},
