@@ -417,6 +417,10 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 					send_internal_deferred( info, "Self-registering as "
 						"the default standard logger handler." ),
 
+					% Note that a side-effect may be to enable a lower log
+					% level, resulting in extra (logger) logs to be notified
+					% when Traces is used:
+					%
 					traces:set_handler( self() )
 
 				end
