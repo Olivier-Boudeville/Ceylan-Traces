@@ -751,7 +751,7 @@ Java Error When Launching LogMX
 
 One may check that Java is installed and available from the PATH, that it is a sufficiently recent one (e.g. Java 11; more recent ones like Java 21 will work of course) and that it is at least a JRE (a complete JDK will be fine as well) and a full (non-headless [#]_) version thereof.
 
-.. [#] Otherwise the following link error may be reported: ``Exception in thread "main" java.lang.ExceptionInInitializerError... Caused by: java.awt.HeadlessException`` due to a lacking ``libawt_xawt.so``. Then just replace our headless version with a full one.
+.. [#] Otherwise the following link error may be reported: ``Exception in thread "main" java.lang.ExceptionInInitializerError... Caused by: java.awt.HeadlessException`` due to a lacking ``libawt_xawt.so``. Then just replace your headless version with a full one.
 
 
 One may use check with:
