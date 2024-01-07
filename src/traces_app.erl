@@ -64,7 +64,7 @@ start( RestartType, StartArgs ) ->
 	%
 	TraceSupervisorWanted = not executable_utils:is_batch(),
 
-	trace_utils:debug_fmt( "Starting Traces application (restart type: ~w, "
+	trace_utils:debug_fmt( "Starting the Traces application (restart type: ~w, "
 		"start arguments: ~w, supervisor wanted: ~ts).",
 		[ RestartType, StartArgs, TraceSupervisorWanted ] ),
 
