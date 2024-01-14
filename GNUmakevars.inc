@@ -94,7 +94,7 @@ endif
 # fully preserved:
 #
 ERLANG_COMPILER_OPT_BASE += -Dtraces_version=\"$(TRACES_VERSION)\" \
-						    $(TRACES_OPT_FLAGS)                    \
+							$(TRACES_OPT_FLAGS)                    \
 							$(TRACES_DEBUG_FLAGS)                  \
 							$(TRACES_CHECK_FLAGS)                  \
 							-Dwooper_preserve_traces
