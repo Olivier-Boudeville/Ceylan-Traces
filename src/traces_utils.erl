@@ -63,6 +63,7 @@
 -type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
 
 
+
 % Version-related functions.
 
 % @doc Returns the version of the Traces library being used.
