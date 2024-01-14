@@ -93,9 +93,10 @@ endif
 # As soon as Traces is used, no need to ellipse traces anymore, they can be
 # fully preserved:
 #
-ERLANG_COMPILER_OPT_BASE += $(TRACES_OPT_FLAGS)      \
-							$(TRACES_DEBUG_FLAGS)    \
-							$(TRACES_CHECK_FLAGS)    \
+ERLANG_COMPILER_OPT_BASE += -Dtraces_version=\"$(TRACES_VERSION)\" \
+						    $(TRACES_OPT_FLAGS)                    \
+							$(TRACES_DEBUG_FLAGS)                  \
+							$(TRACES_CHECK_FLAGS)                  \
 							-Dwooper_preserve_traces
 
 
@@ -127,8 +128,8 @@ ifndef PROJECT_NAME_FOR_OTP
 endif
 
 
-# The uniquely-defined version of this layer, for all uses (including rebar and
-# hex):
+# The uniquely-defined version of this layer, for all uses (including rebar, hex
+# and the code itself, see traces_utils:get_traces_version{_string,}/0):
 #
 TRACES_VERSION := 1.0.21
 

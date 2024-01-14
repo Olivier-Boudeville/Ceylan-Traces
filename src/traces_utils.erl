@@ -36,6 +36,10 @@
 -module(traces_utils).
 
 
+% Version-related functions.
+-export([ get_traces_version/0, get_traces_version_string/0 ]).
+
+
 -export([ get_aggregator_registration_scope/0, get_aggregator_look_up_scope/0,
 		  name_trace_file_from/1 ]).
 
@@ -46,7 +50,10 @@
 
 % Shorthands:
 
+-type three_digit_version() :: basic_utils:three_digit_version().
 -type module_name() :: basic_utils:module_name() .
+
+-type ustring() :: text_utils:ustring().
 
 -type bin_file_name() :: file_utils:bin_file_name().
 
@@ -54,6 +61,21 @@
 -type look_up_scope() :: naming_utils:look_up_scope().
 
 -type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
+
+
+% Version-related functions.
+
+% @doc Returns the version of the Traces library being used.
+-spec get_traces_version() -> three_digit_version().
+get_traces_version() ->
+	basic_utils:parse_version( get_traces_version_string() ).
+
+
+% @doc Returns the version of the Traces library being used, as a string.
+-spec get_traces_version_string() -> ustring().
+get_traces_version_string() ->
+	% As defined (uniquely) in GNUmakevars.inc:
+	?traces_version.
 
 
 
