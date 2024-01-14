@@ -148,7 +148,8 @@ that Ceylan-Traces can be fully usable from then on.</td></tr>
  the trace ones.</td></tr>
 <tr><td valign="top"><a href="#receive_applicative_message-1">receive_applicative_message/1</a></td><td>Receives specified applicative, non-trace message, to shelter user 
 messages from the trace ones.</td></tr>
-<tr><td valign="top"><a href="#reset_handler-0">reset_handler/0</a></td><td>Unsets the Traces logger handler, returns to the base trace_utils one.</td></tr>
+<tr><td valign="top"><a href="#reset_handler-0">reset_handler/0</a></td><td>Unsets the Traces logger handler, returns to the base (Myriad's)
+ trace_utils one.</td></tr>
 <tr><td valign="top"><a href="#set_handler-0">set_handler/0</a></td><td>Replaces the current (probably default) logger handler with this Traces
  one (registered as 'default'), based on the (supposedly already-existing)
  trace aggregator.</td></tr>
@@ -261,7 +262,9 @@ messages from the trace ones.</p>
 <div class="spec">
 <p><code>reset_handler() -&gt; <a href="#type-void">void()</a></code><br></p>
 <p> </p>
-</div><p>Unsets the Traces logger handler, returns to the base trace_utils one.</p>
+</div><p>Unsets the Traces logger handler, returns to the base (Myriad's)
+ trace_utils one.
+</p>
 
 <h3 class="function"><a name="set_handler-0">set_handler/0</a></h3>
 <div class="spec">
