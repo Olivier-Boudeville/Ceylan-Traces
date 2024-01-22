@@ -95,8 +95,7 @@
 		%
 		%TracesStandaloneEmitterName ->
 		_ ->
-			{ TracesInitialisationTermInternal,
-			  ?trace_emitter_categorization }
+			{ TracesInitialisationTermInternal, ?trace_emitter_categorization }
 
 	end ).
 
@@ -105,25 +104,28 @@
 % To obtain a proper string-like name, whether a trace categorization has been
 % specified or not (typically useful when wanting to designate with '~ts' the
 % name of a trace emitter from its constructor, i.e. when its specified name
-% (actually, emitter_info()) may still include its trace categorization):
+% (actually, emitter_info()) may still include its trace categorization).
+%
+% Note that implementing this feature, as opposed to trace_categorize/1 above,
+% does not require a macro. Use class_TraceEmitter:get_trace_name/1 instead.
 %
 % -macrospec trace_name( emitter_name() | emitter_info() ) ->
 %                                   emitter_name().
--define( trace_name( TracesInitialisationTermForNameInternal ),
+% -define( trace_name( TracesInitialisationTermForNameInternal ),
 
-	% As few variables bound as possible, and longer variable names chosen
-	% (prefixed with 'Traces'), to avoid clashes with user-defined variables:
-	%
-	case TracesInitialisationTermForNameInternal of
+%	% As few variables bound as possible, and longer variable names chosen
+%	% (prefixed with 'Traces'), to avoid clashes with user-defined variables:
+%	%
+%	case TracesInitialisationTermForNameInternal of
 
-		%{ TraceName, _TraceCategorization } ->
-		{ TraceNameForNameInternal, _ } ->
-			TraceNameForNameInternal;
+%		%{ TraceName, _TraceCategorization } ->
+%		{ TraceNameForNameInternal, _ } ->
+%			TraceNameForNameInternal;
 
-		TraceNameForNameInternal ->
-			TraceNameForNameInternal
+%		TraceNameForNameInternal ->
+%			TraceNameForNameInternal
 
-	end ).
+%	end ).
 
 
 
