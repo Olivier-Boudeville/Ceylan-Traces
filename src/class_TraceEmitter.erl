@@ -535,6 +535,21 @@ register_as_bridge( TraceEmitterName, TraceCategory, TraceAggregatorPid ) ->
 
 
 
+% @doc Returns the name of the trace emitter corresponding to the specified
+% constructor-level information.
+%
+% Supersedes for the best the trace_name/1 macro.
+%
+-spec get_trace_name( emitter_name() | emitter_info()  ) ->
+											static_return( emitter_name() ).
+get_trace_name( { TraceName, _TraceCategorization } ) ->
+	wooper:return_static( TraceName );
+
+get_trace_name( TraceName ) ->
+	wooper:return_static( TraceName ).
+
+
+
 % @doc Subcategorizes a given emitter name, by introducing an additional
 % grouping level, based on the first character of the trace emitter name.
 %
