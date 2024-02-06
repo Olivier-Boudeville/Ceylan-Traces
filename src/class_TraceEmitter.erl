@@ -73,8 +73,14 @@
 % Helper functions:
 -export([ init/1, register_bridge/1,
 		  get_categorization/1, set_categorization/2,
+
 		  send/3, send_safe/3, send/4, send_safe/4, send/5, send_safe/5,
+
 		  send_synchronised/3, send_synchronised/4, send_synchronised/5,
+
+		  send_synchronisable/3, send_synchronisable/4, send_synchronisable/5,
+		  wait_for_aggregator_synchronisation/0,
+
 		  send_categorized_emitter/4, send_named_emitter/4,
 		  get_trace_timestamp/1, get_trace_timestamp_as_binary/1,
 		  get_plain_name/1, get_short_description/1,
@@ -1070,7 +1076,7 @@ send_standalone_safe( TraceSeverity, Message, EmitterName,
 		trace_utils:echo( Message, TraceSeverity, MessageCategorization,
 						  TimestampText ),
 
-	wait_aggregator_sync(),
+	wait_for_aggregator_synchronisation(),
 
 	wooper:return_static_void().
 
@@ -1364,7 +1370,7 @@ send_safe( TraceSeverity, State, Message, MessageCategorization ) ->
 
 	trace_utils:echo( Message, TraceSeverity, MessageCategorization ),
 
-	wait_aggregator_sync().
+	wait_for_aggregator_synchronisation().
 
 
 
@@ -1569,6 +1575,32 @@ send_named_emitter( TraceSeverity, State, Message, EmitterName ) ->
 
 
 
+
+% @doc Sends the specified synchronisable trace message from this emitter.
+%
+% The synchronisation answer is requested yet not awaited here, to allow for any
+% interleaving.
+%
+-spec send_synchronisable( trace_severity(), wooper:state(), message() ) ->
+												void().
+send_synchronisable( TraceSeverity, State, Message ) ->
+	send_synchronisable( TraceSeverity, State, Message,
+						 _MessageCategorization=uncategorized ).
+
+
+
+% @doc Sends the specified synchronisable trace message from this emitter.
+%
+% The synchronisation answer is requested yet not awaited here, to allow for any
+% interleaving.
+%
+-spec send_synchronisable( trace_severity(), wooper:state(), message(),
+						   message_categorization() ) -> void().
+send_synchronisable( TraceSeverity, State, Message, MessageCategorization ) ->
+	send_synchronisable( TraceSeverity, State, Message, MessageCategorization,
+						 get_trace_timestamp( State ) ).
+
+
 % @doc Sends the specified synchronisable trace message from this emitter.
 %
 % The synchronisation answer is requested yet not awaited here, to allow for any
@@ -1648,7 +1680,7 @@ send_synchronised( TraceSeverity, State, Message, MessageCategorization,
 	send_synchronisable( TraceSeverity, State, Message, MessageCategorization,
 						 AppTimestamp ),
 
-	wait_aggregator_sync().
+	wait_for_aggregator_synchronisation().
 
 
 
@@ -1671,7 +1703,7 @@ send_safe( TraceSeverity, State, Message, MessageCategorization,
 	trace_utils:echo( Message, TraceSeverity, MessageCategorization,
 					  text_utils:term_to_string( AppTimestamp ) ),
 
-	wait_aggregator_sync().
+	wait_for_aggregator_synchronisation().
 
 
 
@@ -1680,8 +1712,8 @@ send_safe( TraceSeverity, State, Message, MessageCategorization,
 %
 % (helper)
 %
--spec wait_aggregator_sync() -> void().
-wait_aggregator_sync() ->
+-spec wait_for_aggregator_synchronisation() -> void().
+wait_for_aggregator_synchronisation() ->
 	receive
 
 		{ wooper_result, trace_aggregator_synchronised } ->
