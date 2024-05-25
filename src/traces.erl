@@ -25,12 +25,13 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
 
-
-% @doc Module gathering all code, common to tests and applications, that allows
-% to <b>lighten the trace macros, share defines and types, manage log
-% handlers</b>.
-%
 -module(traces).
+
+-moduledoc """
+Module gathering all code, common to tests and applications, that allows to
+**lighten the trace macros, share defines and types, manage log handlers**.
+""".
+
 
 
 -export([ get_trace_filename/1,
@@ -264,7 +265,7 @@ declare_beam_dirs_for_traces() ->
 %
 % Note: currently not useful, as implicitly managed by traces_app:start/2.
 %
--spec manage_supervision() -> maybe( class_TraceSupervisor:supervisor_pid() ).
+-spec manage_supervision() -> option( class_TraceSupervisor:supervisor_pid() ).
 manage_supervision() ->
 
 	case executable_utils:is_batch() of
@@ -279,7 +280,7 @@ manage_supervision() ->
 
 			% Expected to be already created:
 			TraceAggregatorPid = class_TraceAggregator:get_aggregator(
-											_CreateIfNotAvailable=false ),
+				_CreateIfNotAvailable=false ),
 
 			% Not blocking the calling process until the supervision is over:
 			TraceAggregatorPid ! { launchTraceSupervisor, [], self() },

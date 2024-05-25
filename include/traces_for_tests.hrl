@@ -73,7 +73,6 @@
 % TraceAggregatorPid voluntarily exported from test_start, for test_stop:
 
 -define( test_start,
-
 		 % true is for InitTraceSupervisor (not even binding a mute variable for
 		 % that); test_stop/2 to be consistent with it.
 		 %
@@ -153,7 +152,7 @@
 % receive
 %
 %   {wooper_result, V} ->
-%			V
+%           V
 %
 % end,
 % ...
@@ -208,6 +207,6 @@ test_failed( Reason ) ->
 % to be formatted.
 %
 -spec test_failed( text_utils:format_string(), text_utils:format_values() ) ->
-						no_return().
+												no_return().
 test_failed( FormatReason, FormatValues ) ->
 	test_failed( text_utils:format( FormatReason, FormatValues ) ).

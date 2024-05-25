@@ -25,15 +25,16 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: Saturday, May 9, 2020.
 
-
-% @doc Module gathering various <b>trace-related facilities</b>, notably in link
-% with OTP.
-%
-% This module should not be mixed up with the trace_utils module from Myriad
-% (note that the names of these modules differ, therefore their BEAM files
-% cannot clash).
-%
 -module(traces_utils).
+
+-moduledoc """
+Module gathering various **trace-related facilities**, notably in link with OTP.
+
+This module should not be mixed up with the trace_utils module from Myriad (note
+that the names of these modules differ, therefore their BEAM files cannot
+clash).
+""".
+
 
 
 % Version-related functions.

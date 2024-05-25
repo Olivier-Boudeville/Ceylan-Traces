@@ -155,7 +155,7 @@
 % according to the application.
 %
 -define( notify_emergency_full( Message, EmitterCategorization,
-							ApplicationTimestamp ),
+								ApplicationTimestamp ),
 		 class_TraceEmitter:send_standalone_safe( emergency, Message,
 			EmitterCategorization, ApplicationTimestamp )
 ).

@@ -25,17 +25,17 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: Saturday, July 20, 2019.
 
-
-% @doc Module implementing the <b>root OTP supervisor</b> of Traces.
-%
-% In practice, it will supervise a single process, the one of the (singleton)
-% trace aggregator, through a dedicated supervision bridge, defined in the
-% traces_bridge_sup module.
-%
-% Refer to the documentation of the supervisor_bridge module for further
-% details.
-%
 -module(traces_sup).
+
+-moduledoc """
+Module implementing the **root OTP supervisor** of Traces.
+
+In practice, it will supervise a single process, the one of the (singleton)
+trace aggregator, through a dedicated supervision bridge, defined in the
+traces_bridge_sup module.
+
+Refer to the documentation of the supervisor_bridge module for further details.
+""".
 
 
 % The root supervisor is a supervisor per se:

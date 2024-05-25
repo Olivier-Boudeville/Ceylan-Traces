@@ -25,11 +25,13 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
 
-
-% @doc The <b>trace listener class</b> is similar to a remote trace
-% supervisor, able to synchronise at will to a trace aggregator.
-%
 -module(class_TraceListener).
+
+-moduledoc """
+The *trace listener class* is similar to a remote trace supervisor, able to
+synchronise at will to a trace aggregator.
+""".
+
 
 
 -define( class_description, "Trace listener, similar to a remote trace "
@@ -62,11 +64,11 @@
 	{ temp_dir, file_utils:directory_name(), "the name of the directory where "
 	  "the compressed trace archive will be stored" },
 
-	{ supervision_waiter_pid, maybe( pid() ),
+	{ supervision_waiter_pid, option( pid() ),
 	  "the PID of the helper process (if any) in charge of waiting for the "
 	  "trace interface to be closed" },
 
-	{ close_listener_pid, maybe( pid() ),
+	{ close_listener_pid, option( pid() ),
 	  "the PID of the process (if any) to notify whenever this listener is "
 	  "to terminate (typically so that the calling application can itself "
 	  "terminate afterwards)" } ] ).

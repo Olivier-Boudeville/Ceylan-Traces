@@ -25,11 +25,14 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: Tuesday, January 11, 2011.
 
-
-% @doc This is a <b>most simple trace-enabled application</b>, to ensure that
-% defines, build targets and all other elements support them correctly.
-%
 -module(trace_enabled_app).
+
+-moduledoc """
+This is a **most simple trace-enabled application**, to ensure that defines,
+build targets and all other elements support them correctly.
+""".
+
+
 
 
 -export([ exec/0 ]).

@@ -131,7 +131,7 @@ endif
 # The uniquely-defined version of this layer, for all uses (including rebar, hex
 # and the code itself, see traces_utils:get_traces_version{_string,}/0):
 #
-TRACES_VERSION := 1.0.21
+TRACES_VERSION := 1.0.22
 
 
 # PROJECT_VERSION should be defined on a per-project basis.

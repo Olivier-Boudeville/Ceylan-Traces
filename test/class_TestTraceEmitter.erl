@@ -25,9 +25,11 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
 
-
-% @doc A trace emitter introduced <b>for testing</b>.
 -module(class_TestTraceEmitter).
+
+-moduledoc """
+A trace emitter introduced **for testing**.
+""".
 
 
 -define( class_description,

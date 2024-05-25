@@ -25,11 +25,13 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
 
-
-% @doc This module gathers all the code that allows to <b>lighten the trace
-% macros for (Myriad) applications</b>.
-%
 -module(traces_for_apps).
+
+-moduledoc """
+This module gathers all the code that allows to **lighten the trace macros for
+(Myriad) applications**.
+""".
+
 
 
 -export([ app_start/2, app_start/3, app_start/4,

@@ -25,12 +25,14 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: Wednesday, May 6, 2020.
 
-
-% @doc Module implementing the <b>OTP supervisor bridge of Traces</b>, so that
-% the (singleton) trace aggregator is attached to the Traces OTP supervision
-% tree, through the Traces root supervisor, defined in the traces_sup module.
-%
 -module(traces_bridge_sup).
+
+-moduledoc """
+Module implementing the **OTP supervisor bridge of Traces**, so that the
+(singleton) trace aggregator is attached to the Traces OTP supervision tree,
+through the Traces root supervisor, defined in the traces_sup module.
+""".
+
 
 
 % The trace aggregator is not a gen_server but a WOOPER instance, therefore a
@@ -70,7 +72,7 @@
 -include("class_TraceAggregator.hrl").
 
 
-% Shorthands:
+% Type shorthands:
 
 -type init_args() :: traces_sup:init_args().
 

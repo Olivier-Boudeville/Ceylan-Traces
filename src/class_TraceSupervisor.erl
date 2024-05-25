@@ -25,11 +25,13 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
 
-
-% @doc The <b>trace supervisor class</b> allows to monitor the traces managed by
-% a trace aggregator.
-%
 -module(class_TraceSupervisor).
+
+-moduledoc """
+The **trace supervisor class** allows to monitor the traces managed by a trace
+ aggregator.
+""".
+
 
 
 -define( class_description, "Trace supervisor; this version relies on the "
@@ -131,8 +133,8 @@
 % done then
 %
 -spec construct( wooper:state(),
-	{ bin_file_name(), trace_supervision_type(), maybe( aggregator_pid() ) },
-	boolean(), maybe( pid() ) ) -> wooper:state().
+	{ bin_file_name(), trace_supervision_type(), option( aggregator_pid() ) },
+	boolean(), option( pid() ) ) -> wooper:state().
 construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 		   MonitorNow, MaybeWaitingPid ) ->
 
@@ -398,7 +400,7 @@ create() ->
 %
 % See create/5 for a more in-depth explanation of the parameters.
 %
--spec create( maybe( pid() ) ) -> static_return( supervisor_pid() ).
+-spec create( option( pid() ) ) -> static_return( supervisor_pid() ).
 create( MaybeWaitingPid ) ->
 	SupervisorPid = create( MaybeWaitingPid, ?trace_aggregator_filename ),
 	wooper:return_static( SupervisorPid ).
@@ -413,7 +415,7 @@ create( MaybeWaitingPid ) ->
 %
 % See create/5 for a more in-depth explanation of the parameters.
 %
--spec create( maybe( pid() ), any_file_path() ) ->
+-spec create( option( pid() ), any_file_path() ) ->
 							static_return( supervisor_pid() ).
 create( MaybeWaitingPid, TraceFilename ) ->
 
@@ -431,8 +433,8 @@ create( MaybeWaitingPid, TraceFilename ) ->
 %
 % See create/5 for a more in-depth explanation of the parameters.
 %
--spec create( maybe( pid() ), any_file_path(), trace_supervision_type(),
-			  maybe( aggregator_pid() ) ) -> static_return( supervisor_pid() ).
+-spec create( option( pid() ), any_file_path(), trace_supervision_type(),
+			  option( aggregator_pid() ) ) -> static_return( supervisor_pid() ).
 create( MaybeWaitingPid, TraceFilename, TraceType, TraceAggregatorPid ) ->
 
 	SupervisorPid = create( MaybeWaitingPid, _MonitorNow=true, TraceFilename,
@@ -463,9 +465,9 @@ create( MaybeWaitingPid, TraceFilename, TraceType, TraceAggregatorPid ) ->
 % Returns either the PID of the created supervisor or, if blocking (hence the
 % supervisor being dead by design when this creation returns), 'undefined'.
 %
--spec create( maybe( pid() ), boolean(), any_file_path(),
-			  trace_supervision_type(), maybe( aggregator_pid() ) ) ->
-					static_return( maybe( supervisor_pid() ) ).
+-spec create( option( pid() ), boolean(), any_file_path(),
+			  trace_supervision_type(), option( aggregator_pid() ) ) ->
+					static_return( option( supervisor_pid() ) ).
 create( MaybeWaitingPid, MonitorNow, TraceFilename, TraceType,
 		MaybeTraceAggregatorPid ) ->
 
@@ -534,7 +536,7 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 % MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
 %
 -spec init( file_name(), trace_supervision_type(), aggregator_pid(),
-			maybe( pid() ) ) -> static_return( supervisor_outcome() ).
+			option( pid() ) ) -> static_return( supervisor_outcome() ).
 init( TraceFilename, TraceType, TraceAggregatorPid, MaybeWaitingPid ) ->
 
 	%trace_utils:info_fmt( "Initialising the trace supervisor for file '~ts' "

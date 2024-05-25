@@ -25,9 +25,11 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: Friday, December 25, 2020.
 
-
-% Testing the watchdog for the trace aggregator.
 -module(trace_watchdog_test).
+
+-moduledoc """
+Testing the **watchdog** for the trace aggregator.
+""".
 
 
 

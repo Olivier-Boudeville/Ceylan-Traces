@@ -76,7 +76,6 @@
 % TraceAggregatorPid voluntarily exported from app_start, for app_stop:
 
 -define( app_start,
-
 	% true is for InitTraceSupervisor (not even binding a mute variable for
 	% that); app_stop/2 to be consistent with it.
 	%
@@ -100,7 +99,6 @@
 % However no trace supervisor is needed here.
 %
 -define( app_start,
-
 	% false is for InitTraceSupervisor (not even binding a mute variable for
 	% that); app_stop/2 to be consistent with it.
 	%

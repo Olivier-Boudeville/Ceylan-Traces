@@ -25,11 +25,13 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
 
-
-% @doc The <b>trace emitter</b> class, base class for all (WOOPER-based)
-% emitters of traces.
-%
 -module(class_TraceEmitter).
+
+-moduledoc """
+The **trace emitter** class, base class for all (WOOPER-based) emitters of
+traces.
+""".
+
 
 
 -define( class_description,
@@ -65,7 +67,7 @@
 	{ trace_aggregator_pid, aggregator_pid(),
 	  "the PID of the trace aggregator collecting the traces emitted" },
 
-	{ trace_timestamp, maybe( app_timestamp() ),
+	{ trace_timestamp, option( app_timestamp() ),
 	  "current application-specific timestamp" } ] ).
 
 

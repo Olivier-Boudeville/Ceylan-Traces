@@ -25,14 +25,16 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: Saturday, July 20, 2019.
 
-
-% @doc Module implementing the <b>Traces (active) OTP application</b> behaviour.
-%
-% Note that, thanks to the automatic creation of the class manager, Traces will
-% still work flawlessly even if not specifically started (typically then out of
-% any OTP context).
-%
 -module(traces_app).
+
+-moduledoc """
+Module implementing the **Traces (active) OTP application** behaviour.
+
+Note that, thanks to the automatic creation of the class manager, Traces will
+still work flawlessly even if not specifically started (typically then out of
+any OTP context).
+""".
+
 
 
 % Implementing the (active, OTP) application behaviour:

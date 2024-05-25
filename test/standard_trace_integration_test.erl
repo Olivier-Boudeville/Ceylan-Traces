@@ -25,11 +25,11 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: Sunday, December 6, 2020.
 
-
-% @doc Test of the integration of the standard Erlang logs into the Traces
-% subsystem.
-%
 -module(standard_trace_integration_test).
+
+-moduledoc """
+Test of the integration of the standard Erlang logs into the Traces subsystem.
+""".
 
 
 

@@ -25,11 +25,12 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: July 1, 2007.
 
-
-% @doc The <b>trace aggregator</b> class, in charge of collecting and storing
-% the traces sent by emitters.
-%
 -module(class_TraceAggregator).
+
+-moduledoc """
+The **trace aggregator** class, in charge of collecting and storing the traces
+sent by emitters.
+""".
 
 
 % See documentation at http://traces.esperide.org.
@@ -81,7 +82,7 @@
 	{ trace_listeners, [ listener_pid() ],
 	  "the known trace listeners, similar to remote supervisors" },
 
-	{ registration_scope, maybe( registration_scope() ),
+	{ registration_scope, option( registration_scope() ),
 	  "tells whether this aggregator shall be registered in the "
 	  "naming service and, if yes, for which scope(s)" },
 
@@ -91,7 +92,7 @@
 	{ init_supervision, initialise_supervision(),
 	  "tells whether/when the trace supervisor shall be launched" },
 
-	{ supervisor_pid, maybe( supervisor_pid() ),
+	{ supervisor_pid, option( supervisor_pid() ),
 	  "the PID of the associated trace supervisor (if any)" },
 
 	{ rotation_min_size, byte_size(),
@@ -105,7 +106,7 @@
 	  "the message queue of this aggregator in order to detect whenever "
 	  "it is unable to cope with the intensity of message receivings" },
 
-	{ watchdog_pid, maybe( pid() ),
+	{ watchdog_pid, option( pid() ),
 	  "the PID of the process (if any) in charge of ensuring that this "
 	  "aggregator is still up and running, by looking it up and sending "
 	  "a trace to it periodically" } ] ).
@@ -260,7 +261,7 @@
 % produced PDF when in batch mode
 %
 -spec construct( wooper:state(), file_name(), trace_supervision_type(), title(),
-				 maybe( registration_scope() ), boolean() ) -> wooper:state().
+				 option( registration_scope() ), boolean() ) -> wooper:state().
 construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 		   MaybeRegistrationScope, IsBatch ) ->
 	construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
@@ -296,7 +297,7 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 %
 % Main constructor:
 -spec construct( wooper:state(), file_name(), trace_supervision_type(), title(),
-		maybe( registration_scope() ), boolean(), initialise_supervision() ) ->
+		option( registration_scope() ), boolean(), initialise_supervision() ) ->
 						wooper:state().
 construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 		   MaybeRegistrationScope, IsBatch, InitTraceSupervisor ) ->
@@ -1195,7 +1196,7 @@ onWOOPERExitReceived( State, StopPid, _ExitType=normal ) ->
 onWOOPERExitReceived( State, Pid, ExitType=shutdown ) ->
 
 	Msg = text_utils:format( "Trace aggregator received a shutdown message "
-			"from ~w, shutting down immediately.", [ Pid ] ),
+		"from ~w, shutting down immediately.", [ Pid ] ),
 
 	SentState = send_internal_immediate( info, Msg, State ),
 
@@ -1737,8 +1738,8 @@ enable_watchdog( RegName, LookupScope, Period, State ) ->
 				  time_utils:duration_to_string( MsPeriod ) ] ),
 
 			WatchdogPid = ?myriad_spawn_link( fun() ->
-							watchdog_main_loop( RegName, LookupScope,
-												AggregatorPid, MsPeriod )
+				watchdog_main_loop( RegName, LookupScope,
+									AggregatorPid, MsPeriod )
 											  end ),
 
 			setAttribute( State, watchdog_pid, WatchdogPid );
@@ -1857,7 +1858,7 @@ manage_trace_header( State ) ->
 					"~ts~n.. _table:~n~n.. contents:: Table of Contents~n~n",
 					[ text_utils:generate_title(Title,1) ] )
 				++ text_utils:format( "~ts", [ text_utils:generate_title(
-												 "Execution Context", 2 ) ] )
+													"Execution Context", 2 ) ] )
 				++ text_utils:format( "Report generated on ~ts, "
 					"from trace file ``~ts``, on host ``~ts``.~n~n",
 					[ time_utils:get_textual_timestamp(),
@@ -2121,7 +2122,7 @@ reopen_trace_file( TraceFilename ) ->
 
 % (helper)
 -spec rotate_trace_file( wooper:state() ) ->
-								maybe( { file_name(), wooper:state() } ).
+								option( { file_name(), wooper:state() } ).
 rotate_trace_file( State ) ->
 
 	BinTracePath = ?getAttr(trace_filename),

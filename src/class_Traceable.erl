@@ -25,28 +25,29 @@
 % Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
 % Creation date: Saturday, August 6, 2022.
 
-
-% @doc Interface class implementing the <b>Traceable trait</b>, so that the
-% instances having that trait can <b>emit traces</b> by whichever means is the
-% most appropriate, whether or not they are actually full-blown
-% class_TraceEmitter instances, or have a trace_bridge registered, or just have
-% to rely on the most basic traces.
-%
-% By providing the most lightweight way of emitting traces, such a trait favors
-% composition over multiple inheritance; otherwise many concrete classes would
-% derive more than once from the class_TraceEmitter one (this would be a minor
-% nuisance) or, worse, other traits would induce in turn a class_TraceEmitter
-% inheritance, each time they would have to send a trace (whereas interfaces
-% introducing the use of actual classes is not felt desirable; we prefer that
-% such interfaces derive from this Traceable one).
-%
-% This interface does not define attributes or methods of its own, and does not
-% require specific initialisation or termination (it is mostly useful thanks to
-% its header file). As such, it could even be omitted in the declarations of
-% superclasses and possibly any composed interfaces, although we recommend
-% listing it explicitly, for clarity reasons.
-%
 -module(class_Traceable).
+
+-moduledoc """
+Interface class implementing the **Traceable trait**, so that the instances
+having that trait can **emit traces** by whichever means is the most
+appropriate, whether or not they are actually full-blown class_TraceEmitter
+instances, or have a trace_bridge registered, or just have to rely on the most
+basic traces.
+
+By providing the most lightweight way of emitting traces, such a trait favors
+composition over multiple inheritance; otherwise many concrete classes would
+derive more than once from the class_TraceEmitter one (this would be a minor
+nuisance) or, worse, other traits would induce in turn a class_TraceEmitter
+inheritance, each time they would have to send a trace (whereas interfaces
+introducing the use of actual classes is not felt desirable; we prefer that such
+interfaces derive from this Traceable one).
+
+This interface does not define attributes or methods of its own, and does not
+require specific initialisation or termination (it is mostly useful thanks to
+its header file). As such, it could even be omitted in the declarations of
+superclasses and possibly any composed interfaces, although we recommend listing
+it explicitly, for clarity reasons.
+""".
 
 
 -define( class_description,
@@ -203,7 +204,7 @@ send_safe( Severity, State, Message ) ->
 %
 % (exported helper)
 %
--spec to_maybe_string( wooper:state() ) -> maybe( ustring() ).
+-spec to_maybe_string( wooper:state() ) -> option( ustring() ).
 to_maybe_string( State ) ->
 	case ?getMaybeAttr(name) of
 
