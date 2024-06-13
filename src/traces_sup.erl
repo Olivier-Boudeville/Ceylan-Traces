@@ -38,7 +38,7 @@ Refer to the documentation of the supervisor_bridge module for further details.
 """.
 
 
-% The root supervisor is a supervisor per se:
+-doc "The root supervisor is a supervisor per se.".
 -behaviour(supervisor).
 
 
@@ -57,23 +57,27 @@ Refer to the documentation of the supervisor_bridge module for further details.
 
 -type init_args() :: { boolean() | registration_scope() }.
 
+
+-doc "Actually exactly `[TraceSupervisorWanted, AggRegScope]`.".
 -type init_arg_list() :: [ boolean() | registration_scope() ].
-% Actually exactly [TraceSupervisorWanted, AggRegScope].
+
 
 -export_type([ init_args/0, init_arg_list/0 ]).
 
 
-% Shorthands:
+% Type shorthands:
 
 -type registration_scope() :: naming_utils:registration_scope().
 
 
-% @doc Starts and links the Traces root supervisor, creating in turn a proper
-% supervision bridge.
-%
-% Note: typically called by traces_app:start/2, hence generally triggered by the
-% application initialisation.
-%
+
+-doc """
+Starts and links the Traces root supervisor, creating in turn a proper
+supervision bridge.
+
+Note: typically called by traces_app:start/2, hence generally triggered by the
+application initialisation.
+""".
 -spec start_link( init_args() ) -> supervisor:startlink_ret().
 start_link( TraceInitArgs ) ->
 
@@ -87,9 +91,11 @@ start_link( TraceInitArgs ) ->
 						   _Mod=?MODULE, TraceInitArgs ).
 
 
-% @doc Callback to initialise the Traces supervisor bridge (supervised by this
-% root supervisor), typically in answer to start_link/1 above being executed.
-%
+
+-doc """
+Callback to initialise the Traces supervisor bridge (supervised by this root
+supervisor), typically in answer to start_link/1 above being executed.
+""".
 -spec init( { boolean() | registration_scope() } ) ->
 	{ 'ok', { supervisor:sup_flags(), [ supervisor:child_spec() ] } }.
 init( { TraceSupervisorWanted, RegScope } ) ->

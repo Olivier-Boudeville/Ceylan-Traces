@@ -69,7 +69,8 @@ A trace emitter introduced **for testing**.
 % printouts.
 
 
-% @doc Constructs a test trace emitter.
+
+-doc "Constructs a test trace emitter.".
 -spec construct( wooper:state(), class_TraceEmitter:emitter_init() ) ->
 												wooper:state().
 construct( State, TraceEmitterName ) ->
@@ -98,7 +99,7 @@ construct( State, TraceEmitterName ) ->
 
 
 
-% @doc Overridden destructor.
+-doc "Overridden destructor.".
 -spec destruct( wooper:state() ) -> wooper:state().
 destruct( State ) ->
 
@@ -159,7 +160,7 @@ sendAsyncTraces( State ) ->
 % Helper functions.
 
 
-% @doc We should be testing all forms of traces here.
+-doc "We should be testing all forms of traces here.".
 -spec send_traces( wooper:state() ) -> void().
 send_traces( State ) ->
 
@@ -274,9 +275,10 @@ send_traces( State ) ->
 
 
 
-% @doc To test compilation problems when only one non-maskable trace is used
-% (e.g. variable unused, or term constructed whereas not used either).
-%
+-doc """
+To test compilation problems when only one non-maskable trace is used
+(e.g. variable unused, or term constructed whereas not used either).
+""".
 -spec send_emergency_trace( wooper:state() ) -> void().
 send_emergency_trace( State ) ->
 
@@ -290,9 +292,10 @@ send_emergency_trace( State ) ->
 
 
 
-% @doc To test compilation problems when only one maskable trace is used (e.g.
-% variable unused, or term constructed whereas not used either).
-%
+-doc """
+To test compilation problems when only one maskable trace is used (e.g.
+variable unused, or term constructed whereas not used either).
+""".
 -spec send_debug_trace( wooper:state() ) -> void().
 send_debug_trace( State ) ->
 

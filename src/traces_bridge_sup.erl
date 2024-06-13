@@ -34,28 +34,29 @@ through the Traces root supervisor, defined in the traces_sup module.
 """.
 
 
+-doc """
+The trace aggregator is not a gen_server but a WOOPER instance, therefore a
+supervisor bridge is needed in order to connect this aggregator to an OTP
+supervision tree.
 
-% The trace aggregator is not a gen_server but a WOOPER instance, therefore a
-% supervisor bridge is needed in order to connect this aggregator to an OTP
-% supervision tree.
-%
-% As a result, the process whose code is defined in the current module, being a
-% supervisor bridge, behaves like a real supervisor to its own supervisor (the
-% root supervisor of Traces, namely traces_sup), but has a different interface
-% than a real supervisor to the Traces subsystem.
-%
-% Hence used for (optional) OTP compliance (see
-% http://erlang.org/doc/man/supervisor_bridge.html).
-%
-% We suppose that such a supervisor bridge cannot be used directly as a root
-% supervisor.
-%
-% See also:
-% - https://wooper.esperide.org/#otp-guidelines for further information
-% - within the Erlang codebase itself, as an example, the user_sup
-% supervisor bridge, created by kernel:init/1
-%
+As a result, the process whose code is defined in the current module, being a
+supervisor bridge, behaves like a real supervisor to its own supervisor (the
+root supervisor of Traces, namely traces_sup), but has a different interface
+than a real supervisor to the Traces subsystem.
+
+Hence used for (optional) OTP compliance (see
+<http://erlang.org/doc/man/supervisor_bridge.html>).
+
+We suppose that such a supervisor bridge cannot be used directly as a root
+supervisor.
+
+See also:
+- <https://wooper.esperide.org/#otp-guidelines> for further information
+- within the Erlang codebase itself, as an example, the user_sup
+supervisor bridge, created by kernel:init/1
+""".
 -behaviour(supervisor_bridge).
+
 
 % User API of the bridge:
 -export([ start_link/2 ]).
@@ -77,13 +78,15 @@ through the Traces root supervisor, defined in the traces_sup module.
 -type init_args() :: traces_sup:init_args().
 
 
-% @doc Starts and links the Traces supervision bridge to the trace aggregator.
-%
-% Note: typically spawned as a supervised child of the Traces root supervisor
-% (see traces_sup:init/1), hence generally triggered by the application
-% initialisation.
-%
-%-spec start_link( init_arg_list() ) -> term().
+
+-doc """
+Starts and links the Traces supervision bridge to the trace aggregator.
+
+Note: typically spawned as a supervised child of the Traces root supervisor (see
+traces_sup:init/1), hence generally triggered by the application initialisation.
+""".
+-spec start_link( boolean(), naming_utils:registration_scope() ) ->
+										basic_utils:start_result().
 start_link( TraceSupervisorWanted, AggRegScope ) ->
 
 	% Apparently not displayed in a release context, yet executed:
@@ -95,11 +98,14 @@ start_link( TraceSupervisorWanted, AggRegScope ) ->
 
 
 
-% @doc Callback to initialise this supervisor bridge, typically in answer to
-% start_link/1 above being executed.
-%
+-doc """
+Callback to initialise this supervisor bridge, typically in answer to
+start_link/1 above being executed.
+""".
+% Not basic_utils:start_result/0 (due to state):
 -spec init( init_args() ) -> { 'ok', pid(), State :: term() }
-							| 'ignore' | { 'error', Error :: term() }.
+						   | 'ignore'
+						   | { 'error', Error :: basic_utils:error_reason() }.
 init( { TraceSupervisorWanted, AggRegScope } ) ->
 
 	trace_utils:info_fmt( "Initialising the Traces supervisor bridge ~w "
@@ -147,7 +153,7 @@ init( { TraceSupervisorWanted, AggRegScope } ) ->
 
 
 
-% @doc Callback to terminate this supervisor bridge.
+-doc "Callback to terminate this supervisor bridge.".
 -spec terminate( Reason :: 'shutdown' | term(), State :: term() ) -> void().
 terminate( Reason, _BridgeState=TraceAggregatorPid )
 								when is_pid( TraceAggregatorPid ) ->

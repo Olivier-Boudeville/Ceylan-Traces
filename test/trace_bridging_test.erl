@@ -39,7 +39,8 @@ specific bridge is registered.
 -include("traces_for_tests.hrl").
 
 
-% @doc Runs the test.
+
+-doc "Runs the test.".
 -spec run() -> no_return().
 run() ->
 

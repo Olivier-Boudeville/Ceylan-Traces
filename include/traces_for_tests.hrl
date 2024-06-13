@@ -138,35 +138,38 @@
 
 
 
-% @doc Helper function to add receive clauses (for undiscriminated messages) in
-% tests so that they cannot interfere with trace supervision, as a test may also
-% receive trace control message that the test code should remain unware of.
-%
-% Returns the received value.
-%
-% For example: Pid ! {getBaz, [], self()}, MyBaz = test_receive(), ...
-%
-% to be used instead of:
-%
-% Pid ! {getBaz, [], self()},
-% receive
-%
-%   {wooper_result, V} ->
-%           V
-%
-% end,
-% ...
-%
+-doc """
+Helper function to add receive clauses (for undiscriminated messages) in tests
+so that they cannot interfere with trace supervision, as a test may also receive
+trace control message that the test code should remain unware of.
+
+Returns the received value.
+
+For example: `Pid ! {getBaz, [], self()}, MyBaz = test_receive(), ...`.
+
+to be used instead of:
+```
+Pid ! {getBaz, [], self()},
+receive
+
+  {wooper_result, V} ->
+		V
+
+end,
+...
+```
+""".
 -spec test_receive() -> any().
 test_receive() ->
 	traces:receive_applicative_message().
 
 
 
-% @doc Helper function to add receive clauses (of specific messages) in tests so
-% that they cannot interfere with trace supervision, as a test may also receive
-% trace control message that the test code should remain unware of.
-%
+-doc """
+Helper function to add receive clauses (of specific messages) in tests so that
+they cannot interfere with trace supervision, as a test may also receive trace
+control message that the test code should remain unware of.
+""".
 -spec test_receive( any() ) -> void().
 test_receive( Message ) ->
 	traces:receive_applicative_message( Message ).
@@ -181,7 +184,9 @@ test_receive( Message ) ->
 
 
 
-% @doc Handles a test failure, using specified string as advertised reason.
+-doc """
+Handles a test failure, using specified string as advertised reason.
+""".
 -spec test_failed( text_utils:ustring() ) -> no_return().
 test_failed( Reason ) ->
 
@@ -202,10 +207,11 @@ test_failed( Reason ) ->
 
 
 
-% @doc Handles a test failure, using specified first string as an advertised
-% reason with format characters (e.g. '~w') and specified list as actual values
-% to be formatted.
-%
+-doc """
+Handles a test failure, using specified first string as an advertised reason
+with format characters (e.g. '~w') and specified list as actual values to be
+formatted.
+""".
 -spec test_failed( text_utils:format_string(), text_utils:format_values() ) ->
 												no_return().
 test_failed( FormatReason, FormatValues ) ->

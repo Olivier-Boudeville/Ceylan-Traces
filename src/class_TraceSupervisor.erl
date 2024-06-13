@@ -99,7 +99,7 @@ The **trace supervisor class** allows to monitor the traces managed by a trace
 -define( text_width, 110 ).
 
 
-% Shorthands:
+% Type shorthands:
 
 -type file_name() :: file_utils:file_name().
 -type bin_file_name() :: file_utils:bin_file_name().
@@ -111,27 +111,29 @@ The **trace supervisor class** allows to monitor the traces managed by a trace
 
 
 
-% @doc Constructs a trace supervisor.
-%
-% Construction parameters are:
-%
-% - {TraceFilename, TraceType, MaybeTraceAggregatorPid}:
-%
-%   - TraceFilename is the name of the file whence traces should be read
-%
-%   - TraceType the type of traces to expect (e.g. advanced_traces, text_traces)
-%
-%   - MaybeTraceAggregatorPid is the PID of the trace aggregator to wait for (if
-%   any)
-%
-% - MonitorNow tells whether the supervision should begin immediately (if true)
-% or only when the monitor method is called (if false)
-%
-% - MaybeWaitingPid tells whether the monitoring should be blocking: if set to a
-% PID, this supervisor will notify the corresponding process whenever the
-% monitoring will be done; otherwise (if set to 'undefined') nothing will be
-% done then
-%
+-doc """
+Constructs a trace supervisor.
+
+Construction parameters are:
+
+- {TraceFilename, TraceType, MaybeTraceAggregatorPid}:
+
+  - TraceFilename is the name of the file whence traces should be read
+
+  - TraceType the type of traces to expect (e.g. advanced_traces, text_traces)
+
+  - MaybeTraceAggregatorPid is the PID of the trace aggregator to wait for (if
+  any)
+
+- MonitorNow tells whether the supervision should begin immediately (if true) or
+only when the monitor method is called (if false)
+
+- MaybeWaitingPid tells whether the monitoring should be blocking: if set to a
+PID, this supervisor will notify the corresponding process whenever the
+monitoring will be done; otherwise (if set to 'undefined') nothing will be done
+then
+
+""".
 -spec construct( wooper:state(),
 	{ bin_file_name(), trace_supervision_type(), option( aggregator_pid() ) },
 	boolean(), option( pid() ) ) -> wooper:state().
@@ -248,10 +250,11 @@ construct( State, { TraceFilename, TraceType, MaybeTraceAggregatorPid },
 % Methods section.
 
 
-% @doc Triggers a non-blocking supervision (trace monitoring).
-%
-% Will return immediately.
-%
+-doc """
+Triggers a non-blocking supervision (trace monitoring).
+
+Will return immediately.
+""".
 -spec monitor( wooper:state() ) -> const_oneway_return().
 monitor( State ) ->
 
@@ -294,10 +297,11 @@ monitor( State ) ->
 
 
 
-% @doc Triggers a blocking supervision (trace monitoring).
-%
-% Will block until the viewer window is closed by the user.
-%
+-doc """
+Triggers a blocking supervision (trace monitoring).
+
+Will block until the viewer window is closed by the user.
+""".
 -spec blocking_monitor( wooper:state() ) ->
 							const_request_return( 'monitor_ok' ).
 blocking_monitor( State ) ->
@@ -378,13 +382,14 @@ blocking_monitor( State ) ->
 % Static section.
 
 
-% @doc Creates the trace supervisor with default settings regarding trace
-% filename, start mode (immediate here, not deferred) and trace type (advanced
-% ones here, not text based), with no PID specified for the trace aggregator,
-% and blocks until closed.
-%
-% See create/5 for a more in-depth explanation of the parameters.
-%
+-doc """
+Creates the trace supervisor with default settings regarding trace filename,
+start mode (immediate here, not deferred) and trace type (advanced ones here,
+not text based), with no PID specified for the trace aggregator, and blocks
+until closed.
+
+See create/5 for a more in-depth explanation of the parameters.
+""".
 -spec create() -> static_return( supervisor_pid() ).
 create() ->
 	SupervisorPid = create( _MaybeWaitingPid=undefined ),
@@ -392,14 +397,15 @@ create() ->
 
 
 
-% @doc Creates the trace supervisor with default settings regarding trace
-% filename, start mode (immediate here, not deferred) and trace type (advanced
-% ones here, not text based), with no PID specified for the trace aggregator.
-%
-% Once the trace monitoring is over, will notify any specified waiting process.
-%
-% See create/5 for a more in-depth explanation of the parameters.
-%
+-doc """
+Creates the trace supervisor with default settings regarding trace filename,
+start mode (immediate here, not deferred) and trace type (advanced ones here,
+not text based), with no PID specified for the trace aggregator.
+
+Once the trace monitoring is over, will notify any specified waiting process.
+
+See create/5 for a more in-depth explanation of the parameters.
+""".
 -spec create( option( pid() ) ) -> static_return( supervisor_pid() ).
 create( MaybeWaitingPid ) ->
 	SupervisorPid = create( MaybeWaitingPid, ?trace_aggregator_filename ),
@@ -407,14 +413,15 @@ create( MaybeWaitingPid ) ->
 
 
 
-% @doc Creates the trace supervisor with default settings regarding start mode
-% (immediate here, not deferred) and trace type (advanced ones here, not text
-% based), with no PID specified for the trace aggregator.
-%
-% Once the trace monitoring is over, will notify any specified waiting process.
-%
-% See create/5 for a more in-depth explanation of the parameters.
-%
+-doc """
+Creates the trace supervisor with default settings regarding start mode
+(immediate here, not deferred) and trace type (advanced ones here, not text
+based), with no PID specified for the trace aggregator.
+
+Once the trace monitoring is over, will notify any specified waiting process.
+
+See create/5 for a more in-depth explanation of the parameters.
+""".
 -spec create( option( pid() ), any_file_path() ) ->
 							static_return( supervisor_pid() ).
 create( MaybeWaitingPid, TraceFilename ) ->
@@ -426,13 +433,14 @@ create( MaybeWaitingPid, TraceFilename ) ->
 
 
 
-% @doc Creates the trace supervisor, with default settings regarding start mode
-% (immediate here, not deferred).
-%
-% Once the trace monitoring is over, will notify any specified waiting process.
-%
-% See create/5 for a more in-depth explanation of the parameters.
-%
+-doc """
+Creates the trace supervisor, with default settings regarding start mode
+(immediate here, not deferred).
+
+Once the trace monitoring is over, will notify any specified waiting process.
+
+See create/5 for a more in-depth explanation of the parameters.
+""".
 -spec create( option( pid() ), any_file_path(), trace_supervision_type(),
 			  option( aggregator_pid() ) ) -> static_return( supervisor_pid() ).
 create( MaybeWaitingPid, TraceFilename, TraceType, TraceAggregatorPid ) ->
@@ -444,27 +452,27 @@ create( MaybeWaitingPid, TraceFilename, TraceType, TraceAggregatorPid ) ->
 
 
 
-% @doc Creates a trace supervisor.
-%
-% Creation parameters are:
-%
-% - MaybeWaitingPid, if set to a PID, will notify the corresponding process once
-% the trace monitoring is over
-%
-% - MonitorNow tells whether the monitoring should start immediately or only
-% when a monitor/blocking_monitor method is called
-%
-% - TraceFilename the trace file to monitor
-%
-% - TraceType the expected type of the traces (e.g. advanced_traces,
-% text_traces)
-%
-% - MaybeTraceAggregatorPid is either the PID of the trace aggregator, or the
-% 'undefined' atom
-%
-% Returns either the PID of the created supervisor or, if blocking (hence the
-% supervisor being dead by design when this creation returns), 'undefined'.
-%
+-doc """
+Creates a trace supervisor.
+
+Creation parameters are:
+
+- MaybeWaitingPid, if set to a PID, will notify the corresponding process once
+the trace monitoring is over
+
+- MonitorNow tells whether the monitoring should start immediately or only when
+a monitor/blocking_monitor method is called
+
+- TraceFilename the trace file to monitor
+
+- TraceType the expected type of the traces (e.g. advanced_traces, text_traces)
+
+- MaybeTraceAggregatorPid is either the PID of the trace aggregator, or the
+'undefined' atom
+
+Returns either the PID of the created supervisor or, if blocking (hence the
+supervisor being dead by design when this creation returns), 'undefined'.
+""".
 -spec create( option( pid() ), boolean(), any_file_path(),
 			  trace_supervision_type(), option( aggregator_pid() ) ) ->
 					static_return( option( supervisor_pid() ) ).
@@ -492,13 +500,14 @@ create( MaybeWaitingPid, MonitorNow, TraceFilename, TraceType,
 
 
 
-% @doc Inits a trace supervisor; especially useful when the trace supervisor
-% cannot be created at the same time as the trace aggregator (e.g. if the trace
-% filename is to change at runtime).
-%
-% Use the --batch option (e.g. erl --batch, or, with our make system, 'make
-% MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
-%
+-doc """
+Inits a trace supervisor; especially useful when the trace supervisor cannot be
+created at the same time as the trace aggregator (e.g. if the trace filename is
+to change at runtime).
+
+Use the --batch option (e.g. erl --batch, or, with our make system, `make
+MY_TARGET CMD_LINE_OPT="--batch"`) to disable the use of the trace supervisor.
+""".
 -spec init( file_name(), aggregator_pid() ) ->
 									static_return( supervisor_outcome() ).
 init( TraceFilename, TraceAggregatorPid ) ->
@@ -510,13 +519,14 @@ init( TraceFilename, TraceAggregatorPid ) ->
 
 
 
-% @doc Inits a trace supervisor; especially useful when the trace supervisor
-% cannot be created at the same time as the trace aggregator (e.g. if the trace
-% filename is to change at runtime).
-%
-% Use the --batch option (e.g. erl --batch, or, with our make system, 'make
-% MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
-%
+-doc """
+Inits a trace supervisor; especially useful when the trace supervisor cannot be
+created at the same time as the trace aggregator (e.g. if the trace filename is
+to change at runtime).
+
+Use the --batch option (e.g. erl --batch, or, with our make system, `make
+MY_TARGET CMD_LINE_OPT="--batch`) to disable the use of the trace supervisor.
+""".
 -spec init( file_name(), trace_supervision_type(), aggregator_pid() ) ->
 							static_return( supervisor_outcome() ).
 init( TraceFilename, TraceType, TraceAggregatorPid ) ->
@@ -528,13 +538,14 @@ init( TraceFilename, TraceType, TraceAggregatorPid ) ->
 
 
 
-% @doc Inits a trace supervisor and records a waiting process; especially useful
-% when the trace supervisor cannot be created at the same time as the trace
-% aggregator (e.g. if the trace filename is to change at runtime).
-%
-% Use the --batch option (e.g. erl --batch, or, with our make system, 'make
-% MY_TARGET CMD_LINE_OPT="--batch") to disable the use of the trace supervisor.
-%
+-doc """
+Inits a trace supervisor and records a waiting process; especially useful when
+the trace supervisor cannot be created at the same time as the trace aggregator
+(e.g. if the trace filename is to change at runtime).
+
+Use the --batch option (e.g. erl --batch, or, with our make system, `make
+MY_TARGET CMD_LINE_OPT="--batch"`) to disable the use of the trace supervisor.
+""".
 -spec init( file_name(), trace_supervision_type(), aggregator_pid(),
 			option( pid() ) ) -> static_return( supervisor_outcome() ).
 init( TraceFilename, TraceType, TraceAggregatorPid, MaybeWaitingPid ) ->
@@ -568,9 +579,10 @@ init( TraceFilename, TraceType, TraceAggregatorPid, MaybeWaitingPid ) ->
 
 
 
-% @doc Waits, usually at the end of a test, for any trace supervisor to be
-% closed by the user.
-%
+-doc """
+Waits, usually at the end of a test, for any trace supervisor to be closed by
+the user.
+""".
 -spec wait_for() -> static_void_return().
 wait_for() ->
 
@@ -614,14 +626,16 @@ actual_wait_for() ->
 
 
 
+
 % Helper section.
 
 
-% @doc Returns the path of the tool and the corresponding file that should be
-% used to monitor traces.
-%
-% (helper)
-%
+-doc """
+Returns the path of the tool and the corresponding file that should be used to
+monitor traces.
+
+(helper)
+""".
 -spec get_viewer_settings( wooper:state() ) ->
 								{ file_utils:path(), file_name() }.
 get_viewer_settings( State ) ->

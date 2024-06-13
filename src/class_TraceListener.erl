@@ -74,8 +74,10 @@ synchronise at will to a trace aggregator.
 	  "terminate afterwards)" } ] ).
 
 
-% The PID of a trace listener:
+
+-doc "The PID of a trace listener.".
 -type listener_pid() :: pid().
+
 
 -export_type([ listener_pid/0 ]).
 
@@ -95,8 +97,11 @@ synchronise at will to a trace aggregator.
 -define( LogOutput( Message, Format ), void ).
 
 
-% Shorthand:
+
+% Type shorthand:
+
 -type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
+
 
 
 
@@ -121,11 +126,12 @@ synchronise at will to a trace aggregator.
 
 
 
-% @doc Constructs a trace listener, synchronised to specified trace aggregator.
-%
-% TraceAggregatorPid is the PID of the trace aggregator to which this listener
-% will be synchronized.
-%
+-doc """
+Constructs a trace listener, synchronised to specified trace aggregator.
+
+TraceAggregatorPid is the PID of the trace aggregator to which this listener
+will be synchronized.
+""".
 -spec construct( wooper:state(), aggregator_pid(), pid() ) -> wooper:state().
 construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 
@@ -184,13 +190,14 @@ construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 
 
 
-% @doc Constructs a trace listener whose listening sockets will have to be
-% elected within the specified range of TCP ports, synchronised to specified
-% trace aggregator.
-%
-% TraceAggregatorPid is the PID of the trace aggregator to which this listener
-% will be synchronized.
-%
+-doc """
+Constructs a trace listener whose listening sockets will have to be elected
+within the specified range of TCP ports, synchronised to specified trace
+aggregator.
+
+TraceAggregatorPid is the PID of the trace aggregator to which this listener
+will be synchronized.
+""".
 -spec construct( wooper:state(), aggregator_pid(), net_utils:tcp_port(),
 				 net_utils:tcp_port(), pid() ) -> wooper:state().
 construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
@@ -230,7 +237,6 @@ construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
 
 
 
-
 % (construction helper)
 manage_send_traces( CompressedFilename, State ) ->
 
@@ -255,7 +261,7 @@ manage_send_traces( CompressedFilename, State ) ->
 
 
 
-% @doc Overridden destructor.
+-doc "Overridden destructor.".
 -spec destruct( wooper:state() ) -> wooper:state().
 destruct( State ) ->
 
@@ -293,14 +299,14 @@ destruct( State ) ->
 % Methods section.
 
 
+-doc """
+Triggers an asynchronous supervision (trace monitoring).
 
-% @doc Triggers an asynchronous supervision (trace monitoring).
-%
-% Will return immediately.
-%
-% Note: directly inspired from class_TraceSupervisor.erl, for monitor/1 and
-% blocking_monitor/1.
-%
+Will return immediately.
+
+Note: directly inspired from class_TraceSupervisor.erl, for monitor/1 and
+blocking_monitor/1.
+""".
 -spec monitor( wooper:state() ) -> oneway_return().
 monitor( State ) ->
 
@@ -347,10 +353,11 @@ monitor( State ) ->
 
 
 
-% @doc Registers a new pre-formatted trace in the (local) trace file.
-%
-% To be called by the trace aggregator.
-%
+-doc """
+Registers a new pre-formatted trace in the (local) trace file.
+
+To be called by the trace aggregator.
+""".
 -spec addTrace( wooper:state(), text_utils:bin_string() ) ->
 								const_oneway_return().
 addTrace( State, NewTrace ) ->
@@ -368,7 +375,7 @@ addTrace( State, NewTrace ) ->
 	% Not the following, which would break the encoding of Unicode messages:
 	%Content = text_utils:format( "~ts",
 	%   [ text_utils:binary_to_string( NewTrace ) ] ),
-	% file_utils:write( ?getAttr(trace_file), Content ),
+	%file_utils:write( ?getAttr(trace_file), Content ),
 
 	% A correct form is instead:
 	file_utils:write_ustring( ?getAttr(trace_file), NewTrace ),
@@ -377,9 +384,10 @@ addTrace( State, NewTrace ) ->
 
 
 
-% @doc Callback triggered when the waiter process detected that the supervision
-% tool has been closed.
-%
+-doc """
+Callback triggered when the waiter process detected that the supervision tool
+has been closed.
+""".
 -spec onMonitoringOver( wooper:state(), pid() ) -> const_oneway_return().
 onMonitoringOver( State, WaiterPid ) ->
 
@@ -395,9 +403,10 @@ onMonitoringOver( State, WaiterPid ) ->
 % Static section:
 
 
-% @doc Creates a trace listener that will synchronize itself to the specified
-% aggregator.
-%
+-doc """
+Creates a trace listener that will synchronize itself to the specified
+aggregator.
+""".
 -spec create( aggregator_pid() ) -> static_return( listener_pid() ).
 create( AggregatorPid ) ->
 

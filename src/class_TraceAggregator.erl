@@ -113,8 +113,9 @@ sent by emitters.
 
 
 
+-doc "PID of a trace aggregator.".
 -type aggregator_pid() :: instance_pid().
-% PID of a trace aggregator.
+
 
 -export_type([ aggregator_pid/0 ]).
 
@@ -124,7 +125,8 @@ sent by emitters.
 		  inspect_fields/1 ]).
 
 
-% Tells whether/when the trace supervision shall be initialised:
+
+-doc "Tells whether/when the trace supervision shall be initialised.".
 -type initialise_supervision() :: boolean() | 'later'.
 
 -export_type([ initialise_supervision/0 ]).
@@ -175,7 +177,8 @@ sent by emitters.
 -define( advanced_traces_format, "~w|~ts|~ts|~ts|~ts|~ts|~ts|~B|~ts~n" ).
 
 
-% Shorthands:
+
+% Type shorthands:
 
 -type ustring() :: text_utils:ustring().
 -type bin_string() :: text_utils:bin_string().
@@ -238,28 +241,28 @@ sent by emitters.
 
 
 
-% @doc Constructs a trace aggregator.
-%
-% Construction parameters are:
-%
-% - TraceFilename is the path of the file in which traces should be written to
-%
-% - TraceSupervisionType is either 'advanced_traces', {'text_traces',
-% 'text_only'} or {'text_traces', 'pdf'}, depending whether LogMX should be used
-% to browse the execution traces, or just a text viewer (possibly with a PDF
-% displaying thereof)
-%
-% - TraceTitle is the title that should be used for traces; mostly used for the
-% PDF output
-%
-% - MaybeRegistrationScope tells whether this trace aggregator will be privately
-% held (hence should not be registered in naming service) - if set to
-% 'undefined', or if it is a registered (locally and/or globally) singleton
-%
-% - IsBatch tells whether the aggregator is run in a batch context; useful when
-% trace type is {text_traces, pdf}, so that this aggregator does not display the
-% produced PDF when in batch mode
-%
+-doc """
+Constructs a trace aggregator.
+
+Construction parameters are:
+
+- TraceFilename is the path of the file in which traces should be written to
+
+- TraceSupervisionType is either 'advanced_traces', {'text_traces', 'text_only'}
+or {'text_traces', 'pdf'}, depending whether LogMX should be used to browse the
+execution traces, or just a text viewer (possibly with a PDF displaying thereof)
+
+- TraceTitle is the title that should be used for traces; mostly used for the
+PDF output
+
+- MaybeRegistrationScope tells whether this trace aggregator will be privately
+held (hence should not be registered in naming service) - if set to 'undefined',
+or if it is a registered (locally and/or globally) singleton
+
+- IsBatch tells whether the aggregator is run in a batch context; useful when
+trace type is {text_traces, pdf}, so that this aggregator does not display the
+produced PDF when in batch mode
+""".
 -spec construct( wooper:state(), file_name(), trace_supervision_type(), title(),
 				 option( registration_scope() ), boolean() ) -> wooper:state().
 construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
@@ -269,32 +272,33 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 
 
 
-% Constructs a trace aggregator, telling whether a trace supervisor shall be
-% created.
-%
-% Construction parameters are:
-%
-% - TraceFilename is the path of the file in which traces should be written to
-%
-% - TraceSupervisionType is either 'advanced_traces', {'text_traces',
-% 'text_only'} or {'text_traces', 'pdf'}, depending whether LogMX should be used
-% to browse the execution traces, or just a text viewer (possibly with a PDF
-% displaying thereof)
-%
-% - TraceTitle is the title that should be used for traces; mostly used for the
-% PDF output
-%
-% - MaybeRegistrationScope tells whether this trace aggregator will be privately
-% held (hence should not be registered in naming service) - if set to
-% 'undefined', or if it is a registered (locally and/or globally) singleton
-%
-% - IsBatch tells whether the aggregator is run in a batch context; useful when
-% trace type is {text_traces,pdf}, so that this aggregator does not display the
-% produced PDF when in batch mode
-%
-% - InitTraceSupervisor tells whether the trace supervisor shall be created (now
-% or later, i.e. at the first renaming of the trace file) or not
-%
+-doc """
+Constructs a trace aggregator, telling whether a trace supervisor shall be
+created.
+
+Construction parameters are:
+
+- TraceFilename is the path of the file in which traces should be written to
+
+- TraceSupervisionType is either 'advanced_traces', {'text_traces',
+'text_only'} or {'text_traces', 'pdf'}, depending whether LogMX should be used
+to browse the execution traces, or just a text viewer (possibly with a PDF
+displaying thereof)
+
+- TraceTitle is the title that should be used for traces; mostly used for the
+PDF output
+
+- MaybeRegistrationScope tells whether this trace aggregator will be privately
+held (hence should not be registered in naming service) - if set to
+'undefined', or if it is a registered (locally and/or globally) singleton
+
+- IsBatch tells whether the aggregator is run in a batch context; useful when
+trace type is {text_traces,pdf}, so that this aggregator does not display the
+produced PDF when in batch mode
+
+- InitTraceSupervisor tells whether the trace supervisor shall be created (now
+or later, i.e. at the first renaming of the trace file) or not
+""".
 % Main constructor:
 -spec construct( wooper:state(), file_name(), trace_supervision_type(), title(),
 		option( registration_scope() ), boolean(), initialise_supervision() ) ->
@@ -472,7 +476,7 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 
 
 
-% @doc Overridden destructor.
+-doc "Overridden destructor.".
 -spec destruct( wooper:state() ) -> wooper:state().
 destruct( State ) ->
 
@@ -583,7 +587,7 @@ destruct( State ) ->
 % Methods section.
 
 
-% @doc Enables the aggregator watchdog, using the defaults.
+-doc "Enables the aggregator watchdog, using the defaults.".
 -spec enableWatchdog( wooper:state() ) -> oneway_return().
 enableWatchdog( State ) ->
 
@@ -595,9 +599,10 @@ enableWatchdog( State ) ->
 
 
 
-% @doc Enables the aggregator watchdog, using the specified check period and the
-% defaults.
-%
+-doc """
+Enables the aggregator watchdog, using the specified check period and the
+defaults.
+""".
 -spec enableWatchdog( wooper:state(), seconds() ) -> oneway_return().
 enableWatchdog( State, Period ) ->
 
@@ -608,9 +613,10 @@ enableWatchdog( State, Period ) ->
 
 
 
-% @doc Enables the aggregator watchdog, using the specified check period and
-% naming information.
-%
+-doc """
+Enables the aggregator watchdog, using the specified check period and naming
+information.
+""".
 -spec enableWatchdog( wooper:state(), registration_name(), look_up_scope(),
 					  seconds() ) -> oneway_return().
 enableWatchdog( State, RegName, LookupScope, Period ) ->
@@ -621,11 +627,12 @@ enableWatchdog( State, RegName, LookupScope, Period ) ->
 
 
 
-% @doc Sends a full trace to this aggregator to have it processed, that is
-% stored or directly written.
-%
-% The nine fields correspond to the ones defined in our trace format.
-%
+-doc """
+Sends a full trace to this aggregator to have it processed, that is stored or
+directly written.
+
+The nine fields correspond to the ones defined in our trace format.
+""".
 -spec send( wooper:state(), pid(), bin_emitter_name(),
 		bin_emitter_categorization(), app_timestamp(), bin_time(),
 		bin_location(), bin_message_categorization(), priority(),
@@ -685,9 +692,10 @@ send( State, TraceEmitterPid, BinTraceEmitterName,
 
 
 
-% @doc Sends a preformatted trace to this aggregator to have it processed, that
-% is stored or directly written.
-%
+-doc """
+Sends a preformatted trace to this aggregator to have it processed, that is
+stored or directly written.
+""".
 -spec sendPreformatted( wooper:state(), preformatted_trace() ) ->
 								const_oneway_return().
 sendPreformatted( State, PreformattedTrace ) ->
@@ -713,12 +721,13 @@ sendPreformatted( State, PreformattedTrace ) ->
 
 
 
-% @doc Sends a full synchronised trace to this aggregator to have it processed,
-% that is stored or directly written.
-%
-% Same as the send/10 oneway, except that a synchronisation message is sent back
-% to the caller.
-%
+-doc """
+Sends a full synchronised trace to this aggregator to have it processed, that is
+stored or directly written.
+
+Same as the send/10 oneway, except that a synchronisation message is sent back
+to the caller.
+""".
 -spec sendSync( wooper:state(), pid(), bin_emitter_name(),
 		bin_emitter_categorization(), app_timestamp(), bin_time(),
 		bin_location(), bin_message_categorization(), priority(),
@@ -787,12 +796,13 @@ sendSync( State, TraceEmitterPid, BinTraceEmitterName,
 
 
 
-% @doc Sends a preformatted, synchronised trace to this aggregator to have it
-% processed, that is stored or directly written.
-%
-% Same as the sendPreformatted/10 oneway, except that a synchronisation message
-% is sent back to the caller.
-%
+-doc """
+Sends a preformatted, synchronised trace to this aggregator to have it
+processed, that is stored or directly written.
+
+Same as the sendPreformatted/10 oneway, except that a synchronisation message is
+sent back to the caller.
+""".
 -spec sendPreformattedSync( wooper:state(), preformatted_trace() ) ->
 			const_request_return( 'trace_aggregator_synchronised' ).
 sendPreformattedSync( State, PreformattedTrace ) ->
@@ -829,18 +839,19 @@ sendPreformattedSync( State, PreformattedTrace ) ->
 
 
 
-% @doc Renames the trace file currently in use.
-%
-% Useful for example when the application requires an identifier to be included
-% in the trace filename in order to discriminate among different runs, or if
-% started with OTP (no parameter given programatically at application start,
-% hence the creation of a supervisor is deferred until a later renaming is
-% done; see the init_supervision attribute).
-%
-% Note: if another process is reading that file (e.g. a trace supervisor), an
-% I/O error will be triggered at its level (hence this is not a solution to
-% transparently rename a file).
-%
+-doc """
+Renames the trace file currently in use.
+
+Useful for example when the application requires an identifier to be included in
+the trace filename in order to discriminate among different runs, or if started
+with OTP (no parameter given programatically at application start, hence the
+creation of a supervisor is deferred until a later renaming is done; see the
+init_supervision attribute).
+
+Note: if another process is reading that file (e.g. a trace supervisor), an I/O
+error will be triggered at its level (hence this is not a solution to
+transparently rename a file).
+""".
 -spec renameTraceFile( wooper:state(), any_file_name() ) -> oneway_return().
 renameTraceFile( State, NewTraceFilename ) when is_binary( NewTraceFilename ) ->
 
@@ -893,10 +904,11 @@ renameTraceFile( State, NewTraceFilename ) ->
 
 
 
-% @doc Returns to the caller the current trace type in use.
-%
-% Useful for example to launch a relevant trace supervision.
-%
+-doc """
+Returns to the caller the current trace type in use.
+
+Useful for example to launch a relevant trace supervision.
+""".
 -spec getTraceType( wooper:state() ) ->
 				const_request_return( { 'notify_trace_type', trace_type() } ).
 getTraceType( State ) ->
@@ -907,10 +919,11 @@ getTraceType( State ) ->
 
 
 
-% @doc Returns to the caller the current trace settings in use.
-%
-% Useful for example to launch a relevant trace supervision.
-%
+-doc """
+Returns to the caller the current trace settings in use.
+
+Useful for example to launch a relevant trace supervision.
+""".
 -spec getTraceSettings( wooper:state() ) -> const_request_return(
 			{ 'notify_trace_settings', bin_file_name(), trace_type() } ).
 getTraceSettings( State ) ->
@@ -922,11 +935,11 @@ getTraceSettings( State ) ->
 
 
 
-% @doc Launches the trace supervisor, with settings that are by design relevant.
-%
-% If possible, it is useful to do so only once the final trace filename is
-% known.
-%
+-doc """
+Launches the trace supervisor, with settings that are by design relevant.
+
+If possible, it is useful to do so only once the final trace filename is known.
+""".
 -spec launchTraceSupervisor( wooper:state() ) ->
 		const_request_return( supervisor_pid() ).
 launchTraceSupervisor( State ) ->
@@ -939,7 +952,7 @@ launchTraceSupervisor( State ) ->
 
 
 
-% @doc Registers the specified trace listener to this aggregator.
+-doc "Registers the specified trace listener to this aggregator.".
 -spec addTraceListener( wooper:state(), listener_pid() ) -> oneway_return().
 addTraceListener( State, ListenerPid ) ->
 
@@ -1048,7 +1061,7 @@ addTraceListener( State, ListenerPid ) ->
 
 
 
-% @doc Removes specified trace listener from this aggregator.
+-doc "Removes specified trace listener from this aggregator.".
 -spec removeTraceListener( wooper:state(), listener_pid() ) -> oneway_return().
 removeTraceListener( State, ListenerPid ) ->
 
@@ -1066,10 +1079,10 @@ removeTraceListener( State, ListenerPid ) ->
 
 
 
-% @doc Requests this aggregator to send a notification as soon as it is ready,
-% that is as soon as its trace file has been created and its first trace been
-% written.
-%
+-doc """
+Requests this aggregator to send a notification as soon as it is ready, that is
+as soon as its trace file has been created and its first trace been written.
+""".
 -spec requestReadyNotification( wooper:state() ) ->
 									const_request_return( 'trace_file_ready' ).
 requestReadyNotification( State ) ->
@@ -1083,12 +1096,13 @@ requestReadyNotification( State ) ->
 
 
 
-% @doc Requests this aggregator to flush any trace not already written in file
-% and to acknowledge this message (like a ping).
-%
-% The purpose is to ensure that all pending operations are performed (e.g. so
-% that any next crash will not result in the loss of traces).
-%
+-doc """
+Requests this aggregator to flush any trace not already written in file and to
+acknowledge this message (like a ping).
+
+The purpose is to ensure that all pending operations are performed (e.g. so that
+any next crash will not result in the loss of traces).
+""".
 -spec sync( wooper:state() ) ->
 				const_request_return( 'trace_aggregator_synchronised' ).
 sync( State ) ->
@@ -1104,11 +1118,11 @@ sync( State ) ->
 
 
 
-% @doc Sets the specified minimum size for the trace file before it can be
-% rotated.
-%
-% A size of zero leads to unconditinal rotation.
-%
+-doc """
+Sets the specified minimum size for the trace file before it can be rotated.
+
+A size of zero leads to unconditinal rotation.
+""".
 -spec setMinimumTraceFileSizeForRotation( wooper:state(), byte_size() ) ->
 												oneway_return().
 setMinimumTraceFileSizeForRotation( State, MinFileSize )
@@ -1123,16 +1137,17 @@ setMinimumTraceFileSizeForRotation( State, MinFileSize )
 
 
 
-% @doc Rotates the current trace file (asynchronous version): provided that its
-% size is above the current threshold, closes the current file, renames it,
-% compresses it and creates a file from scratch to avoid it becomes too
-% large. No trace can be lost in the process.
-%
-% If the current trace file is named 'my_file.traces', its rotated version could
-% be an XZ archive named for example
-% 'my_file.traces.7.2021-1-17-at-22h-14m-00s.xz' (a rotation count then a
-% textual timestamp), located in the same directory.
-%
+-doc """
+Rotates the current trace file (asynchronous version): provided that its size is
+above the current threshold, closes the current file, renames it, compresses it
+and creates a file from scratch to avoid it becomes too large. No trace can be
+lost in the process.
+
+If the current trace file is named 'my_file.traces', its rotated version could
+be an XZ archive named for example
+'my_file.traces.7.2021-1-17-at-22h-14m-00s.xz' (a rotation count then a textual
+timestamp), located in the same directory.
+""".
 -spec rotateTraceFile( wooper:state() ) -> oneway_return().
 rotateTraceFile( State ) ->
 
@@ -1142,16 +1157,17 @@ rotateTraceFile( State ) ->
 
 
 
-% @doc Rotates the current trace file (synchronous version): provided that its
-% size is above the current threshold, closes the current file, renames it,
-% compresses it and creates a file from scratch to avoid it becomes too
-% large. No trace can be lost in the process.
-%
-% If the current trace file is named 'my_file.traces', its rotated version could
-% be an XZ archive named for example
-% 'my_file.traces.7.2021-1-17-at-22h-14m-00s.xz' (a rotation count then a
-% textual timestamp), located in the same directory.
-%
+-doc """
+Rotates the current trace file (synchronous version): provided that its size is
+above the current threshold, closes the current file, renames it, compresses it
+and creates a file from scratch to avoid it becomes too large. No trace can be
+lost in the process.
+
+If the current trace file is named 'my_file.traces', its rotated version could
+be an XZ archive named for example
+'my_file.traces.7.2021-1-17-at-22h-14m-00s.xz' (a rotation count then a textual
+timestamp), located in the same directory.
+""".
 -spec rotateTraceFileSync( wooper:state() ) ->
 		request_return( fallible( { 'trace_file_rotated', bin_file_path() }
 								| 'trace_file_below_min_size' ) ).
@@ -1172,10 +1188,10 @@ rotateTraceFileSync( State ) ->
 
 
 
-
-% @doc Callback triggered, as we trap exits, notably to reduce the risk of being
-% crashed in turn.
-%
+-doc """
+Callback triggered, as we trap exits, notably to reduce the risk of being
+crashed in turn.
+""".
 -spec onWOOPERExitReceived( wooper:state(), pid(),
 							basic_utils:exit_reason() ) -> oneway_return().
 onWOOPERExitReceived( State, StopPid, _ExitType=normal ) ->
@@ -1226,9 +1242,10 @@ onWOOPERExitReceived( State, CrashPid, ExitType ) ->
 % Static section.
 
 
-% @doc Creates the trace aggregator asynchronously, with default settings
-% (advanced traces, global registration and not in batch mode).
-%
+-doc """
+Creates the trace aggregator asynchronously, with default settings (advanced
+traces, global registration and not in batch mode).
+""".
 -spec create( boolean() ) -> static_return( aggregator_pid() ).
 create( UseSynchronousNew ) ->
 
@@ -1238,9 +1255,10 @@ create( UseSynchronousNew ) ->
 
 
 
-% @doc Creates the trace aggregator asynchronously, using specified trace type,
-% and registered globally.
-%
+-doc """
+Creates the trace aggregator asynchronously, using specified trace type, and
+registered globally.
+""".
 -spec create( boolean(), trace_supervision_type() ) ->
 											static_return( aggregator_pid() ).
 create( _UseSynchronousNew=false, TraceSeverity ) ->
@@ -1266,12 +1284,13 @@ create( _UseSynchronousNew=true, TraceSeverity ) ->
 
 
 
-% @doc Returns the PID of the current trace aggregator, supposed to be already
-% available, or an error atom.
-%
-% Waits a bit before giving up: useful when client and aggregator processes are
-% launched almost simultaneously.
-%
+-doc """
+Returns the PID of the current trace aggregator, supposed to be already
+available, or an error atom.
+
+Waits a bit before giving up: useful when client and aggregator processes are
+launched almost simultaneously.
+""".
 -spec try_get_aggregator() ->
 		static_return( 'trace_aggregator_not_found' | aggregator_pid() ).
 try_get_aggregator() ->
@@ -1279,12 +1298,14 @@ try_get_aggregator() ->
 	wooper:return_static( AggRes ).
 
 
-% @doc Returns the PID of the current trace aggregator, supposed to be already
-% available, or throws an exception.
-%
-% Waits a bit before giving up: useful when client and aggregator processes are
-% launched almost simultaneously.
-%
+
+-doc """
+Returns the PID of the current trace aggregator, supposed to be already
+available, or throws an exception.
+
+Waits a bit before giving up: useful when client and aggregator processes are
+launched almost simultaneously.
+""".
 -spec get_aggregator() -> static_return(  aggregator_pid() ).
 get_aggregator() ->
 
@@ -1300,21 +1321,22 @@ get_aggregator() ->
 
 
 
-% @doc Returns the PID of the current trace aggregator, using the default
-% look-up scope, or an error atom.
-%
-% The parameter is a boolean telling whether the aggregator should be created if
-% not available (if true), or if this method should just return a failure
-% notification (if false).
-%
-% Note: to avoid race conditions between concurrent calls to this static method
-% (e.g. due to multiple trace emitter instances created in parallel), an
-% execution might start with a call to this method with a blocking wait until
-% the aggregator pops up in registry services.
-%
-% Waits a bit before giving up: useful when client and aggregator processes are
-% launched almost simultaneously.
-%
+-doc """
+Returns the PID of the current trace aggregator, using the default look-up
+scope, or an error atom.
+
+The parameter is a boolean telling whether the aggregator should be created if
+not available (if true), or if this method should just return a failure
+notification (if false).
+
+Note: to avoid race conditions between concurrent calls to this static method
+(e.g. due to multiple trace emitter instances created in parallel), an execution
+might start with a call to this method with a blocking wait until the aggregator
+pops up in registry services.
+
+Waits a bit before giving up: useful when client and aggregator processes are
+launched almost simultaneously.
+""".
 -spec try_get_aggregator( boolean() ) ->
 			static_return( 'trace_aggregator_launch_failed'
 						 | 'trace_aggregator_not_found' | aggregator_pid() ).
@@ -1324,21 +1346,23 @@ try_get_aggregator( CreateIfNotAvailable ) ->
 	wooper:return_static( AggRes ).
 
 
-% @doc Returns the PID of the current trace aggregator, using the default
-% look-up scope, or throws an exception.
-%
-% The parameter is a boolean telling whether the aggregator should be created if
-% not available (if true), or if this method should just return a failure
-% notification (if false).
-%
-% Note: to avoid race conditions between concurrent calls to this static method
-% (e.g. due to multiple trace emitter instances created in parallel), an
-% execution might start with a call to this method with a blocking wait until
-% the aggregator pops up in registry services.
-%
-% Waits a bit before giving up: useful when client and aggregator processes are
-% launched almost simultaneously.
-%
+
+-doc """
+Returns the PID of the current trace aggregator, using the default look-up
+scope, or throws an exception.
+
+The parameter is a boolean telling whether the aggregator should be created if
+not available (if true), or if this method should just return a failure
+notification (if false).
+
+Note: to avoid race conditions between concurrent calls to this static method
+(e.g. due to multiple trace emitter instances created in parallel), an execution
+might start with a call to this method with a blocking wait until the aggregator
+pops up in registry services.
+
+Waits a bit before giving up: useful when client and aggregator processes are
+launched almost simultaneously.
+""".
 -spec get_aggregator( boolean() ) -> static_return( aggregator_pid() ).
 get_aggregator( CreateIfNotAvailable ) ->
 	case try_get_aggregator( CreateIfNotAvailable ) of
@@ -1353,21 +1377,24 @@ get_aggregator( CreateIfNotAvailable ) ->
 
 
 
-% @doc Returns the PID of the current trace aggregator, using specified look-up
-% scope, or an error atom.
-%
-% The parameter is a boolean telling whether the aggregator should be created if
-% not available (if true), or if this method should just return a failure
-% notification (if false).
-%
-% Note: to avoid race conditions between concurrent calls to this static method
-% (e.g. due to multiple trace emitter instances created in parallel), an
-% execution might start with a call to this method with a blocking wait until
-% the aggregator pops up in registry services.
-%
-% Waits a bit before giving up: useful when client and aggregator processes are
-% launched almost simultaneously.
-%
+-doc """
+Returns the PID of the current trace aggregator, using specified look-up scope,
+or an error atom.
+
+The parameter is a boolean telling whether the aggregator should be created if
+not available (if true), or if this method should just return a failure
+notification (if false).
+
+Note: to avoid race conditions between concurrent calls to this static method
+(e.g. due to multiple trace emitter instances created in parallel), an execution
+might start with a call to this method with a blocking wait until the aggregator
+pops up in registry services.
+
+Waits a bit before giving up: useful when client and aggregator processes are
+launched almost simultaneously.
+""".
+
+
 -spec try_get_aggregator( boolean(), look_up_scope() ) ->
 			static_return( 'trace_aggregator_launch_failed'
 						 | 'trace_aggregator_not_found' | aggregator_pid() ).
@@ -1428,21 +1455,22 @@ try_get_aggregator( CreateIfNotAvailable, LookupScope ) ->
 
 
 
-% @doc Returns the PID of the current trace aggregator, using specified look-up
-% scope, or throws an exception.
-%
-% The parameter is a boolean telling whether the aggregator should be created if
-% not available (if true), or if this method should just return a failure
-% notification (if false).
-%
-% Note: to avoid race conditions between concurrent calls to this static method
-% (e.g. due to multiple trace emitter instances created in parallel), an
-% execution might start with a call to this method with a blocking wait until
-% the aggregator pops up in registry services.
-%
-% Waits a bit before giving up: useful when client and aggregator processes are
-% launched almost simultaneously.
-%
+-doc """
+Returns the PID of the current trace aggregator, using specified look-up scope,
+or throws an exception.
+
+The parameter is a boolean telling whether the aggregator should be created if
+not available (if true), or if this method should just return a failure
+notification (if false).
+
+Note: to avoid race conditions between concurrent calls to this static method
+(e.g. due to multiple trace emitter instances created in parallel), an execution
+might start with a call to this method with a blocking wait until the aggregator
+pops up in registry services.
+
+Waits a bit before giving up: useful when client and aggregator processes are
+launched almost simultaneously.
+""".
 -spec get_aggregator( boolean(), look_up_scope() ) ->
 								static_return( aggregator_pid() ).
 get_aggregator( CreateIfNotAvailable, LookupScope ) ->
@@ -1458,10 +1486,9 @@ get_aggregator( CreateIfNotAvailable, LookupScope ) ->
 
 
 
-
-% @doc Deletes synchronously the trace aggregator, expected to be registered
-% globally.
-%
+-doc """
+Deletes synchronously the trace aggregator, expected to be registered globally.
+""".
 -spec remove() -> static_return( 'deleted' | 'trace_aggregator_not_found' ).
 remove() ->
 
@@ -1482,10 +1509,11 @@ remove() ->
 
 
 
-% @doc Returns the base option for trace writing.
-%
-% (static method, for sharing with for example the trace listener class)
-%
+-doc """
+Returns the base option for trace writing.
+
+(static method, for sharing with for example the trace listener class)
+""".
 -spec get_trace_file_base_options() ->
 							static_return( [ file_utils:file_open_mode() ] ).
 get_trace_file_base_options() ->
@@ -1511,7 +1539,7 @@ get_trace_file_base_options() ->
 % Other functions.
 
 
-% @doc Code run by the process that monitors the aggregator, overloading-wise.
+-doc "Code run by the process that monitors the aggregator, overloading-wise.".
 -spec overload_monitor_main_loop( aggregator_pid() ) -> no_return().
 overload_monitor_main_loop( AggregatorPid ) ->
 
@@ -1542,10 +1570,11 @@ overload_monitor_main_loop( AggregatorPid ) ->
 
 
 
-% @doc Code run by the process that monitors the aggregator, watchdog-wise: like
-% a client, tries to look-up that aggregator and checks that its PID is still
-% alive and the same.
-%
+-doc """
+Code run by the process that monitors the aggregator, watchdog-wise: like a
+client, tries to look-up that aggregator and checks that its PID is still alive
+and the same.
+""".
 -spec watchdog_main_loop( registration_name(), look_up_scope(),
 						  aggregator_pid(), milliseconds() ) -> no_return().
 watchdog_main_loop( RegName, RegScope, AggregatorPid, MsPeriod ) ->
@@ -1693,12 +1722,12 @@ initialise_supervision( State ) ->
 
 
 
+-doc """
+Tells whether this aggregator shall be used as the default standard logger
+handler.
 
-% @doc Tells whether this aggregator shall be used as the default standard
-% logger handler.
-%
-% Centralised to avoid unmatched setting/unsetting of the standard handler.
-%
+Centralised to avoid unmatched setting/unsetting of the standard handler.
+""".
 -spec override_standard_logger_handler( registration_scope() ) -> boolean().
 
 % We relaxed the "global" constraint, as we do not see anymore its necessity;
@@ -1719,7 +1748,7 @@ override_standard_logger_handler( _RegScope ) ->
 
 
 
-% Enables the aggregator watchdog.
+-doc "Enables the aggregator watchdog.".
 -spec enable_watchdog( registration_name(), look_up_scope(), seconds(),
 					   wooper:state() ) -> wooper:state().
 enable_watchdog( RegName, LookupScope, Period, State ) ->
@@ -1753,12 +1782,13 @@ enable_watchdog( RegName, LookupScope, Period, State ) ->
 
 
 
-% @doc Sends specified trace immediately from the aggregator itself (hence to
-% itself); this is done directly, in order to write it before any trace message
-% that would be waiting in the mailbox.
-%
-% (helper)
-%
+-doc """
+Sends the specified trace immediately from the aggregator itself (hence to
+itself); this is done directly, in order to write it before any trace message
+that would be waiting in the mailbox.
+
+(helper)
+""".
 -spec send_internal_immediate( trace_severity(), message(),
 							   wooper:state() ) -> wooper:state().
 send_internal_immediate( TraceSeverity, Message, State ) ->
@@ -1784,10 +1814,11 @@ send_internal_immediate( TraceSeverity, Message, State ) ->
 
 
 
-% @doc Sends format-based traces from the aggregator itself (hence to itself).
-%
-% (helper)
-%
+-doc """
+Sends format-based traces from the aggregator itself (hence to itself).
+
+(helper)
+""".
 -spec send_internal_immediate( trace_severity(), format_string(),
 						format_values(), wooper:state() ) -> wooper:state().
 send_internal_immediate( TraceSeverity, MessageFormat, MessageValues, State ) ->
@@ -1796,12 +1827,13 @@ send_internal_immediate( TraceSeverity, MessageFormat, MessageValues, State ) ->
 
 
 
-% @doc Sends traces immediately from the aggregator itself (hence to itself),
-% through a message sending, so that a trace can be sent even if at that point
-% no trace file is available for writing.
-%
-% (helper)
-%
+-doc """
+Sends traces immediately from the aggregator itself (hence to itself), through a
+message sending, so that a trace can be sent even if at that point no trace file
+is available for writing.
+
+(helper)
+""".
 -spec send_internal_deferred( trace_severity(), message() ) -> void().
 send_internal_deferred( TraceSeverity, Message ) ->
 
@@ -1824,10 +1856,11 @@ send_internal_deferred( TraceSeverity, Message ) ->
 
 
 
-% @doc Sends format-based traces from the aggregator itself (hence to itself).
-%
-% (helper)
-%
+-doc """
+Sends format-based traces from the aggregator itself (hence to itself).
+
+(helper)
+""".
 -spec send_internal_deferred( trace_severity(), format_string(),
 							  format_values() ) -> void().
 send_internal_deferred( TraceSeverity, MessageFormat, MessageValues ) ->
@@ -1836,11 +1869,11 @@ send_internal_deferred( TraceSeverity, MessageFormat, MessageValues ) ->
 
 
 
+-doc """
+Takes care of any header in the trace header.
 
-% @doc Takes care of any header in the trace header.
-%
-% (helper)
-%
+(helper)
+""".
 -spec manage_trace_header( wooper:state() ) -> wooper:state().
 manage_trace_header( State ) ->
 
@@ -1897,10 +1930,11 @@ manage_trace_header( State ) ->
 
 
 
-% @doc Takes care of any header in the trace header.
-%
-% (helper)
-%
+-doc """
+Takes care of any header in the trace header.
+
+(helper)
+""".
 -spec manage_trace_footer( wooper:state() ) -> wooper:state().
 manage_trace_footer( State ) ->
 
@@ -1921,14 +1955,16 @@ manage_trace_footer( State ) ->
 
 
 
-% @doc Returns the typical separator between array rows.
+-doc "Returns the typical separator between array rows.".
 get_row_separator() ->
 	get_row_separator( $- ).
 
 
-% @doc Returns the typical separator between array rows, with specified dash
-% element to represent horizontal lines.
-%
+
+-doc """
+Returns the typical separator between array rows, with specified dash element to
+represent horizontal lines.
+""".
 get_row_separator( DashType ) ->
 	[ $+ ] ++ string:chars( DashType, ?pid_width )
 		++ [ $+ ] ++ string:chars( DashType, ?emitter_name_width )
@@ -1940,7 +1976,7 @@ get_row_separator( DashType ) ->
 
 
 
-% @doc Formats the specified trace according to the specified trace type.
+-doc "Formats the specified trace according to the specified trace type.".
 -spec format_trace_for( trace_supervision_type(),
 		{ emitter_pid(), bin_emitter_name(), bin_emitter_categorization(),
 		  app_timestamp(), bin_time(), bin_location(),
@@ -1997,7 +2033,7 @@ format_trace_for( { _TraceType=text_traces, _TargetFormat }, { TraceEmitterPid,
 
 
 
-% @doc Formats specified list of linesets.
+-doc "Formats the specified list of linesets.".
 format_linesets( PidLines, EmitterNameLines, AppTimestampLines, TimeLines,
 				 PriorityLines, MessageLines ) ->
 
@@ -2022,8 +2058,7 @@ format_linesets( PidLines, EmitterNameLines, AppTimestampLines, TimeLines,
 
 
 
-% @doc Returns a list of full lines, made from the lines of each column.
-%
+-doc "Returns a list of full lines, made from the lines of each column.".
 % Here we finished to handle all lines (none remaining):
 format_full_lines( _Rows, _Acc=[], _RemainingLineCount=0, Res, CurrentLine ) ->
 	lists:reverse( [ CurrentLine | Res ] ) ;
@@ -2047,18 +2082,18 @@ format_full_lines( _Rows=[ { [ Line | OtherLines ], Width } | ColumnPairs ],
 
 
 
-% @doc Formats directly, typically client-side, a message from the specified
-% information, assuming a trace supervision type of type 'advanced_traces'.
-%
-% Doing so should be more efficient that sending as messages separate
-% parameters: the resulting binary should be smaller than the sum of these
-% terms, and the processing is shifted from a singleton (the trace aggregator)
-% to the many emitters involved.
-%
-% The target trace supervision type is the only degree of freedom that
-% intervenes (the only attribute from the aggregator that is to be taken into
-% account).
-%
+-doc """
+Formats directly, typically client-side, a message from the specified
+information, assuming a trace supervision type of type 'advanced_traces'.
+
+Doing so should be more efficient that sending as messages separate parameters:
+the resulting binary should be smaller than the sum of these terms, and the
+processing is shifted from a singleton (the trace aggregator) to the many
+emitters involved.
+
+The target trace supervision type is the only degree of freedom that intervenes
+(the only attribute from the aggregator that is to be taken into account).
+""".
 -spec format_as_advanced_trace( emitter_pid(), bin_emitter_name(),
 	bin_emitter_categorization(), app_timestamp(), bin_time(), bin_location(),
 	bin_message_categorization(), priority(), bin_message() ) ->
@@ -2092,10 +2127,11 @@ format_as_advanced_trace( TraceEmitterPid, BinTraceEmitterName,
 
 
 
-% @doc Opens the specified trace file for writing from scratch.
-%
-% (helper)
-%
+-doc """
+Opens the specified trace file for writing from scratch.
+
+(helper)
+""".
 open_trace_file( TraceFilename ) ->
 
 	%trace_utils:debug_fmt( "Creating trace file '~ts'.", [ TraceFilename ] ),
@@ -2106,10 +2142,11 @@ open_trace_file( TraceFilename ) ->
 
 
 
-% @doc Reopens the specified trace file for writing from last position.
-%
-% (helper)
-%
+-doc """
+Reopens the specified trace file for writing from last position.
+
+(helper)
+""".
 reopen_trace_file( TraceFilename ) ->
 
 	%trace_utils:debug_fmt( "Reopening trace file '~ts'.", [ TraceFilename ] ),
@@ -2174,14 +2211,15 @@ rotate_trace_file( State ) ->
 
 
 
-% @doc Allows inspecting the trace messages, which are often copied and/or sent
-% over the network, hence must be of minimal size.
-%
-% Use with: make traceManagement_run $BATCH|grep '(list)' to ensure that
-% binaries are used whenever possible, instead of strings.
-%
-% (helper)
-%
+-doc """
+Allows inspecting the trace messages, which are often copied and/or sent over
+the network, hence must be of minimal size.
+
+Use with: make traceManagement_run $BATCH|grep '(list)' to ensure that binaries
+are used whenever possible, instead of strings.
+
+(helper)
+""".
 inspect_fields( FieldsReceived ) ->
 
 	AllVars = lists:flatmap( fun( F ) ->
@@ -2203,12 +2241,13 @@ inspect_fields( FieldsReceived ) ->
 
 
 
-% @doc Tells whether this aggregator was built with the traces being activated
-% (presumably at least most BEAMs are expected to be built with that same
-% setting).
-%
-% (helper)
-%
+-doc """
+Tells whether this aggregator was built with the traces being activated
+(presumably at least most BEAMs are expected to be built with that same
+setting).
+
+(helper)
+""".
 -spec is_tracing_activated() -> boolean().
 
 

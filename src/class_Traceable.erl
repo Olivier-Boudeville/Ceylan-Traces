@@ -101,7 +101,7 @@ it explicitly, for clarity reasons.
 
 
 
-% Shorthands:
+% Type shorthands:
 
 -type ustring() :: text_utils:ustring().
 
@@ -110,13 +110,14 @@ it explicitly, for clarity reasons.
 
 
 
-% @doc Constructs a traceable instance.
-%
-% Note: if wanting this instance to use any trace emitter machinery (that it
-% would have for any reason), this constructor (and more generally any
-% trace-sending operation) one should be called *after* the class_TraceEmitter
-% one (that is on a state that is already the one of a trace emitter).
-%
+-doc """
+Constructs a traceable instance.
+
+Note: if wanting this instance to use any trace emitter machinery (that it would
+have for any reason), this constructor (and more generally any trace-sending
+operation) one should be called *after* the class_TraceEmitter one (that is on a
+state that is already the one of a trace emitter).
+""".
 -spec construct( wooper:state() ) -> wooper:state().
 construct( State ) ->
 
@@ -153,12 +154,13 @@ construct( State ) ->
 % Helper section.
 
 
-% @doc Sends a trace from that traceable instance.
-%
-% Message is a plain string.
-%
-% (helper)
-%
+-doc """
+Sends a trace from that traceable instance.
+
+Message is a plain string.
+
+(helper)
+""".
 -spec send( trace_severity(), wooper:state(), message() ) -> void().
 send( Severity, State, Message ) ->
 	% Switching to the best option:
@@ -173,13 +175,15 @@ send( Severity, State, Message ) ->
 	end.
 
 
-% @doc Sends a trace from that traceable instance, echoing it through basic
-% traces as well.
-%
-% Message is a plain string.
-%
-% (helper)
-%
+
+-doc """
+Sends a trace from that traceable instance, echoing it through basic traces as
+well.
+
+Message is a plain string.
+
+(helper)
+""".
 -spec send_safe( trace_severity(), wooper:state(), message() ) -> void().
 send_safe( Severity, State, Message ) ->
 	% Switching to the best option:
@@ -199,11 +203,12 @@ send_safe( Severity, State, Message ) ->
 % whether or not it implements the Traceable interface.
 
 
-% @doc Returns a textual element of description of the corresponding instance,
-% should it implement the Traceable interface.
-%
-% (exported helper)
-%
+-doc """
+Returns a textual element of description of the corresponding instance, should
+it implement the Traceable interface.
+
+(exported helper)
+""".
 -spec to_maybe_string( wooper:state() ) -> option( ustring() ).
 to_maybe_string( State ) ->
 	case ?getMaybeAttr(name) of

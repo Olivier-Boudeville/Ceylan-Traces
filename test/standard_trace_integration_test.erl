@@ -38,14 +38,15 @@ Test of the integration of the standard Erlang logs into the Traces subsystem.
 
 
 
-% @doc Runs the test.
-%
-% Sort of a counterpart of Myriad's trace_utils_test.erl.
-%
-% Not that if this test fails because it is not able to remove an handler, it
-% might be the sign that some traces could not be properly sent. This should be
-% displayed in the traces themselves.
-%
+-doc """
+Runs the test.
+
+Sort of a counterpart of Myriad's trace_utils_test.erl.
+
+Not that if this test fails because it is not able to remove an handler, it
+might be the sign that some traces could not be properly sent. This should be
+displayed in the traces themselves.
+""".
 -spec run() -> no_return().
 run() ->
 

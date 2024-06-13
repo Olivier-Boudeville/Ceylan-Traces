@@ -37,7 +37,7 @@ any OTP context).
 
 
 
-% Implementing the (active, OTP) application behaviour:
+% Implementing the (active, OTP) application behaviour.
 %
 % (see https://erlang.org/doc/design_principles/applications.html)
 %
@@ -52,10 +52,12 @@ any OTP context).
 -include("class_TraceAggregator.hrl").
 
 
-% @doc Starts the Traces services.
-%
-% Note: RestartType and StartArgs at least currently ignored.
-%
+
+-doc """
+Starts the Traces services.
+
+Note: RestartType and StartArgs at least currently ignored.
+""".
 -spec start( application:start_type(), StartArgs :: term() ) -> { 'ok', pid() }
 		| { 'ok', pid() } | { 'error', Reason :: term() }.
 start( RestartType, StartArgs ) ->
@@ -97,7 +99,7 @@ start( RestartType, StartArgs ) ->
 
 
 
-% @doc Stops the Traces services.
+-doc "Stops the Traces services.".
 -spec stop( State :: term() ) -> void().
 stop( State ) ->
 

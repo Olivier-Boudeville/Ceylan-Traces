@@ -43,7 +43,8 @@ for that).
 -include("traces.hrl").
 
 
-% @doc Actual test.
+
+-doc "Actual test.".
 test_traces_application( OrderedAppNames ) ->
 
 	test_facilities:display( "Starting the Traces OTP active application." ),
@@ -127,10 +128,11 @@ test_traces_application( OrderedAppNames ) ->
 
 
 
-% Note that the traces.app, wooper.app and myriad.app files will have to be
-% found and used for this test to succeed: Traces, WOOPER and Myriad must be
-% already available as prerequisite, fully-built OTP applications.
-%
+-doc """
+Note that the traces.app, wooper.app and myriad.app files will have to be found
+and used for this test to succeed: Traces, WOOPER and Myriad must be already
+available as prerequisite, fully-built OTP applications.
+""".
 -spec run() -> no_return().
 run() ->
 

@@ -49,7 +49,7 @@ clash).
 -include("class_TraceAggregator.hrl").
 
 
-% Shorthands:
+% Type shorthands:
 
 -type three_digit_version() :: basic_utils:three_digit_version().
 -type module_name() :: basic_utils:module_name() .
@@ -67,13 +67,15 @@ clash).
 
 % Version-related functions.
 
-% @doc Returns the version of the Traces library being used.
+
+-doc "Returns the version of the Traces library being used.".
 -spec get_traces_version() -> three_digit_version().
 get_traces_version() ->
 	basic_utils:parse_version( get_traces_version_string() ).
 
 
-% @doc Returns the version of the Traces library being used, as a string.
+
+-doc "Returns the version of the Traces library being used, as a string.".
 -spec get_traces_version_string() -> ustring().
 get_traces_version_string() ->
 	% As defined (uniquely) in GNUmakevars.inc:
@@ -81,9 +83,10 @@ get_traces_version_string() ->
 
 
 
-% @doc Returns the registration scope that applies to the trace aggregator in
-% the current context.
-%
+-doc """
+Returns the registration scope that applies to the trace aggregator in the
+current context.
+""".
 -spec get_aggregator_registration_scope() -> registration_scope().
 get_aggregator_registration_scope() ->
 
@@ -151,9 +154,10 @@ get_aggregator_registration_scope() ->
 
 
 
-% @doc Returns the look-up scope that applies to the trace aggregator in the
-% current context.
-%
+-doc """
+Returns the look-up scope that applies to the trace aggregator in the current
+context.
+""".
 -spec get_aggregator_look_up_scope() -> look_up_scope().
 get_aggregator_look_up_scope() ->
 	naming_utils:registration_to_look_up_scope(
@@ -161,17 +165,17 @@ get_aggregator_look_up_scope() ->
 
 
 
-% @doc Names the trace file currently managed by the trace aggregator according
-% to the specified module name. Returns, if useful, the new trace filename and
-% the PID of the trace aggregator.
-%
-% Note: the aggregator is supposed to have been launched with the 'later'
-% initial supervision setting, and will be looked-up according to our
-% scope conventions.
-%
-% Typically useful from an OTP context, where the Traces application is started
-% without being able to defined programatically the resulting trace file.
-%
+-doc """
+Names the trace file currently managed by the trace aggregator according to the
+specified module name. Returns, if useful, the new trace filename and the PID of
+the trace aggregator.
+
+Note: the aggregator is supposed to have been launched with the 'later' initial
+supervision setting, and will be looked-up according to our scope conventions.
+
+Typically useful from an OTP context, where the Traces application is started
+without being able to defined programatically the resulting trace file.
+""".
 -spec name_trace_file_from( module_name() ) ->
 								{ bin_file_name(), aggregator_pid() }.
 name_trace_file_from( ModName ) ->
@@ -180,16 +184,17 @@ name_trace_file_from( ModName ) ->
 
 
 
-% @doc Names the trace file currently managed by the trace aggregator according
-% to the specified module name and scope. Returns, if useful, the new trace
-% filename and the PID of the trace aggregator.
-%
-% Note: the aggregator is supposed to have been launched with the 'later'
-% initial supervision setting.
-%
-% Typically useful from an OTP context, where the Traces application is started
-% without being able to defined programatically the resulting trace file.
-%
+-doc """
+Names the trace file currently managed by the trace aggregator according to the
+specified module name and scope. Returns, if useful, the new trace filename and
+the PID of the trace aggregator.
+
+Note: the aggregator is supposed to have been launched with the 'later' initial
+supervision setting.
+
+Typically useful from an OTP context, where the Traces application is started
+without being able to defined programatically the resulting trace file.
+""".
 -spec name_trace_file_from( module_name(), look_up_scope() ) ->
 									{ bin_file_name(), aggregator_pid() }.
 name_trace_file_from( ModName, AggLookupScope ) ->

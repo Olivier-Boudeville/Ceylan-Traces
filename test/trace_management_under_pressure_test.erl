@@ -62,12 +62,12 @@ send_traces( TraceEmitters, SequenceCount ) ->
 
 
 
-% @doc Run the tests.
-%
-% Note: this test is among the only ones that do not use the trace
-% functionalities for their own behaviours (since it is the subject of these
-% tests).
-%
+-doc """
+Runs the tests.
+
+Note: this test is among the only ones that do not use the trace functionalities
+for their own behaviours (since it is the subject of these tests).
+""".
 -spec run() -> no_return().
 run() ->
 
