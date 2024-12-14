@@ -55,9 +55,9 @@ endif
 # By default, they are enabled.
 #
 ifeq ($(ENABLE_TRACES),true)
-	ENABLE_TRACE_OPT := -Dtracing_activated
+	ENABLE_TRACES_OPT := -Dtracing_activated
 else
-	ENABLE_TRACE_OPT :=
+	ENABLE_TRACES_OPT :=
 endif
 
 
@@ -201,7 +201,7 @@ endif
 
 
 
-ERLANG_COMPILER_OPT_BASE += $(ENABLE_TRACE_OPT)
+ERLANG_COMPILER_OPT_BASE += $(ENABLE_TRACES_OPT)
 
 
 # Strangely not taken into account by the compiler, hence commented-out here and
