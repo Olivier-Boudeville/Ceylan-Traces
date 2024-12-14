@@ -230,7 +230,7 @@ stored/written by it.
 
 -doc """
 Constructs a trace emitter, from EmitterInit, which must be here a pair made of
-this name and another plain string, its emitter categorization, listing
+its name and its emitter categorization (both any_string()), listing
 increasingly detailed sub-categories about this trace emitter, separated by dots
 (e.g. "topics.sports.basketball.coach").
 
