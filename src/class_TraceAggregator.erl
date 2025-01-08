@@ -467,7 +467,7 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 			TraceState;
 
 		false ->
-			send_internal_immediate( warning, "Note that this trace aggregator "
+			send_internal_immediate( notice, "Note that this trace aggregator "
 				"has been built with the trace system being deactivated, "
 				"hinting that the overall codebase is probably in the same "
 				"case (hence a lot less talkative).", TraceState )
