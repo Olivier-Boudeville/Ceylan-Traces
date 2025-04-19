@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.20.1: https://docutils.sourceforge.io/" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
 <meta content="Traces, log, browse, emit, layer, generic, general-purpose, helper code, library, layer" name="keywords" />
 <title>Welcome to the Ceylan-Traces documentation</title>
 <link rel="stylesheet" href="pygments-default.css" type="text/css" />
@@ -23,7 +23,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Organisation:</th><td class="field-body"><p class="first">Copyright (C) 2010-2024 Olivier Boudeville</p>
+<tr class="field"><th class="field-name">Organisation:</th><td class="field-body"><p class="first">Copyright (C) 2010-2025 Olivier Boudeville</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Contact:</th><td class="field-body"><p class="first">about (dash) traces (at) esperide (dot) com</p>
@@ -32,10 +32,10 @@
 <tr class="field"><th class="field-name">Creation date:</th><td class="field-body"><p class="first">Sunday, August 15, 2010</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Sunday, January 14, 2024</p>
+<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Saturday, April 19, 2025</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">1.0.21</p>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">1.0.24</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Status:</th><td class="field-body"><p class="first">Stable</p>
@@ -58,7 +58,7 @@ The next level of information is either to browse the <a class="reference extern
 <p></p>
 <p><span class="raw-html"><a name="traces_toc"></a></span></p>
 <div class="contents topic" id="topic-1">
-<span id="table-of-contents"></span><p class="topic-title"><strong>Table of Contents</strong></p>
+<span id="table-of-contents"></span><p class="topic-title"><a class="reference internal" href="#top"><strong>Table of Contents</strong></a></p>
 <ul class="simple">
 <li><a class="reference internal" href="#overview" id="toc-entry-1">Overview</a></li>
 <li><a class="reference internal" href="#trace-severities" id="toc-entry-2">Trace Severities</a></li>
@@ -105,22 +105,17 @@ The next level of information is either to browse the <a class="reference extern
 </ul>
 </li>
 <li><a class="reference internal" href="#testing-traces" id="toc-entry-33">Testing Traces</a></li>
-<li><a class="reference internal" href="#troubleshooting" id="toc-entry-34">Troubleshooting</a><ul>
-<li><a class="reference internal" href="#lost-traces" id="toc-entry-35">Lost Traces</a></li>
-<li><a class="reference internal" href="#duplicated-traces" id="toc-entry-36">Duplicated Traces</a></li>
-<li><a class="reference internal" href="#lost-logmx-settings" id="toc-entry-37">Lost LogMX Settings</a></li>
+<li><a class="reference internal" href="#trace-supervisors" id="toc-entry-34">Trace Supervisors</a></li>
+<li><a class="reference internal" href="#troubleshooting" id="toc-entry-35">Troubleshooting</a><ul>
+<li><a class="reference internal" href="#lost-traces" id="toc-entry-36">Lost Traces</a></li>
+<li><a class="reference internal" href="#duplicated-traces" id="toc-entry-37">Duplicated Traces</a></li>
+<li><a class="reference internal" href="#lost-logmx-settings" id="toc-entry-38">Lost LogMX Settings</a></li>
+<li><a class="reference internal" href="#java-error-when-launching-logmx" id="toc-entry-39">Java Error When Launching LogMX</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#troubleshooting-1" id="toc-entry-38">Troubleshooting</a><ul>
-<li><a class="reference internal" href="#lost-traces-1" id="toc-entry-39">Lost Traces</a></li>
-<li><a class="reference internal" href="#duplicated-traces-1" id="toc-entry-40">Duplicated Traces</a></li>
-<li><a class="reference internal" href="#lost-logmx-settings-1" id="toc-entry-41">Lost LogMX Settings</a></li>
-<li><a class="reference internal" href="#java-error-when-launching-logmx" id="toc-entry-42">Java Error When Launching LogMX</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#support" id="toc-entry-43">Support</a></li>
-<li><a class="reference internal" href="#please-react" id="toc-entry-44">Please React!</a></li>
-<li><a class="reference internal" href="#ending-word" id="toc-entry-45">Ending Word</a></li>
+<li><a class="reference internal" href="#support" id="toc-entry-40">Support</a></li>
+<li><a class="reference internal" href="#please-react" id="toc-entry-41">Please React!</a></li>
+<li><a class="reference internal" href="#ending-word" id="toc-entry-42">Ending Word</a></li>
 </ul>
 </div>
 <p></p>
@@ -381,7 +376,7 @@ The next level of information is either to browse the <a class="reference extern
 <p>Indeed the tool that generally we use for trace browsing is <a class="reference external" href="http://www.logmx.com/">LogMX</a> (the only tool that we use that is not free software, as we find it convenient), which we integrated:</p>
 <p><span class="raw-html"><center><img src="logmx-interface.png" id="responsive-image-full"></img></center></span>
 </p>
-<p>We implemented a Java-based parser of our trace format for LogMX (see <tt class="docutils literal">CeylanTraceParser.java</tt>):</p>
+<p>We implemented a Java-based parser of our trace format for LogMX (see <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/logmx/CeylanTraceParser.java">CeylanTraceParser.java</a>):</p>
 <p><span class="raw-html"><center><img src="logmx-levels.png" id="responsive-image-large"></img></center></span>
 </p>
 <p>Traces can be browsed with this tool:</p>
@@ -562,47 +557,38 @@ $<span class="w"> </span>make<span class="w"> </span><span class="nb">test</span
 Reciprocally this procedure applies to the projects based on it (e.g. <a class="reference external" href="https://us-web.esperide.org/">US-Web</a>), so in terms of usability, confidence should be high.</p>
 </div>
 </div>
+<div class="section" id="trace-supervisors">
+<h1><a class="toc-backref" href="#toc-entry-34">Trace Supervisors</a></h1>
+<p>Currently, in practice, traces may be browsed as simple text files, PDF files or Traces (<tt class="docutils literal">*.traces</tt>) files (thus following the <a class="reference external" href="#internal-trace-format">Traces file format</a>, which is currently read only by our corresponding <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/logmx/CeylanTraceParser.java">trace parser</a>).</p>
+<p>We certainly recommend LogMX - whose only constraint is to be a <a class="reference external" href="https://logmx.com/buy">commercial tool</a>.</p>
+<p>We did not really find very relevant open-source alternatives (they would have notably to be feature-rich, stable, actively maintained, distributed with a suitable free software license.</p>
+<p>The best contenders that we identified are:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/otros-systems/otroslogviewer">OtrosLogViewer</a></li>
+<li><a class="reference external" href="https://logging.apache.org/chainsaw/2.x/">Apache Chainsaw v2</a></li>
+</ul>
+</div>
 <div class="section" id="troubleshooting">
-<h1><a class="toc-backref" href="#toc-entry-34">Troubleshooting</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-35">Troubleshooting</a></h1>
 <div class="section" id="lost-traces">
-<h2><a class="toc-backref" href="#toc-entry-35">Lost Traces</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-36">Lost Traces</a></h2>
 <p>If having sent traces that cannot be found through the trace supervision (or that even disappear live!), most probably that they were properly sent, collected and stored, but that they were too numerous to be displayed.</p>
 <p>In LogMX, this can be seen in the bottom-right status bar, where a fully-filled red rectangle shows the percentage of the maximum number of entries currently met: <tt class="docutils literal">100%</tt> most likely means that too many traces were to be displayed for the current settings, and thus that latter traces replaced former ones.</p>
 <p>A solution is either to send less traces, or to increase that display threshold, either directly in to the LogMX interface (by entering an higher value on the left of said rectangle), or in the <tt class="docutils literal">logmx.properties</tt> configuration file, by setting its <tt class="docutils literal">autoRefreshEntriesLimit</tt> attribute to an higher value.</p>
 <p>A related setting is the <a class="reference internal" href="#max-memory">max memory</a> that the (Java) configuration of LogMX allows.</p>
 </div>
 <div class="section" id="duplicated-traces">
-<h2><a class="toc-backref" href="#toc-entry-36">Duplicated Traces</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-37">Duplicated Traces</a></h2>
 <p>In rather rare contexts (typically when requesting LogMX to focus on the last entries, whereas dozens of thousands of them are added), the trace supervision may show duplicated traces.</p>
 <p>For example, an emitter that sent 6 traces will be marked as having sent 8 of them, and a pair of successive traces will be shown twice (first that pair, then other traces may interleave, then the pair will be listed again), with non-duplicated IDs (as shown in the leftmost LogMX column).</p>
 <p>It is just an artefact due to this specific execution of LogMX though: one can check that reading this file again, but this time as a whole (instead of live) does not show duplicated traces anymore; indeed these traces were actually stored by Ceylan-Traces in the <tt class="docutils literal">*.traces</tt> file only once.</p>
 </div>
 <div class="section" id="lost-logmx-settings">
-<h2><a class="toc-backref" href="#toc-entry-37">Lost LogMX Settings</a></h2>
-<p>LogMX will write its configuration files (notably <tt class="docutils literal">logmx.properties</tt>) when shutdown. So before modifying any of these files, ensure first that no LogMX instance is still running (otherwise one's changes will be overwritten).</p>
-</div>
-</div>
-<div class="section" id="troubleshooting-1">
-<h1><a class="toc-backref" href="#toc-entry-38">Troubleshooting</a></h1>
-<div class="section" id="lost-traces-1">
-<h2><a class="toc-backref" href="#toc-entry-39">Lost Traces</a></h2>
-<p>If having sent traces that cannot be found through the trace supervision (or that even disappear live!), most probably that they were properly sent, collected and stored, but that they were too numerous to be displayed.</p>
-<p>In LogMX, this can be seen in the bottom-right status bar, where a fully-filled red rectangle shows the percentage of the maximum number of entries currently met: <tt class="docutils literal">100%</tt> most likely means that too many traces were to be displayed for the current settings, and thus that latter traces replaced former ones.</p>
-<p>A solution is either to send less traces, or to increase that display threshold, either directly in to the LogMX interface (by entering an higher value on the left of said rectangle), or in the <tt class="docutils literal">logmx.properties</tt> configuration file, by setting its <tt class="docutils literal">autoRefreshEntriesLimit</tt> attribute to an higher value.</p>
-<p>A related setting is the <a class="reference internal" href="#max-memory">max memory</a> that the (Java) configuration of LogMX allows.</p>
-</div>
-<div class="section" id="duplicated-traces-1">
-<h2><a class="toc-backref" href="#toc-entry-40">Duplicated Traces</a></h2>
-<p>In rather rare contexts (typically when requesting LogMX to focus on the last entries, whereas dozens of thousands of them are added), the trace supervision may show duplicated traces.</p>
-<p>For example, an emitter that sent 6 traces will be marked as having sent 8 of them, and a pair of successive traces will be shown twice (first that pair, then other traces may interleave, then the pair will be listed again), with non-duplicated IDs (as shown in the leftmost LogMX column).</p>
-<p>It is just an artefact due to this specific execution of LogMX though: one can check that reading this file again, but this time as a whole (instead of live) does not show duplicated traces anymore; indeed these traces were actually stored by Ceylan-Traces in the <tt class="docutils literal">*.traces</tt> file only once.</p>
-</div>
-<div class="section" id="lost-logmx-settings-1">
-<h2><a class="toc-backref" href="#toc-entry-41">Lost LogMX Settings</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-38">Lost LogMX Settings</a></h2>
 <p>LogMX will write its configuration files (notably <tt class="docutils literal">logmx.properties</tt>) when shutdown. So before modifying any of these files, ensure first that no LogMX instance is still running (otherwise one's changes will be overwritten).</p>
 </div>
 <div class="section" id="java-error-when-launching-logmx">
-<h2><a class="toc-backref" href="#toc-entry-42">Java Error When Launching LogMX</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-39">Java Error When Launching LogMX</a></h2>
 <p>One may check that Java is installed and available from the PATH, that it is a sufficiently recent one (e.g. Java 11; more recent ones like Java 21 will work of course) and that it is at least a JRE (a complete JDK will be fine as well) and a full (non-headless <a class="footnote-reference" href="#footnote-8" id="footnote-reference-8">[8]</a>) version thereof.</p>
 <table class="docutils footnote" frame="void" id="footnote-8" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
@@ -624,15 +610,15 @@ $<span class="w"> </span><span class="nb">type</span><span class="w"> </span>jav
 </div>
 </div>
 <div class="section" id="support">
-<h1><a class="toc-backref" href="#toc-entry-43">Support</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-40">Support</a></h1>
 <p>Bugs, questions, remarks, patches, requests for enhancements, etc. are to be reported to the <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces">project interface</a> (typically <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/issues">issues</a>) or directly at the email address mentioned at the beginning of this document.</p>
 </div>
 <div class="section" id="please-react">
-<h1><a class="toc-backref" href="#toc-entry-44">Please React!</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-41">Please React!</a></h1>
 <p>If you have information more detailed or more recent than those presented in this document, if you noticed errors, neglects or points insufficiently discussed, drop us a line! (for that, follow the <a class="reference internal" href="#support">Support</a> guidelines).</p>
 </div>
 <div class="section" id="ending-word">
-<h1><a class="toc-backref" href="#toc-entry-45">Ending Word</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-42">Ending Word</a></h1>
 <p>Have fun with Ceylan-Traces!</p>
 <p><span class="raw-html"><center><img src="traces-title.png" id="responsive-image-small"></img></center></span>
 </p>
