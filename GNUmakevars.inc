@@ -248,7 +248,7 @@ KILL_TRACE_SUPERVISION_TOOL = $(TRACES_TOP)/priv/bin/kill-trace-supervision-tool
 # clone root, not from doc:
 #
 ifndef EDOC_OPTS
-	EDOC_OPTS = '[{dir,"$(API_DOC_ROOT)"}, {def,{vsn,"$(PROJECT_VERSION)"}}, {preprocess,true}, {macros,[{$(PROJECT_EDOC_VERSION_KEY),"$(PROJECT_VERSION)"}]}, {includes,["..", "$(WOOPER_TOP)/..", "$(MYRIAD_TOP)/.."]}, {overview, "$(LAYER_TOP)/overview.edoc"}]'
+	EDOC_OPTS = '[{dir,"$(API_DOC_ROOT)"}, {def,{vsn,"$(PROJECT_VERSION)"}}, {preprocess,true}, {macros,[{$(PROJECT_EDOC_VERSION_KEY),"$(PROJECT_VERSION)"}]}, {includes,["..", "$(WOOPER_TOP)/..", "$(MYRIAD_TOP)/.."]}, {overview, "doc/overview.edoc"}]'
 endif
 
 
