@@ -444,10 +444,11 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 	HeaderState = manage_trace_header( OverloadState ),
 
 	% Writes the very first trace after this header, returns an updated state:
-	TraceState = send_internal_immediate( notice, "Trace aggregator created, "
-		"trace filename is '~ts', trace type is '~w', "
+	TraceState = send_internal_immediate( notice, "Trace aggregator created "
+        "on ~ts, trace filename is '~ts', trace type is '~w', "
 		"and trace title is '~ts'.",
-		[ AbsBinTraceFilename, TraceSupervisionType, TraceTitle ],
+		[ net_utils:localhost(), AbsBinTraceFilename, TraceSupervisionType,
+          TraceTitle ],
 		HeaderState ),
 
 	case ShouldInitTraceSupervisor of
