@@ -443,12 +443,14 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
 
 	HeaderState = manage_trace_header( OverloadState ),
 
-	% Writes the very first trace after this header, returns an updated state:
+	% Writes the very first trace (hence a key one, relevant to share details)
+	% after this header, returns an updated state:
+    %
 	TraceState = send_internal_immediate( notice, "Trace aggregator created "
-        "on ~ts, trace filename is '~ts', trace type is '~w', "
-		"and trace title is '~ts'.",
-		[ net_utils:localhost(), AbsBinTraceFilename, TraceSupervisionType,
-          TraceTitle ],
+        "on ~ts (node name: '~ts', naming mode: ~ts), trace filename is '~ts', "
+        "trace type is '~w', and trace title is '~ts'.",
+		[ net_utils:localhost(), node(), net_utils:get_node_naming_mode(),
+          AbsBinTraceFilename, TraceSupervisionType, TraceTitle ],
 		HeaderState ),
 
 	case ShouldInitTraceSupervisor of
