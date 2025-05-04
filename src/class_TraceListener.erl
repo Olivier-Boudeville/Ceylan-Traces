@@ -147,22 +147,22 @@ construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 	% We used to rely on basic ZIP sent over Erlang messages:
 	%receive
 	%
-	%	 { trace_sending, Bin, TraceFilename } ->
+	%    { trace_sending, Bin, TraceFilename } ->
 	%
-	%			% Allows to run for the same directory as aggregator:
-	%			ListenerTraceFilename = "Listener-" ++ TraceFilename,
+	%           % Allows to run for the same directory as aggregator:
+	%           ListenerTraceFilename = "Listener-" ++ TraceFilename,
 	%
 	%           file_utils:zipped_term_to_unzipped_file( Bin,
-	%										 ListenerTraceFilename ),
-	%	{ trace_sending, ErrorReason } ->
+	%               ListenerTraceFilename ),
+	%   { trace_sending, ErrorReason } ->
 	%
-	%		trace_utils:error_fmt(
+	%       trace_utils:error_fmt(
 	%           "~ts Trace listener cannot listen to current trace "
-	%			"aggregator, as this aggregator does not use "
-	%			"LogMX-based traces.", [ ?LogPrefix ] ),
+	%           "aggregator, as this aggregator does not use "
+	%           "LogMX-based traces.", [ ?LogPrefix ] ),
 	%
 	%		throw( { cannot_listen_aggregator, TraceAggregatorPid,
-	%				 ErrorReason } )
+	%                ErrorReason } )
 
 	% Now we prefer XZ + sendFile:
 
@@ -410,7 +410,7 @@ aggregator.
 -spec create( aggregator_pid() ) -> static_return( listener_pid() ).
 create( AggregatorPid ) ->
 
-	% No link here, not wanting to take down the whole system because of a
+	% No link here, not wanting to take the whole system down because of a
 	% listener:
 	%
 	ListenerPid = new( AggregatorPid, _CloseListenerPid=undefined ),
