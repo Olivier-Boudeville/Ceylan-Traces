@@ -255,6 +255,9 @@ endif
 
 TRACES_FILES = $(wildcard *.traces)
 
+TRACES_PREVIOUS_FILES = $(wildcard *.traces.previous)
+
+
 
 AUX_GENERATED_FILES  := $(AUX_GENERATED_FILES)  \
 	$(patsubst %.traces,%.aux,$(TRACES_FILES))

@@ -74,7 +74,7 @@ later (typically only once the desired filename for the traces file will be
 known for good, i.e. at its first renaming).
 
 Here we disable explicitly the trapping of EXIT signals, as a function run
-through "erl -eval" (like our apps) or through "erl -run" will be executed in a
+through `erl -eval` (like our apps) or through `erl -run` will be executed in a
 process that will silently trap EXIT signals, which would mean that the crash of
 any process created from the app, even thanks to spawn_link, would most probably
 remain unnoticed (just leading to an EXIT message happily sitting in the mailbox
