@@ -41,7 +41,7 @@ clash).
 -export([ get_traces_version/0, get_traces_version_string/0 ]).
 
 
--export([ get_aggregator_registration_scope/0, get_aggregator_look_up_scope/0,
+-export([ get_aggregator_registration_scope/0, get_aggregator_lookup_scope/0,
 		  name_trace_file_from/1 ]).
 
 
@@ -59,7 +59,7 @@ clash).
 -type bin_file_name() :: file_utils:bin_file_name().
 
 -type registration_scope() :: naming_utils:registration_scope().
--type look_up_scope() :: naming_utils:look_up_scope().
+-type lookup_scope() :: naming_utils:lookup_scope().
 
 -type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
 
@@ -158,10 +158,10 @@ get_aggregator_registration_scope() ->
 Returns the look-up scope that applies to the trace aggregator in the current
 context.
 """.
--spec get_aggregator_look_up_scope() -> look_up_scope().
-get_aggregator_look_up_scope() ->
-	naming_utils:registration_to_look_up_scope(
-		get_aggregator_registration_scope() ).
+-spec get_aggregator_lookup_scope() -> lookup_scope().
+get_aggregator_lookup_scope() ->
+	naming_utils:registration_to_lookup_scope(
+        get_aggregator_registration_scope() ).
 
 
 
@@ -179,7 +179,7 @@ without being able to defined programatically the resulting trace file.
 -spec name_trace_file_from( module_name() ) ->
 								{ bin_file_name(), aggregator_pid() }.
 name_trace_file_from( ModName ) ->
-	AggLookupScope = get_aggregator_look_up_scope(),
+	AggLookupScope = get_aggregator_lookup_scope(),
 	name_trace_file_from( ModName, AggLookupScope ).
 
 
@@ -195,7 +195,7 @@ supervision setting.
 Typically useful from an OTP context, where the Traces application is started
 without being able to defined programatically the resulting trace file.
 """.
--spec name_trace_file_from( module_name(), look_up_scope() ) ->
+-spec name_trace_file_from( module_name(), lookup_scope() ) ->
 									{ bin_file_name(), aggregator_pid() }.
 name_trace_file_from( ModName, AggLookupScope ) ->
 

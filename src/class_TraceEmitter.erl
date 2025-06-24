@@ -104,7 +104,7 @@ It is a plain string or a binary one, containing the name of a trace emitter.
 Note: dots are not allowed in an emitter name (they are used as naming
 separator).
 
-For example  "MyObject 16", or `<<"First Talker">>`.
+For example `"MyObject 16"`, or `<<"First Talker">>`.
 """.
 -type emitter_name() :: text_utils:any_string().
 
@@ -118,7 +118,7 @@ class-specific emitter categorization. Then, the pair resulting from this
 one-shot, initial operation will climb up the class hierarchy until reaching the
 class_TraceEmitter constructor.
 
-See also the trace_categorize/1 macro.
+See also the `trace_categorize/1` macro.
 """.
 -type emitter_init() :: emitter_name()
 					  | { emitter_name(), emitter_categorization() }.
@@ -204,7 +204,7 @@ stored/written by it.
 % To avoid any unnecessary global look-up or to designate a specific trace
 % aggregator, use construct/3.
 %
--define( emitter_look_up_scope, global_otherwise_local ).
+-define( emitter_lookup_scope, global_otherwise_local ).
 
 
 % Type shorthands:
@@ -230,9 +230,9 @@ stored/written by it.
 
 -doc """
 Constructs a trace emitter, from EmitterInit, which must be here a pair made of
-its name and its emitter categorization (both any_string()), listing
+its name and its emitter categorization (both `any_string()`), listing
 increasingly detailed sub-categories about this trace emitter, separated by dots
-(e.g. "topics.sports.basketball.coach").
+(e.g. `"topics.sports.basketball.coach"`).
 
 Note: this constructor should be idempotent, as a given instance might very well
 inherit (directly or not) from that class more than once.
@@ -289,7 +289,7 @@ construct( State, EmitterName ) ->
 Constructs a trace emitter, from EmitterInit, which must be here a pair made of
 this name and another plain string, its emitter categorization, listing
 increasingly detailed sub-categories about this trace emitter, separated by dots
-(e.g. "topics.sports.basketball.coach"), and from the specified trace
+(e.g. `"topics.sports.basketball.coach"`), and from the specified trace
 aggregator.
 
 Notes:
@@ -337,8 +337,6 @@ Checks the emitter name, and, if needed, returns a binary version thereof.
 
 Note: we used to fail should at least one dot be found, now we convert the
 string name so that it becomes legit.
-
-(helper)
 """.
 -spec check_and_binarise_name( emitter_name() ) -> bin_string().
 check_and_binarise_name( StringName ) when is_list( StringName ) ->
@@ -377,7 +375,7 @@ check_string_name( Name ) ->
 -doc """
 Returns the name of this trace emitter, as a binary.
 
-Note: use text_utils:binary_to_string/1 to get back a plain string.
+Note: use `text_utils:binary_to_string/1` to get back a plain string.
 """.
 -spec getName( wooper:state() ) -> const_request_return( bin_string() ).
 getName( State ) ->
@@ -516,7 +514,7 @@ Traces subsystem.
 Dedicated to normal (non-TraceEmitter, probably not even non-WOOPER) processes
 that nevertheless need to send traces, to centralise them.
 
-See also the register_bridge/1 helper for trace emitter instances that need to
+See also the `register_bridge/1` helper for trace emitter instances that need to
 define additionally their trace bridge, in order that the lower-level
 libraries/functions that they call can send such traces as well.
 
@@ -542,7 +540,7 @@ Traces subsystem.
 Dedicated to normal (non-TraceEmitter, probably not even non-WOOPER) processes
 that nevertheless need to send traces, to centralise them.
 
-See also the register_as_bridge/1 helper for trace emitter instances that need
+See also the `register_as_bridge/1` helper for trace emitter instances that need
 to define additionally their trace bridge, in order that the lower-level
 libraries/functions that they call can send such traces as well.
 
@@ -565,7 +563,7 @@ register_as_bridge( TraceEmitterName, TraceCategory, TraceAggregatorPid ) ->
 Returns the name of the trace emitter corresponding to the specified
 constructor-level information.
 
-Supersedes for the best the trace_name/1 macro.
+Supersedes for the best the `trace_name/1` macro.
 """.
 -spec get_trace_name( emitter_name() | emitter_info()  ) ->
 											static_return( emitter_name() ).
@@ -585,9 +583,9 @@ This is typically useful to avoid that too many emitters are listed at a given
 categorization level, if using a trace supervisor that groups the emitter names
 based on the dots that they include.
 
-For example if the specified emitter name is "foobar", returns "f.foobar",
+For example if the specified emitter name is `"foobar"`, returns `"f.foobar"`,
 resulting in this name to be sorted among all entries whose name starts with
-"f".
+`"f"`.
 """.
 -spec subcategorize( emitter_name() ) -> static_return( emitter_name() );
 				   ( emitter_info() ) -> static_return( emitter_info() ).
@@ -660,7 +658,7 @@ send_from_test( TraceSeverity, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
 	case naming_utils:get_registered_pid_for( ?trace_aggregator_name,
-											  ?emitter_look_up_scope ) of
+											  ?emitter_lookup_scope ) of
 
 		undefined ->
 
@@ -710,7 +708,7 @@ send_from_test( TraceSeverity, Message, EmitterCategorization ) ->
 
 -doc """
 Sends all types of traces on behalf of a case, thus without requiring a
-class_TraceEmitter state.
+`class_TraceEmitter` state.
 
 Uses the default trace aggregator, supposed to be already available and
 registered.
@@ -725,7 +723,7 @@ send_from_case( TraceSeverity, Message ) ->
 
 -doc """
 Sends all types of traces on behalf of a case, thus without requiring a
-class_TraceEmitter state.
+`class_TraceEmitter` state.
 
 Uses default trace aggregator, supposed to be already available and registered.
 """.
@@ -735,7 +733,7 @@ send_from_case( TraceSeverity, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
 	case naming_utils:get_registered_pid_for( ?trace_aggregator_name,
-											  ?emitter_look_up_scope ) of
+											  ?emitter_lookup_scope ) of
 
 		undefined ->
 
@@ -784,7 +782,7 @@ send_from_case( TraceSeverity, Message, EmitterCategorization ) ->
 
 
 -doc """
-Sends all types of traces without requiring a class_TraceEmitter state.
+Sends all types of traces without requiring a `class_TraceEmitter` state.
 
 Uses the default trace aggregator, supposed to be already available and
 registered.
@@ -798,7 +796,7 @@ send_standalone( TraceSeverity, Message ) ->
 
 
 -doc """
-Sends all types of traces without requiring a class_TraceEmitter state.
+Sends all types of traces without requiring a `class_TraceEmitter` state.
 
 Uses the default trace aggregator, supposed to be already available and
 registered.
@@ -809,7 +807,7 @@ send_standalone( TraceSeverity, Message, EmitterCategorization ) ->
 
 	% Follows the order of our trace format; oneway call:
 	case naming_utils:get_registered_pid_for( ?trace_aggregator_name,
-											  ?emitter_look_up_scope ) of
+											  ?emitter_lookup_scope ) of
 
 		undefined ->
 
@@ -863,7 +861,7 @@ send_standalone( TraceSeverity, Message, EmitterCategorization ) ->
 
 
 -doc """
-Sends all types of traces without requiring a class_TraceEmitter state.
+Sends all types of traces without requiring a `class_TraceEmitter` state.
 
 Uses the default trace aggregator, supposed to be already available and
 registered.
@@ -878,7 +876,7 @@ send_standalone( TraceSeverity, Message, EmitterName, EmitterCategorization ) ->
 
 
 -doc """
-Sends all types of traces without requiring a class_TraceEmitter state.
+Sends all types of traces without requiring a `class_TraceEmitter` state.
 
 Uses the default trace aggregator, supposed to be already available and
 registered.
@@ -891,7 +889,7 @@ send_standalone( TraceSeverity, Message, EmitterName, EmitterCategorization,
 
 	% Follows the order of our trace format; oneway call:
 	case naming_utils:get_registered_pid_for( ?trace_aggregator_name,
-											  ?emitter_look_up_scope ) of
+											  ?emitter_lookup_scope ) of
 
 		undefined ->
 			trace_utils:error( "class_TraceEmitter:send_standalone/5: "
@@ -950,7 +948,7 @@ send_standalone( TraceSeverity, Message, EmitterName, EmitterCategorization,
 
 
 -doc """
-Sends all types of traces without requiring a class_TraceEmitter state, in a
+Sends all types of traces without requiring a `class_TraceEmitter` state, in a
 safe manner (synchronously and, if their severity is error-like, echoed on the
 console).
 
@@ -973,7 +971,7 @@ send_standalone_safe( TraceSeverity, Message ) ->
 
 
 -doc """
-Sends all types of traces without requiring a class_TraceEmitter state, in a
+Sends all types of traces without requiring a `class_TraceEmitter` state, in a
 safe manner (synchronously and, if their severity is error-like, echoed on the
 console).
 
@@ -994,7 +992,7 @@ send_standalone_safe( TraceSeverity, Message, EmitterCategorization ) ->
 
 
 -doc """
-Sends all types of traces without requiring a class_TraceEmitter state, in a
+Sends all types of traces without requiring a `class_TraceEmitter` state, in a
 safe manner (synchronously and, if their severity is error-like, echoed on the
 console).
 
@@ -1017,7 +1015,7 @@ send_standalone_safe( TraceSeverity, Message, EmitterCategorization,
 
 
 -doc """
-Sends all types of traces without requiring a class_TraceEmitter state, in a
+Sends all types of traces without requiring a `class_TraceEmitter` state, in a
 safe manner (synchronously and, if their severity is error-like, echoed on the
 console).
 
@@ -1040,7 +1038,7 @@ send_standalone_safe( TraceSeverity, Message, EmitterName,
 
 
 -doc """
-Sends all types of traces without requiring a class_TraceEmitter state, in a
+Sends all types of traces without requiring a `class_TraceEmitter` state, in a
 safe manner (synchronously and, if their severity is error-like, echoed on the
 console).
 
@@ -1054,7 +1052,7 @@ send_standalone_safe( TraceSeverity, Message, EmitterName,
 
 	% Follows the order of our trace format; request call:
 	AggregatorPid = naming_utils:get_registered_pid_for( ?trace_aggregator_name,
-		?emitter_look_up_scope ),
+		?emitter_lookup_scope ),
 
 	TimestampText = text_utils:string_to_binary( ApplicationTimestamp ),
 
@@ -1115,8 +1113,8 @@ send_standalone_safe( TraceSeverity, Message, EmitterName,
 
 
 -doc """
-Sends all types of traces without requiring a class_TraceEmitter state, based on
-a specified trace aggregator.
+Sends all types of traces without requiring a `class_TraceEmitter` state, based
+on a specified trace aggregator.
 
 For example useful with a logger handler, for lower message severities.
 """.
@@ -1161,8 +1159,8 @@ send_direct( TraceSeverity, Message, BinEmitterCategorization,
 
 
 -doc """
-Sends all types of traces without requiring a class_TraceEmitter state, based on
-a specified trace aggregator.
+Sends all types of traces without requiring a `class_TraceEmitter` state, based
+on a specified trace aggregator.
 
 Allows to ensure synchronicity of the operation with the caller operation,
 typically to ensure no crash can affect a given emitted trace: the caller may
@@ -1220,7 +1218,7 @@ send_direct_synchronisable( TraceSeverity, Message,
 -doc """
 Returns the name of the trace channel corresponding to the trace priority.
 
-See also: trace_utils:get_priority_for/1.
+See also: `trace_utils:get_priority_for/1`.
 """.
 -spec get_channel_name_for_priority( priority() ) ->
 										static_return( trace_severity() ).
@@ -1236,8 +1234,6 @@ get_channel_name_for_priority( Priority ) ->
 -doc """
 Returns a default emitter name, deduced from the PID of the corresponding
 process.
-
-(helper)
 """.
 -spec get_emitter_name_from_pid() -> emitter_name().
 get_emitter_name_from_pid() ->
@@ -1251,8 +1247,6 @@ get_emitter_name_from_pid() ->
 
 -doc """
 Initialises some context-specific information.
-
-(helper)
 """.
 -spec init( wooper:state() ) -> wooper:state().
 init( State ) ->
@@ -1268,7 +1262,7 @@ init( State ) ->
 	% - see implementation notes regarding the trace aggregator look-up scope
 	%
 	AggregatorPid = class_TraceAggregator:get_aggregator(
-		_LaunchAggregator=false, ?emitter_look_up_scope ),
+		_LaunchAggregator=false, ?emitter_lookup_scope ),
 
 	setAttributes( State, [
 		{ emitter_node, net_utils:localnode_as_binary() },
@@ -1285,11 +1279,9 @@ with no corresponding WOOPER state, to plug to the same trace aggregator as used
 by this instance with mostly the same settings, through a corresponding trace
 bridge (refer to the trace_bridge module).
 
-See also: the register_as_bridge/{2,3} static methods, offered to extra, plain
+See also: the `register_as_bridge/{2,3}` static methods, offered to extra, plain
 (non-TraceEmitter, probably not even non-WOOPER) processes that nevertheless
 need to send traces.
-
-(helper)
 """.
 -spec register_bridge( wooper:state() ) -> void().
 register_bridge( State ) ->
@@ -1303,11 +1295,7 @@ register_bridge( State ) ->
 % Implementation of functions used by trace macros.
 
 
--doc """
-Returns the categorization of this trace emitter.
-
-(helper)
-""".
+-doc "Returns the categorization of this trace emitter.".
 -spec get_categorization( wooper:state() ) -> bin_emitter_categorization().
 get_categorization( State ) ->
 	?getAttr(trace_emitter_categorization).
@@ -1320,8 +1308,6 @@ Sets the categorization of this trace emitter.
 Setting that categorization early in the constructor, before sending any trace,
 allows to have all traces for a given emitter be correctly gathered in the same
 category, which is a lot clearer when browsing traces afterwards.
-
-(helper)
 """.
 -spec set_categorization( emitter_any_categorization(), wooper:state() ) ->
 								wooper:state().
@@ -1338,8 +1324,6 @@ Message is a plain string.
 
 All information are available here, except the trace timestamp and the message
 categorization.
-
-(helper)
 """.
 -spec send( trace_severity(), wooper:state(), message() ) -> void().
 send( TraceSeverity, State, Message ) ->
@@ -1355,9 +1339,6 @@ Message is a plain string.
 
 All information are available here, except the trace timestamp and the message
 categorization.
-
-(helper)
-
 """.
 -spec send_safe( trace_severity(), wooper:state(), message() ) -> void().
 send_safe( TraceSeverity, State, Message ) ->
@@ -1372,8 +1353,6 @@ requested and waited) from this emitter.
 
 All information are available here, except the trace timestamp and the message
 categorization.
-
-(helper)
 """.
 -spec send_synchronised( trace_severity(), wooper:state(), message() ) ->
 								void().
@@ -1387,8 +1366,6 @@ send_synchronised( TraceSeverity, State, Message ) ->
 Sends the specified (unsynchronised) trace message from this emitter.
 
 All information available but the timestamp, determining its availability.
-
-(helper)
 """.
 -spec send( trace_severity(), wooper:state(), message(),
 			message_categorization() ) -> void().
@@ -1402,8 +1379,6 @@ send( TraceSeverity, State, Message, MessageCategorization ) ->
 Sends the specified (unsynchronised) trace message from this emitter.
 
 All information available but the timestamp, determining its availability.
-
-(helper)
 """.
 -spec send_safe( trace_severity(), wooper:state(), message(),
 				 message_categorization() ) -> void().
@@ -1423,8 +1398,6 @@ Sends the specified synchronised trace message (the synchronisation answer is
 requested and waited) from this emitter.
 
 All information available but the timestamp, determining its availability.
-
-(helper)
 """.
 -spec send_synchronised( trace_severity(), wooper:state(), message(),
 						 message_categorization() ) -> void().
@@ -1438,8 +1411,6 @@ send_synchronised( TraceSeverity, State, Message, MessageCategorization ) ->
 Sends the specified (unsynchronised) trace message from this emitter.
 
 By far the most used sending primitive.
-
-(helper)
 """.
 -spec send( trace_severity(), wooper:state(), message(),
 			message_categorization(), app_timestamp() ) -> void().
@@ -1484,8 +1455,7 @@ send( TraceSeverity, State, Message, MessageCategorization, AppTimestamp ) ->
 	% but a pair with the trace categorization, or it may be a string whereas we
 	% expect now a binary string)
 	%
-	cond_utils:if_debug(
-		text_utils:is_bin_string( TraceEmitterName ) orelse
+	cond_utils:if_debug( text_utils:is_bin_string( TraceEmitterName ) orelse
 			begin
 
 				trace_utils:notice( "Hint: did you set the 'name' attribute "
@@ -1535,8 +1505,6 @@ the specified emitter categorization.
 Primitive defined to be able to override the emitter categorization, typically
 to create from this emitter "sub-channels". Note that the emitter name will be
 still added at the end of it.
-
-(helper)
 """.
 -spec send_categorized_emitter( trace_severity(), wooper:state(), message(),
 								emitter_categorization() ) -> void().
@@ -1582,8 +1550,6 @@ Sends the specified (unsynchronised) trace message from this emitter, based on
 the specified emitter name.
 
 Primitive defined to be able to override the emitter full name.
-
-(helper)
 """.
 -spec send_named_emitter( trace_severity(), wooper:state(), message(),
 						  emitter_name() ) -> void().
@@ -1720,8 +1686,6 @@ send_synchronisable( TraceSeverity, State, Message, MessageCategorization,
 -doc """
 Sends the specified synchronised trace message (the synchronisation answer is
 requested and awaited) from this emitter.
-
-(helper)
 """.
 -spec send_synchronised( trace_severity(), wooper:state(), message(),
 		message_categorization(), app_timestamp() ) -> void().
@@ -1741,8 +1705,6 @@ this emitter.
 
 Sends all types of synchronised traces (the synchronisation answer is requested
 and awaited).
-
-(helper)
 """.
 -spec send_safe( trace_severity(), wooper:state(), message(),
 				 message_categorization(), app_timestamp() ) -> void().
@@ -1762,8 +1724,6 @@ send_safe( TraceSeverity, State, Message, MessageCategorization,
 -doc """
 Waits for the aggregator to report that a trace synchronisation has been
 completed.
-
-(helper)
 """.
 -spec wait_for_aggregator_synchronisation() -> void().
 wait_for_aggregator_synchronisation() ->
@@ -1778,9 +1738,7 @@ wait_for_aggregator_synchronisation() ->
 
 -doc """
 Returns the current trace-level timestamp (that is possibly an execution tick
-offset), or the atom 'none' if the emitter time is not known.
-
-(helper)
+offset), or the atom `none` if the emitter time is not known.
 """.
 -spec get_trace_timestamp( wooper:state() ) -> app_timestamp().
 get_trace_timestamp( State ) ->
@@ -1794,11 +1752,7 @@ get_trace_timestamp( State ) ->
 
 
 
--doc """
-Returns the current trace-level timestamp, as a binary string.
-
-(helper)
-""".
+-doc "Returns the current trace-level timestamp, as a binary string.".
 -spec get_trace_timestamp_as_binary( wooper:state() ) -> bin_string().
 get_trace_timestamp_as_binary( State ) ->
 	text_utils:term_to_binary( ?getAttr(trace_timestamp) ).
@@ -1807,8 +1761,6 @@ get_trace_timestamp_as_binary( State ) ->
 
 -doc """
 Returns the name of this trace emitter, as a plain string (not as a binary).
-
-(helper)
 """.
 -spec get_plain_name( wooper:state() ) -> ustring().
 get_plain_name( State ) ->

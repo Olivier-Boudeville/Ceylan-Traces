@@ -198,7 +198,7 @@ sent by emitters.
 
 -type registration_name() :: naming_utils:registration_name().
 -type registration_scope() :: naming_utils:registration_scope().
--type look_up_scope() :: naming_utils:look_up_scope().
+-type lookup_scope() :: naming_utils:lookup_scope().
 
 
 -type trace_type() :: traces:trace_supervision_type().
@@ -595,7 +595,7 @@ destruct( State ) ->
 enableWatchdog( State ) ->
 
 	WatchState = enable_watchdog( ?trace_aggregator_name,
-		?default_trace_aggregator_look_up_scope,
+		?default_trace_aggregator_lookup_scope,
 		?default_watchdog_period, State ),
 
 	wooper:return_state( WatchState ).
@@ -610,7 +610,7 @@ defaults.
 enableWatchdog( State, Period ) ->
 
 	WatchState = enable_watchdog( ?trace_aggregator_name,
-		?default_trace_aggregator_look_up_scope, Period, State ),
+		?default_trace_aggregator_lookup_scope, Period, State ),
 
 	wooper:return_state( WatchState ).
 
@@ -620,7 +620,7 @@ enableWatchdog( State, Period ) ->
 Enables the aggregator watchdog, using the specified check period and naming
 information.
 """.
--spec enableWatchdog( wooper:state(), registration_name(), look_up_scope(),
+-spec enableWatchdog( wooper:state(), registration_name(), lookup_scope(),
 					  seconds() ) -> oneway_return().
 enableWatchdog( State, RegName, LookupScope, Period ) ->
 
@@ -1345,7 +1345,7 @@ launched almost simultaneously.
 						 | 'trace_aggregator_not_found' | aggregator_pid() ).
 try_get_aggregator( CreateIfNotAvailable ) ->
 	AggRes = get_aggregator( CreateIfNotAvailable,
-							 ?default_trace_aggregator_look_up_scope ),
+                             ?default_trace_aggregator_lookup_scope ),
 	wooper:return_static( AggRes ).
 
 
@@ -1398,7 +1398,7 @@ launched almost simultaneously.
 """.
 
 
--spec try_get_aggregator( boolean(), look_up_scope() ) ->
+-spec try_get_aggregator( boolean(), lookup_scope() ) ->
 			static_return( 'trace_aggregator_launch_failed'
 						 | 'trace_aggregator_not_found' | aggregator_pid() ).
 try_get_aggregator( CreateIfNotAvailable, LookupScope ) ->
@@ -1474,7 +1474,7 @@ pops up in registry services.
 Waits a bit before giving up: useful when client and aggregator processes are
 launched almost simultaneously.
 """.
--spec get_aggregator( boolean(), look_up_scope() ) ->
+-spec get_aggregator( boolean(), lookup_scope() ) ->
 								static_return( aggregator_pid() ).
 get_aggregator( CreateIfNotAvailable, LookupScope ) ->
 	case try_get_aggregator( CreateIfNotAvailable, LookupScope ) of
@@ -1496,7 +1496,7 @@ Deletes synchronously the trace aggregator, expected to be registered globally.
 remove() ->
 
 	case naming_utils:is_registered( ?trace_aggregator_name,
-			?default_trace_aggregator_look_up_scope ) of
+			?default_trace_aggregator_lookup_scope ) of
 
 		not_registered ->
 			wooper:return_static( trace_aggregator_not_found );
@@ -1578,7 +1578,7 @@ Code run by the process that monitors the aggregator, watchdog-wise: like a
 client, tries to look-up that aggregator and checks that its PID is still alive
 and the same.
 """.
--spec watchdog_main_loop( registration_name(), look_up_scope(),
+-spec watchdog_main_loop( registration_name(), lookup_scope(),
 						  aggregator_pid(), milliseconds() ) -> no_return().
 watchdog_main_loop( RegName, RegScope, AggregatorPid, MsPeriod ) ->
 
@@ -1752,7 +1752,7 @@ override_standard_logger_handler( _RegScope ) ->
 
 
 -doc "Enables the aggregator watchdog.".
--spec enable_watchdog( registration_name(), look_up_scope(), seconds(),
+-spec enable_watchdog( registration_name(), lookup_scope(), seconds(),
 					   wooper:state() ) -> wooper:state().
 enable_watchdog( RegName, LookupScope, Period, State ) ->
 
