@@ -118,6 +118,11 @@ destruct( State ) ->
 	?debug( "Goodbye debug world!" ),
 	?void( "Goodbye void world!" ),
 
+    ?info_fmt( "This is a ~ts formatted info message.", [ correct ] ),
+
+    % Uncomment to test build-time checking:
+    %?info_fmt( "This is an ~ts formatted info message.", [ incorrect, 42 ] ),
+
 	%trace_utils:notice_fmt( "~ts Test trace emitter ~ts deleted.",
 	%                        [ ?log_prefix, ?getAttr(name) ] ),
 
