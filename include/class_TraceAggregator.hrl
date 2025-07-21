@@ -29,7 +29,7 @@
 % The name under which the trace aggregator process is to be registered:
 % (use ?trace_aggregator_name to have it)
 %
--define( trace_aggregator_name, ceylan_trace_aggregator).
+-define( trace_aggregator_name, ceylan_trace_aggregator ).
 
 
 % The default registration scope (must correspond to default_trace):
