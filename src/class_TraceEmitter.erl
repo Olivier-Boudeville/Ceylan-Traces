@@ -1743,6 +1743,8 @@ offset), or the atom `none` if the emitter time is not known.
 -spec get_trace_timestamp( wooper:state() ) -> app_timestamp().
 get_trace_timestamp( State ) ->
 
+    %trace_utils:debug_fmt( "State for trace timestamp: ~p.~n", [ State ] ),
+
 	% Note: if an exception "No key 'trace_timestamp' found in following table:
 	% empty hashtable" is triggered, probably that this State is not (yet?) a
 	% TraceEmitter one (e.g. if using the blank state of a constructor in
