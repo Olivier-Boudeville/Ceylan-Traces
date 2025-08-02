@@ -512,7 +512,9 @@ Registers in the caller process a trace bridge suitable to integrate to this
 Traces subsystem.
 
 Dedicated to normal (non-TraceEmitter, probably not even non-WOOPER) processes
-that nevertheless need to send traces, to centralise them.
+that nevertheless need to send traces, to centralise them; may also be used in
+order to send traces from functions that are executed in the context of a
+TraceEmitter instance yet do not have a Traces-enabled state in their scope.
 
 See also the `register_bridge/1` helper for trace emitter instances that need to
 define additionally their trace bridge, in order that the lower-level
@@ -538,7 +540,9 @@ Registers in the caller process a trace bridge suitable to integrate to this
 Traces subsystem.
 
 Dedicated to normal (non-TraceEmitter, probably not even non-WOOPER) processes
-that nevertheless need to send traces, to centralise them.
+that nevertheless need to send traces, to centralise them; may also be used in
+order to send traces from functions that are executed in the context of a
+TraceEmitter instance yet do not have a Traces-enabled state in their scope.
 
 See also the `register_as_bridge/1` helper for trace emitter instances that need
 to define additionally their trace bridge, in order that the lower-level
@@ -1277,11 +1281,11 @@ Allows functions implemented in lower-level libraries (typically relying on
 Myriad) that are called directly from this instance process, or helper functions
 with no corresponding WOOPER state, to plug to the same trace aggregator as used
 by this instance with mostly the same settings, through a corresponding trace
-bridge (refer to the trace_bridge module).
+bridge (refer to the `trace_bridge` module).
 
 See also: the `register_as_bridge/{2,3}` static methods, offered to extra, plain
-(non-TraceEmitter, probably not even non-WOOPER) processes that nevertheless
-need to send traces.
+(non-TraceEmitter, probably even non-WOOPER) processes that nevertheless should
+be able to send traces.
 """.
 -spec register_bridge( wooper:state() ) -> void().
 register_bridge( State ) ->
