@@ -30,7 +30,7 @@
 -moduledoc """
 Testing the **actual use of a trace bridge**, in the context of Ceylan-Traces.
 
-See also, in Ceylan-Myriad, trace_bridge_test.erl for a similar test when no
+See also, in Ceylan-Myriad, `trace_bridge_test.erl` for a similar test when no
 specific bridge is registered.
 """.
 
