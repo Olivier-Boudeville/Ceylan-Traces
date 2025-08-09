@@ -30,10 +30,10 @@
 -moduledoc """
 The **trace aggregator** class, in charge of collecting and storing the traces
 sent by emitters.
+
+See documentation at http://traces.esperide.org.
 """.
 
-
-% See documentation at http://traces.esperide.org.
 
 
 -define( class_description,
@@ -178,6 +178,25 @@ sent by emitters.
 
 
 
+% Implementation notes:
+%
+% The aggregator could store per-emitter constant settings (e.g. emitter name
+% and categorization) instead of having them sent to it each time, but more
+% look-ups would be involved.
+%
+% The aggregator is not a standard trace emitter; do not use for example
+% ?debug-like macros.
+%
+% The aggregator can be (optionally) plugged to an OTP supervision tree, thanks
+% to the Traces supervisor bridge (see the traces_sup module).
+%
+% The most usual registration scope for a trace aggregator used to be
+% global_only, as such this is the convention that was first prioritised and
+% tuned for, yet it is now increasingly local, to uncouple applications.
+
+
+
+
 % Type shorthands:
 
 -type ustring() :: text_utils:ustring().
@@ -222,25 +241,6 @@ sent by emitters.
 -type supervisor_pid() :: class_TraceSupervisor:supervisor_pid().
 
 
-
-% Implementation notes:
-%
-% The aggregator could store per-emitter constant settings (e.g. emitter name
-% and categorization) instead of having them sent to it each time, but more
-% look-ups would be involved.
-%
-% The aggregator is not a standard trace emitter; do not use for example
-% ?debug-like macros.
-%
-% The aggregator can be (optionally) plugged to an OTP supervision tree, thanks
-% to the Traces supervisor bridge (see the traces_sup module).
-%
-% The most usual registration scope for a trace aggregator used to be
-% global_only, as such this is the convention that was first prioritised and
-% tuned for, yet it is now increasingly local, to uncouple applications.
-
-
-
 -doc """
 Constructs a trace aggregator.
 
@@ -248,19 +248,19 @@ Construction parameters are:
 
 - TraceFilename is the path of the file in which traces should be written to
 
-- TraceSupervisionType is either 'advanced_traces', {'text_traces', 'text_only'}
-or {'text_traces', 'pdf'}, depending whether LogMX should be used to browse the
+- TraceSupervisionType is either `advanced_traces`, `{text_traces, text_only}`
+or `{text_traces, pdf}`, depending whether LogMX should be used to browse the
 execution traces, or just a text viewer (possibly with a PDF displaying thereof)
 
 - TraceTitle is the title that should be used for traces; mostly used for the
 PDF output
 
 - MaybeRegistrationScope tells whether this trace aggregator will be privately
-held (hence should not be registered in naming service) - if set to 'undefined',
+held (hence should not be registered in naming service) - if set to `undefined`,
 or if it is a registered (locally and/or globally) singleton
 
 - IsBatch tells whether the aggregator is run in a batch context; useful when
-trace type is {text_traces, pdf}, so that this aggregator does not display the
+trace type is `{text_traces, pdf}`, so that this aggregator does not display the
 produced PDF when in batch mode
 """.
 -spec construct( wooper:state(), file_name(), trace_supervision_type(), title(),
@@ -280,8 +280,8 @@ Construction parameters are:
 
 - TraceFilename is the path of the file in which traces should be written to
 
-- TraceSupervisionType is either 'advanced_traces', {'text_traces',
-'text_only'} or {'text_traces', 'pdf'}, depending whether LogMX should be used
+- TraceSupervisionType is either `advanced_traces`, `{text_traces,
+text_only}` or `{text_traces, pdf}`, depending whether LogMX should be used
 to browse the execution traces, or just a text viewer (possibly with a PDF
 displaying thereof)
 
@@ -293,7 +293,7 @@ held (hence should not be registered in naming service) - if set to
 'undefined', or if it is a registered (locally and/or globally) singleton
 
 - IsBatch tells whether the aggregator is run in a batch context; useful when
-trace type is {text_traces,pdf}, so that this aggregator does not display the
+trace type is `{text_traces,pdf}`, so that this aggregator does not display the
 produced PDF when in batch mode
 
 - InitTraceSupervisor tells whether the trace supervisor shall be created (now
@@ -728,7 +728,7 @@ sendPreformatted( State, PreformattedTrace ) ->
 Sends a full synchronised trace to this aggregator to have it processed, that is
 stored or directly written.
 
-Same as the send/10 oneway, except that a synchronisation message is sent back
+Same as the `send/10 oneway`, except that a synchronisation message is sent back
 to the caller.
 """.
 -spec sendSync( wooper:state(), pid(), bin_emitter_name(),
@@ -803,8 +803,8 @@ sendSync( State, TraceEmitterPid, BinTraceEmitterName,
 Sends a preformatted, synchronised trace to this aggregator to have it
 processed, that is stored or directly written.
 
-Same as the sendPreformatted/10 oneway, except that a synchronisation message is
-sent back to the caller.
+Same as the `sendPreformatted/10` oneway, except that a synchronisation message
+is sent back to the caller.
 """.
 -spec sendPreformattedSync( wooper:state(), preformatted_trace() ) ->
 			const_request_return( 'trace_aggregator_synchronised' ).
@@ -1064,7 +1064,7 @@ addTraceListener( State, ListenerPid ) ->
 
 
 
--doc "Removes specified trace listener from this aggregator.".
+-doc "Removes the specified trace listener from this aggregator.".
 -spec removeTraceListener( wooper:state(), listener_pid() ) -> oneway_return().
 removeTraceListener( State, ListenerPid ) ->
 
@@ -1146,9 +1146,9 @@ above the current threshold, closes the current file, renames it, compresses it
 and creates a file from scratch to avoid it becomes too large. No trace can be
 lost in the process.
 
-If the current trace file is named 'my_file.traces', its rotated version could
+If the current trace file is named `my_file.traces`, its rotated version could
 be an XZ archive named for example
-'my_file.traces.7.2021-1-17-at-22h-14m-00s.xz' (a rotation count then a textual
+`my_file.traces.7.2021-1-17-at-22h-14m-00s.xz` (a rotation count then a textual
 timestamp), located in the same directory.
 """.
 -spec rotateTraceFile( wooper:state() ) -> oneway_return().
@@ -1166,9 +1166,9 @@ above the current threshold, closes the current file, renames it, compresses it
 and creates a file from scratch to avoid it becomes too large. No trace can be
 lost in the process.
 
-If the current trace file is named 'my_file.traces', its rotated version could
+If the current trace file is named `my_file.traces`, its rotated version could
 be an XZ archive named for example
-'my_file.traces.7.2021-1-17-at-22h-14m-00s.xz' (a rotation count then a textual
+`my_file.traces.7.2021-1-17-at-22h-14m-00s.xz` (a rotation count then a textual
 timestamp), located in the same directory.
 """.
 -spec rotateTraceFileSync( wooper:state() ) ->
@@ -1396,8 +1396,6 @@ pops up in registry services.
 Waits a bit before giving up: useful when client and aggregator processes are
 launched almost simultaneously.
 """.
-
-
 -spec try_get_aggregator( boolean(), lookup_scope() ) ->
 			static_return( 'trace_aggregator_launch_failed'
 						 | 'trace_aggregator_not_found' | aggregator_pid() ).
@@ -1789,8 +1787,6 @@ enable_watchdog( RegName, LookupScope, Period, State ) ->
 Sends the specified trace immediately from the aggregator itself (hence to
 itself); this is done directly, in order to write it before any trace message
 that would be waiting in the mailbox.
-
-(helper)
 """.
 -spec send_internal_immediate( trace_severity(), message(),
 							   wooper:state() ) -> wooper:state().
@@ -1817,11 +1813,7 @@ send_internal_immediate( TraceSeverity, Message, State ) ->
 
 
 
--doc """
-Sends format-based traces from the aggregator itself (hence to itself).
-
-(helper)
-""".
+-doc "Sends format-based traces from the aggregator itself (hence to itself).".
 -spec send_internal_immediate( trace_severity(), format_string(),
 						format_values(), wooper:state() ) -> wooper:state().
 send_internal_immediate( TraceSeverity, MessageFormat, MessageValues, State ) ->
@@ -1834,8 +1826,6 @@ send_internal_immediate( TraceSeverity, MessageFormat, MessageValues, State ) ->
 Sends traces immediately from the aggregator itself (hence to itself), through a
 message sending, so that a trace can be sent even if at that point no trace file
 is available for writing.
-
-(helper)
 """.
 -spec send_internal_deferred( trace_severity(), message() ) -> void().
 send_internal_deferred( TraceSeverity, Message ) ->
@@ -1859,11 +1849,7 @@ send_internal_deferred( TraceSeverity, Message ) ->
 
 
 
--doc """
-Sends format-based traces from the aggregator itself (hence to itself).
-
-(helper)
-""".
+-doc "Sends format-based traces from the aggregator itself (hence to itself).".
 -spec send_internal_deferred( trace_severity(), format_string(),
 							  format_values() ) -> void().
 send_internal_deferred( TraceSeverity, MessageFormat, MessageValues ) ->
@@ -1872,11 +1858,7 @@ send_internal_deferred( TraceSeverity, MessageFormat, MessageValues ) ->
 
 
 
--doc """
-Takes care of any header in the trace header.
-
-(helper)
-""".
+-doc "Takes care of any header in the trace header.".
 -spec manage_trace_header( wooper:state() ) -> wooper:state().
 manage_trace_header( State ) ->
 
@@ -1933,11 +1915,7 @@ manage_trace_header( State ) ->
 
 
 
--doc """
-Takes care of any header in the trace header.
-
-(helper)
-""".
+-doc "Takes care of any footer in the trace header.".
 -spec manage_trace_footer( wooper:state() ) -> wooper:state().
 manage_trace_footer( State ) ->
 
@@ -2087,7 +2065,7 @@ format_full_lines( _Rows=[ { [ Line | OtherLines ], Width } | ColumnPairs ],
 
 -doc """
 Formats directly, typically client-side, a message from the specified
-information, assuming a trace supervision type of type 'advanced_traces'.
+information, assuming a trace supervision type of type `advanced_traces`.
 
 Doing so should be more efficient that sending as messages separate parameters:
 the resulting binary should be smaller than the sum of these terms, and the
@@ -2130,11 +2108,7 @@ format_as_advanced_trace( TraceEmitterPid, BinTraceEmitterName,
 
 
 
--doc """
-Opens the specified trace file for writing from scratch.
-
-(helper)
-""".
+-doc "Opens the specified trace file for writing from scratch.".
 open_trace_file( TraceFilename ) ->
 
 	%trace_utils:debug_fmt( "Creating trace file '~ts'.", [ TraceFilename ] ),
@@ -2145,11 +2119,7 @@ open_trace_file( TraceFilename ) ->
 
 
 
--doc """
-Reopens the specified trace file for writing from last position.
-
-(helper)
-""".
+-doc "Reopens the specified trace file for writing from last position.".
 reopen_trace_file( TraceFilename ) ->
 
 	%trace_utils:debug_fmt( "Reopening trace file '~ts'.", [ TraceFilename ] ),
@@ -2218,10 +2188,8 @@ rotate_trace_file( State ) ->
 Allows inspecting the trace messages, which are often copied and/or sent over
 the network, hence must be of minimal size.
 
-Use with: make traceManagement_run $BATCH|grep '(list)' to ensure that binaries
-are used whenever possible, instead of strings.
-
-(helper)
+Use with: `make traceManagement_run $BATCH | grep '(list)'` to ensure that
+binaries are used whenever possible, instead of strings.
 """.
 inspect_fields( FieldsReceived ) ->
 
@@ -2248,8 +2216,6 @@ inspect_fields( FieldsReceived ) ->
 Tells whether this aggregator was built with the traces being activated
 (presumably at least most BEAMs are expected to be built with that same
 setting).
-
-(helper)
 """.
 -spec is_tracing_activated() -> boolean().
 
