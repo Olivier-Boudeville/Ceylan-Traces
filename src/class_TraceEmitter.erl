@@ -84,6 +84,8 @@ traces.
 		  wait_for_aggregator_synchronisation/0,
 
 		  send_categorized_emitter/4, send_named_emitter/4,
+          send_categorised_named_emitter/5,
+
 		  get_trace_timestamp/1, get_trace_timestamp_as_binary/1,
 		  get_plain_name/1, get_short_description/1,
 		  sync/1, await_output_completion/0 ]).
@@ -1590,6 +1592,67 @@ send_named_emitter( TraceSeverity, State, Message, EmitterName ) ->
 			_MessageCategorization=uncategorized,
 			_Priority=trace_utils:get_priority_for( TraceSeverity ),
 			_Message=text_utils:string_to_binary( Message ) ] } ).
+
+
+
+-doc """
+Sends the specified (unsynchronised) trace message from this emitter, based on
+the specified emitter categorization and name.
+
+Primitive defined to be able to fully override the categorization of messages.
+""".
+-spec send_categorised_named_emitter ( trace_severity(), wooper:state(),
+    message(), emitter_categorization(), emitter_name() ) -> void().
+send_categorised_named_emitter( TraceSeverity, State, Message,
+                                EmitterCategorization, EmitterName ) ->
+
+	AppTimestamp = get_trace_timestamp( State ),
+	AppTimestampString = text_utils:term_to_binary( AppTimestamp ),
+
+	ActualEmitCateg = case is_atom( EmitterCategorization ) of
+
+		true ->
+			EmitterCategorization;
+
+		_False ->
+			text_utils:string_to_binary( EmitterCategorization )
+
+	end,
+
+	cond_utils:if_defined( traces_are_preformatted,
+
+		?getAttr(trace_aggregator_pid) ! { sendPreformatted, [
+			class_TraceAggregator:format_as_advanced_trace(
+				_TraceEmitterPid=self(),
+				text_utils:ensure_binary( EmitterName ),
+
+                % Hence not ?getAttr(trace_emitter_categorization):
+				_TraceEmitterCategorization=ActualEmitCateg,
+
+				AppTimestampString,
+				_Time=time_utils:get_bin_textual_timestamp(),
+				_Location=?getAttr(emitter_node),
+				_MessageCategorization=uncategorized,
+				_Priority=trace_utils:get_priority_for( TraceSeverity ),
+				_Message=text_utils:string_to_binary( Message ) ) ] },
+
+		% Anyway most of the types will be checked by the aggregator (if the
+		% traces_check_types token is set):
+		%
+		?getAttr(trace_aggregator_pid) ! { send, [
+			_TraceEmitterPid=self(),
+			text_utils:ensure_binary( EmitterName ),
+
+            % Hence not ?getAttr(trace_emitter_categorization):
+			_TraceEmitterCategorization=ActualEmitCateg,
+
+			AppTimestampString,
+			_Time=time_utils:get_bin_textual_timestamp(),
+			_Location=?getAttr(emitter_node),
+			_MessageCategorization=uncategorized,
+			_Priority=trace_utils:get_priority_for( TraceSeverity ),
+			_Message=text_utils:string_to_binary( Message ) ] } ).
+
 
 
 
