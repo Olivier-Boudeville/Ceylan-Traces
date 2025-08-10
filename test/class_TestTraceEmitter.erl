@@ -140,7 +140,7 @@ sendTraces( State ) ->
 
 	%trace_utils:notice_fmt( "~ts Sending some traces.", [ ?log_prefix ] ),
 
-	%send_traces( State ),
+	send_traces( State ),
 
 	send_traces_benchmark( State ),
 
@@ -276,7 +276,19 @@ send_traces( State ) ->
 	?notice_fmt_full( "Oh yeah ~w", [notice], ?execution, 8 ),
 	?info_fmt_full( "Oh yeah ~w", [info], ?application_start, 9 ),
 	?debug_fmt_full( "Oh yeah ~w", [debug], ?application_start, 10 ),
-	?void_fmt_full( "Oh yeah ~w", [void], ?application_start, 11 ).
+	?void_fmt_full( "Oh yeah ~w", [void], ?application_start, 11 ),
+
+    class_TraceEmitter:send_categorized_emitter( debug, State,
+        _Msg="As a categorized emitter",
+        _EmitterCateg="An arbitrary emitter categorization" ),
+
+    class_TraceEmitter:send_named_emitter( debug, State,
+        "As a named emitter", _EmitterName="An arbitrary emitter name" ),
+
+    class_TraceEmitter:send_categorised_named_emitter( debug, State,
+        "As a categorised and named emitter",
+        "Another arbitrary emitter categorization",
+        "Another arbitrary emitter name" ).
 
 
 

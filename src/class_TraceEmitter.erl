@@ -1508,9 +1508,13 @@ send( TraceSeverity, State, Message, MessageCategorization, AppTimestamp ) ->
 Sends the specified (unsynchronised) trace message from this emitter, based on
 the specified emitter categorization.
 
-Primitive defined to be able to override the emitter categorization, typically
-to create from this emitter "sub-channels". Note that the emitter name will be
-still added at the end of it.
+Note that the current emitter name of this instance will be still suffixed to
+the specified categorization.
+
+Primitive defined so that an instance can override its emitter categorization,
+typically in order to create from this emitter transverse "sub-channels" (the
+specified categorization), under which various instances may send their
+messages, each under their own suffixed name.
 """.
 -spec send_categorized_emitter( trace_severity(), wooper:state(), message(),
 								emitter_categorization() ) -> void().
@@ -1555,7 +1559,10 @@ send_categorized_emitter( TraceSeverity, State, Message,
 Sends the specified (unsynchronised) trace message from this emitter, based on
 the specified emitter name.
 
-Primitive defined to be able to override the emitter full name.
+Primitive defined so that an instance can override its emitter full name, while
+still being prefixed by its current emitter categorization. As a result, the
+corresponding messages will appear under a sibling, possibly thematical name, in
+the same categorization (so as a sub-topic thereof).
 """.
 -spec send_named_emitter( trace_severity(), wooper:state(), message(),
 						  emitter_name() ) -> void().
@@ -1597,9 +1604,10 @@ send_named_emitter( TraceSeverity, State, Message, EmitterName ) ->
 
 -doc """
 Sends the specified (unsynchronised) trace message from this emitter, based on
-the specified emitter categorization and name.
+the specified emitter categorization (prefix) and name (suffix).
 
-Primitive defined to be able to fully override the categorization of messages.
+Primitive defined so that an instance can fully override the categorization of
+its messages.
 """.
 -spec send_categorised_named_emitter ( trace_severity(), wooper:state(),
     message(), emitter_categorization(), emitter_name() ) -> void().

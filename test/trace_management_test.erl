@@ -85,7 +85,7 @@ run() ->
 	% Should not trigger the launch of another global aggregator:
 	% (as test_start triggers a *synchronous* aggregator):
 	%
-	MyTraceEmitter = class_TestTraceEmitter:synchronous_new_link( Name ),
+	MyTraceEmitterPid = class_TestTraceEmitter:synchronous_new_link( Name ),
 
 	% Test target here:
 	?test_emergency( "This is a test of the emergency severity for tests." ),
@@ -135,7 +135,7 @@ run() ->
 		"Requesting the TestTraceEmitter to send some traces." ),
 
 	% Waits until there is an answer for this trace emitter:
-	MyTraceEmitter ! { sendTraces, [], self() },
+	MyTraceEmitterPid ! { sendTraces, [], self() },
 
 	receive
 
@@ -146,18 +146,18 @@ run() ->
 
 	ExpectedFirstBinaryName = text_utils:string_to_binary( Name ),
 
-	MyTraceEmitter ! { getName, [], self() },
+	MyTraceEmitterPid ! { getName, [], self() },
 	ExpectedFirstBinaryName = test_receive(),
 	?test_info( "Correct name returned." ),
 
 
 	NewName = "This is my new name",
 
-	MyTraceEmitter ! { setName, [ NewName ] },
+	MyTraceEmitterPid ! { setName, [ NewName ] },
 
 	ExpectedSecondBinaryName = text_utils:string_to_binary( NewName ),
 
-	MyTraceEmitter ! { getName, [], self() },
+	MyTraceEmitterPid ! { getName, [], self() },
 	ExpectedSecondBinaryName = test_receive(),
 
 	?test_info( "Correct name returned." ),
@@ -165,7 +165,7 @@ run() ->
 
 	test_facilities:display( "Deleting this TestTraceEmitter." ),
 
-	MyTraceEmitter ! delete,
+	MyTraceEmitterPid ! delete,
 
 	% Test target here:
 	?test_stop,

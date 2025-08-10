@@ -31,8 +31,8 @@
 Unit tests for the implementation of **trace management under pressure**.
 
 See the following modules:
-- class_TraceAggregator
-- class_TraceSupervisor
+- `class_TraceAggregator`
+- `class_TraceSupervisor`
 
 Note: trace services are among the most generic services offered, they are used
 in the vast majority of tests but this one, as the purpose of this test is
@@ -47,10 +47,10 @@ the trace system!).
 
 
 
-send_traces( _TraceEmitters, _SequenceCount=0 ) ->
+send_test_traces( _TraceEmitters, _SequenceCount=0 ) ->
 	ok;
 
-send_traces( TraceEmitters, SequenceCount ) ->
+send_test_traces( TraceEmitters, SequenceCount ) ->
 
 	%test_facilities:display( "Pressure test sending set of traces, "
 	%                         "remaining: ~B.", [ SequenceCount ] ),
@@ -58,7 +58,7 @@ send_traces( TraceEmitters, SequenceCount ) ->
 	% We do not want 'ok' answers on purpose, to speed up the sending:
 	[ TE ! sendAsyncTraces || TE <- TraceEmitters ],
 
-	send_traces( TraceEmitters, SequenceCount-1 ).
+	send_test_traces( TraceEmitters, SequenceCount-1 ).
 
 
 
@@ -76,8 +76,8 @@ run() ->
 	% Allows to support both OTP conventions and ad hoc, automatic ones:
 	wooper_utils:start_for_test(),
 
-	test_facilities:display( "Starting Trace system, with a trace aggregator "
-							 "and, if requested, a trace supervisor." ),
+	test_facilities:display( "Starting the Trace system, with a trace "
+        "aggregator and, if requested, a trace supervisor." ),
 	?test_start,
 
 
@@ -135,7 +135,7 @@ run() ->
 	%SequenceCount = 15,
 	%SequenceCount = 100,
 
-	send_traces( MyTraceEmitters, SequenceCount ),
+	send_test_traces( MyTraceEmitters, SequenceCount ),
 
 	test_facilities:display( "All traces sent." ),
 

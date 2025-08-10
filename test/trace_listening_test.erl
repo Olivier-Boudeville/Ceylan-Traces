@@ -31,13 +31,13 @@
 Unit tests for the implementation of **trace listening**.
 
 See the following modules:
- - class_TraceListener
- - class_TraceSupervisor
- - class_TraceAggregator
+ - `class_TraceListener`
+ - `class_TraceSupervisor`
+ - `class_TraceAggregator`
 """.
 
 
-% The mode of operation is to execute this test while the trace_mManagement_test
+% The mode of operation is to execute this test while the trace_Management_test
 % is running:
 % - run on a first terminal: 'make trace_management_run'
 % - then run on a second terminal: 'make trace_listening_run'
@@ -60,12 +60,12 @@ See the following modules:
 
 
 % Sends (as fast as possible) the specified number of traces:
-send_traces( _Count=0 ) ->
+send_test_traces( _Count=0 ) ->
 	ok;
 
-send_traces( Count ) ->
+send_test_traces( Count ) ->
 	?test_info_fmt( "Emitting trace  #~B from listener.", [ Count ] ),
-	send_traces( Count-1 ).
+	send_test_traces( Count-1 ).
 
 
 
@@ -140,7 +140,7 @@ test_actual_body() ->
 	?test_info( "First trace sent from test, before the creation "
 				"of the trace listener." ),
 
-	send_traces( _Count=40 ),
+	send_test_traces( _Count=40 ),
 
 	% No ?test_start: we want to use the aggregator from the node named
 	% 'trace_management_run'.
