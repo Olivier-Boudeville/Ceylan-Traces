@@ -28,7 +28,7 @@
 -module(class_TraceEmitter).
 
 -moduledoc """
-The **trace emitter** class, base class for all (WOOPER-based) emitters of
+The **trace emitter** class, the base class for all (WOOPER-based) emitters of
 traces.
 """.
 
