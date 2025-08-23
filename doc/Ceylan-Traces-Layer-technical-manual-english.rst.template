@@ -575,7 +575,7 @@ Refer to the corresponding `Myriad prerequisite section <http://myriad.esperide.
 
 
 
-Using Cutting-Edge GIT
+Using Cutting-Edge Git
 ======================
 
 This is the installation method that we use and recommend; the Traces ``master`` branch is meant to stick to the latest stable version: we try to ensure that this main line always stays functional (sorry for the pun). Evolutions are to take place in feature branches and to be merged only when ready.
@@ -678,7 +678,7 @@ Then, for example for a test module defined in ``foobar_test.erl``, running from
 Testing Traces
 --------------
 
-Once the prerequisites (`Myriad <https://myriad.esperide.org>`_ and `WOOPER <https://wooper.esperide.org>`_) and Traces itself have been secured (for that refer to either `Using Cutting-Edge GIT`_ or `Using Rebar3`_), just run from the root directory of Traces:
+Once the prerequisites (`Myriad <https://myriad.esperide.org>`_ and `WOOPER <https://wooper.esperide.org>`_) and Traces itself have been secured (for that refer to either `Using Cutting-Edge Git`_ or `Using Rebar3`_), just run from the root directory of Traces:
 
 .. code:: bash
 
