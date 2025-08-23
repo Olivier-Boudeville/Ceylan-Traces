@@ -12,7 +12,7 @@
 /* For blocks of code (introduced with '.. code::'): */
 pre.code {
 	margin-left: 3%;
-	background: #ccddcc;
+	background: #ddeedd;
 	text-indent: 0%;
 }
 
@@ -20,7 +20,7 @@ pre.code {
 /* For inline (in-text) literals (i.e. surrounded with '``'): */
 .literal {
 	font-family: monospace, serif;
-	background: #ccddcc ;
+	background:  #ddeedd;
 	white-space: pre-wrap;
 	font-size: 90%;
 }
@@ -28,7 +28,7 @@ pre.code {
 
 /* For command printouts (introduced with '::' then a block): */
 .literal-block {
-	background: #acc8a5;
+	background: #ddeedd;
 	margin-left: 2%;
 }
 
