@@ -1030,7 +1030,7 @@ addTraceListener( State, ListenerPid ) ->
 			catch
 
 				throw:Exception:Stacktrace ->
-					Message = text_utils:format( "Adding trace listener ~w "
+                    Message = text_utils:format( "Adding trace listener ~w "
 						"failed, hence has been ignored: exception '~w' was "
 						"raised.~nStacktrace was: ~ts",
 						[ ListenerPid, Exception,
