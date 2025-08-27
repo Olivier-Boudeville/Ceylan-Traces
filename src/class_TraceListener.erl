@@ -28,7 +28,7 @@
 -module(class_TraceListener).
 
 -moduledoc """
-The *trace listener class* is similar to a remote trace supervisor, able to
+The **trace listener class** is similar to a remote trace supervisor, able to
 synchronise at will to a trace aggregator.
 """.
 
@@ -196,7 +196,7 @@ within the specified range of TCP ports, synchronised to specified trace
 aggregator.
 
 TraceAggregatorPid is the PID of the trace aggregator to which this listener
-will be synchronized.
+will be synchronised.
 """.
 -spec construct( wooper:state(), aggregator_pid(), net_utils:tcp_port(),
 				 net_utils:tcp_port(), pid() ) -> wooper:state().
