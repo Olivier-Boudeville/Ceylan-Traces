@@ -83,17 +83,17 @@
 	case TracesInitialisationTermInternal of
 
 		% Emitter categorization already set, just propagate as it is to the
-		% next mother class:
+		% next mother class.
 		%
-		%{ _TraceName, _TraceCategorization } ->
+		% We have {TraceName, TraceCategorization} here:
 		{ _, _ } ->
 			TracesInitialisationTermInternal;
 
 		% Expecting here only a string (we are at the level of the actual,
 		% effective class), it is the place where the emitter categorisation
-		% shall be introduced:
+		% shall be introduced.
 		%
-		%TracesStandaloneEmitterName ->
+		% We just have TracesStandaloneEmitterName here:
 		_ ->
 			{ TracesInitialisationTermInternal, ?trace_emitter_categorization }
 
