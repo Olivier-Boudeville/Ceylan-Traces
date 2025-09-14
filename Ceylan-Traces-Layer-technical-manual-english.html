@@ -32,7 +32,7 @@
 <tr class="field"><th class="field-name">Creation date:</th><td class="field-body"><p class="first">Sunday, August 15, 2010</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Saturday, August 23, 2025</p>
+<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Sunday, September 14, 2025</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">1.0.26</p>
@@ -112,11 +112,12 @@ The next level of information is either to browse the <a class="reference extern
 <li><a class="reference internal" href="#duplicated-traces" id="toc-entry-38">Duplicated Traces</a></li>
 <li><a class="reference internal" href="#lost-logmx-settings" id="toc-entry-39">Lost LogMX Settings</a></li>
 <li><a class="reference internal" href="#java-error-when-launching-logmx" id="toc-entry-40">Java Error When Launching LogMX</a></li>
+<li><a class="reference internal" href="#requested-widths-for-logmx-entry-columns-not-honored" id="toc-entry-41">Requested Widths for LogMX Entry Columns Not Honored</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#support" id="toc-entry-41">Support</a></li>
-<li><a class="reference internal" href="#please-react" id="toc-entry-42">Please React!</a></li>
-<li><a class="reference internal" href="#ending-word" id="toc-entry-43">Ending Word</a></li>
+<li><a class="reference internal" href="#support" id="toc-entry-42">Support</a></li>
+<li><a class="reference internal" href="#please-react" id="toc-entry-43">Please React!</a></li>
+<li><a class="reference internal" href="#ending-word" id="toc-entry-44">Ending Word</a></li>
 </ul>
 </div>
 <p></p>
@@ -622,17 +623,22 @@ $<span class="w"> </span><span class="nb">type</span><span class="w"> </span>jav
 </pre>
 <p>Arch users may also install a relevant Java with <tt class="docutils literal">pacman <span class="pre">-Sy</span> <span class="pre">jre-openjdk</span></tt> and run <tt class="docutils literal"><span class="pre">archlinux-java</span> status</tt> to check which version shall be used (then possibly <tt class="docutils literal"><span class="pre">archlinux-java</span> set <span class="pre">java-21-openjdk</span></tt> to select it).</p>
 </div>
+<div class="section" id="requested-widths-for-logmx-entry-columns-not-honored">
+<h2><a class="toc-backref" href="#toc-entry-41">Requested Widths for LogMX Entry Columns Not Honored</a></h2>
+<p>The preferred respective widths for the various entry columns can be set (in <tt class="docutils literal">Tools <span class="pre">-&gt;</span> Options <span class="pre">-&gt;</span> Display</tt>, thanks to the <tt class="docutils literal">Entries table <span class="pre">columns...</span></tt> button) and recorded (in <tt class="docutils literal">logmx.properties</tt>), yet, with some versions of Java, such settings might not be respected.</p>
+<p>At least on Arch Linux, switching (thanks to <tt class="docutils literal"><span class="pre">archlinux-java</span></tt>) from <tt class="docutils literal"><span class="pre">java-24-openjdk</span></tt> back to <tt class="docutils literal"><span class="pre">java-11-openjdk</span></tt> allowed to restore the correct management of these settings (otherwise ignored with more recent Java versions - at least with ancient versions of LogMX).</p>
+</div>
 </div>
 <div class="section" id="support">
-<h1><a class="toc-backref" href="#toc-entry-41">Support</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-42">Support</a></h1>
 <p>Bugs, questions, remarks, patches, requests for enhancements, etc. are to be reported to the <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces">project interface</a> (typically <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/issues">issues</a>) or directly at the email address mentioned at the beginning of this document.</p>
 </div>
 <div class="section" id="please-react">
-<h1><a class="toc-backref" href="#toc-entry-42">Please React!</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-43">Please React!</a></h1>
 <p>If you have information more detailed or more recent than those presented in this document, if you noticed errors, neglects or points insufficiently discussed, drop us a line! (for that, follow the <a class="reference internal" href="#support">Support</a> guidelines).</p>
 </div>
 <div class="section" id="ending-word">
-<h1><a class="toc-backref" href="#toc-entry-43">Ending Word</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-44">Ending Word</a></h1>
 <p>Have fun with Ceylan-Traces!</p>
 <p><span class="raw-html"><center><img src="traces-title.png" id="responsive-image-small"></img></center></span>
 </p>
