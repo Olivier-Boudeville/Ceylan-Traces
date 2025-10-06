@@ -775,6 +775,15 @@ The preferred respective widths for the various entry columns can be set (in ``T
 
 At least on Arch Linux, switching (thanks to ``archlinux-java``) from ``java-24-openjdk`` back to ``java-11-openjdk`` allowed to restore the correct management of these settings (otherwise ignored with more recent Java versions - at least with ancient versions of LogMX).
 
+It just boils down to run as root:
+
+.. code:: bash
+
+ $ pacman -Sy jdk11-openjdk
+ $ archlinux-java set java-11-openjdk
+
+(the full ``jdk`` is not necessary, the ``jre`` would suffice)
+
 
 
 -------
