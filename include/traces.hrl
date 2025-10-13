@@ -69,9 +69,9 @@
 %
 -ifndef(TraceType).
 
-	-define( TraceType, advanced_traces ).
-	%-define( TraceType, { text_traces, pdf } ).
-	%-define( TraceType, { text_traces, text_only } ).
+    -define( TraceType, advanced_traces ).
+    %-define( TraceType, { text_traces, pdf } ).
+    %-define( TraceType, { text_traces, text_only } ).
 
 -endif. % TraceType
 
@@ -79,7 +79,7 @@
 
 % Defines the trace title (e.g. for PDF output), if not already specified:
 -ifndef(TraceTitle).
-	-define( TraceTitle, "Ceylan" ).
+    -define( TraceTitle, "Ceylan" ).
 -endif. % TraceTitle
 
 
@@ -123,7 +123,7 @@
 % static method):
 %
 -define( notify_emergency( Message ),
-		 class_TraceEmitter:send_standalone_safe( emergency, Message )
+         class_TraceEmitter:send_standalone_safe( emergency, Message )
 ).
 
 
@@ -132,8 +132,8 @@
 % static method):
 %
 -define( notify_emergency_cat( Message, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( emergency, Message,
-												  EmitterCategorization )
+         class_TraceEmitter:send_standalone_safe( emergency, Message,
+                                                  EmitterCategorization )
 ).
 
 
@@ -144,8 +144,8 @@
 % (last parameter: MessageCategorization)
 %
 -define( notify_emergency_named( Message, EmitterName, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( emergency, Message, EmitterName,
-			EmitterCategorization, uncategorized )
+         class_TraceEmitter:send_standalone( emergency, Message, EmitterName,
+            EmitterCategorization, uncategorized )
 ).
 
 
@@ -155,9 +155,9 @@
 % according to the application.
 %
 -define( notify_emergency_full( Message, EmitterCategorization,
-								ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone_safe( emergency, Message,
-			EmitterCategorization, ApplicationTimestamp )
+                                ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone_safe( emergency, Message,
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -170,8 +170,8 @@
 % static method):
 %
 -define( notify_emergency_fmt( Message, FormatValues ),
-		 class_TraceEmitter:send_standalone_safe( emergency,
-			text_utils:format( Message, FormatValues ) )
+         class_TraceEmitter:send_standalone_safe( emergency,
+            text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -180,10 +180,10 @@
 % static method):
 %
 -define( notify_emergency_fmt_cat( Message, FormatValues,
-								   EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( emergency,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization )
+                                   EmitterCategorization ),
+         class_TraceEmitter:send_standalone_safe( emergency,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization )
 ).
 
 
@@ -192,10 +192,10 @@
 % static method):
 %
 -define( notify_emergency_fmt_full( Message, FormatValues,
-			EmitterCategorization, ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone_safe( emergency,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization, ApplicationTimestamp )
+            EmitterCategorization, ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone_safe( emergency,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -215,7 +215,7 @@
 % static method):
 %
 -define( notify_alert( Message ),
-		 class_TraceEmitter:send_standalone_safe( alert, Message )
+         class_TraceEmitter:send_standalone_safe( alert, Message )
 ).
 
 
@@ -224,8 +224,8 @@
 % static method):
 %
 -define( notify_alert_cat( Message, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( alert, Message,
-												  EmitterCategorization )
+         class_TraceEmitter:send_standalone_safe( alert, Message,
+                                                  EmitterCategorization )
 ).
 
 
@@ -236,8 +236,8 @@
 % (last parameter: MessageCategorization)
 %
 -define( notify_alert_named( Message, EmitterName, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( alert, Message, EmitterName,
-			EmitterCategorization, uncategorized )
+         class_TraceEmitter:send_standalone( alert, Message, EmitterName,
+            EmitterCategorization, uncategorized )
 ).
 
 
@@ -247,9 +247,9 @@
 % according to the application.
 %
 -define( notify_alert_full( Message, EmitterCategorization,
-							ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone_safe( alert, Message,
-			EmitterCategorization, ApplicationTimestamp )
+                            ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone_safe( alert, Message,
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -262,8 +262,8 @@
 % static method):
 %
 -define( notify_alert_fmt( Message, FormatValues ),
-		 class_TraceEmitter:send_standalone_safe( alert,
-			text_utils:format( Message, FormatValues ) )
+         class_TraceEmitter:send_standalone_safe( alert,
+            text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -272,9 +272,9 @@
 % static method):
 %
 -define( notify_alert_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( alert,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization )
+         class_TraceEmitter:send_standalone_safe( alert,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization )
 ).
 
 
@@ -283,10 +283,10 @@
 % static method):
 %
 -define( notify_alert_fmt_full( Message, FormatValues, EmitterCategorization,
-								ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone_safe( alert,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization, ApplicationTimestamp )
+                                ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone_safe( alert,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -305,7 +305,7 @@
 % static method):
 %
 -define( notify_critical( Message ),
-		 class_TraceEmitter:send_standalone_safe( critical, Message )
+         class_TraceEmitter:send_standalone_safe( critical, Message )
 ).
 
 
@@ -314,8 +314,8 @@
 % static method):
 %
 -define( notify_critical_cat( Message, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( critical, Message,
-												  EmitterCategorization )
+         class_TraceEmitter:send_standalone_safe( critical, Message,
+                                                  EmitterCategorization )
 ).
 
 
@@ -326,8 +326,8 @@
 % (last parameter: MessageCategorization)
 %
 -define( notify_critical_named( Message, EmitterName, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( critical, Message, EmitterName,
-			EmitterCategorization, uncategorized )
+         class_TraceEmitter:send_standalone( critical, Message, EmitterName,
+            EmitterCategorization, uncategorized )
 ).
 
 
@@ -337,9 +337,9 @@
 % according to the application.
 %
 -define( notify_critical_full( Message, EmitterCategorization,
-							   ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone_safe( critical, Message,
-			EmitterCategorization, ApplicationTimestamp )
+                               ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone_safe( critical, Message,
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -352,8 +352,8 @@
 % static method):
 %
 -define( notify_critical_fmt( Message, FormatValues ),
-		 class_TraceEmitter:send_standalone_safe( critical,
-			text_utils:format( Message, FormatValues ) )
+         class_TraceEmitter:send_standalone_safe( critical,
+            text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -362,10 +362,10 @@
 % static method):
 %
 -define( notify_critical_fmt_cat( Message, FormatValues,
-								  EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( critical,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization )
+                                  EmitterCategorization ),
+         class_TraceEmitter:send_standalone_safe( critical,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization )
 ).
 
 
@@ -374,10 +374,10 @@
 % static method):
 %
 -define( notify_critical_fmt_full( Message, FormatValues, EmitterCategorization,
-								   ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone_safe( critical,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization, ApplicationTimestamp )
+                                   ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone_safe( critical,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -395,7 +395,7 @@
 % static method):
 %
 -define( notify_error( Message ),
-		 class_TraceEmitter:send_standalone_safe( error, Message )
+         class_TraceEmitter:send_standalone_safe( error, Message )
 ).
 
 
@@ -404,8 +404,8 @@
 % static method):
 %
 -define( notify_error_cat( Message, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( error, Message,
-												  EmitterCategorization )
+         class_TraceEmitter:send_standalone_safe( error, Message,
+                                                  EmitterCategorization )
 ).
 
 
@@ -416,8 +416,8 @@
 % (last parameter: MessageCategorization)
 %
 -define( notify_error_named( Message, EmitterName, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( error, Message, EmitterName,
-			EmitterCategorization, uncategorized )
+         class_TraceEmitter:send_standalone( error, Message, EmitterName,
+            EmitterCategorization, uncategorized )
 ).
 
 
@@ -426,9 +426,9 @@
 % static method):
 %
 -define( notify_error_full( Message, EmitterCategorization,
-							ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone_safe( error, Message,
-			EmitterCategorization, ApplicationTimestamp )
+                            ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone_safe( error, Message,
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -441,8 +441,8 @@
 % static method):
 %
 -define( notify_error_fmt( Message, FormatValues ),
-		 class_TraceEmitter:send_standalone_safe( error,
-			text_utils:format( Message, FormatValues ) )
+         class_TraceEmitter:send_standalone_safe( error,
+            text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -451,9 +451,9 @@
 % static method):
 %
 -define( notify_error_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( error,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization )
+         class_TraceEmitter:send_standalone_safe( error,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization )
 ).
 
 
@@ -462,10 +462,10 @@
 % static method):
 %
 -define( notify_error_fmt_full( Message, FormatValues, EmitterCategorization,
-								ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone_safe( error,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization, ApplicationTimestamp )
+                                ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone_safe( error,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -484,7 +484,7 @@
 % static method):
 %
 -define( notify_warning( Message ),
-		 class_TraceEmitter:send_standalone_safe( warning, Message )
+         class_TraceEmitter:send_standalone_safe( warning, Message )
 ).
 
 
@@ -493,8 +493,8 @@
 % static method):
 %
 -define( notify_warning_cat( Message, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( warning, Message,
-												  EmitterCategorization )
+         class_TraceEmitter:send_standalone_safe( warning, Message,
+                                                  EmitterCategorization )
 ).
 
 
@@ -505,8 +505,8 @@
 % (last parameter: MessageCategorization)
 %
 -define( notify_warning_named( Message, EmitterName, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( warning, Message, EmitterName,
-			EmitterCategorization, uncategorized )
+         class_TraceEmitter:send_standalone( warning, Message, EmitterName,
+            EmitterCategorization, uncategorized )
 ).
 
 
@@ -515,9 +515,9 @@
 % static method):
 %
 -define( notify_warning_full( Message, EmitterCategorization,
-							  ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone_safe( warning, Message,
-			EmitterCategorization, ApplicationTimestamp )
+                              ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone_safe( warning, Message,
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -532,8 +532,8 @@
 % static method):
 %
 -define( notify_warning_fmt( Message, FormatValues ),
-		 class_TraceEmitter:send_standalone_safe( warning,
-			text_utils:format( Message, FormatValues ) )
+         class_TraceEmitter:send_standalone_safe( warning,
+            text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -542,9 +542,9 @@
 % static method):
 %
 -define( notify_warning_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( warning,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization )
+         class_TraceEmitter:send_standalone_safe( warning,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization )
 ).
 
 
@@ -553,10 +553,10 @@
 % static method):
 %
 -define( notify_warning_fmt_full( Message, FormatValues, EmitterCategorization,
-								  ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone_safe( warning,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization, ApplicationTimestamp )
+                                  ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone_safe( warning,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -582,7 +582,7 @@
 % static method):
 %
 -define( notify_notice( Message ),
-		 class_TraceEmitter:send_standalone( notice, Message )
+         class_TraceEmitter:send_standalone( notice, Message )
 ).
 
 
@@ -591,8 +591,8 @@
 % static method):
 %
 -define( notify_notice_cat( Message, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( notice, Message,
-											 EmitterCategorization )
+         class_TraceEmitter:send_standalone( notice, Message,
+                                             EmitterCategorization )
 ).
 
 
@@ -601,9 +601,9 @@
 % static method):
 %
 -define( notify_notice_em( Message, EmitterName, EmitterCategorization,
-						   MessageCategorization ),
-		 class_TraceEmitter:send_standalone( notice, Message, EmitterName,
-			EmitterCategorization, MessageCategorization )
+                           MessageCategorization ),
+         class_TraceEmitter:send_standalone( notice, Message, EmitterName,
+            EmitterCategorization, MessageCategorization )
 ).
 
 
@@ -614,8 +614,8 @@
 % (last parameter: MessageCategorization)
 %
 -define( notify_notice_named( Message, EmitterName, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( notice, Message, EmitterName,
-			EmitterCategorization, uncategorized )
+         class_TraceEmitter:send_standalone( notice, Message, EmitterName,
+            EmitterCategorization, uncategorized )
 ).
 
 
@@ -624,9 +624,9 @@
 % static method):
 %
 -define( notify_notice_full( Message, EmitterCategorization,
-							 ApplicationTimestamp ),
-		class_TraceEmitter:send_standalone( notice, Message,
-			EmitterCategorization, ApplicationTimestamp )
+                             ApplicationTimestamp ),
+        class_TraceEmitter:send_standalone( notice, Message,
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -641,8 +641,8 @@
 % static method):
 %
 -define( notify_notice_fmt( Message, FormatValues ),
-		 class_TraceEmitter:send_standalone( notice,
-			text_utils:format( Message, FormatValues ) )
+         class_TraceEmitter:send_standalone( notice,
+            text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -651,9 +651,9 @@
 % static method):
 %
 -define( notify_notice_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( notice,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization )
+         class_TraceEmitter:send_standalone( notice,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization )
 ).
 
 
@@ -661,10 +661,10 @@
 % static method):
 %
 -define( notify_notice_fmt_em( Message, FormatValues, EmitterName,
-			EmitterCategorization, MessageCategorization ),
-		 class_TraceEmitter:send_standalone( notice,
-			text_utils:format( Message, FormatValues ), EmitterName,
-			EmitterCategorization, MessageCategorization )
+            EmitterCategorization, MessageCategorization ),
+         class_TraceEmitter:send_standalone( notice,
+            text_utils:format( Message, FormatValues ), EmitterName,
+            EmitterCategorization, MessageCategorization )
 ).
 
 
@@ -672,10 +672,10 @@
 % static method):
 %
 -define( notify_notice_fmt_full( Message, FormatValues, EmitterCategorization,
-								 ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone( notice,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization, ApplicationTimestamp )
+                                 ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone( notice,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -696,7 +696,7 @@
 % static method):
 %
 -define( notify_info( Message ),
-		 class_TraceEmitter:send_standalone( info, Message )
+         class_TraceEmitter:send_standalone( info, Message )
 ).
 
 
@@ -705,8 +705,8 @@
 % static method):
 %
 -define( notify_info_cat( Message, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( info, Message,
-											 EmitterCategorization )
+         class_TraceEmitter:send_standalone( info, Message,
+                                             EmitterCategorization )
 ).
 
 
@@ -715,9 +715,9 @@
 % static method):
 %
 -define( notify_info_em( Message, EmitterName, EmitterCategorization,
-						 MessageCategorization ),
-		 class_TraceEmitter:send_standalone( info, Message, EmitterName,
-			EmitterCategorization, MessageCategorization )
+                         MessageCategorization ),
+         class_TraceEmitter:send_standalone( info, Message, EmitterName,
+            EmitterCategorization, MessageCategorization )
 ).
 
 
@@ -728,8 +728,8 @@
 % (last parameter: MessageCategorization)
 %
 -define( notify_info_named( Message, EmitterName, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( info, Message, EmitterName,
-			EmitterCategorization, uncategorized )
+         class_TraceEmitter:send_standalone( info, Message, EmitterName,
+            EmitterCategorization, uncategorized )
 ).
 
 
@@ -738,9 +738,9 @@
 % static method):
 %
 -define( notify_info_full( Message, EmitterCategorization,
-						   ApplicationTimestamp ),
-		class_TraceEmitter:send_standalone( info, Message,
-			EmitterCategorization, ApplicationTimestamp )
+                           ApplicationTimestamp ),
+        class_TraceEmitter:send_standalone( info, Message,
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -755,8 +755,8 @@
 % static method):
 %
 -define( notify_info_fmt( Message, FormatValues ),
-		 class_TraceEmitter:send_standalone( info,
-			text_utils:format( Message, FormatValues ) )
+         class_TraceEmitter:send_standalone( info,
+            text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -765,9 +765,9 @@
 % static method):
 %
 -define( notify_info_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( info,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization )
+         class_TraceEmitter:send_standalone( info,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization )
 ).
 
 
@@ -775,10 +775,10 @@
 % static method):
 %
 -define( notify_info_fmt_em( Message, FormatValues, EmitterName,
-							 EmitterCategorization, MessageCategorization ),
-		 class_TraceEmitter:send_standalone( info,
-			text_utils:format( Message, FormatValues ), EmitterName,
-			EmitterCategorization, MessageCategorization )
+                             EmitterCategorization, MessageCategorization ),
+         class_TraceEmitter:send_standalone( info,
+            text_utils:format( Message, FormatValues ), EmitterName,
+            EmitterCategorization, MessageCategorization )
 ).
 
 
@@ -786,10 +786,10 @@
 % static method):
 %
 -define( notify_info_fmt_full( Message, FormatValues, EmitterCategorization,
-							   ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone( info,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization, ApplicationTimestamp )
+                               ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone( info,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -810,7 +810,7 @@
 % (e.g. from a static method):
 %
 -define( notify_debug( Message ),
-		 class_TraceEmitter:send_standalone( debug, Message )
+         class_TraceEmitter:send_standalone( debug, Message )
 ).
 
 
@@ -820,8 +820,8 @@
 % (e.g. from a static method):
 %
 -define( notify_debug_cat( Message, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( debug, Message,
-											 EmitterCategorization )
+         class_TraceEmitter:send_standalone( debug, Message,
+                                             EmitterCategorization )
 ).
 
 
@@ -832,8 +832,8 @@
 % (last parameter: MessageCategorization)
 %
 -define( notify_debug_named( Message, EmitterName, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( debug, Message, EmitterName,
-			EmitterCategorization, uncategorized )
+         class_TraceEmitter:send_standalone( debug, Message, EmitterName,
+            EmitterCategorization, uncategorized )
 ).
 
 
@@ -842,9 +842,9 @@
 % (e.g. from a static method):
 %
 -define( notify_debug_full( Message, EmitterCategorization,
-							ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone( debug, Message,
-			EmitterCategorization, ApplicationTimestamp )
+                            ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone( debug, Message,
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -855,8 +855,8 @@
 % (e.g. from a static method):
 %
 -define( notify_debug_fmt( Message, FormatValues ),
-		 class_TraceEmitter:send_standalone( debug,
-			text_utils:format( Message, FormatValues ) )
+         class_TraceEmitter:send_standalone( debug,
+            text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -864,9 +864,9 @@
 % (e.g. from a static method):
 %
 -define( notify_debug_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone( debug,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization )
+         class_TraceEmitter:send_standalone( debug,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization )
 ).
 
 
@@ -874,10 +874,10 @@
 % (e.g. from a static method):
 %
 -define( notify_debug_fmt_full( Message, FormatValues, EmitterCategorization,
-								ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone( debug,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization, ApplicationTimestamp )
+                                ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone( debug,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 
@@ -919,49 +919,49 @@
 
 
 -define( notify_notice( Message ),
-		 trace_disabled( Message )
+         trace_disabled( Message )
 ).
 
 
 -define( notify_notice_cat( Message, EmitterCategorization ),
-		 trace_disabled( Message, EmitterCategorization )
+         trace_disabled( Message, EmitterCategorization )
 ).
 
 
 -define( notify_notice_em( Message, EmitterName, EmitterCategorization,
-						   MessageCategorization ),
-		 trace_disabled( Message, EmitterName, EmitterCategorization,
-						 MessageCategorization )
+                           MessageCategorization ),
+         trace_disabled( Message, EmitterName, EmitterCategorization,
+                         MessageCategorization )
 ).
 
 
 -define( notify_notice_named( Message, EmitterName, EmitterCategorization ),
-		 trace_disabled( Message, EmitterName, EmitterCategorization )
+         trace_disabled( Message, EmitterName, EmitterCategorization )
 ).
 
 
 -define( notify_notice_full( Message, EmitterCategorization,
-							 ApplicationTimestamp ),
-		 trace_disabled( Message, EmitterCategorization,
-						 ApplicationTimestamp )
+                             ApplicationTimestamp ),
+         trace_disabled( Message, EmitterCategorization,
+                         ApplicationTimestamp )
 ).
 
 
 
 -define( notify_notice_fmt( Message, FormatValues ),
-		 trace_disabled( Message, FormatValues )
+         trace_disabled( Message, FormatValues )
 ).
 
 
 -define( notify_notice_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization )
+         trace_disabled( Message, FormatValues, EmitterCategorization )
 ).
 
 
 -define( notify_notice_fmt_full( Message, FormatValues, EmitterCategorization,
-								 ApplicationTimestamp ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization,
-						 ApplicationTimestamp )
+                                 ApplicationTimestamp ),
+         trace_disabled( Message, FormatValues, EmitterCategorization,
+                         ApplicationTimestamp )
 ).
 
 
@@ -973,49 +973,49 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 -define( notify_info( Message ),
-		 trace_disabled( Message )
+         trace_disabled( Message )
 ).
 
 
 -define( notify_info_cat( Message, EmitterCategorization ),
-		 trace_disabled( Message, EmitterCategorization )
+         trace_disabled( Message, EmitterCategorization )
 ).
 
 
 -define( notify_info_em( Message, EmitterName, EmitterCategorization,
-						 MessageCategorization ),
-		 trace_disabled( Message, EmitterName, EmitterCategorization,
-						 MessageCategorization )
+                         MessageCategorization ),
+         trace_disabled( Message, EmitterName, EmitterCategorization,
+                         MessageCategorization )
 ).
 
 
 -define( notify_info_named( Message, EmitterName, EmitterCategorization ),
-		 trace_disabled( Message, EmitterName, EmitterCategorization )
+         trace_disabled( Message, EmitterName, EmitterCategorization )
 ).
 
 
 -define( notify_info_full( Message, EmitterCategorization,
-						   ApplicationTimestamp ),
-		 trace_disabled( Message, EmitterCategorization,
-						 ApplicationTimestamp )
+                           ApplicationTimestamp ),
+         trace_disabled( Message, EmitterCategorization,
+                         ApplicationTimestamp )
 ).
 
 
 
 -define( notify_info_fmt( Message, FormatValues ),
-		 trace_disabled( Message, FormatValues )
+         trace_disabled( Message, FormatValues )
 ).
 
 
 -define( notify_info_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization )
+         trace_disabled( Message, FormatValues, EmitterCategorization )
 ).
 
 
 -define( notify_info_fmt_full( Message, FormatValues, EmitterCategorization,
-							   ApplicationTimestamp ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization,
-						 ApplicationTimestamp )
+                               ApplicationTimestamp ),
+         trace_disabled( Message, FormatValues, EmitterCategorization,
+                         ApplicationTimestamp )
 ).
 
 
@@ -1027,42 +1027,42 @@
 
 
 -define( notify_debug( Message ),
-		 trace_disabled( Message )
+         trace_disabled( Message )
 ).
 
 
 -define( notify_debug_cat( Message, EmitterCategorization ),
-		 trace_disabled( Message, EmitterCategorization )
+         trace_disabled( Message, EmitterCategorization )
 ).
 
 
 -define( notify_debug_named( Message, EmitterName, EmitterCategorization ),
-		 trace_disabled( Message, EmitterName, EmitterCategorization )
+         trace_disabled( Message, EmitterName, EmitterCategorization )
 ).
 
 
 -define( notify_debug_full( Message, EmitterCategorization,
-							ApplicationTimestamp ),
-		 trace_disabled( Message, EmitterCategorization,
-						 ApplicationTimestamp )
+                            ApplicationTimestamp ),
+         trace_disabled( Message, EmitterCategorization,
+                         ApplicationTimestamp )
 ).
 
 
 
 -define( notify_debug_fmt( Message, FormatValues ),
-		 trace_disabled( Message, FormatValues )
+         trace_disabled( Message, FormatValues )
 ).
 
 
 -define( notify_debug_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization )
+         trace_disabled( Message, FormatValues, EmitterCategorization )
 ).
 
 
 -define( notify_debug_fmt_full( Message, FormatValues, EmitterCategorization,
-								ApplicationTimestamp ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization,
-						 ApplicationTimestamp )
+                                ApplicationTimestamp ),
+         trace_disabled( Message, FormatValues, EmitterCategorization,
+                         ApplicationTimestamp )
 ).
 
 
@@ -1082,37 +1082,37 @@
 
 
 -define( notify_void( Message ),
-		 trace_disabled( Message )
+         trace_disabled( Message )
 ).
 
 
 -define( notify_void_cat( Message, EmitterCategorization ),
-		 trace_disabled( Message, EmitterCategorization )
+         trace_disabled( Message, EmitterCategorization )
 ).
 
 
 -define( notify_void_full( Message, EmitterCategorization,
-						   ApplicationTimestamp ),
-		 trace_disabled( Message, EmitterCategorization,
-						 ApplicationTimestamp )
+                           ApplicationTimestamp ),
+         trace_disabled( Message, EmitterCategorization,
+                         ApplicationTimestamp )
 ).
 
 
 
 -define( notify_void_fmt( Message, FormatValues ),
-		 trace_disabled( Message, FormatValues )
+         trace_disabled( Message, FormatValues )
 ).
 
 
 -define( notify_void_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization )
+         trace_disabled( Message, FormatValues, EmitterCategorization )
 ).
 
 
 -define( notify_void_fmt_full( Message, FormatValues, EmitterCategorization,
-							   ApplicationTimestamp ),
-		 trace_disabled( Message, FormatValues, EmitterCategorization,
-						 ApplicationTimestamp )
+                               ApplicationTimestamp ),
+         trace_disabled( Message, FormatValues, EmitterCategorization,
+                         ApplicationTimestamp )
 ).
 
 
@@ -1136,7 +1136,7 @@
 % static method):
 %
 -define( notify( Message ),
-		 class_TraceEmitter:send_standalone_safe( info, Message )
+         class_TraceEmitter:send_standalone_safe( info, Message )
 ).
 
 
@@ -1145,8 +1145,8 @@
 % static method):
 %
 -define( notify_cat( Message, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( info, Message,
-												  EmitterCategorization )
+         class_TraceEmitter:send_standalone_safe( info, Message,
+                                                  EmitterCategorization )
 ).
 
 
@@ -1155,9 +1155,9 @@
 % static method):
 %
 -define( notify_em( Message, EmitterName, EmitterCategorization,
-					MessageCategorization ),
-		 class_TraceEmitter:send_standalone_safe( info, Message, EmitterName,
-			EmitterCategorization, MessageCategorization )
+                    MessageCategorization ),
+         class_TraceEmitter:send_standalone_safe( info, Message, EmitterName,
+            EmitterCategorization, MessageCategorization )
 ).
 
 
@@ -1167,8 +1167,8 @@
 % static method):
 %
 -define( notify_fmt( Message, FormatValues ),
-		 class_TraceEmitter:send_standalone_safe( info,
-			text_utils:format( Message, FormatValues ) )
+         class_TraceEmitter:send_standalone_safe( info,
+            text_utils:format( Message, FormatValues ) )
 ).
 
 
@@ -1177,9 +1177,9 @@
 % static method):
 %
 -define( notify_fmt_cat( Message, FormatValues, EmitterCategorization ),
-		 class_TraceEmitter:send_standalone_safe( info,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization )
+         class_TraceEmitter:send_standalone_safe( info,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization )
 ).
 
 
@@ -1188,10 +1188,10 @@
 % static method):
 %
 -define( notify_fmt_em( Message, FormatValues, EmitterName,
-						EmitterCategorization, MessageCategorization ),
-		 class_TraceEmitter:send_standalone_safe( info,
-			text_utils:format( Message, FormatValues ),
-			EmitterName, EmitterCategorization, MessageCategorization )
+                        EmitterCategorization, MessageCategorization ),
+         class_TraceEmitter:send_standalone_safe( info,
+            text_utils:format( Message, FormatValues ),
+            EmitterName, EmitterCategorization, MessageCategorization )
 ).
 
 
@@ -1200,10 +1200,10 @@
 % static method):
 %
 -define( notify_fmt_full( Message, FormatValues, EmitterCategorization,
-						  ApplicationTimestamp ),
-		 class_TraceEmitter:send_standalone_safe( info,
-			text_utils:format( Message, FormatValues ),
-			EmitterCategorization, ApplicationTimestamp )
+                          ApplicationTimestamp ),
+         class_TraceEmitter:send_standalone_safe( info,
+            text_utils:format( Message, FormatValues ),
+            EmitterCategorization, ApplicationTimestamp )
 ).
 
 

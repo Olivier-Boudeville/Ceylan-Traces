@@ -39,9 +39,9 @@
   {modules, [class_Traceable, class_TraceAggregator, class_TraceEmitter, class_TraceListener, class_TraceSupervisor, traces, traces_app, traces_bridge_sup, traces_for_apps, traces_for_tests, traces_sup, traces_utils]},
 
   {licenses, ["Ceylan-Traces is licensed by its author (Olivier Boudeville) under a disjunctive tri-license, giving you the choice of one of the three following sets of free software/open source licensing terms:
-	- the Mozilla Public License (MPL), version 1.1 or later (very close to the former Erlang Public License, except aspects regarding Ericsson and/or the Swedish law)
-	- the GNU General Public License (GPL), version 3.0 or later
-	- the GNU Lesser General Public License (LGPL), version 3.0 or later"]},
+    - the Mozilla Public License (MPL), version 1.1 or later (very close to the former Erlang Public License, except aspects regarding Ericsson and/or the Swedish law)
+    - the GNU General Public License (GPL), version 3.0 or later
+    - the GNU Lesser General Public License (LGPL), version 3.0 or later"]},
 
   % Active application (yet would still work without thanks to automatic launch
   % of the trace aggregator):
@@ -51,7 +51,7 @@
   {mod, {traces_app, []}},
 
   {links, [ {"Official website", "http://traces.esperide.org" },
-			{"Github", "https://github.com/Olivier-Boudeville/Ceylan-Traces"} ]}
+            {"Github", "https://github.com/Olivier-Boudeville/Ceylan-Traces"} ]}
 
   %{exclude_files, []}
 

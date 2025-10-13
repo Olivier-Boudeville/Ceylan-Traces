@@ -35,9 +35,9 @@ Module gathering all code, common to tests and applications, that allows to
 
 
 -export([ get_trace_filename/1,
-		  receive_applicative_message/0, receive_applicative_message/1,
-		  check_pending_wooper_results/0, declare_beam_dirs_for_traces/0,
-		  manage_supervision/0, get_execution_target/0 ]).
+          receive_applicative_message/0, receive_applicative_message/1,
+          check_pending_wooper_results/0, declare_beam_dirs_for_traces/0,
+          manage_supervision/0, get_execution_target/0 ]).
 
 
 
@@ -71,7 +71,7 @@ For example `<<"topics.sports.basketball">>`.
 
 -doc "Any kind of categorization of a trace emitter.".
 -type emitter_any_categorization() :: emitter_categorization()
-									| bin_emitter_categorization().
+                                    | bin_emitter_categorization().
 
 
 
@@ -112,7 +112,7 @@ For example `<<"topics.sports.basketball">>`.
 
 -doc "A binary message categorization.".
 -type bin_message_categorization() ::
-		trace_utils:trace_bin_message_categorization().
+        trace_utils:trace_bin_message_categorization().
 
 
 
@@ -157,26 +157,26 @@ LogMX tool (relying then on our parser); see http://logmx.com/
 - or {'text_traces', trace_text_type()}
 """.
 -type trace_supervision_type() :: 'advanced_traces'
-							  | { 'text_traces', trace_text_type() }.
+                              | { 'text_traces', trace_text_type() }.
 
 
 -export_type([ emitter_name/0, bin_emitter_name/0,
 
-			   emitter_categorization/0, bin_emitter_categorization/0,
-			   emitter_any_categorization/0,
+               emitter_categorization/0, bin_emitter_categorization/0,
+               emitter_any_categorization/0,
 
-			   emitter_info/0, app_timestamp/0, time/0, bin_time/0,
-			   location/0, bin_location/0,
-			   message_categorization/0, bin_message_categorization/0,
-			   priority/0, message/0, bin_message/0,
-			   trace_severity/0, trace_supervision_type/0 ]).
+               emitter_info/0, app_timestamp/0, time/0, bin_time/0,
+               location/0, bin_location/0,
+               message_categorization/0, bin_message_categorization/0,
+               priority/0, message/0, bin_message/0,
+               trace_severity/0, trace_supervision_type/0 ]).
 
 
 % Logger-related API (see https://erlang.org/doc/apps/kernel/logger_chapter.html
 % and Myriad's trace_utils):
 %
 -export([ set_handler/0, set_handler/1, add_handler/0, add_handler/1,
-		  reset_handler/0, log/2 ]).
+          reset_handler/0, log/2 ]).
 
 
 % Handler id:
@@ -208,7 +208,7 @@ LogMX tool (relying then on our parser); see http://logmx.com/
 -doc "Returns the name of the file in which traces will be written.".
 -spec get_trace_filename( basic_utils:module_name() ) -> file_name().
 get_trace_filename( ModuleName ) ->
-	atom_to_list( ModuleName ) ++ ?TraceExtension.
+    atom_to_list( ModuleName ) ++ ?TraceExtension.
 
 
 
@@ -219,12 +219,12 @@ Defined in order to better shelter user messages from the trace ones.
 """.
 -spec receive_applicative_message() -> any().
 receive_applicative_message() ->
-	receive
+    receive
 
-		{ wooper_result, V } when V /= monitor_ok ->
-			V
+        { wooper_result, V } when V /= monitor_ok ->
+            V
 
-	end.
+    end.
 
 
 
@@ -236,16 +236,16 @@ Used for synchronization purpose.
 """.
 -spec receive_applicative_message( any() ) -> void().
 receive_applicative_message( Message=monitor_ok ) ->
-	% Would interfere with the monitoring system:
-	throw( { invalid_applicative_message, Message } );
+    % Would interfere with the monitoring system:
+    throw( { invalid_applicative_message, Message } );
 
 receive_applicative_message( Message ) ->
-	receive
+    receive
 
-		{ wooper_result, Message } ->
-			message_received
+        { wooper_result, Message } ->
+            message_received
 
-	end.
+    end.
 
 
 
@@ -257,21 +257,21 @@ Defined here, since uses a trace.
 -spec check_pending_wooper_results() -> void().
 check_pending_wooper_results() ->
 
-	receive
+    receive
 
-		{ wooper_result, AResult }  ->
+        { wooper_result, AResult }  ->
 
-			?notify_warning_fmt( "Following WOOPER result was unread: ~p.~n",
-								 [ AResult ] ),
+            ?notify_warning_fmt( "Following WOOPER result was unread: ~p.~n",
+                                 [ AResult ] ),
 
-			check_pending_wooper_results()
+            check_pending_wooper_results()
 
-	after
+    after
 
-		0 ->
-			ok
+        0 ->
+            ok
 
-	end.
+    end.
 
 
 
@@ -293,11 +293,11 @@ added at the end of the code path
 -spec declare_beam_dirs_for_traces() -> void().
 declare_beam_dirs_for_traces() ->
 
-	% Not wanting to depend also on wooper.beam:
-	%wooper:declare_beam_dirs_for_wooper(),
-	code_utils:declare_beam_dirs_for( "CEYLAN_WOOPER" ),
+    % Not wanting to depend also on wooper.beam:
+    %wooper:declare_beam_dirs_for_wooper(),
+    code_utils:declare_beam_dirs_for( "CEYLAN_WOOPER" ),
 
-	code_utils:declare_beam_dirs_for( "CEYLAN_TRACES" ).
+    code_utils:declare_beam_dirs_for( "CEYLAN_TRACES" ).
 
 
 
@@ -316,35 +316,35 @@ Note: currently not useful, as implicitly managed by traces_app:start/2.
 -spec manage_supervision() -> option( class_TraceSupervisor:supervisor_pid() ).
 manage_supervision() ->
 
-	case executable_utils:is_batch() of
+    case executable_utils:is_batch() of
 
-		true ->
-			trace_utils:debug( "In batch mode, no trace supervisor launched." ),
-			undefined;
+        true ->
+            trace_utils:debug( "In batch mode, no trace supervisor launched." ),
+            undefined;
 
-		false ->
-			trace_utils:debug(
-				"In interactive mode, so launching trace supervisor." ),
+        false ->
+            trace_utils:debug(
+                "In interactive mode, so launching trace supervisor." ),
 
-			% Expected to be already created:
-			TraceAggregatorPid = class_TraceAggregator:get_aggregator(
-				_CreateIfNotAvailable=false ),
+            % Expected to be already created:
+            TraceAggregatorPid = class_TraceAggregator:get_aggregator(
+                _CreateIfNotAvailable=false ),
 
-			% Not blocking the calling process until the supervision is over:
-			TraceAggregatorPid ! { launchTraceSupervisor, [], self() },
+            % Not blocking the calling process until the supervision is over:
+            TraceAggregatorPid ! { launchTraceSupervisor, [], self() },
 
-			% test_receive/1 not appropriate here (would filter the atom that we
-			% expect):
-			%
-			receive
+            % test_receive/1 not appropriate here (would filter the atom that we
+            % expect):
+            %
+            receive
 
-				{ wooper_result,
-					{ trace_supervisor_launched, TraceSupervisorPid } } ->
-					  TraceSupervisorPid
+                { wooper_result,
+                    { trace_supervisor_launched, TraceSupervisorPid } } ->
+                      TraceSupervisorPid
 
-			end
+            end
 
-	end.
+    end.
 
 
 
@@ -362,30 +362,30 @@ aggregator.
 -spec set_handler() -> void().
 set_handler() ->
 
-	TargetHandler = default,
+    TargetHandler = default,
 
-	case logger:remove_handler( TargetHandler ) of
+    case logger:remove_handler( TargetHandler ) of
 
-		ok ->
-			ok;
+        ok ->
+            ok;
 
-		{ error, RemoveErrReason } ->
-			throw( { unable_to_remove_log_handler, RemoveErrReason,
-					 TargetHandler } )
+        { error, RemoveErrReason } ->
+            throw( { unable_to_remove_log_handler, RemoveErrReason,
+                     TargetHandler } )
 
-	end,
+    end,
 
-	case logger:add_handler( _HandlerId=default, _Module=?MODULE,
-							 get_handler_config() ) of
+    case logger:add_handler( _HandlerId=default, _Module=?MODULE,
+                             get_handler_config() ) of
 
-		ok ->
-			ok;
+        ok ->
+            ok;
 
-		{ error, AddErrReason } ->
-			throw( { unable_to_set_traces_log_handler, AddErrReason,
-					 TargetHandler } )
+        { error, AddErrReason } ->
+            throw( { unable_to_set_traces_log_handler, AddErrReason,
+                     TargetHandler } )
 
-	end.
+    end.
 
 
 
@@ -396,33 +396,33 @@ Replaces the current (probably default) logger handler with this Traces one
 -spec set_handler( aggregator_pid() ) -> void().
 set_handler( AggregatorPid ) ->
 
-	%trace_utils:debug_fmt( "Setting default handler for logger to "
-	%   "aggregator ~w, on node: ~ts.", [ AggregatorPid, node() ] ),
+    %trace_utils:debug_fmt( "Setting default handler for logger to "
+    %   "aggregator ~w, on node: ~ts.", [ AggregatorPid, node() ] ),
 
-	TargetHandler = default,
+    TargetHandler = default,
 
-	case logger:remove_handler( TargetHandler ) of
+    case logger:remove_handler( TargetHandler ) of
 
-		ok ->
-			ok;
+        ok ->
+            ok;
 
-		{ error, RemoveErrReason } ->
-			throw( { unable_to_remove_log_handler, RemoveErrReason,
-					 TargetHandler } )
+        { error, RemoveErrReason } ->
+            throw( { unable_to_remove_log_handler, RemoveErrReason,
+                     TargetHandler } )
 
-	end,
+    end,
 
-	case logger:add_handler( _HandlerId=default, _Module=?MODULE,
-							 get_handler_config( AggregatorPid ) ) of
+    case logger:add_handler( _HandlerId=default, _Module=?MODULE,
+                             get_handler_config( AggregatorPid ) ) of
 
-		ok ->
-			ok;
+        ok ->
+            ok;
 
-		{ error, AddErrReason } ->
-			throw( { unable_to_set_traces_log_handler, AddErrReason,
-					 TargetHandler } )
+        { error, AddErrReason } ->
+            throw( { unable_to_set_traces_log_handler, AddErrReason,
+                     TargetHandler } )
 
-	end.
+    end.
 
 
 
@@ -433,16 +433,16 @@ default one), based on the (supposedly already-existing) trace aggregator.
 -spec add_handler() -> void().
 add_handler() ->
 
-	case logger:add_handler( _HandlerId=?traces_logger_id, _Module=?MODULE,
-							 get_handler_config() ) of
+    case logger:add_handler( _HandlerId=?traces_logger_id, _Module=?MODULE,
+                             get_handler_config() ) of
 
-		ok ->
-			ok;
+        ok ->
+            ok;
 
-		{ error, Reason } ->
-			throw( { unable_to_add_traces_log_handler, Reason } )
+        { error, Reason } ->
+            throw( { unable_to_add_traces_log_handler, Reason } )
 
-	end.
+    end.
 
 
 
@@ -453,16 +453,16 @@ default one), based on the specified trace aggregator.
 -spec add_handler( aggregator_pid() ) -> void().
 add_handler( AggregatorPid ) ->
 
-	case logger:add_handler( _HandlerId=?traces_logger_id, _Module=?MODULE,
-							 get_handler_config( AggregatorPid ) ) of
+    case logger:add_handler( _HandlerId=?traces_logger_id, _Module=?MODULE,
+                             get_handler_config( AggregatorPid ) ) of
 
-		ok ->
-			ok;
+        ok ->
+            ok;
 
-		{ error, Reason } ->
-			throw( { unable_to_add_traces_log_handler, Reason } )
+        { error, Reason } ->
+            throw( { unable_to_add_traces_log_handler, Reason } )
 
-	end.
+    end.
 
 
 
@@ -473,18 +473,18 @@ the (supposedly already-existing) trace aggregator.
 -spec get_handler_config() -> handler_config().
 get_handler_config() ->
 
-	AggregatorPid = case class_TraceAggregator:get_aggregator() of
+    AggregatorPid = case class_TraceAggregator:get_aggregator() of
 
-		APid when is_pid( APid ) ->
-			APid;
+        APid when is_pid( APid ) ->
+            APid;
 
-		% Most probably trace_aggregator_not_found:
-		Error ->
-			throw( { no_handler_config_obtained, Error } )
+        % Most probably trace_aggregator_not_found:
+        Error ->
+            throw( { no_handler_config_obtained, Error } )
 
-	end,
+    end,
 
-	get_handler_config( AggregatorPid ).
+    get_handler_config( AggregatorPid ).
 
 
 
@@ -495,17 +495,17 @@ the specified trace aggregator.
 -spec get_handler_config( aggregator_pid() ) -> handler_config().
 get_handler_config( AggregatorPid ) ->
 
-	#{ config => AggregatorPid
-	   % Defaults:
-	   % level => all,
-	   % filter_default => log | stop,
-	   % filters => [],
-	   % formatter => {logger_formatter, DefaultFormatterConfig}
+    #{ config => AggregatorPid
+       % Defaults:
+       % level => all,
+       % filter_default => log | stop,
+       % filters => [],
+       % formatter => {logger_formatter, DefaultFormatterConfig}
 
-	   % Set by logger:
-	   %id => HandlerId
-	   %module => Module
-	 }.
+       % Set by logger:
+       %id => HandlerId
+       %module => Module
+     }.
 
 
 
@@ -516,10 +516,10 @@ one.
 -spec reset_handler() -> void().
 reset_handler() ->
 
-	%trace_utils:debug( "Resetting logger handler." ),
+    %trace_utils:debug( "Resetting logger handler." ),
 
-	% Remove then add:
-	trace_utils:set_handler().
+    % Remove then add:
+    trace_utils:set_handler().
 
 
 
@@ -530,83 +530,83 @@ See <https://erlang.org/doc/man/logger.html#HModule:log-2>.
 """.
 -spec log( logger:log_event(), handler_config() ) -> void().
 log( _LogEvent=#{ level := Level,
-				  %meta => #{error_logger => #{emulator => [...]
-				  msg := Msg },
-	 _Config=#{ config := TraceAggregatorPid } ) ->
+                  %meta => #{error_logger => #{emulator => [...]
+                  msg := Msg },
+     _Config=#{ config := TraceAggregatorPid } ) ->
 
-	%io:format( "### Logging following event:~n ~p~n(with config: ~p).~n",
-	%           [ LogEvent, Config ] ),
+    %io:format( "### Logging following event:~n ~p~n(with config: ~p).~n",
+    %           [ LogEvent, Config ] ),
 
-	 TraceMsg = case Msg of
+     TraceMsg = case Msg of
 
-		{ report, Report } ->
-			{ FmtStr, FmtValues } = logger:format_report( Report ),
-			text_utils:format( FmtStr, FmtValues );
+        { report, Report } ->
+            { FmtStr, FmtValues } = logger:format_report( Report ),
+            text_utils:format( FmtStr, FmtValues );
 
-		{ string, S } ->
-			S;
+        { string, S } ->
+            S;
 
-		{ FmtStr, FmtValues } ->
-			% Always trying to return the most sensible output:
-			%text_utils:format( FmtStr, FmtValues );
-			try
+        { FmtStr, FmtValues } ->
+            % Always trying to return the most sensible output:
+            %text_utils:format( FmtStr, FmtValues );
+            try
 
-				io_lib:format( FmtStr, FmtValues )
+                io_lib:format( FmtStr, FmtValues )
 
-			catch
+            catch
 
-				_:_ ->
-					% Expected never to fail:
-					text_utils:format_failsafe( FmtValues )
+                _:_ ->
+                    % Expected never to fail:
+                    text_utils:format_failsafe( FmtValues )
 
-			end;
+            end;
 
-		Other ->
-			throw( { unexpected_log_message, Other } )
+        Other ->
+            throw( { unexpected_log_message, Other } )
 
-	 end,
+     end,
 
-	% Directly the same now:
-	Severity = Level,
+    % Directly the same now:
+    Severity = Level,
 
-	%io:format( "### Logging following event:~n ~p~n(with config: ~p)~n "
-	%   "resulting in: '~ts' (severity: ~p).",
-	%   [ LogEvent, Config, TraceMsg, Severity ] ),
+    %io:format( "### Logging following event:~n ~p~n(with config: ~p)~n "
+    %   "resulting in: '~ts' (severity: ~p).",
+    %   [ LogEvent, Config, TraceMsg, Severity ] ),
 
-	BinEmitterCategorization = <<"Erlang logger">>,
+    BinEmitterCategorization = <<"Erlang logger">>,
 
-	% Trying to induce as low overhead as possible (alternatively separate
-	% per-level handlers could be set); yet finally we prefer never losing any
-	% message (even of lower priority), and anyway messages going through logger
-	% are quite infrequent - at least in our use cases - so we have them all
-	% properly synchronised so that none can be lost in case of crash:
-	%
-	%case Level =:= notice orelse Level =:= info orelse Level =:= debug of
-	%
-	%   % Lighter, quicker:
-	%   true ->
-	%       class_TraceEmitter:send_direct( Severity, TraceMsg,
-	%           BinEmitterCategorization, TraceAggregatorPid );
-	%
-	%   _False ->
-			% Sent as soon as possible:
-			class_TraceEmitter:send_direct_synchronisable( Severity, TraceMsg,
-				BinEmitterCategorization, TraceAggregatorPid ),
+    % Trying to induce as low overhead as possible (alternatively separate
+    % per-level handlers could be set); yet finally we prefer never losing any
+    % message (even of lower priority), and anyway messages going through logger
+    % are quite infrequent - at least in our use cases - so we have them all
+    % properly synchronised so that none can be lost in case of crash:
+    %
+    %case Level =:= notice orelse Level =:= info orelse Level =:= debug of
+    %
+    %   % Lighter, quicker:
+    %   true ->
+    %       class_TraceEmitter:send_direct( Severity, TraceMsg,
+    %           BinEmitterCategorization, TraceAggregatorPid );
+    %
+    %   _False ->
+            % Sent as soon as possible:
+            class_TraceEmitter:send_direct_synchronisable( Severity, TraceMsg,
+                BinEmitterCategorization, TraceAggregatorPid ),
 
-	%end,
+    %end,
 
-	trace_utils:echo( TraceMsg, Severity, "erlang_logger" ),
+    trace_utils:echo( TraceMsg, Severity, "erlang_logger" ),
 
-	% Received (from send_direct_synchronisable/4) as late as possible:
-	receive
+    % Received (from send_direct_synchronisable/4) as late as possible:
+    receive
 
-		{ wooper_result, trace_aggregator_synchronised } ->
-			%trace_utils:debug_fmt( "Synchronised from logger for "
-			%   "message '~p'.", [ TraceMsg ] ),
-			ok
+        { wooper_result, trace_aggregator_synchronised } ->
+            %trace_utils:debug_fmt( "Synchronised from logger for "
+            %   "message '~p'.", [ TraceMsg ] ),
+            ok
 
-	end;
+    end;
 
 
 log( LogEvent, _Config ) ->
-	throw( { unexpected_log_event, LogEvent } ).
+    throw( { unexpected_log_event, LogEvent } ).

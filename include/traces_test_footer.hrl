@@ -45,14 +45,14 @@
 
 
 -compile( [ { nowarn_unused_function, [ { test_trace_disabled, 1 },
-										{ test_trace_disabled, 2 } ] } ] ).
+                                        { test_trace_disabled, 2 } ] } ] ).
 
 
 -spec test_trace_disabled( any() ) -> void().
 test_trace_disabled( _ ) ->
-	ok.
+    ok.
 
 
 -spec test_trace_disabled( any(), any() ) -> void().
 test_trace_disabled( _, _ ) ->
-	ok.
+    ok.

@@ -35,14 +35,14 @@ synchronise at will to a trace aggregator.
 
 
 -define( class_description, "Trace listener, similar to a remote trace "
-		 "supervisor. "
-		 "This version just uses LogMX (http://logmx.com) to track the default "
-		 "execution trace file, which will be synchronized automatically: "
-		 "history will be retrieved under a zipped form from the aggregator, "
-		 "and next traces will be sent directly to this listener as well as to "
-		 "the aggregator."
-		 "So the corresponding trace aggregator must have been run with the "
-		 "LogMX-compliant trace type beforehand, i.e. advanced_traces.").
+         "supervisor. "
+         "This version just uses LogMX (http://logmx.com) to track the default "
+         "execution trace file, which will be synchronized automatically: "
+         "history will be retrieved under a zipped form from the aggregator, "
+         "and next traces will be sent directly to this listener as well as to "
+         "the aggregator."
+         "So the corresponding trace aggregator must have been run with the "
+         "LogMX-compliant trace type beforehand, i.e. advanced_traces.").
 
 
 % Determines what are the direct mother classes of this class (if any):
@@ -52,26 +52,26 @@ synchronise at will to a trace aggregator.
 % Describes the class-specific attributes:
 -define( class_attributes, [
 
-	{ trace_filename, file_utils:file_path(),
-	  "the name of the file where traces are to be stored (e.g. *.traces)" },
+    { trace_filename, file_utils:file_path(),
+      "the name of the file where traces are to be stored (e.g. *.traces)" },
 
-	{ trace_file, file_utils:file_path(),
-	  "the actual file where traces are written" },
+    { trace_file, file_utils:file_path(),
+      "the actual file where traces are written" },
 
-	{ trace_aggregator_pid, aggregator_pid(),
-	  "the PID of the supervised trace aggregator" },
+    { trace_aggregator_pid, aggregator_pid(),
+      "the PID of the supervised trace aggregator" },
 
-	{ temp_dir, file_utils:directory_name(), "the name of the directory where "
-	  "the compressed trace archive will be stored" },
+    { temp_dir, file_utils:directory_name(), "the name of the directory where "
+      "the compressed trace archive will be stored" },
 
-	{ supervision_waiter_pid, option( pid() ),
-	  "the PID of the helper process (if any) in charge of waiting for the "
-	  "trace interface to be closed" },
+    { supervision_waiter_pid, option( pid() ),
+      "the PID of the helper process (if any) in charge of waiting for the "
+      "trace interface to be closed" },
 
-	{ close_listener_pid, option( pid() ),
-	  "the PID of the process (if any) to notify whenever this listener is "
-	  "to terminate (typically so that the calling application can itself "
-	  "terminate afterwards)" } ] ).
+    { close_listener_pid, option( pid() ),
+      "the PID of the process (if any) to notify whenever this listener is "
+      "to terminate (typically so that the calling application can itself "
+      "terminate afterwards)" } ] ).
 
 
 
@@ -135,58 +135,58 @@ will be synchronized.
 -spec construct( wooper:state(), aggregator_pid(), pid() ) -> wooper:state().
 construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 
-	trace_utils:notice_fmt( "~ts Creating a trace listener whose PID is ~w, "
-		"synchronized on trace aggregator ~w.",
-		[ ?LogPrefix, self(), TraceAggregatorPid ] ),
+    trace_utils:notice_fmt( "~ts Creating a trace listener whose PID is ~w, "
+        "synchronized on trace aggregator ~w.",
+        [ ?LogPrefix, self(), TraceAggregatorPid ] ),
 
-	trace_utils:debug_fmt( "~ts Requesting from aggregator a trace "
-						   "synchronization.", [ ?LogPrefix ] ),
+    trace_utils:debug_fmt( "~ts Requesting from aggregator a trace "
+                           "synchronization.", [ ?LogPrefix ] ),
 
-	TraceAggregatorPid ! { addTraceListener, self() },
+    TraceAggregatorPid ! { addTraceListener, self() },
 
-	% We used to rely on basic ZIP sent over Erlang messages:
-	%receive
-	%
-	%    { trace_sending, Bin, TraceFilename } ->
-	%
-	%           % Allows to run for the same directory as aggregator:
-	%           ListenerTraceFilename = "Listener-" ++ TraceFilename,
-	%
-	%           file_utils:zipped_term_to_unzipped_file( Bin,
-	%               ListenerTraceFilename ),
-	%   { trace_sending, ErrorReason } ->
-	%
-	%       trace_utils:error_fmt(
-	%           "~ts Trace listener cannot listen to current trace "
-	%           "aggregator, as this aggregator does not use "
-	%           "LogMX-based traces.", [ ?LogPrefix ] ),
-	%
-	%		throw( { cannot_listen_aggregator, TraceAggregatorPid,
-	%                ErrorReason } )
+    % We used to rely on basic ZIP sent over Erlang messages:
+    %receive
+    %
+    %    { trace_sending, Bin, TraceFilename } ->
+    %
+    %           % Allows to run for the same directory as aggregator:
+    %           ListenerTraceFilename = "Listener-" ++ TraceFilename,
+    %
+    %           file_utils:zipped_term_to_unzipped_file( Bin,
+    %               ListenerTraceFilename ),
+    %   { trace_sending, ErrorReason } ->
+    %
+    %       trace_utils:error_fmt(
+    %           "~ts Trace listener cannot listen to current trace "
+    %           "aggregator, as this aggregator does not use "
+    %           "LogMX-based traces.", [ ?LogPrefix ] ),
+    %
+    %       throw( { cannot_listen_aggregator, TraceAggregatorPid,
+    %                ErrorReason } )
 
-	% Now we prefer XZ + sendFile:
+    % Now we prefer XZ + sendFile:
 
-	% Currently we prefer using a temporary directory (it also allows to avoid
-	% stepping on the source compressed file if running the listener from the
-	% same directory as the aggregator - as it is the case for tests):
-	%
-	TempDir = file_utils:create_temporary_directory(),
+    % Currently we prefer using a temporary directory (it also allows to avoid
+    % stepping on the source compressed file if running the listener from the
+    % same directory as the aggregator - as it is the case for tests):
+    %
+    TempDir = file_utils:create_temporary_directory(),
 
-	CompressedFilename = net_utils:receive_file( TraceAggregatorPid, TempDir ),
+    CompressedFilename = net_utils:receive_file( TraceAggregatorPid, TempDir ),
 
-	ManagedState = manage_send_traces( CompressedFilename, State ),
+    ManagedState = manage_send_traces( CompressedFilename, State ),
 
-	SetState = setAttributes( ManagedState, [
-		{ trace_aggregator_pid, TraceAggregatorPid },
-		{ temp_dir, TempDir },
-		{ supervision_waiter_pid, undefined },
-		{ close_listener_pid, CloseListenerPid } ] ),
+    SetState = setAttributes( ManagedState, [
+        { trace_aggregator_pid, TraceAggregatorPid },
+        { temp_dir, TempDir },
+        { supervision_waiter_pid, undefined },
+        { close_listener_pid, CloseListenerPid } ] ),
 
-	EndState = executeOneway( SetState, monitor ),
+    EndState = executeOneway( SetState, monitor ),
 
-	%trace_utils:info_fmt( "~ts Trace listener created.", [ ?LogPrefix ] ),
+    %trace_utils:info_fmt( "~ts Trace listener created.", [ ?LogPrefix ] ),
 
-	EndState.
+    EndState.
 
 
 
@@ -199,64 +199,64 @@ TraceAggregatorPid is the PID of the trace aggregator to which this listener
 will be synchronised.
 """.
 -spec construct( wooper:state(), aggregator_pid(), net_utils:tcp_port(),
-				 net_utils:tcp_port(), pid() ) -> wooper:state().
+                 net_utils:tcp_port(), pid() ) -> wooper:state().
 construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
-		   CloseListenerPid ) ->
+           CloseListenerPid ) ->
 
-	trace_utils:notice_fmt( "~ts Creating a trace listener whose PID is ~w, "
-		"synchronized on trace aggregator ~w, using a TCP listening port "
-		"in the [~B,~B[ range.",
-		[ ?LogPrefix, self(), TraceAggregatorPid, MinTCPPort, MaxTCPPort ] ),
+    trace_utils:notice_fmt( "~ts Creating a trace listener whose PID is ~w, "
+        "synchronized on trace aggregator ~w, using a TCP listening port "
+        "in the [~B,~B[ range.",
+        [ ?LogPrefix, self(), TraceAggregatorPid, MinTCPPort, MaxTCPPort ] ),
 
-	trace_utils:debug_fmt(
-		"~ts Requesting from aggregator a trace synchronization.",
-		[ ?LogPrefix ] ),
+    trace_utils:debug_fmt(
+        "~ts Requesting from aggregator a trace synchronization.",
+        [ ?LogPrefix ] ),
 
-	TraceAggregatorPid ! { addTraceListener, self() },
+    TraceAggregatorPid ! { addTraceListener, self() },
 
-	% See comments in construct/3/
+    % See comments in construct/3/
 
-	TempDir = file_utils:create_temporary_directory(),
+    TempDir = file_utils:create_temporary_directory(),
 
-	CompressedFilename = net_utils:receive_file( TraceAggregatorPid, TempDir,
-												 MinTCPPort, MaxTCPPort ),
+    CompressedFilename = net_utils:receive_file( TraceAggregatorPid, TempDir,
+                                                 MinTCPPort, MaxTCPPort ),
 
-	ManagedState = manage_send_traces( CompressedFilename, State ),
+    ManagedState = manage_send_traces( CompressedFilename, State ),
 
-	SetState = setAttributes( ManagedState, [
-		{ trace_aggregator_pid, TraceAggregatorPid },
-		{ temp_dir, TempDir },
-		{ supervision_waiter_pid, undefined },
-		{ close_listener_pid, CloseListenerPid } ] ),
+    SetState = setAttributes( ManagedState, [
+        { trace_aggregator_pid, TraceAggregatorPid },
+        { temp_dir, TempDir },
+        { supervision_waiter_pid, undefined },
+        { close_listener_pid, CloseListenerPid } ] ),
 
-	EndState = executeOneway( SetState, monitor ),
+    EndState = executeOneway( SetState, monitor ),
 
-	%trace_utils:info_fmt( "~ts Trace listener created.", [ ?LogPrefix ] ),
+    %trace_utils:info_fmt( "~ts Trace listener created.", [ ?LogPrefix ] ),
 
-	EndState.
+    EndState.
 
 
 
 % (construction helper)
 manage_send_traces( CompressedFilename, State ) ->
 
-	TraceFilename = file_utils:decompress( CompressedFilename,
-										   _CompressionFormat=xz ),
+    TraceFilename = file_utils:decompress( CompressedFilename,
+                                           _CompressionFormat=xz ),
 
-	file_utils:remove_file( CompressedFilename ),
+    file_utils:remove_file( CompressedFilename ),
 
-	%trace_utils:info_fmt( "~ts Received from aggregator a trace "
-	%   "synchronization for file '~ts', reused for "
-	%"later traces.", [ ?LogPrefix, TraceFilename ] ),
+    %trace_utils:info_fmt( "~ts Received from aggregator a trace "
+    %   "synchronization for file '~ts', reused for "
+    %"later traces.", [ ?LogPrefix, TraceFilename ] ),
 
-	% Will write in it newly received traces (sent through messages); now
-	% preferring the (more efficient) raw mode:
-	%
-	File = file_utils:open( TraceFilename,
-		[ append | class_TraceAggregator:get_trace_file_base_options() ] ),
+    % Will write in it newly received traces (sent through messages); now
+    % preferring the (more efficient) raw mode:
+    %
+    File = file_utils:open( TraceFilename,
+        [ append | class_TraceAggregator:get_trace_file_base_options() ] ),
 
-	setAttributes( State, [ { trace_filename, TraceFilename },
-							{ trace_file, File } ] ).
+    setAttributes( State, [ { trace_filename, TraceFilename },
+                            { trace_file, File } ] ).
 
 
 
@@ -265,34 +265,34 @@ manage_send_traces( CompressedFilename, State ) ->
 -spec destruct( wooper:state() ) -> wooper:state().
 destruct( State ) ->
 
-	trace_utils:notice_fmt( "~ts Deleting trace listener.", [ ?LogPrefix ] ),
+    trace_utils:notice_fmt( "~ts Deleting trace listener.", [ ?LogPrefix ] ),
 
-	% Important message, to avoid loading the aggregator with sendings to
-	% defunct listeners:
-	%
-	?getAttr(trace_aggregator_pid) ! { removeTraceListener, self() },
+    % Important message, to avoid loading the aggregator with sendings to
+    % defunct listeners:
+    %
+    ?getAttr(trace_aggregator_pid) ! { removeTraceListener, self() },
 
-	file_utils:close( ?getAttr(trace_file) ),
+    file_utils:close( ?getAttr(trace_file) ),
 
-	file_utils:remove_file( ?getAttr(trace_filename) ),
+    file_utils:remove_file( ?getAttr(trace_filename) ),
 
-	file_utils:remove_directory( ?getAttr(temp_dir) ),
+    file_utils:remove_directory( ?getAttr(temp_dir) ),
 
-	case ?getAttr(close_listener_pid) of
+    case ?getAttr(close_listener_pid) of
 
-		Pid when is_pid( Pid ) ->
-			%trace_utils:notice( "Notifying close listener of deletion." ),
-			Pid ! { trace_listening_finished, self() };
+        Pid when is_pid( Pid ) ->
+            %trace_utils:notice( "Notifying close listener of deletion." ),
+            Pid ! { trace_listening_finished, self() };
 
-		_ ->
-			ok
+        _ ->
+            ok
 
-	end,
+    end,
 
-	trace_utils:notice_fmt( "~ts Trace listener deleted.", [ ?LogPrefix ] ),
+    trace_utils:notice_fmt( "~ts Trace listener deleted.", [ ?LogPrefix ] ),
 
-	% Allow chaining:
-	State.
+    % Allow chaining:
+    State.
 
 
 
@@ -310,46 +310,46 @@ blocking_monitor/1.
 -spec monitor( wooper:state() ) -> oneway_return().
 monitor( State ) ->
 
-	Filename = ?getAttr(trace_filename),
+    Filename = ?getAttr(trace_filename),
 
-	file_utils:is_existing_file( Filename ) orelse
-		begin
-			trace_utils:error_fmt( "class_TraceListener:monitor/1 "
-				"unable to find trace file '~ts'.", [ Filename ] ),
-			throw( { trace_file_not_found, Filename } )
-		end,
+    file_utils:is_existing_file( Filename ) orelse
+        begin
+            trace_utils:error_fmt( "class_TraceListener:monitor/1 "
+                "unable to find trace file '~ts'.", [ Filename ] ),
+            throw( { trace_file_not_found, Filename } )
+        end,
 
-	trace_utils:notice_fmt( "~ts Trace listener will monitor file '~ts' "
-							"with LogMX now.", [ ?LogPrefix, Filename ] ),
+    trace_utils:notice_fmt( "~ts Trace listener will monitor file '~ts' "
+                            "with LogMX now.", [ ?LogPrefix, Filename ] ),
 
-	Self = self(),
+    Self = self(),
 
-	WaiterPid = ?myriad_spawn_link( fun() ->
+    WaiterPid = ?myriad_spawn_link( fun() ->
 
-		% Blocking this waiter process (logmx.sh must be found in the PATH):
-		case system_utils:run_command(
-				executable_utils:get_default_trace_viewer_path() ++ " '"
-				++ Filename ++ "'" ) of
+        % Blocking this waiter process (logmx.sh must be found in the PATH):
+        case system_utils:run_command(
+                executable_utils:get_default_trace_viewer_path() ++ " '"
+                ++ Filename ++ "'" ) of
 
-			{ _ExitCode=0, _Output } ->
-				trace_utils:notice_fmt(
-					"~ts Trace listener ended the monitoring of '~ts'.",
-					[ ?LogPrefix, Filename ] );
+            { _ExitCode=0, _Output } ->
+                trace_utils:notice_fmt(
+                    "~ts Trace listener ended the monitoring of '~ts'.",
+                    [ ?LogPrefix, Filename ] );
 
-			{ ExitCode, ErrorOutput } ->
-				trace_utils:error_fmt( "The trace listening failed "
-					"(error code: ~B): ~ts.", [ ExitCode, ErrorOutput ] )
+            { ExitCode, ErrorOutput } ->
+                trace_utils:error_fmt( "The trace listening failed "
+                    "(error code: ~B): ~ts.", [ ExitCode, ErrorOutput ] )
 
-		end,
+        end,
 
-		% Unblock the listener:
-		Self ! { onMonitoringOver, self() }
+        % Unblock the listener:
+        Self ! { onMonitoringOver, self() }
 
-									end ),
+                                    end ),
 
-	SupState = setAttribute( State, supervision_waiter_pid, WaiterPid ),
+    SupState = setAttribute( State, supervision_waiter_pid, WaiterPid ),
 
-	wooper:return_state( SupState ).
+    wooper:return_state( SupState ).
 
 
 
@@ -359,28 +359,28 @@ Registers a new pre-formatted trace in the (local) trace file.
 To be called by the trace aggregator.
 """.
 -spec addTrace( wooper:state(), text_utils:bin_string() ) ->
-								const_oneway_return().
+                                const_oneway_return().
 addTrace( State, NewTrace ) ->
 
-	% Write to file:
+    % Write to file:
 
-	% We used to rely on:
+    % We used to rely on:
 
-	%io:format( ?getAttr(trace_file), "~ts",
-	%    [ text_utils:binary_to_string( NewTrace ) ] ),
+    %io:format( ?getAttr(trace_file), "~ts",
+    %    [ text_utils:binary_to_string( NewTrace ) ] ),
 
-	% yet now the internal trace file is opened in raw mode (so there is no
-	% intermediate process handling the I/O protocol), so:
+    % yet now the internal trace file is opened in raw mode (so there is no
+    % intermediate process handling the I/O protocol), so:
 
-	% Not the following, which would break the encoding of Unicode messages:
-	%Content = text_utils:format( "~ts",
-	%   [ text_utils:binary_to_string( NewTrace ) ] ),
-	%file_utils:write( ?getAttr(trace_file), Content ),
+    % Not the following, which would break the encoding of Unicode messages:
+    %Content = text_utils:format( "~ts",
+    %   [ text_utils:binary_to_string( NewTrace ) ] ),
+    %file_utils:write( ?getAttr(trace_file), Content ),
 
-	% A correct form is instead:
-	file_utils:write_ustring( ?getAttr(trace_file), NewTrace ),
+    % A correct form is instead:
+    file_utils:write_ustring( ?getAttr(trace_file), NewTrace ),
 
-	wooper:const_return().
+    wooper:const_return().
 
 
 
@@ -391,12 +391,12 @@ has been closed.
 -spec onMonitoringOver( wooper:state(), pid() ) -> const_oneway_return().
 onMonitoringOver( State, WaiterPid ) ->
 
-	% Check:
-	WaiterPid = ?getAttr(supervision_waiter_pid),
+    % Check:
+    WaiterPid = ?getAttr(supervision_waiter_pid),
 
-	self() ! delete,
+    self() ! delete,
 
-	wooper:const_return().
+    wooper:const_return().
 
 
 
@@ -410,9 +410,9 @@ aggregator.
 -spec create( aggregator_pid() ) -> static_return( listener_pid() ).
 create( AggregatorPid ) ->
 
-	% No link here, not wanting to take the whole system down because of a
-	% listener:
-	%
-	ListenerPid = new( AggregatorPid, _CloseListenerPid=undefined ),
+    % No link here, not wanting to take the whole system down because of a
+    % listener:
+    %
+    ListenerPid = new( AggregatorPid, _CloseListenerPid=undefined ),
 
-	wooper:return_static( ListenerPid ).
+    wooper:return_static( ListenerPid ).

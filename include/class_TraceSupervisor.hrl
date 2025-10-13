@@ -37,5 +37,5 @@
 
 % Defines trace filename, if not already specified:
 -ifndef(TraceFilename).
-	-define(TraceFilename,"Ceylan-trace-test" ++ ?TraceExtension ).
+    -define(TraceFilename,"Ceylan-trace-test" ++ ?TraceExtension ).
 -endif.

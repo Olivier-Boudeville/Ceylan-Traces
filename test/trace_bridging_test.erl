@@ -44,31 +44,31 @@ specific bridge is registered.
 -spec run() -> no_return().
 run() ->
 
-	?test_start,
+    ?test_start,
 
-	?test_info( "Testing first when no trace bridge is registered." ),
+    ?test_info( "Testing first when no trace bridge is registered." ),
 
-	% Note that we rely on the same test sending as the one done in Myriad, to
-	% better showcase it can be transparently switched:
-	%
-	trace_bridge_test:emit_traces(),
+    % Note that we rely on the same test sending as the one done in Myriad, to
+    % better showcase it can be transparently switched:
+    %
+    trace_bridge_test:emit_traces(),
 
-	?test_info( "Then testing the trace bridge with a Ceylan-Traces bridge "
-				"registered for this test process." ),
+    ?test_info( "Then testing the trace bridge with a Ceylan-Traces bridge "
+                "registered for this test process." ),
 
-	% We define our own bridge spec and apply it to ourself:
+    % We define our own bridge spec and apply it to ourself:
 
-	BridgeSpec = trace_bridge:get_bridge_spec( _MyEmitterName="MyBridgeTester",
-		_MyCateg="MyTraceCategory", class_TraceAggregator:get_aggregator() ),
+    BridgeSpec = trace_bridge:get_bridge_spec( _MyEmitterName="MyBridgeTester",
+        _MyCateg="MyTraceCategory", class_TraceAggregator:get_aggregator() ),
 
-	trace_bridge:register( BridgeSpec ),
+    trace_bridge:register( BridgeSpec ),
 
-	trace_bridge:register_if_not_already( BridgeSpec ),
+    trace_bridge:register_if_not_already( BridgeSpec ),
 
-	trace_bridge_test:emit_traces(),
+    trace_bridge_test:emit_traces(),
 
-	trace_bridge:unregister(),
+    trace_bridge:unregister(),
 
-	?test_debug_fmt( "End of test for ~ts.", [ ?MODULE ] ),
+    ?test_debug_fmt( "End of test for ~ts.", [ ?MODULE ] ),
 
-	?test_stop.
+    ?test_stop.

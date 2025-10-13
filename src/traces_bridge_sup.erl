@@ -86,15 +86,15 @@ Note: typically spawned as a supervised child of the Traces root supervisor (see
 traces_sup:init/1), hence generally triggered by the application initialisation.
 """.
 -spec start_link( boolean(), naming_utils:registration_scope() ) ->
-										basic_utils:start_result().
+                                        basic_utils:start_result().
 start_link( TraceSupervisorWanted, AggRegScope ) ->
 
-	% Apparently not displayed in a release context, yet executed:
-	trace_utils:debug_fmt( "Starting the Traces supervisor bridge, from ~w.",
-						   [ self() ] ),
+    % Apparently not displayed in a release context, yet executed:
+    trace_utils:debug_fmt( "Starting the Traces supervisor bridge, from ~w.",
+                           [ self() ] ),
 
-	supervisor_bridge:start_link( { local, ?bridge_name }, _Module=?MODULE,
-								  { TraceSupervisorWanted, AggRegScope } ).
+    supervisor_bridge:start_link( { local, ?bridge_name }, _Module=?MODULE,
+                                  { TraceSupervisorWanted, AggRegScope } ).
 
 
 
@@ -104,72 +104,72 @@ start_link/1 above being executed.
 """.
 % Not basic_utils:start_result/0 (due to state):
 -spec init( init_args() ) -> { 'ok', pid(), State :: term() }
-						   | 'ignore'
-						   | { 'error', Error :: basic_utils:error_reason() }.
+                           | 'ignore'
+                           | { 'error', Error :: basic_utils:error_reason() }.
 init( { TraceSupervisorWanted, AggRegScope } ) ->
 
-	trace_utils:info_fmt( "Initialising the Traces supervisor bridge ~w "
-		"(trace supervisor wanted: ~ts).", [ self(), TraceSupervisorWanted ] ),
+    trace_utils:info_fmt( "Initialising the Traces supervisor bridge ~w "
+        "(trace supervisor wanted: ~ts).", [ self(), TraceSupervisorWanted ] ),
 
-	% This is an OTP blind start, the Traces application being started with no
-	% parameter - so with no trace filename possibly specified.
-	%
-	% As a result, knowing that no safe renaming of the trace filename can be
-	% done once a trace supervisor is launched (the trace aggregator would be
-	% fine, but at least most trace supervisors not), the creation of that trace
-	% file is deferred. It may then be (re)named once the configuration of the
-	% Traces-using application will be read, before being created and writing
-	% the pending first traces:
-	%
-	InitTraceSupervisor = case TraceSupervisorWanted of
+    % This is an OTP blind start, the Traces application being started with no
+    % parameter - so with no trace filename possibly specified.
+    %
+    % As a result, knowing that no safe renaming of the trace filename can be
+    % done once a trace supervisor is launched (the trace aggregator would be
+    % fine, but at least most trace supervisors not), the creation of that trace
+    % file is deferred. It may then be (re)named once the configuration of the
+    % Traces-using application will be read, before being created and writing
+    % the pending first traces:
+    %
+    InitTraceSupervisor = case TraceSupervisorWanted of
 
-		true ->
-			later;
+        true ->
+            later;
 
-		false ->
-			false
+        false ->
+            false
 
-	end,
+    end,
 
-	% Not initializing our trace supervisor (not OTP related, referring to
-	% class_TraceSupervisor here) now, as we may have to adopt a non-default
-	% trace filename afterwards (e.g. after any parent applications read its own
-	% configuration file to select a specific name/path), and as mentioned above
-	% any already running trace supervisor would not be able to cope with it.
-	%
-	% The next call must not disable the trapping of EXIT messages, as the
-	% supervisor (bridge) behaviour implies (and had made so) that this process
-	% already traps EXITs: otherwise for example the bridged process will not be
-	% properly shutdown.
-	%
-	TraceAggregatorPid = traces_for_apps:app_start(
-		_ModuleName=?otp_application_module_name, InitTraceSupervisor,
-		_DisableExitTrapping=false, AggRegScope ),
+    % Not initializing our trace supervisor (not OTP related, referring to
+    % class_TraceSupervisor here) now, as we may have to adopt a non-default
+    % trace filename afterwards (e.g. after any parent applications read its own
+    % configuration file to select a specific name/path), and as mentioned above
+    % any already running trace supervisor would not be able to cope with it.
+    %
+    % The next call must not disable the trapping of EXIT messages, as the
+    % supervisor (bridge) behaviour implies (and had made so) that this process
+    % already traps EXITs: otherwise for example the bridged process will not be
+    % properly shutdown.
+    %
+    TraceAggregatorPid = traces_for_apps:app_start(
+        _ModuleName=?otp_application_module_name, InitTraceSupervisor,
+        _DisableExitTrapping=false, AggRegScope ),
 
-	trace_utils:debug_fmt( "Traces supervisor bridge initialised, "
-		"with trace aggregator ~w.", [ TraceAggregatorPid ] ),
+    trace_utils:debug_fmt( "Traces supervisor bridge initialised, "
+        "with trace aggregator ~w.", [ TraceAggregatorPid ] ),
 
-	{ ok, TraceAggregatorPid, _InitialBridgeState=TraceAggregatorPid }.
+    { ok, TraceAggregatorPid, _InitialBridgeState=TraceAggregatorPid }.
 
 
 
 -doc "Callback to terminate this supervisor bridge.".
 -spec terminate( Reason :: 'shutdown' | term(), State :: term() ) -> void().
 terminate( Reason, _BridgeState=TraceAggregatorPid )
-								when is_pid( TraceAggregatorPid ) ->
+                                when is_pid( TraceAggregatorPid ) ->
 
-	trace_utils:info_fmt( "Terminating the Traces supervisor bridge "
-		"(reason: ~w, trace aggregator: ~w).", [ Reason, TraceAggregatorPid ] ),
+    trace_utils:info_fmt( "Terminating the Traces supervisor bridge "
+        "(reason: ~w, trace aggregator: ~w).", [ Reason, TraceAggregatorPid ] ),
 
-	% Synchronicity needed, otherwise a potential race condition exists, leading
-	% this process to be killed by its OTP supervisor instead of being normally
-	% stopped:
-	%
-	wooper:delete_synchronously_instance( TraceAggregatorPid ),
+    % Synchronicity needed, otherwise a potential race condition exists, leading
+    % this process to be killed by its OTP supervisor instead of being normally
+    % stopped:
+    %
+    wooper:delete_synchronously_instance( TraceAggregatorPid ),
 
-	trace_utils:debug_fmt( "Trace aggregator ~w terminated.",
-						   [ TraceAggregatorPid ] );
+    trace_utils:debug_fmt( "Trace aggregator ~w terminated.",
+                           [ TraceAggregatorPid ] );
 
 terminate( Reason, State ) ->
-	trace_utils:info_fmt( "Terminating the Traces supervisor bridge "
-						  "(reason: ~w, state: ~w).", [ Reason, State ] ).
+    trace_utils:info_fmt( "Terminating the Traces supervisor bridge "
+                          "(reason: ~w, state: ~w).", [ Reason, State ] ).
