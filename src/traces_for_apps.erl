@@ -77,7 +77,7 @@ later (typically only once the desired filename for the traces file will be
 known for good, i.e. at its first renaming).
 
 Here we disable explicitly the trapping of EXIT signals, as a function run
-through "erl -eval" or through "erl -run" (like our apps) will be executed in a
+through `erl -eval` or through `erl -run` (like our apps) will be executed in a
 process that will silently trap EXIT signals, which would mean that the crash of
 any process created from the app, even thanks to spawn_link, would most probably
 remain unnoticed (just leading to an EXIT message happily sitting in the mailbox
@@ -99,11 +99,11 @@ The trace supervisor can be requested to be initialized now or not at all, or
 later (typically only once the desired filename for the traces file will be
 known for good, i.e. at its first renaming).
 
-The trapping of EXIT messages may be disabled (by setting DisableExitTrapping to
-true), typically in most tests / cases (see comments in app_start/2). However it
-may also be left as it is, notably when this function is executed from a
-supervisor (see traces_bridge_sup:init/1), whose trapping of EXITs shall not be
-altered (otherwise, for example, shutdowns may freeze).
+The trapping of EXIT messages may be disabled (by setting `DisableExitTrapping`
+to true), typically in most tests / cases (see comments in`
+app_start/2`). However it may also be left as it is, notably when this function
+is executed from a supervisor (see `traces_bridge_sup:init/1`), whose trapping
+of EXITs shall not be altered (otherwise, for example, shutdowns may freeze).
 
 The resulting trace aggregator will be registered globally (only).
 """.
@@ -125,11 +125,11 @@ The trace supervisor can be requested to be initialized now or not at all, or
 later (typically only once the desired filename for the traces file will be
 known for good, i.e. at its first renaming).
 
-The trapping of EXIT messages may be disabled (by setting DisableExitTrapping to
-true), typically in most tests / cases (see comments in app_start/2). However it
-may also be left as it is, notably when this function is executed from a
-supervisor (see traces_bridge_sup:init/1), whose trapping of EXITs shall not be
-altered (otherwise, for example, shutdowns may freeze).
+The trapping of EXIT messages may be disabled (by setting `DisableExitTrapping`
+to true), typically in most tests / cases (see comments in
+`app_start/2`). However it may also be left as it is, notably when this function
+is executed from a supervisor (see `traces_bridge_sup:init/1`), whose trapping
+of EXITs shall not be altered (otherwise, for example, shutdowns may freeze).
 """.
 -spec app_start( module_name(), initialise_supervision(), boolean(),
                  naming_utils:registration_scope() ) -> aggregator_pid().
