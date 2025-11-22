@@ -31,7 +31,7 @@
 The **trace aggregator** class, in charge of collecting and storing the traces
 sent by emitters.
 
-See documentation at http://traces.esperide.org.
+See documentation at [http://traces.esperide.org].
 """.
 
 

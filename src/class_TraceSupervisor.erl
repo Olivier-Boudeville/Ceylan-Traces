@@ -29,7 +29,7 @@
 
 -moduledoc """
 The **trace supervisor class** allows to monitor the traces managed by a trace
- aggregator.
+aggregator.
 """.
 
 
@@ -619,7 +619,7 @@ actual_wait_for() ->
             %    "Notification received from supervisor." ),
 
             % Not {test,app}_notice, as this function is used in both contexts:
-            class_TraceEmitter:send_standalone( notice,
+            class_TraceEmitter:send_standalone_safe( notice,
                 "Traces successfully monitored." )
 
     end.

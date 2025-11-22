@@ -347,7 +347,11 @@ check_and_binarise_name( StringName ) when is_list( StringName ) ->
 
 check_and_binarise_name( BinName ) when is_binary( BinName ) ->
     StringName = text_utils:binary_to_string( BinName ),
-    check_and_binarise_name( StringName ).
+    check_and_binarise_name( StringName );
+
+check_and_binarise_name( Other ) ->
+    throw( { invalid_emitter_name, Other } ).
+
 
 
 
