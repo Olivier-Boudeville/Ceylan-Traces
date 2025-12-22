@@ -1,4 +1,4 @@
-% Copyright (C) 2007-2025 Olivier Boudeville
+% Copyright (C) 2007-2026 Olivier Boudeville
 %
 % This file is part of the Ceylan-Traces library.
 %
@@ -132,9 +132,12 @@ Textual version of the severity of a message: 'emergency', 'alert', and all.
 -type message() :: trace_utils:trace_message().
 
 
-
 -doc "An actual (binary) trace message.".
 -type bin_message() :: trace_utils:trace_bin_message().
+
+
+-doc "An actual trace message, of any string type.".
+-type any_message() :: trace_utils:trace_any_message().
 
 
 
@@ -151,10 +154,10 @@ So the trace type to select depends on whether a dedicated, advanced trace tool
 should be used to browse the execution traces, or just a text viewer (possibly
 with a PDF displaying thereof); indeed it is:
 
-- either 'advanced_traces', for traces typically expected to be read from the
-LogMX tool (relying then on our parser); see http://logmx.com/
+- either `advanced_traces`, for traces typically expected to be read from the
+LogMX tool (relying then on our parser); see [http://logmx.com/]
 
-- or {'text_traces', trace_text_type()}
+- or `{'text_traces', trace_text_type()}`
 """.
 -type trace_supervision_type() :: 'advanced_traces'
                               | { 'text_traces', trace_text_type() }.
@@ -168,7 +171,7 @@ LogMX tool (relying then on our parser); see http://logmx.com/
                emitter_info/0, app_timestamp/0, time/0, bin_time/0,
                location/0, bin_location/0,
                message_categorization/0, bin_message_categorization/0,
-               priority/0, message/0, bin_message/0,
+               priority/0, message/0, bin_message/0, any_message/0,
                trace_severity/0, trace_supervision_type/0 ]).
 
 
