@@ -1,4 +1,4 @@
-% Copyright (C) 2020-2025 Olivier Boudeville
+% Copyright (C) 2020-2026 Olivier Boudeville
 %
 % This file is part of the Ceylan-Traces library.
 %
@@ -30,30 +30,30 @@
 -moduledoc """
 Module implementing the **OTP supervisor bridge of Traces**, so that the
 (singleton) trace aggregator is attached to the Traces OTP supervision tree,
-through the Traces root supervisor, defined in the traces_sup module.
+through the Traces root supervisor, defined in the `traces_sup` module.
 """.
 
 
 -doc """
-The trace aggregator is not a gen_server but a WOOPER instance, therefore a
+The trace aggregator is not a `gen_server` but a WOOPER instance, therefore a
 supervisor bridge is needed in order to connect this aggregator to an OTP
 supervision tree.
 
 As a result, the process whose code is defined in the current module, being a
 supervisor bridge, behaves like a real supervisor to its own supervisor (the
-root supervisor of Traces, namely traces_sup), but has a different interface
+root supervisor of Traces, namely `traces_sup`), but has a different interface
 than a real supervisor to the Traces subsystem.
 
 Hence used for (optional) OTP compliance (see
-<http://erlang.org/doc/man/supervisor_bridge.html>).
+[http://erlang.org/doc/man/supervisor_bridge.html]).
 
 We suppose that such a supervisor bridge cannot be used directly as a root
 supervisor.
 
 See also:
-- <https://wooper.esperide.org/#otp-guidelines> for further information
-- within the Erlang codebase itself, as an example, the user_sup
-supervisor bridge, created by kernel:init/1
+- [https://wooper.esperide.org/#otp-guidelines] for further information
+- within the Erlang codebase itself, as an example, the `user_sup`
+supervisor bridge, created by `kernel:init/1`
 """.
 -behaviour(supervisor_bridge).
 
@@ -73,7 +73,7 @@ supervisor bridge, created by kernel:init/1
 -include("class_TraceAggregator.hrl").
 
 
-% Type shorthands:
+% Type shorthand:
 
 -type init_args() :: traces_sup:init_args().
 
@@ -83,7 +83,8 @@ supervisor bridge, created by kernel:init/1
 Starts and links the Traces supervision bridge to the trace aggregator.
 
 Note: typically spawned as a supervised child of the Traces root supervisor (see
-traces_sup:init/1), hence generally triggered by the application initialisation.
+`traces_sup:init/1`), hence generally triggered by the application
+initialisation.
 """.
 -spec start_link( boolean(), naming_utils:registration_scope() ) ->
                                         basic_utils:start_result().
@@ -100,7 +101,7 @@ start_link( TraceSupervisorWanted, AggRegScope ) ->
 
 -doc """
 Callback to initialise this supervisor bridge, typically in answer to
-start_link/1 above being executed.
+`start_link/2` above being executed.
 """.
 % Not basic_utils:start_result/0 (due to state):
 -spec init( init_args() ) -> { 'ok', pid(), State :: term() }

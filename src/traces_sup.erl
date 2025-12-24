@@ -1,4 +1,4 @@
-% Copyright (C) 2019-2025 Olivier Boudeville
+% Copyright (C) 2019-2026 Olivier Boudeville
 %
 % This file is part of the Ceylan-Traces library.
 %
@@ -32,7 +32,7 @@ Module implementing the **root OTP supervisor** of Traces.
 
 In practice, it will supervise a single process, the one of the (singleton)
 trace aggregator, through a dedicated supervision bridge, defined in the
-traces_bridge_sup module.
+`traces_bridge_sup` module.
 
 Refer to the documentation of the supervisor_bridge module for further details.
 """.
@@ -65,7 +65,7 @@ Refer to the documentation of the supervisor_bridge module for further details.
 -export_type([ init_args/0, init_arg_list/0 ]).
 
 
-% Type shorthands:
+% Type shorthands
 
 -type registration_scope() :: naming_utils:registration_scope().
 
@@ -75,7 +75,7 @@ Refer to the documentation of the supervisor_bridge module for further details.
 Starts and links the Traces root supervisor, creating in turn a proper
 supervision bridge.
 
-Note: typically called by traces_app:start/2, hence generally triggered by the
+Note: typically called by `traces_app:start/2`, hence generally triggered by the
 application initialisation.
 """.
 -spec start_link( init_args() ) -> supervisor:startlink_ret().
@@ -94,7 +94,7 @@ start_link( TraceInitArgs ) ->
 
 -doc """
 Callback to initialise the Traces supervisor bridge (supervised by this root
-supervisor), typically in answer to start_link/1 above being executed.
+supervisor), typically in answer to `start_link/1` above being executed.
 """.
 -spec init( { boolean() | registration_scope() } ) ->
     { 'ok', { supervisor:sup_flags(), [ supervisor:child_spec() ] } }.
