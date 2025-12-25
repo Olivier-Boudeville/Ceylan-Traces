@@ -297,6 +297,8 @@ manage_send_traces( CompressedFilename, MaybeDownloadPath, State ) ->
               { false, TraceFilename };
 
         DownloadFilePath ->
+              trace_utils:notice_fmt( "Downloaded trace file will be '~ts'.",
+                                      [ DownloadFilePath ] ),
               { true, file_utils:rename_force( _Src=TraceFilename,
                                                _Dest=DownloadFilePath ) }
 
