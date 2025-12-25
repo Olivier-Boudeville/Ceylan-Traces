@@ -52,17 +52,20 @@ synchronise at will to a trace aggregator.
 % Describes the class-specific attributes:
 -define( class_attributes, [
 
-    { trace_filename, file_utils:file_path(),
-      "the name of the file where traces are to be stored (e.g. *.traces)" },
+    { trace_file_path, file_utils:abs_file_path(),
+      "the name of the file where traces are to be stored (e.g. `*.traces)`" },
 
-    { trace_file, file_utils:file_path(),
+    { trace_file, file_utils:file(),
       "the actual file where traces are written" },
 
     { trace_aggregator_pid, aggregator_pid(),
       "the PID of the supervised trace aggregator" },
 
-    { temp_dir, file_utils:directory_name(), "the name of the directory where "
+    { temp_dir, file_utils:directory_path(), "the path to the directory where "
       "the compressed trace archive will be stored" },
+
+    { preserve_trace_file, boolean(), "tells whether the resulting local "
+      "trace file shall be preserved when this listener terminates" },
 
     { supervision_waiter_pid, option( pid() ),
       "the PID of the helper process (if any) in charge of waiting for the "
@@ -98,7 +101,13 @@ synchronise at will to a trace aggregator.
 
 
 
-% Type shorthand:
+% Type shorthands:
+
+-type bin_string() :: text_utils:bin_string().
+
+-type any_file_path() :: file_utils:any_file_path().
+
+-type tcp_port() :: net_utils:tcp_port().
 
 -type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
 
@@ -127,13 +136,29 @@ synchronise at will to a trace aggregator.
 
 
 -doc """
-Constructs a trace listener, synchronised to specified trace aggregator.
+Constructs a trace listener, synchronised to the specified trace aggregator.
 
-TraceAggregatorPid is the PID of the trace aggregator to which this listener
+`TraceAggregatorPid` is the PID of the trace aggregator to which this listener
 will be synchronized.
 """.
 -spec construct( wooper:state(), aggregator_pid(), pid() ) -> wooper:state().
 construct( State, TraceAggregatorPid, CloseListenerPid ) ->
+    construct( State, TraceAggregatorPid, _MaybeDownloadPath=undefined,
+               CloseListenerPid ).
+
+
+-doc """
+Constructs a trace listener, synchronised to the specified trace aggregator.
+
+`TraceAggregatorPid` is the PID of the trace aggregator to which this listener
+will be synchronized.
+
+These traces will be downloaded for good in any specified file path (see
+`MaybeDownloadPath`), allowing for a later browsing of them.
+""".
+-spec construct( wooper:state(), aggregator_pid(), option( any_file_path() ),
+                 pid() ) -> wooper:state().
+construct( State, TraceAggregatorPid, MaybeDownloadPath, CloseListenerPid ) ->
 
     trace_utils:notice_fmt( "~ts Creating a trace listener whose PID is ~w, "
         "synchronized on trace aggregator ~w.",
@@ -174,7 +199,8 @@ construct( State, TraceAggregatorPid, CloseListenerPid ) ->
 
     CompressedFilename = net_utils:receive_file( TraceAggregatorPid, TempDir ),
 
-    ManagedState = manage_send_traces( CompressedFilename, State ),
+    ManagedState = manage_send_traces( CompressedFilename, MaybeDownloadPath,
+                                       State ),
 
     SetState = setAttributes( ManagedState, [
         { trace_aggregator_pid, TraceAggregatorPid },
@@ -195,18 +221,39 @@ Constructs a trace listener whose listening sockets will have to be elected
 within the specified range of TCP ports, synchronised to specified trace
 aggregator.
 
-TraceAggregatorPid is the PID of the trace aggregator to which this listener
+`TraceAggregatorPid` is the PID of the trace aggregator to which this listener
 will be synchronised.
 """.
--spec construct( wooper:state(), aggregator_pid(), net_utils:tcp_port(),
-                 net_utils:tcp_port(), pid() ) -> wooper:state().
+-spec construct( wooper:state(), aggregator_pid(), tcp_port(), tcp_port(),
+                 pid() ) -> wooper:state().
 construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
+           CloseListenerPid ) ->
+    construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
+               _MaybeDownloadPath=undefined, CloseListenerPid ).
+
+
+-doc """
+Constructs a trace listener whose listening sockets will have to be elected
+within the specified range of TCP ports, synchronised to specified trace
+aggregator.
+
+`TraceAggregatorPid` is the PID of the trace aggregator to which this listener
+will be synchronised.
+
+These traces will be downloaded for good in any specified file path (see
+`MaybeDownloadPath`), allowing for a later browsing of them.
+
+""".
+-spec construct( wooper:state(), aggregator_pid(), tcp_port(), tcp_port(),
+                 option( any_file_path() ), pid() ) -> wooper:state().
+construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort, MaybeDownloadPath,
            CloseListenerPid ) ->
 
     trace_utils:notice_fmt( "~ts Creating a trace listener whose PID is ~w, "
         "synchronized on trace aggregator ~w, using a TCP listening port "
-        "in the [~B,~B[ range.",
-        [ ?LogPrefix, self(), TraceAggregatorPid, MinTCPPort, MaxTCPPort ] ),
+        "in the [~B,~B[ range (download path: '~ts').",
+        [ ?LogPrefix, self(), TraceAggregatorPid, MinTCPPort, MaxTCPPort,
+          MaybeDownloadPath ] ),
 
     trace_utils:debug_fmt(
         "~ts Requesting from aggregator a trace synchronization.",
@@ -214,14 +261,15 @@ construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
 
     TraceAggregatorPid ! { addTraceListener, self() },
 
-    % See comments in construct/3/
+    % See comments in construct/3.
 
     TempDir = file_utils:create_temporary_directory(),
 
     CompressedFilename = net_utils:receive_file( TraceAggregatorPid, TempDir,
                                                  MinTCPPort, MaxTCPPort ),
 
-    ManagedState = manage_send_traces( CompressedFilename, State ),
+    ManagedState = manage_send_traces( CompressedFilename,
+        MaybeDownloadPath, State ),
 
     SetState = setAttributes( ManagedState, [
         { trace_aggregator_pid, TraceAggregatorPid },
@@ -238,12 +286,27 @@ construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort,
 
 
 % (construction helper)
-manage_send_traces( CompressedFilename, State ) ->
+manage_send_traces( CompressedFilename, MaybeDownloadPath, State ) ->
 
     TraceFilename = file_utils:decompress( CompressedFilename,
                                            _CompressionFormat=xz ),
 
+    { DoPreserve, ActualFilePath } = case MaybeDownloadPath of
+
+        undefined ->
+              { false, TraceFilename };
+
+        DownloadFilePath ->
+              { true, file_utils:rename_force( _Src=TraceFilename,
+                                               _Dest=DownloadFilePath ) }
+
+    end,
+
+    ActualAbsFilePath =
+        file_utils:ensure_path_is_absolute( ActualFilePath ),
+
     file_utils:remove_file( CompressedFilename ),
+
 
     %trace_utils:info_fmt( "~ts Received from aggregator a trace "
     %   "synchronization for file '~ts', reused for "
@@ -252,11 +315,12 @@ manage_send_traces( CompressedFilename, State ) ->
     % Will write in it newly received traces (sent through messages); now
     % preferring the (more efficient) raw mode:
     %
-    File = file_utils:open( TraceFilename,
+    File = file_utils:open( ActualAbsFilePath,
         [ append | class_TraceAggregator:get_trace_file_base_options() ] ),
 
-    setAttributes( State, [ { trace_filename, TraceFilename },
-                            { trace_file, File } ] ).
+    setAttributes( State, [ { trace_file_path, ActualAbsFilePath },
+                            { trace_file, File },
+                            { preserve_trace_file, DoPreserve } ] ).
 
 
 
@@ -274,9 +338,10 @@ destruct( State ) ->
 
     file_utils:close( ?getAttr(trace_file) ),
 
-    file_utils:remove_file( ?getAttr(trace_filename) ),
+    ?getAttr(preserve_trace_file) orelse
+        file_utils:remove_file( ?getAttr(trace_file_path) ),
 
-    file_utils:remove_directory( ?getAttr(temp_dir) ),
+    file_utils:remove_empty_directory( ?getAttr(temp_dir) ),
 
     case ?getAttr(close_listener_pid) of
 
@@ -296,7 +361,7 @@ destruct( State ) ->
 
 
 
-% Methods section.
+% Method section.
 
 
 -doc """
@@ -304,41 +369,43 @@ Triggers an asynchronous supervision (trace monitoring).
 
 Will return immediately.
 
-Note: directly inspired from class_TraceSupervisor.erl, for monitor/1 and
-blocking_monitor/1.
+Note: directly inspired from `class_TraceSupervisor.erl`, for `monitor/1` and
+`blocking_monitor/1`.
 """.
 -spec monitor( wooper:state() ) -> oneway_return().
 monitor( State ) ->
 
-    Filename = ?getAttr(trace_filename),
+    TraceFilePath = ?getAttr(trace_file_path),
 
-    file_utils:is_existing_file( Filename ) orelse
+    file_utils:is_existing_file( TraceFilePath ) orelse
         begin
             trace_utils:error_fmt( "class_TraceListener:monitor/1 "
-                "unable to find trace file '~ts'.", [ Filename ] ),
-            throw( { trace_file_not_found, Filename } )
+                "unable to find trace file '~ts'.", [ TraceFilePath ] ),
+            throw( { trace_file_not_found, TraceFilePath } )
         end,
 
     trace_utils:notice_fmt( "~ts Trace listener will monitor file '~ts' "
-                            "with LogMX now.", [ ?LogPrefix, Filename ] ),
+                            "with LogMX now.", [ ?LogPrefix, TraceFilePath ] ),
 
     Self = self(),
 
     WaiterPid = ?myriad_spawn_link( fun() ->
 
+        Cmd = text_utils:format( "~ts '~ts'", [
+            executable_utils:get_default_trace_viewer_path(), TraceFilePath ] ),
+
         % Blocking this waiter process (logmx.sh must be found in the PATH):
-        case system_utils:run_command(
-                executable_utils:get_default_trace_viewer_path() ++ " '"
-                ++ Filename ++ "'" ) of
+        case system_utils:run_command( Cmd ) of
 
             { _ExitCode=0, _Output } ->
                 trace_utils:notice_fmt(
                     "~ts Trace listener ended the monitoring of '~ts'.",
-                    [ ?LogPrefix, Filename ] );
+                    [ ?LogPrefix, TraceFilePath ] );
 
             { ExitCode, ErrorOutput } ->
-                trace_utils:error_fmt( "The trace listening failed "
-                    "(error code: ~B): ~ts.", [ ExitCode, ErrorOutput ] )
+                trace_utils:error_fmt( "The trace listening of '~ts' failed "
+                    "(error code: ~B): ~ts.",
+                    [ TraceFilePath, ExitCode, ErrorOutput ] )
 
         end,
 
@@ -358,8 +425,7 @@ Registers a new pre-formatted trace in the (local) trace file.
 
 To be called by the trace aggregator.
 """.
--spec addTrace( wooper:state(), text_utils:bin_string() ) ->
-                                const_oneway_return().
+-spec addTrace( wooper:state(), bin_string() ) -> const_oneway_return().
 addTrace( State, NewTrace ) ->
 
     % Write to file:
@@ -404,8 +470,8 @@ onMonitoringOver( State, WaiterPid ) ->
 
 
 -doc """
-Creates a trace listener that will synchronize itself to the specified
-aggregator.
+Creates a trace listener that will synchronise itself to the specified
+trace aggregator.
 """.
 -spec create( aggregator_pid() ) -> static_return( listener_pid() ).
 create( AggregatorPid ) ->
