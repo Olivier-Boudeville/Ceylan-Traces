@@ -249,11 +249,22 @@ These traces will be downloaded for good in any specified file path (see
 construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort, MaybeDownloadPath,
            CloseListenerPid ) ->
 
+    DownloadStr = case MaybeDownloadPath of
+
+        undefined ->
+            "no download requested";
+
+        DownloadPath ->
+            text_utils:format( "requested download path: '~ts'",
+                               [ DownloadPath ] )
+
+    end,
+
     trace_utils:notice_fmt( "~ts Creating a trace listener whose PID is ~w, "
         "synchronized on trace aggregator ~w, using a TCP listening port "
-        "in the [~B,~B[ range (download path: '~ts').",
+        "in the [~B,~B[ range (~ts).",
         [ ?LogPrefix, self(), TraceAggregatorPid, MinTCPPort, MaxTCPPort,
-          MaybeDownloadPath ] ),
+          DownloadStr ] ),
 
     trace_utils:debug_fmt(
         "~ts Requesting from aggregator a trace synchronization.",
@@ -297,8 +308,8 @@ manage_send_traces( CompressedFilename, MaybeDownloadPath, State ) ->
               { false, TraceFilename };
 
         DownloadFilePath ->
-              trace_utils:notice_fmt( "Downloaded trace file will be '~ts'.",
-                                      [ DownloadFilePath ] ),
+              %trace_utils:notice_fmt( "Downloaded trace file will be '~ts'.",
+              %                        [ DownloadFilePath ] ),
               { true, file_utils:rename_force( _Src=TraceFilename,
                                                _Dest=DownloadFilePath ) }
 
@@ -340,8 +351,18 @@ destruct( State ) ->
 
     file_utils:close( ?getAttr(trace_file) ),
 
-    ?getAttr(preserve_trace_file) orelse
-        file_utils:remove_file( ?getAttr(trace_file_path) ),
+    TraceFilePath = ?getAttr(trace_file_path),
+
+    case ?getAttr(preserve_trace_file) of
+
+        true ->
+           trace_utils:notice_fmt( "Trace file '~ts' is available.",
+                                   [ TraceFilePath ] );
+
+        false ->
+            file_utils:remove_file( TraceFilePath )
+
+    end,
 
     file_utils:remove_empty_directory( ?getAttr(temp_dir) ),
 
