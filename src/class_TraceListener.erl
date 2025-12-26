@@ -160,8 +160,8 @@ These traces will be downloaded for good in any specified file path (see
                  pid() ) -> wooper:state().
 construct( State, TraceAggregatorPid, MaybeDownloadPath, CloseListenerPid ) ->
 
-    trace_utils:notice_fmt( "~ts Creating a trace listener whose PID is ~w, "
-        "synchronized on trace aggregator ~w.",
+    trace_utils:info_fmt( "~ts Creating a trace listener whose PID is ~w, "
+        "synchronised on trace aggregator ~w.",
         [ ?LogPrefix, self(), TraceAggregatorPid ] ),
 
     trace_utils:debug_fmt( "~ts Requesting from aggregator a trace "
@@ -280,7 +280,7 @@ construct( State, TraceAggregatorPid, MinTCPPort, MaxTCPPort, MaybeDownloadPath,
                                                  MinTCPPort, MaxTCPPort ),
 
     ManagedState = manage_send_traces( CompressedFilename,
-        MaybeDownloadPath, State ),
+                                       MaybeDownloadPath, State ),
 
     SetState = setAttributes( ManagedState, [
         { trace_aggregator_pid, TraceAggregatorPid },
@@ -342,7 +342,7 @@ manage_send_traces( CompressedFilename, MaybeDownloadPath, State ) ->
 -spec destruct( wooper:state() ) -> wooper:state().
 destruct( State ) ->
 
-    trace_utils:notice_fmt( "~ts Deleting trace listener.", [ ?LogPrefix ] ),
+    trace_utils:debug_fmt( "~ts Deleting trace listener.", [ ?LogPrefix ] ),
 
     % Important message, to avoid loading the aggregator with sendings to
     % defunct listeners:
@@ -377,7 +377,7 @@ destruct( State ) ->
 
     end,
 
-    trace_utils:notice_fmt( "~ts Trace listener deleted.", [ ?LogPrefix ] ),
+    trace_utils:info_fmt( "~ts Trace listener deleted.", [ ?LogPrefix ] ),
 
     % Allow chaining:
     State.
@@ -407,8 +407,8 @@ monitor( State ) ->
             throw( { trace_file_not_found, TraceFilePath } )
         end,
 
-    trace_utils:notice_fmt( "~ts Trace listener will monitor file '~ts' "
-                            "with LogMX now.", [ ?LogPrefix, TraceFilePath ] ),
+    trace_utils:info_fmt( "~ts Trace listener will monitor file '~ts' "
+                          "with LogMX now.", [ ?LogPrefix, TraceFilePath ] ),
 
     Self = self(),
 
@@ -421,7 +421,7 @@ monitor( State ) ->
         case system_utils:run_command( Cmd ) of
 
             { _ExitCode=0, _Output } ->
-                trace_utils:notice_fmt(
+                trace_utils:info_fmt(
                     "~ts Trace listener ended the monitoring of '~ts'.",
                     [ ?LogPrefix, TraceFilePath ] );
 
