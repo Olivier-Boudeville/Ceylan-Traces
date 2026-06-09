@@ -238,7 +238,8 @@ See documentation at [http://traces.esperide.org].
 -type emitter_pid() :: class_TraceEmitter:emitter_pid().
 -type preformatted_trace() :: class_TraceEmitter:preformatted_trace().
 
--type supervisor_pid() :: class_TraceSupervisor:supervisor_pid().
+%-type supervisor_pid() :: class_TraceSupervisor:supervisor_pid().
+
 
 
 -doc """
@@ -849,7 +850,7 @@ Useful for example when the application requires an identifier to be included in
 the trace filename in order to discriminate among different runs, or if started
 with OTP (no parameter given programatically at application start, hence the
 creation of a supervisor is deferred until a later renaming is done; see the
-init_supervision attribute).
+`init_supervision` attribute).
 
 Note: if another process is reading that file (e.g. a trace supervisor), an I/O
 error will be triggered at its level (hence this is not a solution to
@@ -939,19 +940,23 @@ getTraceSettings( State ) ->
 
 
 -doc """
-Launches the trace supervisor, with settings that are by design relevant.
+Launches any trace supervisor, with settings that are by design relevant.
 
 If possible, it is useful to do so only once the final trace filename is known.
 """.
 -spec launchTraceSupervisor( wooper:state() ) ->
-        const_request_return( supervisor_pid() ).
+        const_request_return( trace_supervisor_launched ).
 launchTraceSupervisor( State ) ->
 
-    SupervisorPid = class_TraceSupervisor:create( _MaybeWaitingPid=?getSender(),
+    % 'undefined' is returned in all cases, as WaitingPid is never 'undefined':
+    class_TraceSupervisor:create( _WaitingPid=?getSender(),
         ?getAttr(trace_filename), ?getAttr(trace_type),
         _TraceAggregatorPid=self() ),
 
-    wooper:const_return_result( SupervisorPid ).
+    wooper:const_return_result( trace_supervisor_launched ).
+
+
+
 
 
 

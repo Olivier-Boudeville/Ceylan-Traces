@@ -153,8 +153,9 @@ test_stop( ModuleName, TraceAggregatorPid, WaitForTraceSupervisor ) ->
 
     % As test_start might have been called with InitTraceSupervisor=false.
 
-    %trace_utils:info_fmt( "Test stopping (aggregator: ~w, wait supervisor: "
-    %    "~ts).", [ TraceAggregatorPid, WaitForTraceSupervisor] ),
+    %trace_utils:info_fmt(
+    %    "Test stopping (aggregator: ~w, wait supervisor: ~ts).",
+    %    [ TraceAggregatorPid, WaitForTraceSupervisor] ),
 
     WaitForTraceSupervisor andalso class_TraceSupervisor:wait_for(),
 

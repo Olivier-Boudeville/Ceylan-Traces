@@ -388,12 +388,12 @@ start mode (immediate here, not deferred) and trace type (advanced ones here,
 not text based), with no PID specified for the trace aggregator, and blocks
 until closed.
 
-See create/5 for a more in-depth explanation of the parameters.
+See `create/5` for a more in-depth explanation of the parameters.
 """.
--spec create() -> static_return( supervisor_pid() ).
+-spec create() -> static_return( option( supervisor_pid() ) ).
 create() ->
-    SupervisorPid = create( _MaybeWaitingPid=undefined ),
-    wooper:return_static( SupervisorPid ).
+    MaybeSupervisorPid = create( _MaybeWaitingPid=undefined ),
+    wooper:return_static( MaybeSupervisorPid ).
 
 
 
@@ -404,12 +404,12 @@ not text based), with no PID specified for the trace aggregator.
 
 Once the trace monitoring is over, will notify any specified waiting process.
 
-See create/5 for a more in-depth explanation of the parameters.
+See `create/5` for a more in-depth explanation of the parameters.
 """.
--spec create( option( pid() ) ) -> static_return( supervisor_pid() ).
+-spec create( option( pid() ) ) -> static_return( option( supervisor_pid() ) ).
 create( MaybeWaitingPid ) ->
-    SupervisorPid = create( MaybeWaitingPid, ?trace_aggregator_filename ),
-    wooper:return_static( SupervisorPid ).
+    MaybeSupervisorPid = create( MaybeWaitingPid, ?trace_aggregator_filename ),
+    wooper:return_static( MaybeSupervisorPid ).
 
 
 
@@ -420,16 +420,16 @@ based), with no PID specified for the trace aggregator.
 
 Once the trace monitoring is over, will notify any specified waiting process.
 
-See create/5 for a more in-depth explanation of the parameters.
+See `create/5` for a more in-depth explanation of the parameters.
 """.
 -spec create( option( pid() ), any_file_path() ) ->
-                            static_return( supervisor_pid() ).
+                            static_return( option( supervisor_pid() ) ).
 create( MaybeWaitingPid, TraceFilename ) ->
 
-    SupervisorPid = create( MaybeWaitingPid, TraceFilename,
+    MaybeSupervisorPid = create( MaybeWaitingPid, TraceFilename,
         _TraceType=advanced_traces, _TraceAggregatorPid=undefined ),
 
-    wooper:return_static( SupervisorPid ).
+    wooper:return_static( MaybeSupervisorPid ).
 
 
 
@@ -439,16 +439,17 @@ Creates the trace supervisor, with default settings regarding start mode
 
 Once the trace monitoring is over, will notify any specified waiting process.
 
-See create/5 for a more in-depth explanation of the parameters.
+See `create/5` for a more in-depth explanation of the parameters.
 """.
 -spec create( option( pid() ), any_file_path(), trace_supervision_type(),
-              option( aggregator_pid() ) ) -> static_return( supervisor_pid() ).
+              option( aggregator_pid() ) ) ->
+          static_return( option( supervisor_pid() ) ).
 create( MaybeWaitingPid, TraceFilename, TraceType, TraceAggregatorPid ) ->
 
-    SupervisorPid = create( MaybeWaitingPid, _MonitorNow=true, TraceFilename,
-                            TraceType, TraceAggregatorPid ),
+    MaybeSupervisorPid = create( MaybeWaitingPid, _MonitorNow=true,
+        TraceFilename, TraceType, TraceAggregatorPid ),
 
-    wooper:return_static( SupervisorPid ).
+    wooper:return_static( MaybeSupervisorPid ).
 
 
 
@@ -468,10 +469,10 @@ a monitor/blocking_monitor method is called
 - TraceType the expected type of the traces (e.g. advanced_traces, text_traces)
 
 - MaybeTraceAggregatorPid is either the PID of the trace aggregator, or the
-'undefined' atom
+`undefined` atom
 
 Returns either the PID of the created supervisor or, if blocking (hence the
-supervisor being dead by design when this creation returns), 'undefined'.
+supervisor being dead by design when this creation returns), `undefined`.
 """.
 -spec create( option( pid() ), boolean(), any_file_path(),
               trace_supervision_type(), option( aggregator_pid() ) ) ->

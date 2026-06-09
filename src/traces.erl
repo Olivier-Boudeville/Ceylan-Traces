@@ -37,7 +37,8 @@ Module gathering all code, common to tests and applications, that allows to
 -export([ get_trace_filename/1,
           receive_applicative_message/0, receive_applicative_message/1,
           check_pending_wooper_results/0, declare_beam_dirs_for_traces/0,
-          manage_supervision/0, get_execution_target/0 ]).
+          manage_supervision/0, wait_supervisor_launched/0,
+          get_execution_target/0 ]).
 
 
 
@@ -206,6 +207,8 @@ LogMX tool (relying then on our parser); see [http://logmx.com/]
 
 -type aggregator_pid() :: class_TraceAggregator:aggregator_pid().
 
+%-type supervisor_pid() :: class_TraceSupervisor:supervisor_pid().
+
 
 
 -doc "Returns the name of the file in which traces will be written.".
@@ -305,7 +308,8 @@ declare_beam_dirs_for_traces() ->
 
 
 -doc """
-Manages the supervision of traces, typically in an OTP context.
+Manages the supervision of traces, typically in an OTP context; returns whether
+a trace supervisor has been launched.
 
 In this context:
 
@@ -314,20 +318,21 @@ In this context:
 - by default no specific trace file can be defined by the user, as applications
 are just started or not
 
-Note: currently not useful, as implicitly managed by traces_app:start/2.
+Especially useful in corner cases, when a trace supervisor shall be launched
+non-intially and/or conditionally.
 """.
--spec manage_supervision() -> option( class_TraceSupervisor:supervisor_pid() ).
+-spec manage_supervision() -> option( IsTraceSupervisorLaunched :: boolean() ).
 manage_supervision() ->
 
     case executable_utils:is_batch() of
 
         true ->
             trace_utils:debug( "In batch mode, no trace supervisor launched." ),
-            undefined;
+            false;
 
         false ->
             trace_utils:debug(
-                "In interactive mode, so launching trace supervisor." ),
+                "In interactive mode, so launching the trace supervisor." ),
 
             % Expected to be already created:
             TraceAggregatorPid = class_TraceAggregator:get_aggregator(
@@ -336,16 +341,25 @@ manage_supervision() ->
             % Not blocking the calling process until the supervision is over:
             TraceAggregatorPid ! { launchTraceSupervisor, [], self() },
 
-            % test_receive/1 not appropriate here (would filter the atom that we
-            % expect):
-            %
-            receive
+            wait_supervisor_launched(),
 
-                { wooper_result,
-                    { trace_supervisor_launched, TraceSupervisorPid } } ->
-                      TraceSupervisorPid
+            true
 
-            end
+    end.
+
+
+
+-doc "Waits for any trace supervisor to be launched.".
+-spec wait_supervisor_launched() -> void().
+wait_supervisor_launched() ->
+
+    % test_receive/1 not appropriate here (would filter the atom that we
+    % expect):
+    %
+    receive
+
+        { wooper_result, trace_supervisor_launched } ->
+            ok
 
     end.
 
