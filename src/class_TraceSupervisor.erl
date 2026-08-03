@@ -48,8 +48,8 @@ aggregator.
 -define( class_attributes, [
 
     { trace_filename, file_utils:bin_file_path(),
-      "the name of the file in which traces are to be read "
-      "(e.g. <<\"foobar.traces\">>" },
+      "the name of the file from which traces are to be read "
+      "(e.g. <<\"foobar.traces\">>)" },
 
     { trace_type, trace_type(),
       "the type of traces to be written (e.g. advanced_traces)" },
@@ -654,10 +654,10 @@ get_viewer_settings( State ) ->
 
         { text_traces, pdf } ->
 
-            PdfTargetFilename = file_utils:replace_extension( Filename,
-                ?TraceExtension, ".pdf" ),
+            PDFTargetFilename = file_utils:replace_extension( Filename,
+                ?TraceExtension, "pdf" ),
 
             { executable_utils:get_default_pdf_viewer_path(),
-              PdfTargetFilename }
+              PDFTargetFilename }
 
     end.

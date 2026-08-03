@@ -48,7 +48,7 @@
 % The name of the file to which the aggregator will write the traces that it
 % receives:
 %
--define( trace_aggregator_filename, "Ceylan-traces" ++ ?TraceExtension ).
+-define( trace_aggregator_filename, "Ceylan-traces." ++ ?TraceExtension ).
 
 
 % The name of the (pseudo) module to rely on for the naming of the trace file

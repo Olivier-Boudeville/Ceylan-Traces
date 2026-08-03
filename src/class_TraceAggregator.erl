@@ -44,7 +44,7 @@ See documentation at [http://traces.esperide.org].
          "case it will stop and send first the full current trace file to "
          "them. From that moment, incoming traces will be both written in file "
          "and sent to each trace listener still connected, so that all of them "
-         "have exactly all the traces % (once and only once)." ).
+         "have exactly all the traces (once and only once)." ).
 
 
 
@@ -546,12 +546,12 @@ destruct( State ) ->
             trace_utils:info_fmt( "~ts Generating PDF trace report.",
                                   [ ?log_prefix ] ),
 
-            PdfTargetFilename = file_utils:replace_extension(
-                ?getAttr(trace_filename), ?TraceExtension, ".pdf" ),
+            PDFTargetFilename = file_utils:replace_extension(
+                ?getAttr(trace_filename), ?TraceExtension, "pdf" ),
 
             % Supposedly in the path:
             GenerationCommand = executable_utils:find_executable( "make" )
-                ++ " '" ++ PdfTargetFilename ++ "' VIEW_PDF=no",
+                ++ " '" ++ PDFTargetFilename ++ "' VIEW_PDF=no",
 
             %trace_utils:info_fmt( "PDF generation command is '~ts'.",
             %                      [ GenerationCommand ] ),
@@ -566,7 +566,7 @@ destruct( State ) ->
                                 "report.", [ ?log_prefix ] ),
 
                             executable_utils:display_pdf_file(
-                                PdfTargetFilename )
+                                PDFTargetFilename )
 
                         end;
 

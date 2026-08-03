@@ -214,7 +214,7 @@ LogMX tool (relying then on our parser); see [http://logmx.com/]
 -doc "Returns the name of the file in which traces will be written.".
 -spec get_trace_filename( basic_utils:module_name() ) -> file_name().
 get_trace_filename( ModuleName ) ->
-    atom_to_list( ModuleName ) ++ ?TraceExtension.
+    text_utils:format( "~ts.~ts", [ ModuleName, ?TraceExtension ] ).
 
 
 

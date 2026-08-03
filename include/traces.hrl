@@ -33,11 +33,12 @@
 
 
 % Extension to be used for trace file names:
--define( TraceExtension, ".traces" ).
+-define( TraceExtension, "traces" ).
 
 
 % Per-test trace file (must be defined before the TraceSupervisor include):
--define( TraceFilename, ( atom_to_list( ?MODULE ) ++ ?TraceExtension ) ).
+-define( TraceFilename,
+         ( io_lib:format( "~ts.~ts", [ ?MODULE, ?TraceExtension ] ) ) ).
 
 
 
