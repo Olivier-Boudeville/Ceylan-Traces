@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<meta name="generator" content="Docutils 0.23: https://docutils.sourceforge.io/" />
 <meta content="Traces, log, browse, emit, layer, generic, general-purpose, helper code, library, layer" name="keywords" />
 <title>Welcome to the Ceylan-Traces documentation</title>
 <link rel="stylesheet" href="pygments-default.css" type="text/css" />
@@ -23,7 +23,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Organisation:</th><td class="field-body"><p class="first">Copyright (C) 2010-2025 Olivier Boudeville</p>
+<tr class="field"><th class="field-name">Organisation:</th><td class="field-body"><p class="first">Copyright (C) 2010-2026 Olivier Boudeville</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Contact:</th><td class="field-body"><p class="first">about (dash) traces (at) esperide (dot) com</p>
@@ -32,7 +32,7 @@
 <tr class="field"><th class="field-name">Creation date:</th><td class="field-body"><p class="first">Sunday, August 15, 2010</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Sunday, September 14, 2025</p>
+<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Monday, August 3, 2026</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">1.0.26</p>
@@ -580,7 +580,7 @@ Reciprocally this procedure applies to the projects based on it (e.g. <a class="
 <p>The best contenders that we identified are:</p>
 <ul class="simple">
 <li><a class="reference external" href="https://github.com/otros-systems/otroslogviewer">OtrosLogViewer</a></li>
-<li><a class="reference external" href="https://logging.apache.org/chainsaw/2.x/">Apache Chainsaw v2</a></li>
+<li><a class="reference external" href="https://projects.apache.org/project.html?logging-chainsaw">Apache Chainsaw v2</a></li>
 </ul>
 </div>
 <div class="section" id="troubleshooting">
@@ -627,6 +627,12 @@ $<span class="w"> </span><span class="nb">type</span><span class="w"> </span>jav
 <h2><a class="toc-backref" href="#toc-entry-41">Requested Widths for LogMX Entry Columns Not Honored</a></h2>
 <p>The preferred respective widths for the various entry columns can be set (in <tt class="docutils literal">Tools <span class="pre">-&gt;</span> Options <span class="pre">-&gt;</span> Display</tt>, thanks to the <tt class="docutils literal">Entries table <span class="pre">columns...</span></tt> button) and recorded (in <tt class="docutils literal">logmx.properties</tt>), yet, with some versions of Java, such settings might not be respected.</p>
 <p>At least on Arch Linux, switching (thanks to <tt class="docutils literal"><span class="pre">archlinux-java</span></tt>) from <tt class="docutils literal"><span class="pre">java-24-openjdk</span></tt> back to <tt class="docutils literal"><span class="pre">java-11-openjdk</span></tt> allowed to restore the correct management of these settings (otherwise ignored with more recent Java versions - at least with ancient versions of LogMX).</p>
+<p>It just boils down to run as root:</p>
+<pre class="code bash literal-block">
+$<span class="w"> </span>pacman<span class="w"> </span>-Sy<span class="w"> </span>jdk11-openjdk<span class="w">
+</span>$<span class="w"> </span>archlinux-java<span class="w"> </span><span class="nb">set</span><span class="w"> </span>java-11-openjdk
+</pre>
+<p>(the full <tt class="docutils literal">jdk</tt> is not necessary, the <tt class="docutils literal">jre</tt> would suffice)</p>
 </div>
 </div>
 <div class="section" id="support">
