@@ -32,7 +32,7 @@
 <tr class="field"><th class="field-name">Creation date:</th><td class="field-body"><p class="first">Sunday, August 15, 2010</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Monday, August 3, 2026</p>
+<tr class="field"><th class="field-name">Lastly updated:</th><td class="field-body"><p class="first">Sunday, August 9, 2026</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">Version:</th><td class="field-body"><p class="first">1.0.26</p>
@@ -76,48 +76,52 @@ The next level of information is either to browse the <a class="reference extern
 <li><a class="reference internal" href="#trace-ordering" id="toc-entry-12">Trace Ordering</a></li>
 <li><a class="reference internal" href="#trace-output-generation" id="toc-entry-13">Trace Output Generation</a><ul>
 <li><a class="reference internal" href="#trace-format-type" id="toc-entry-14">Trace Format Type</a></li>
-<li><a class="reference internal" href="#trace-rotation" id="toc-entry-15">Trace Rotation</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#trace-supervision-browsing" id="toc-entry-16">Trace Supervision &amp; Browsing</a></li>
-<li><a class="reference internal" href="#trace-implementation" id="toc-entry-17">Trace Implementation</a><ul>
-<li><a class="reference internal" href="#general-mode-of-operation" id="toc-entry-18">General Mode of Operation</a></li>
-<li><a class="reference internal" href="#trace-emitters" id="toc-entry-19">Trace Emitters</a><ul>
-<li><a class="reference internal" href="#timestamps" id="toc-entry-20">Timestamps</a></li>
-<li><a class="reference internal" href="#multiple-inheritance" id="toc-entry-21">Multiple Inheritance</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#lowering-the-trace-induced-overhead" id="toc-entry-22">Lowering the Trace-Induced Overhead</a></li>
-<li><a class="reference internal" href="#logmx-related-hints" id="toc-entry-23">LogMX-related Hints</a></li>
-<li><a class="reference internal" href="#internal-trace-format" id="toc-entry-24">Internal Trace Format</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#supported-platforms" id="toc-entry-25">Supported Platforms</a></li>
-<li><a class="reference internal" href="#licence" id="toc-entry-26">Licence</a></li>
-<li><a class="reference internal" href="#current-stable-version-download" id="toc-entry-27">Current Stable Version &amp; Download</a><ul>
-<li><a class="reference internal" href="#using-cutting-edge-git" id="toc-entry-28">Using Cutting-Edge Git</a></li>
-<li><a class="reference internal" href="#using-otp-related-conventions" id="toc-entry-29">Using OTP-Related Conventions</a><ul>
-<li><a class="reference internal" href="#using-rebar3" id="toc-entry-30">Using Rebar3</a></li>
-<li><a class="reference internal" href="#build-time-conventions" id="toc-entry-31">Build-time Conventions</a></li>
-<li><a class="reference internal" href="#compile-time-conventions" id="toc-entry-32">Compile-time Conventions</a></li>
-<li><a class="reference internal" href="#runtime-conventions" id="toc-entry-33">Runtime Conventions</a></li>
+<li><a class="reference internal" href="#trace-rotation" id="toc-entry-15">Trace Rotation</a><ul>
+<li><a class="reference internal" href="#internally-performed-trace-rotation" id="toc-entry-16">Internally-performed Trace Rotation</a></li>
+<li><a class="reference internal" href="#externally-triggered-trace-rotation" id="toc-entry-17">Externally-triggered Trace Rotation</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#testing-traces" id="toc-entry-34">Testing Traces</a></li>
-<li><a class="reference internal" href="#trace-supervisors" id="toc-entry-35">Trace Supervisors</a></li>
-<li><a class="reference internal" href="#troubleshooting" id="toc-entry-36">Troubleshooting</a><ul>
-<li><a class="reference internal" href="#lost-traces" id="toc-entry-37">Lost Traces</a></li>
-<li><a class="reference internal" href="#duplicated-traces" id="toc-entry-38">Duplicated Traces</a></li>
-<li><a class="reference internal" href="#lost-logmx-settings" id="toc-entry-39">Lost LogMX Settings</a></li>
-<li><a class="reference internal" href="#java-error-when-launching-logmx" id="toc-entry-40">Java Error When Launching LogMX</a></li>
-<li><a class="reference internal" href="#requested-widths-for-logmx-entry-columns-not-honored" id="toc-entry-41">Requested Widths for LogMX Entry Columns Not Honored</a></li>
+<li><a class="reference internal" href="#trace-supervision-browsing" id="toc-entry-18">Trace Supervision &amp; Browsing</a></li>
+<li><a class="reference internal" href="#trace-implementation" id="toc-entry-19">Trace Implementation</a><ul>
+<li><a class="reference internal" href="#general-mode-of-operation" id="toc-entry-20">General Mode of Operation</a></li>
+<li><a class="reference internal" href="#trace-emitters" id="toc-entry-21">Trace Emitters</a><ul>
+<li><a class="reference internal" href="#timestamps" id="toc-entry-22">Timestamps</a></li>
+<li><a class="reference internal" href="#multiple-inheritance" id="toc-entry-23">Multiple Inheritance</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#support" id="toc-entry-42">Support</a></li>
-<li><a class="reference internal" href="#please-react" id="toc-entry-43">Please React!</a></li>
-<li><a class="reference internal" href="#ending-word" id="toc-entry-44">Ending Word</a></li>
+<li><a class="reference internal" href="#lowering-the-trace-induced-overhead" id="toc-entry-24">Lowering the Trace-Induced Overhead</a></li>
+<li><a class="reference internal" href="#logmx-related-hints" id="toc-entry-25">LogMX-related Hints</a></li>
+<li><a class="reference internal" href="#internal-trace-format" id="toc-entry-26">Internal Trace Format</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#supported-platforms" id="toc-entry-27">Supported Platforms</a></li>
+<li><a class="reference internal" href="#licence" id="toc-entry-28">Licence</a></li>
+<li><a class="reference internal" href="#current-stable-version-download" id="toc-entry-29">Current Stable Version &amp; Download</a><ul>
+<li><a class="reference internal" href="#using-cutting-edge-git" id="toc-entry-30">Using Cutting-Edge Git</a></li>
+<li><a class="reference internal" href="#using-otp-related-conventions" id="toc-entry-31">Using OTP-Related Conventions</a><ul>
+<li><a class="reference internal" href="#using-rebar3" id="toc-entry-32">Using Rebar3</a></li>
+<li><a class="reference internal" href="#build-time-conventions" id="toc-entry-33">Build-time Conventions</a></li>
+<li><a class="reference internal" href="#compile-time-conventions" id="toc-entry-34">Compile-time Conventions</a></li>
+<li><a class="reference internal" href="#runtime-conventions" id="toc-entry-35">Runtime Conventions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#testing-traces" id="toc-entry-36">Testing Traces</a></li>
+<li><a class="reference internal" href="#trace-supervisors" id="toc-entry-37">Trace Supervisors</a></li>
+<li><a class="reference internal" href="#troubleshooting" id="toc-entry-38">Troubleshooting</a><ul>
+<li><a class="reference internal" href="#lost-traces" id="toc-entry-39">Lost Traces</a></li>
+<li><a class="reference internal" href="#duplicated-traces" id="toc-entry-40">Duplicated Traces</a></li>
+<li><a class="reference internal" href="#lost-logmx-settings" id="toc-entry-41">Lost LogMX Settings</a></li>
+<li><a class="reference internal" href="#java-error-when-launching-logmx" id="toc-entry-42">Java Error When Launching LogMX</a></li>
+<li><a class="reference internal" href="#requested-widths-for-logmx-entry-columns-not-honored" id="toc-entry-43">Requested Widths for LogMX Entry Columns Not Honored</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#support" id="toc-entry-44">Support</a></li>
+<li><a class="reference internal" href="#please-react" id="toc-entry-45">Please React!</a></li>
+<li><a class="reference internal" href="#ending-word" id="toc-entry-46">Ending Word</a></li>
 </ul>
 </div>
 <p></p>
@@ -381,13 +385,29 @@ The next level of information is either to browse the <a class="reference extern
 </div>
 <div class="section" id="trace-rotation">
 <h2><a class="toc-backref" href="#toc-entry-15">Trace Rotation</a></h2>
-<p>Note also that trace rotation can be enabled: when requested, it is performed (in a synchronous or asynchronous manner, see the <tt class="docutils literal">rotateTraceFile/1</tt> oneway and the <tt class="docutils literal">rotateTraceFileSync/1</tt> request of the trace aggregator) unconditionally or based on a threshold in the size of the trace file (the default; see also the <tt class="docutils literal">setMinimumTraceFileSizeForRotation/2</tt> oneway).</p>
-<p>Such trace rotation is typically meant to be triggered by a scheduler, on a regular basis (doing so is more relevant than for example checking a criterion at each trace addition).</p>
-<p>If the current trace file is <tt class="docutils literal">my_file.traces</tt>, its rotated version will be an XZ archive named for example <tt class="docutils literal"><span class="pre">my_file.traces.8.2021-1-17-at-22h-14m-00s.xz</span></tt> (the count, here <tt class="docutils literal">8</tt>, allows to keep track of a series of rotation archives, while the timestamp corresponds to the time at which the log rotation was done), located in the same directory.</p>
+<p>The best criterion to trigger a trace rotation is not time elapsed or number of traces written, but the size (in bytes) of the current trace file (whose default maximum size is 8MB).</p>
+<p>The goal is not only to compress smartly trace files that may become huge, but also to ensure that the current trace file remains tractable for one's trace supervisor of choice, yet without losing any trace.</p>
+<p>Two ways of triggering such a rotation are provided by our trace aggregator:</p>
+<ul class="simple">
+<li>an internal one, enabled by default, based on a threshold in the number of trace messages received (which then triggers a file size test); default message threshold count: 8000)</li>
+<li>one that can be externally requested, again triggering then a file size test</li>
+</ul>
+<p>In both cases, if the current trace file is <tt class="docutils literal">my_file.traces</tt>, its rotated version will be an XZ archive named for example <tt class="docutils literal"><span class="pre">my_file.traces.8.2021-1-17-at-22h-14m-00s.xz</span></tt> (the rotation count, here <tt class="docutils literal">8</tt>, allows to keep track of a series of rotation archives, while the timestamp corresponds to the time at which this trace rotation was done), located in the same directory.</p>
+<p>After a rotation, the new current trace file starts with a message indicating that a rotation just occurred.</p>
+<p>See also our <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/priv/bin/unrotate-trace-files.sh">unrotate-trace-files.sh</a> script, whose usage is:</p>
+<div class="section" id="internally-performed-trace-rotation">
+<h3><a class="toc-backref" href="#toc-entry-16">Internally-performed Trace Rotation</a></h3>
+<p>An optional maximum threshold in terms of <strong>number of traces</strong> in the current trace file applies. It is set either explicitly (see the <tt class="docutils literal">setMessageCountThresholdForRotation/2</tt> oneway), or by default (every 16000 messages received). If reached, the size of the current trace file is checked and, if exceeding the rotation threshold, a rotation takes place.</p>
+</div>
+<div class="section" id="externally-triggered-trace-rotation">
+<h3><a class="toc-backref" href="#toc-entry-17">Externally-triggered Trace Rotation</a></h3>
+<p>Trace rotation can also be triggered by a third party: when requested, it is performed (in a synchronous or asynchronous manner, see the <tt class="docutils literal">rotateTraceFile/1</tt> oneway and the <tt class="docutils literal">rotateTraceFileSync/1</tt> request of the trace aggregator) unconditionally or based on a threshold in the <strong>size (in bytes) of the trace file</strong> (the default; see also the <tt class="docutils literal">setMinimumTraceFileSizeForRotation/2</tt> oneway).</p>
+<p>Such trace rotation is typically meant to be triggered by a scheduler, on a regular basis (possibly more relevant than for example checking a filesystem-level size criterion at each trace addition), or any tool in charge of processing traces.</p>
+</div>
 </div>
 </div>
 <div class="section" id="trace-supervision-browsing">
-<h1><a class="toc-backref" href="#toc-entry-16">Trace Supervision &amp; Browsing</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-18">Trace Supervision &amp; Browsing</a></h1>
 <p>Indeed the tool that generally we use for trace browsing is <a class="reference external" href="http://www.logmx.com/">LogMX</a> (the only tool that we use that is not free software, as we find it convenient), which we integrated:</p>
 <p><span class="raw-html"><center><img src="logmx-interface.png" id="responsive-image-full"></img></center></span>
 </p>
@@ -408,9 +428,9 @@ The next level of information is either to browse the <a class="reference extern
 <p>The trace supervision solution can be switched at compile time (see the <tt class="docutils literal">TraceType</tt> defined in <tt class="docutils literal">traces/include/traces.hrl</tt>); the <tt class="docutils literal">Traces</tt> layer shall then be rebuilt.</p>
 </div>
 <div class="section" id="trace-implementation">
-<h1><a class="toc-backref" href="#toc-entry-17">Trace Implementation</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-19">Trace Implementation</a></h1>
 <div class="section" id="general-mode-of-operation">
-<h2><a class="toc-backref" href="#toc-entry-18">General Mode of Operation</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-20">General Mode of Operation</a></h2>
 <p>All processes are able to emit traces, either by using standalone trace sending primitives (mostly for plain Erlang processes), or by inheriting from the <tt class="docutils literal">TraceEmitter</tt> class, in the (general) case of <a class="reference external" href="http://wooper.esperide.org">WOOPER</a>-based processes.</p>
 <p>In the vast majority of cases, all these emitters send their traces to a single trace aggregator, in charge of collecting them and storing them on-disk (for most uses, their memory footprint would be quickly too large for RAM), according to an adequate trace format.</p>
 <p>This trace format can be parsed by various trace supervisors, the most popular being <a class="reference external" href="http://www.logmx.com">LogMX</a>.</p>
@@ -424,20 +444,20 @@ The next level of information is either to browse the <a class="reference extern
 </table>
 </div>
 <div class="section" id="trace-emitters">
-<h2><a class="toc-backref" href="#toc-entry-19">Trace Emitters</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-21">Trace Emitters</a></h2>
 <p>Any class deriving, directly or not, from <tt class="docutils literal">class_TraceEmitter</tt>, is, once constructed as a trace emitter, able to send traces.</p>
 <div class="section" id="timestamps">
-<h3><a class="toc-backref" href="#toc-entry-20">Timestamps</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-22">Timestamps</a></h3>
 <p>When sending a trace, an emitter relies on its <tt class="docutils literal">trace_timestamp</tt> attribute, and sends a (binarised) string representation thereof (obtained thanks to the <tt class="docutils literal">~p</tt> quantifier of <tt class="docutils literal">io:format/2</tt> ). This allows the trace subsystem to support all kinds of application-specific timestamps (e.g. integers, floats, tuples, strings, etc.).</p>
 </div>
 <div class="section" id="multiple-inheritance">
-<h3><a class="toc-backref" href="#toc-entry-21">Multiple Inheritance</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-23">Multiple Inheritance</a></h3>
 <p>Often, in an application, many classes derive - directly or not - from <tt class="docutils literal">class_TraceEmitter</tt>. The constructor of this class is designed to perform its initialisation exactly once (as opposed to as many times as a given class inherits from <tt class="docutils literal">class_TraceEmitter</tt>), the first time it is called (leading typically to the most relevant emitter state in terms of name, categorization, etc.).</p>
 <p>Refer to <a class="reference external" href="https://wooper.esperide.org/#the-special-case-of-diamond-shaped-inheritance">this WOOPER section about diamond-shaped inheritance</a> for further details.</p>
 </div>
 </div>
 <div class="section" id="lowering-the-trace-induced-overhead">
-<h2><a class="toc-backref" href="#toc-entry-22">Lowering the Trace-Induced Overhead</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-24">Lowering the Trace-Induced Overhead</a></h2>
 <p>In addition to the general efficiency measures already taken, an (optional) &quot;preformatted&quot; mode has been introduced in order to further lower the cost induced by the processing of traces; this mode can be freely used in parallel to the normal, &quot;legacy&quot; mode, in the same program.</p>
 <p>At the expense of supporting only our &quot;advanced&quot; trace supervision type (as opposed to the &quot;text&quot; one typically useful for PDF generation), this mode strives to:</p>
 <ul class="simple">
@@ -448,12 +468,12 @@ The next level of information is either to browse the <a class="reference extern
 <p>To enable/disable this mode, refer to the <tt class="docutils literal">traces_are_preformatted</tt> define, which is now set by default (see the <tt class="docutils literal">TRACES_OPT_FLAGS</tt> variable in <tt class="docutils literal">GNUmakevars.inc</tt>).</p>
 </div>
 <div class="section" id="logmx-related-hints">
-<h2><a class="toc-backref" href="#toc-entry-23">LogMX-related Hints</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-25">LogMX-related Hints</a></h2>
 <p>One can find <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/tree/master/conf/logmx">here</a> various elements in order to better integrate LogMX (e.g. parser, configuration files, etc.).</p>
 <p id="max-memory">An important setting is how much memory (RAM) is allowed for that tool (see the <tt class="docutils literal">MAX_MEMORY</tt> entry in <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/logmx/startup.conf">startup.conf</a>).</p>
 </div>
 <div class="section" id="internal-trace-format">
-<h2><a class="toc-backref" href="#toc-entry-24">Internal Trace Format</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-26">Internal Trace Format</a></h2>
 <p>(for the most curious users)</p>
 <p>Each trace line is a raw text (hence not a binary content) made of a series of predefined fields, separated by the pipe (<tt class="docutils literal">|</tt>) delimiter character.</p>
 <p>The text message included in a trace can contain any number of instances of this field delimiter.</p>
@@ -474,12 +494,12 @@ whose troubleshooting mode is enabled.
 </div>
 </div>
 <div class="section" id="supported-platforms">
-<h1><a class="toc-backref" href="#toc-entry-25">Supported Platforms</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-27">Supported Platforms</a></h1>
 <p>Traces can be readily built and run on most Unices (including of course GNU/Linux) and on Windows.</p>
 <p>Refer to <a class="reference external" href="http://myriad.esperide.org/#supported-platforms">the Myriad counterpart section</a> for more details.</p>
 </div>
 <div class="section" id="licence">
-<span id="free-software"></span><h1><a class="toc-backref" href="#toc-entry-26">Licence</a></h1>
+<span id="free-software"></span><h1><a class="toc-backref" href="#toc-entry-28">Licence</a></h1>
 <p>Ceylan-Traces is licensed by its author (Olivier Boudeville) under a disjunctive tri-license giving you the choice of one of the three following sets of free software/open source licensing terms:</p>
 <ul class="simple">
 <li><a class="reference external" href="http://www.mozilla.org/MPL/MPL-1.1.html">Mozilla Public License</a> (MPL), version 1.1 or later (very close to the former <a class="reference external" href="http://www.erlang.org/EPLICENSE">Erlang Public License</a>, except aspects regarding Ericsson and/or the Swedish law)</li>
@@ -491,12 +511,12 @@ whose troubleshooting mode is enabled.
 <p>We hope that enhancements will be back-contributed (e.g. thanks to pull requests), so that everyone will be able to benefit from them.</p>
 </div>
 <div class="section" id="current-stable-version-download">
-<h1><a class="toc-backref" href="#toc-entry-27">Current Stable Version &amp; Download</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-29">Current Stable Version &amp; Download</a></h1>
 <p>As mentioned, the single, direct prerequisite of <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces">Ceylan-Traces</a> is <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-WOOPER">Ceylan-WOOPER</a>, which implies in turn <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Myriad">Ceylan-Myriad</a> and <a class="reference external" href="http://erlang.org">Erlang</a>.</p>
 <p>We prefer using GNU/Linux, sticking to the latest stable release of Erlang, and building it from sources, thanks to GNU <tt class="docutils literal">make</tt>.</p>
 <p>Refer to the corresponding <a class="reference external" href="http://myriad.esperide.org#prerequisites">Myriad prerequisite section</a>  for more precise guidelines, knowing that Ceylan-Traces does not need any module with conditional support such as <tt class="docutils literal">crypto</tt> or <tt class="docutils literal">wx</tt>.</p>
 <div class="section" id="using-cutting-edge-git">
-<h2><a class="toc-backref" href="#toc-entry-28">Using Cutting-Edge Git</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-30">Using Cutting-Edge Git</a></h2>
 <p>This is the installation method that we use and recommend; the Traces <tt class="docutils literal">master</tt> branch is meant to stick to the latest stable version: we try to ensure that this main line always stays functional (sorry for the pun). Evolutions are to take place in feature branches and to be merged only when ready.</p>
 <p>Once Erlang is available, it should be just a matter of executing:</p>
 <pre class="code bash literal-block">
@@ -521,9 +541,9 @@ $<span class="w"> </span>make<span class="w"> </span>trace_management_run
 <p><span class="raw-html"><a name="otp"></a></span></p>
 </div>
 <div class="section" id="using-otp-related-conventions">
-<span id="otp-build"></span><h2><a class="toc-backref" href="#toc-entry-29">Using OTP-Related Conventions</a></h2>
+<span id="otp-build"></span><h2><a class="toc-backref" href="#toc-entry-31">Using OTP-Related Conventions</a></h2>
 <div class="section" id="using-rebar3">
-<h3><a class="toc-backref" href="#toc-entry-30">Using Rebar3</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-32">Using Rebar3</a></h3>
 <p>The usual rebar3 machinery is in place and functional, so the Traces prerequisites (<a class="reference external" href="https://myriad.esperide.org">Myriad</a> and <a class="reference external" href="https://wooper.esperide.org">WOOPER</a>) and Traces itself can be obtained simply thanks to:</p>
 <pre class="code bash literal-block">
 $<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Olivier-Boudeville/Ceylan-Traces.git<span class="w"> </span>traces<span class="w">
@@ -534,7 +554,7 @@ $<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span
 <p>Note that rebar3 is an alternate way of building Traces, as one may rely directly on our make-based system instead.</p>
 </div>
 <div class="section" id="build-time-conventions">
-<h3><a class="toc-backref" href="#toc-entry-31">Build-time Conventions</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-33">Build-time Conventions</a></h3>
 <p>As discussed in these sections of <a class="reference external" href="http://myriad.esperide.org/myriad.html#otp">Myriad</a> and <a class="reference external" href="http://wooper.esperide.org/index.html#otp">WOOPER</a>, we added the (optional) possibility of generating a Traces <em>OTP application</em> out of the build tree, ready to be integrated into an <em>(OTP) release</em>. For that we rely on <a class="reference external" href="https://www.rebar3.org/">rebar3</a>, <a class="reference external" href="https://github.com/erlware/relx">relx</a> and <a class="reference external" href="https://hex.pm/">hex</a>.</p>
 <p>Unlike Myriad (which is an OTP <em>library</em> application), Traces is (like WOOPER) an OTP <em>active</em> application, meaning the reliance on an application that can be started/stopped (<tt class="docutils literal">traces_app</tt>) and on a root supervisor (<tt class="docutils literal">traces_sup</tt>); unlike WOOPER this time - whose main server (the class manager) is a <tt class="docutils literal">gen_server</tt> - Traces relies on a trace aggregator that is a background server process yet that does not implement the <tt class="docutils literal">gen_server</tt> behaviour but the <a class="reference external" href="http://erlang.org/doc/man/supervisor_bridge.html">supervisor_bridge</a> one: the trace aggregator is indeed <a class="reference external" href="http://wooper.esperide.org/index.html#otp_for_instances">a WOOPER instance</a>.</p>
 <p>As for Myriad and WOOPER, most versions of Traces used to be also published as <a class="reference external" href="https://hex.pm/packages/traces">Hex packages</a>, yet finally our workflow does not rely on Hex, so we do not update the Hex packages anymore. Just drop us an email if needing a recent one.</p>
@@ -547,12 +567,12 @@ $<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span
 <p>One may run <tt class="docutils literal">make <span class="pre">create-traces-checkout</span></tt> in order to create, based on our conventions, a suitable <tt class="docutils literal">_checkouts</tt> directory so that rebar3 can directly take into account local, directly available (in-development) dependencies (here, Myriad and WOOPER).</p>
 </div>
 <div class="section" id="compile-time-conventions">
-<h3><a class="toc-backref" href="#toc-entry-32">Compile-time Conventions</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-34">Compile-time Conventions</a></h3>
 <p>To see a full example of Ceylan-Traces use in an OTP context, one may refer to the <a class="reference external" href="https://github.com/Olivier-Boudeville/us-common">US-Common</a> project.</p>
 <p>This includes the <a class="reference external" href="https://github.com/Olivier-Boudeville/us-common/blob/master/test/us_common_otp_application_test.erl">us_common_otp_application_test.erl</a> test, a way of testing a Traces-using OTP application (here, US-Common) outside of any OTP release.</p>
 </div>
 <div class="section" id="runtime-conventions">
-<h3><a class="toc-backref" href="#toc-entry-33">Runtime Conventions</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-35">Runtime Conventions</a></h3>
 <p>Whether or not a graphical trace supervisor is launched depends on the batch mode, which can be set through the <tt class="docutils literal">is_batch</tt> key in the <tt class="docutils literal">traces</tt> section of the release's <tt class="docutils literal">sys.config</tt> file.</p>
 <p>We found convenient to define alternatively a shell environment variable (possibly named <tt class="docutils literal">BATCH</tt>), and whose value can be <tt class="docutils literal"><span class="pre">CMD_LINE_OPT=&quot;--batch&quot;</span></tt>, for an easier switch from the command-line.</p>
 <p>Then, for example for a test module defined in <tt class="docutils literal">foobar_test.erl</tt>, running from the command-line <tt class="docutils literal">make foobar_run</tt> will result in the trace supervisor (typically LogMX) to be spawned, whereas <tt class="docutils literal">make foobar_run $BATCH</tt> will not (i.e. the traces will be emitted and collected as usual, but will not be specifically supervised graphically).</p>
@@ -560,7 +580,7 @@ $<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span
 </div>
 </div>
 <div class="section" id="testing-traces">
-<h1><a class="toc-backref" href="#toc-entry-34">Testing Traces</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-36">Testing Traces</a></h1>
 <p>Once the prerequisites (<a class="reference external" href="https://myriad.esperide.org">Myriad</a> and <a class="reference external" href="https://wooper.esperide.org">WOOPER</a>) and Traces itself have been secured (for that refer to either <a class="reference internal" href="#using-cutting-edge-git">Using Cutting-Edge Git</a> or <a class="reference internal" href="#using-rebar3">Using Rebar3</a>), just run from the root directory of Traces:</p>
 <pre class="code bash literal-block">
 $<span class="w"> </span>make<span class="w"> </span><span class="nb">test</span>
@@ -573,37 +593,42 @@ Reciprocally this procedure applies to the projects based on it (e.g. <a class="
 </div>
 </div>
 <div class="section" id="trace-supervisors">
-<h1><a class="toc-backref" href="#toc-entry-35">Trace Supervisors</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-37">Trace Supervisors</a></h1>
 <p>Currently, in practice, traces may be browsed as simple text files, PDF files or Traces (<tt class="docutils literal">*.traces</tt>) files (thus following the <a class="reference external" href="#internal-trace-format">Traces file format</a>, which is currently read only by our corresponding <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/logmx/CeylanTraceParser.java">trace parser</a>).</p>
-<p>We certainly recommend LogMX - whose only constraint is to be a <a class="reference external" href="https://logmx.com/buy">commercial tool</a>.</p>
-<p>We did not really find very relevant open-source alternatives (they would have notably to be feature-rich, stable, actively maintained, distributed with a suitable free software license.</p>
+<p>We certainly recommend LogMX - whose only constraint is to be a <a class="reference external" href="https://logmx.com/buy">commercial tool</a> - yet, by many standards, fully acceptable from our point of view.</p>
+<p>We did not really find very relevant open-source alternatives (they would have notably to be feature-rich, stable, actively maintained, distributed with a suitable free software license).</p>
 <p>The best contenders that we identified are:</p>
 <ul class="simple">
-<li><a class="reference external" href="https://github.com/otros-systems/otroslogviewer">OtrosLogViewer</a></li>
-<li><a class="reference external" href="https://projects.apache.org/project.html?logging-chainsaw">Apache Chainsaw v2</a></li>
+<li><a class="reference external" href="https://github.com/otros-systems/otroslogviewer">OtrosLogViewer</a> (Apache 2.0 license, Java-based, actively maintained, but less rich than LogMX or Chainsaw)</li>
+<li><a class="reference external" href="https://projects.apache.org/project.html?logging-chainsaw">Apache Chainsaw v2</a> (Apache license, offline, graphical, with channels, extensible through plugins, yet not actively maintained)</li>
+<li><a class="reference external" href="https://klogg.filimonov.dev/">KLOGG</a> (BSD license, but no concept of hierarchical channels)</li>
+<li><a class="reference external" href="https://lnav.org/">Inav</a>, i.e. the <em>The Logfile Navigator</em> (BSD license, but in-terminal only)</li>
+<li><a class="reference external" href="https://github.com/anb0s/LogViewer">LogViewer</a> (EPL license, Eclipse plugin)</li>
+<li><a class="reference external" href="https://www.logvoyager.cc/">Log Voyager</a> (MIT license, browser-based yet usable offline, with no plugin support apparently)</li>
+<li><a class="reference external" href="https://goaccess.io/">GoAccess</a> (MIT license, mostly for web logs)</li>
 </ul>
 </div>
 <div class="section" id="troubleshooting">
-<h1><a class="toc-backref" href="#toc-entry-36">Troubleshooting</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-38">Troubleshooting</a></h1>
 <div class="section" id="lost-traces">
-<h2><a class="toc-backref" href="#toc-entry-37">Lost Traces</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-39">Lost Traces</a></h2>
 <p>If having sent traces that cannot be found through the trace supervision (or that even disappear live!), most probably that they were properly sent, collected and stored, but that they were too numerous to be displayed.</p>
 <p>In LogMX, this can be seen in the bottom-right status bar, where a fully-filled red rectangle shows the percentage of the maximum number of entries currently met: <tt class="docutils literal">100%</tt> most likely means that too many traces were to be displayed for the current settings, and thus that latter traces replaced former ones.</p>
 <p>A solution is either to send less traces, or to increase that display threshold, either directly in to the LogMX interface (by entering an higher value on the left of said rectangle), or in the <tt class="docutils literal">logmx.properties</tt> configuration file, by setting its <tt class="docutils literal">autoRefreshEntriesLimit</tt> attribute to an higher value.</p>
 <p>A related setting is the <a class="reference internal" href="#max-memory">max memory</a> that the (Java) configuration of LogMX allows.</p>
 </div>
 <div class="section" id="duplicated-traces">
-<h2><a class="toc-backref" href="#toc-entry-38">Duplicated Traces</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-40">Duplicated Traces</a></h2>
 <p>In rather rare contexts (typically when requesting LogMX to focus on the last entries, whereas dozens of thousands of them are added), the trace supervision may show duplicated traces.</p>
 <p>For example, an emitter that sent 6 traces will be marked as having sent 8 of them, and a pair of successive traces will be shown twice (first that pair, then other traces may interleave, then the pair will be listed again), with non-duplicated IDs (as shown in the leftmost LogMX column).</p>
 <p>It is just an artefact due to this specific execution of LogMX though: one can check that reading this file again, but this time as a whole (instead of live) does not show duplicated traces anymore; indeed these traces were actually stored by Ceylan-Traces in the <tt class="docutils literal">*.traces</tt> file only once.</p>
 </div>
 <div class="section" id="lost-logmx-settings">
-<h2><a class="toc-backref" href="#toc-entry-39">Lost LogMX Settings</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-41">Lost LogMX Settings</a></h2>
 <p>LogMX will write its configuration files (notably <tt class="docutils literal">logmx.properties</tt>) when shutdown. So before modifying any of these files, ensure first that no LogMX instance is still running (otherwise one's changes will be overwritten).</p>
 </div>
 <div class="section" id="java-error-when-launching-logmx">
-<h2><a class="toc-backref" href="#toc-entry-40">Java Error When Launching LogMX</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-42">Java Error When Launching LogMX</a></h2>
 <p>One may check that Java is installed and available from the PATH, that it is a sufficiently recent one (e.g. Java 11; more recent ones like Java 21 will work of course) and that it is at least a JRE (a complete JDK will be fine as well) and a full (non-headless <a class="footnote-reference" href="#footnote-9" id="footnote-reference-9">[9]</a>) version thereof.</p>
 <table class="docutils footnote" frame="void" id="footnote-9" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
@@ -624,7 +649,7 @@ $<span class="w"> </span><span class="nb">type</span><span class="w"> </span>jav
 <p>Arch users may also install a relevant Java with <tt class="docutils literal">pacman <span class="pre">-Sy</span> <span class="pre">jre-openjdk</span></tt> and run <tt class="docutils literal"><span class="pre">archlinux-java</span> status</tt> to check which version shall be used (then possibly <tt class="docutils literal"><span class="pre">archlinux-java</span> set <span class="pre">java-21-openjdk</span></tt> to select it).</p>
 </div>
 <div class="section" id="requested-widths-for-logmx-entry-columns-not-honored">
-<h2><a class="toc-backref" href="#toc-entry-41">Requested Widths for LogMX Entry Columns Not Honored</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-43">Requested Widths for LogMX Entry Columns Not Honored</a></h2>
 <p>The preferred respective widths for the various entry columns can be set (in <tt class="docutils literal">Tools <span class="pre">-&gt;</span> Options <span class="pre">-&gt;</span> Display</tt>, thanks to the <tt class="docutils literal">Entries table <span class="pre">columns...</span></tt> button) and recorded (in <tt class="docutils literal">logmx.properties</tt>), yet, with some versions of Java, such settings might not be respected.</p>
 <p>At least on Arch Linux, switching (thanks to <tt class="docutils literal"><span class="pre">archlinux-java</span></tt>) from <tt class="docutils literal"><span class="pre">java-24-openjdk</span></tt> back to <tt class="docutils literal"><span class="pre">java-11-openjdk</span></tt> allowed to restore the correct management of these settings (otherwise ignored with more recent Java versions - at least with ancient versions of LogMX).</p>
 <p>It just boils down to run as root:</p>
@@ -636,15 +661,15 @@ $<span class="w"> </span>pacman<span class="w"> </span>-Sy<span class="w"> </spa
 </div>
 </div>
 <div class="section" id="support">
-<h1><a class="toc-backref" href="#toc-entry-42">Support</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-44">Support</a></h1>
 <p>Bugs, questions, remarks, patches, requests for enhancements, etc. are to be reported to the <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces">project interface</a> (typically <a class="reference external" href="https://github.com/Olivier-Boudeville/Ceylan-Traces/issues">issues</a>) or directly at the email address mentioned at the beginning of this document.</p>
 </div>
 <div class="section" id="please-react">
-<h1><a class="toc-backref" href="#toc-entry-43">Please React!</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-45">Please React!</a></h1>
 <p>If you have information more detailed or more recent than those presented in this document, if you noticed errors, neglects or points insufficiently discussed, drop us a line! (for that, follow the <a class="reference internal" href="#support">Support</a> guidelines).</p>
 </div>
 <div class="section" id="ending-word">
-<h1><a class="toc-backref" href="#toc-entry-44">Ending Word</a></h1>
+<h1><a class="toc-backref" href="#toc-entry-46">Ending Word</a></h1>
 <p>Have fun with Ceylan-Traces!</p>
 <p><span class="raw-html"><center><img src="traces-title.png" id="responsive-image-small"></img></center></span>
 </p>
