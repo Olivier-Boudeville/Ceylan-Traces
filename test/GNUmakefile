@@ -15,22 +15,27 @@ all:
 
 test: test-local
 
-test-local: prepare-otp-test test-rotation
+test-local: prepare-otp-test
 
 
 prepare-otp-test:
 	@cd $(TRACES_TOP) && $(MAKE) -s create-app-file
 
 
-test-rotation: $(ROTATION_TEST_TRACES)
-	@echo "Expecting the next test messages to be listed in-order:"
+# Best triggered interactively:
+test-rotation: clean-rotated-traces
+	-@/bin/rm -f $(ROTATION_TEST_TRACES)
+	@$(MAKE) -s trace_rotation_run $$BATCH
+	@$(TRACES_TOP)/priv/bin/unrotate-trace-files.sh
+	@echo "Expecting the next test messages to be listed in-order in $(ROTATION_TEST_TRACES):"
 	@grep 'Another test message:' $(ROTATION_TEST_TRACES)
 
 
 clean: clean-rotated-traces
 
+# XZ archives or in decrompressed form:
 clean-rotated-traces:
-	-@/bin/rm -f trace_rotation_test.traces.*.*.xz
+	-@/bin/rm -f trace_rotation_test.traces.*
 
 
 include $(TRACES_TOP)/GNUmakesettings.inc
