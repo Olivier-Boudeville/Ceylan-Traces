@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Copyright (C) 2026-2026 Olivier Boudeville
+#
+# Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
+#
+# This file is part of the Ceylan-Traces library (see
+# http://traces.esperide.org).
+
+
 usage="Usage: $(basename $0) [-h|--help] SETTING_CONTEXT: applies trace supervision settings that correspond to the specified context, where SETTING_CONTEXT is one of:
  - demo (thus with larger characters)
  - large (large screen, high resolution, so large characters are needed)

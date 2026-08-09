@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Copyright (C) 2022-2026 Olivier Boudeville
+#
+# Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
+#
+# This file is part of the Ceylan-Traces library (see
+# http://traces.esperide.org).
+
+
 tool="LogMX"
 
 help_short_opt="-h"

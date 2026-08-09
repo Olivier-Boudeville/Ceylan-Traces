@@ -1,11 +1,19 @@
 #!/bin/sh
 
+# Copyright (C) 2022-2026 Olivier Boudeville
+#
+# Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
+#
+# This file is part of the Ceylan-Traces library (see
+# http://traces.esperide.org).
+
+
 ext=".traces"
 
 help_short_opt="-h"
 help_long_opt="--help"
 
-usage="Usage: $(basename $0): opens the most recent trace file found in the current directory."
+usage="Usage: $(basename $0) [${help_short_opt}|${help_long_opt}]: opens the most recent trace file found in the current directory."
 
 
 if [ "$1" = "${help_short_opt}" ] || [ "$1" = "${help_long_opt}" ]; then
@@ -20,7 +28,7 @@ viewer="$(which v 2>/dev/null)"
 
 if [ ! -x "${viewer}" ]; then
 
-	echo "  Error, no 'v' viewer found (Ceylan-Hull not in PATH)." 1>&2
+	echo "  Error, no 'v' viewer found (so Ceylan-Hull is not in PATH)." 1>&2
 
 	exit 5
 

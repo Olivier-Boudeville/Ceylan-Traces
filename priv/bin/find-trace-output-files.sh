@@ -1,11 +1,19 @@
 #!/bin/sh
 
+# Copyright (C) 2021-2026 Olivier Boudeville
+#
+# Author: Olivier Boudeville [olivier (dot) boudeville (at) esperide (dot) com]
+#
+# This file is part of the Ceylan-Traces library (see
+# http://traces.esperide.org).
+
+
 ext=".traces"
 
 help_short_opt="-h"
 help_long_opt="--help"
 
-usage="Usage: $(basename $0) [${help_short_opt}|${help_long_opt}] [ROOT_DIR]: finds all trace output files (extension: '${ext}') from the specified root directory, otherwise from current one."
+usage="Usage: $(basename $0) [${help_short_opt}|${help_long_opt}] [ROOT_DIR]: finds all trace output files (extension: '${ext}') from any specified root directory, otherwise from the current one."
 
 
 if [ "$1" = "${help_short_opt}" ] || [ "$1" = "${help_long_opt}" ]; then
@@ -35,7 +43,7 @@ order_by="time"
 
 if [ $order_by = "unsorted" ]; then
 
-	echo "  Finding all '*${ext}' files from '${root_dir}':"
+	echo "  Finding all '*${ext}' (unsorted) files from '${root_dir}':"
 
 	find "${root_dir}" -name '*.traces'
 
