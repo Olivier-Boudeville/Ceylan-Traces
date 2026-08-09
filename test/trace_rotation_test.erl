@@ -28,7 +28,7 @@
 -module(trace_rotation_test).
 
 -moduledoc """
-Unit tests for the **rotation** of the trace file.
+Unit tests for the **rotation** of the trace files.
 """.
 
 
@@ -47,7 +47,7 @@ run() ->
     TraceAggPid = class_TraceAggregator:get_aggregator(),
 
     % Disable threshold:
-    TraceAggPid ! { setMinimumTraceFileSizeForRotation, [ 0 ] },
+    TraceAggPid ! { setMinimumTraceFileSizeForRotation, 0 },
 
     % Otherwise the trace file might still be empty for upcoming rotation:
     TraceAggPid ! { sync, [], self() },
@@ -58,7 +58,9 @@ run() ->
 
     end,
 
-    % Calling the request version:
+
+    ?test_debug( "Testing first the explicitly-triggered trace rotation." ),
+
     TraceAggPid ! { rotateTraceFileSync, [], self() },
 
     ?test_info( "Waiting for the acknowledgement of trace rotation." ),
@@ -75,11 +77,28 @@ run() ->
 
     end,
 
+
+    % First message:
+    ?test_debug(
+         "Testing then the trace rotation induced by message receivings." ),
+
+    % Hence rotation takes place every two message traces:
+    TraceAggPid ! { setMessageCountThresholdForRotation, 2 },
+
+    ?test_info( "This message shall trigger a (second) rotation." ),
+
+    ?test_info( "One more." ),
+
+    ?test_info( "This message shall trigger a (third) rotation." ),
+
+    [ ?test_debug_fmt( "Another test message: #~B.", [ C ] )
+        || C <- lists:seq( 1, 50 ) ],
+
     ?test_debug_fmt( "Removing any '~ts'.", [ BinFilePath ] ),
 
     % Probably not existing because of past rotation:
-    file_utils:remove_file_if_existing( BinFilePath ),
+    %file_utils:remove_file_if_existing( BinFilePath ),
 
-    ?test_debug_fmt( "End of test for ~ts.", [ ?MODULE ] ),
+    ?test_debug_fmt( "End of test for ~ts. Run the 'unrotate-trace-files.sh' script to, despite rotations, reconstruct the overall trace file.", [ ?MODULE ] ),
 
     ?test_stop.

@@ -31,7 +31,7 @@
 The **trace aggregator** class, in charge of collecting and storing the traces
 sent by emitters.
 
-See documentation at [http://traces.esperide.org].
+See documentation at <http://traces.esperide.org>.
 """.
 
 
@@ -95,11 +95,21 @@ See documentation at [http://traces.esperide.org].
     { supervisor_pid, option( supervisor_pid() ),
       "the PID of the associated trace supervisor (if any)" },
 
+
+    { rotation_msg_count, count(),
+      "the number of messages received since any last trace rotation; "
+      "only relevant if rotation message threshold has been defined" },
+
+    { rotation_msg_threshold, option( count() ),
+      "any threshold in the number of messages received at which a trace "
+      "rotation shall be considered" },
+
     { rotation_min_size, byte_size(),
       "the minimum size of a traces file before it can be rotated" },
 
     { rotation_count, count(), "the number of the upcoming rotation to "
       "take place (useful to keep track of a series of rotated files)" },
+
 
     { overload_monitor_pid, pid(),
       "the PID of the process (if any) in charge of tracking the length of "
@@ -199,6 +209,8 @@ See documentation at [http://traces.esperide.org].
 
 % Type shorthands:
 
+-type count() :: basic_utils:count().
+
 -type ustring() :: text_utils:ustring().
 -type bin_string() :: text_utils:bin_string().
 -type title() :: text_utils:title().
@@ -209,6 +221,7 @@ See documentation at [http://traces.esperide.org].
 -type milliseconds() :: unit_utils:milliseconds().
 
 -type file_name() :: file_utils:file_name().
+-type file_path() :: file_utils:file_path().
 -type bin_file_path() :: file_utils:bin_file_path().
 -type bin_file_name() :: file_utils:bin_file_name().
 -type any_file_name() :: file_utils:any_file_name().
@@ -375,10 +388,14 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
         { init_supervision, ShouldInitTraceSupervisor },
         { supervisor_pid, undefined },
 
-        % 2 MB is a reasonable default:
-        { rotation_min_size, 2000000 },
+        { rotation_msg_count, 0 },
+        { rotation_msg_threshold, 16000 },
+
+        % 8 MB is a reasonable default:
+        { rotation_min_size, 8000000 },
 
         { rotation_count, 1 },
+
         % overload_monitor_pid set later
         { watchdog_pid, undefined } ] ),
 
@@ -417,11 +434,12 @@ construct( State, TraceFilename, TraceSupervisionType, TraceTitle,
             % globally), we plug ourselves as the (single) logger handler from
             % now:
             %
-            override_standard_logger_handler( RegScope ) andalso
-                begin
+            case override_standard_logger_handler( RegScope ) of
 
-                    send_internal_deferred( info, "Self-registering as "
-                        "the default standard logger handler." ),
+                true ->
+                    send_internal_deferred( info,
+                        "Self-registering as the default standard "
+                        "logger handler." ),
 
                     % Note that a side-effect may be to enable a lower log
                     % level, resulting in extra (logger) logs to be notified
@@ -631,6 +649,10 @@ enableWatchdog( State, RegName, LookupScope, Period ) ->
 
 
 
+
+% Sending (corresponding here to the receiving of a trace message) subsection.
+
+
 -doc """
 Sends a full trace to this aggregator to have it processed, that is stored or
 directly written.
@@ -640,7 +662,7 @@ The nine fields correspond to the ones defined in our trace format.
 -spec send( wooper:state(), pid(), bin_emitter_name(),
         bin_emitter_categorization(), app_timestamp(), bin_time(),
         bin_location(), bin_message_categorization(), priority(),
-        bin_message() ) -> const_oneway_return().
+        bin_message() ) -> oneway_return().
 send( State, TraceEmitterPid, BinTraceEmitterName,
       BinTraceEmitterCategorization, AppTimestamp, BinTime, BinLocation,
       BinMessageCategorization, Priority, BinMessage ) ->
@@ -692,16 +714,21 @@ send( State, TraceEmitterPid, BinTraceEmitterName,
             [ L ! { addTrace, BinTrace } || L <- Listeners ]
         end,
 
-    wooper:const_return().
+    RegState = register_receiving( State ),
+
+    wooper:return_state( RegState ).
 
 
 
 -doc """
 Sends a preformatted trace to this aggregator to have it processed, that is
 stored or directly written.
+
+The interest of such a call is to minimise the induced load of this aggregator
+(transferred to the trace emitters) and the size of the exchanged messages.
 """.
 -spec sendPreformatted( wooper:state(), preformatted_trace() ) ->
-                                const_oneway_return().
+                                            oneway_return().
 sendPreformatted( State, PreformattedTrace ) ->
 
     % Mostly like send/10 above:
@@ -721,7 +748,9 @@ sendPreformatted( State, PreformattedTrace ) ->
             [ L ! { addTrace, PreformattedTrace } || L <- Listeners ]
         end,
 
-    wooper:const_return().
+    RegState = register_receiving( State ),
+
+    wooper:return_state( RegState ).
 
 
 
@@ -729,14 +758,13 @@ sendPreformatted( State, PreformattedTrace ) ->
 Sends a full synchronised trace to this aggregator to have it processed, that is
 stored or directly written.
 
-Same as the `send/10 oneway`, except that a synchronisation message is sent back
+Same as the `send/10` oneway, except that a synchronisation message is sent back
 to the caller.
 """.
 -spec sendSync( wooper:state(), pid(), bin_emitter_name(),
         bin_emitter_categorization(), app_timestamp(), bin_time(),
         bin_location(), bin_message_categorization(), priority(),
-        bin_message() ) ->
-            const_request_return( 'trace_aggregator_synchronised' ).
+        bin_message() ) -> request_return( 'trace_aggregator_synchronised' ).
 sendSync( State, TraceEmitterPid, BinTraceEmitterName,
           BinTraceEmitterCategorization, AppTimestamp, BinTime, BinLocation,
           BinMessageCategorization, Priority, BinMessage ) ->
@@ -788,6 +816,8 @@ sendSync( State, TraceEmitterPid, BinTraceEmitterName,
             [ L ! { addTrace, BinTrace } || L <- Listeners ]
         end,
 
+    RegState = register_receiving( State ),
+
     %trace_utils:debug_fmt( "Sync trace '~ts' written.", [ Trace ] ),
 
     % Done as late as possible, and strictly necessary (and apparently
@@ -796,7 +826,7 @@ sendSync( State, TraceEmitterPid, BinTraceEmitterName,
     %
     file:sync( TraceFile ),
 
-    wooper:const_return_result( trace_aggregator_synchronised ).
+    wooper:return_state_result( RegState, trace_aggregator_synchronised ).
 
 
 
@@ -808,7 +838,7 @@ Same as the `sendPreformatted/10` oneway, except that a synchronisation message
 is sent back to the caller.
 """.
 -spec sendPreformattedSync( wooper:state(), preformatted_trace() ) ->
-            const_request_return( 'trace_aggregator_synchronised' ).
+            request_return( 'trace_aggregator_synchronised' ).
 sendPreformattedSync( State, PreformattedTrace ) ->
 
     % Mostly like sendSync/10 above:
@@ -839,7 +869,59 @@ sendPreformattedSync( State, PreformattedTrace ) ->
     %
     file:sync( TraceFile ),
 
-    wooper:const_return_result( trace_aggregator_synchronised ).
+    RegState = register_receiving( State ),
+
+    wooper:return_state_result( RegState, trace_aggregator_synchronised ).
+
+
+
+-doc """
+Registers the receiving of a trace message, possibly triggering a rotation
+check.
+""".
+-spec register_receiving( wooper:state() ) -> wooper:state().
+register_receiving( State ) ->
+
+    %trace_utils:debug_fmt( "Registering receiving for rotation; "
+    %    "message threshold: ~w, rotation message count: ~w.",
+    %    [ ?getAttr(rotation_msg_threshold), ?getAttr(rotation_msg_count) ] ),
+
+    case ?getAttr(rotation_msg_threshold) of
+
+        undefined ->
+            State;
+
+        Threshold ->
+            NewMsgCount = ?getAttr(rotation_msg_count) + 1,
+
+            % As next rotate_trace_file/1 will act based on this attribute:
+            IncState = setAttribute( State, rotation_msg_count, NewMsgCount ),
+
+            case NewMsgCount > Threshold of
+
+                true ->
+                    case rotate_trace_file( IncState ) of
+
+                        % Trace file not large enough:
+                        undefined ->
+                            IncState;
+
+                        { _CompressedFilePath, RotatedState } ->
+                            % Resets rotation_msg_count:
+                            RotatedState
+
+                    end;
+
+                _False ->
+                    IncState
+
+            end
+
+    end.
+
+
+
+
 
 
 
@@ -988,8 +1070,9 @@ addTraceListener( State, ListenerPid ) ->
             % Not a trace emitter, but still able to send traces (to itself);
             % will be read from mailbox as first live-forwarded message:
             %
-            send_internal_deferred( info, "Trace aggregator adding trace "
-                "listener ~w, and sending it previous traces (from '~ts').~n",
+            send_internal_deferred( info,
+                "Trace aggregator adding trace listener ~w, and sending it "
+                "the previous traces (from '~ts').~n",
                 [ ListenerPid, BinTraceFilename ] ),
 
             TraceFilename = text_utils:binary_to_string( BinTraceFilename ),
@@ -1052,12 +1135,13 @@ addTraceListener( State, ListenerPid ) ->
             NewFile = reopen_trace_file( TraceFilename ),
             setAttribute( SentState, trace_file, NewFile );
 
-        OtherTraceSeverity ->
+
+        OtherTraceType ->
 
             Message = text_utils:format(
                 "Trace aggregator not adding trace listener ~w, "
                 "as it requires advanced (LogMX) traces, whereas the current "
-                "trace type is ~w.~n", [ ListenerPid, OtherTraceSeverity ] ),
+                "trace type is ~w.~n", [ ListenerPid, OtherTraceType ] ),
 
             ?notify_warning( Message ),
             ListenerPid ! { trace_sending, incompatible_trace_type },
@@ -1126,10 +1210,36 @@ sync( State ) ->
 
 
 
+% Trace rotation subsection.
+
+
+
+-doc """
+Sets any specified threshold in the number of messages received at which a trace
+rotation is considered.
+""".
+-spec setMessageCountThresholdForRotation( wooper:state(),
+                        option( count() ) ) -> oneway_return().
+setMessageCountThresholdForRotation( State, MaybeMsgCount )
+        when is_integer( MaybeMsgCount ) orelse MaybeMsgCount =:= undefined ->
+
+    send_internal_deferred( info, "Setting the threshold in the number "
+        "of messages received at which a trace rotation is considered to ~w.",
+        [ MaybeMsgCount ] ),
+
+    SetState = setAttribute( State, rotation_msg_threshold, MaybeMsgCount ),
+
+    % Not checking current message count against new threshold, as to happen
+    % ultimately anyway.
+
+    wooper:return_state( SetState ).
+
+
+
 -doc """
 Sets the specified minimum size for the trace file before it can be rotated.
 
-A size of zero leads to unconditinal rotation.
+A size of zero will lead to the trigger of unconditinal rotations.
 """.
 -spec setMinimumTraceFileSizeForRotation( wooper:state(), byte_size() ) ->
                                                 oneway_return().
@@ -1147,9 +1257,9 @@ setMinimumTraceFileSizeForRotation( State, MinFileSize )
 
 -doc """
 Rotates the current trace file (asynchronous version): provided that its size is
-above the current threshold, closes the current file, renames it, compresses it
-and creates a file from scratch to avoid it becomes too large. No trace can be
-lost in the process.
+above the current minimum-size threshold, closes the current file, renames it,
+compresses it and creates a file from scratch to avoid it becomes too large. No
+trace can be lost in the process.
 
 If the current trace file is named `my_file.traces`, its rotated version could
 be an XZ archive named for example
@@ -1782,7 +1892,9 @@ enable_watchdog( RegName, LookupScope, Period, State ) ->
         WatchdogPid ->
             send_internal_deferred( error, "An aggregator watchdog was "
                 "already enabled (as PID: ~w), newer enabling request ignored.",
-                [ WatchdogPid ] )
+                [ WatchdogPid ] ),
+
+            State
 
     end.
 
@@ -1797,9 +1909,15 @@ that would be waiting in the mailbox.
                                wooper:state() ) -> wooper:state().
 send_internal_immediate( TraceSeverity, Message, State ) ->
 
+    % Disable for this sending the trace rotation, to avoid entering in infinite
+    % loops (as internal messages are induced by the trace rotations):
+    %
+    { SafeState, PastRotMsgCount } =
+        swapInAttribute( State, rotation_msg_count, _ResetValue=0 ),
+
     MessageCategorization = text_utils:string_to_binary( "Trace Management" ),
 
-    SelfSentState = executeOneway( State, send, [
+    SelfSentState = executeOneway( SafeState, send, [
         _TraceEmitterPid=self(),
         _TraceEmitterName= <<"Trace Aggregator">>,
         _TraceEmitterCategorization=text_utils:string_to_binary(
@@ -1814,7 +1932,11 @@ send_internal_immediate( TraceSeverity, Message, State ) ->
     trace_utils:is_error_like( TraceSeverity ) andalso
         trace_utils:echo( Message, TraceSeverity ),
 
-    SelfSentState.
+    % Restore the original message count:
+    { FinalState, _UndefinedRotMsgCount } =
+        swapInAttribute( SelfSentState, rotation_msg_count, PastRotMsgCount ),
+
+    FinalState.
 
 
 
@@ -2135,26 +2257,36 @@ reopen_trace_file( TraceFilename ) ->
 
 
 
-% (helper)
+-doc "Rotates the trace file, if appropriate (i.e. if large enough).".
 -spec rotate_trace_file( wooper:state() ) ->
-                                option( { file_name(), wooper:state() } ).
+                                option( { file_path(), wooper:state() } ).
 rotate_trace_file( State ) ->
 
     BinTracePath = ?getAttr(trace_filename),
 
+    TraceFileSize = file_utils:get_size( BinTracePath ),
+    RotMinSize = ?getAttr(rotation_min_size),
+
     % Equality allows to support unconditionality (with a null size):
-    case file_utils:get_size( BinTracePath ) >= ?getAttr(rotation_min_size) of
+    case TraceFileSize >= RotMinSize of
 
         true ->
-            send_internal_immediate( _TraceSeverity=info,  "Rotating '~ts'.",
-                                     [ BinTracePath ], State ),
+
+            %trace_utils:debug_fmt( "Rotating, as the current size (~B bytes) "
+            %    "is above the minimum one (~B bytes); message count for "
+            %    "rotation is ~w.",
+            %    [ TraceFileSize, RotMinSize, ?getAttr(rotation_msg_count) ] ),
 
             RotCount = ?getAttr(rotation_count),
+
+            SentState = send_internal_immediate( _TraceSeverity=info,
+                "Rotating '~ts' (rotation count: ~B).",
+                [ BinTracePath, RotCount ], State ),
 
             ArchiveFilePath = text_utils:format( "~ts.~B.~ts", [ BinTracePath,
                 RotCount, time_utils:get_textual_timestamp_for_path() ] ),
 
-            TraceFile = ?getAttr(trace_file),
+            TraceFile = getAttribute( SentState, trace_file ),
 
             % Close is hopefully a strictly synchronous operation, yet we
             % prefer to be very defensive:
@@ -2170,19 +2302,27 @@ rotate_trace_file( State ) ->
             file_utils:remove_file( ArchiveFilePath ),
 
             send_internal_deferred( debug,
-                "Trace rotation done: archive '~ts' generated "
-                "(original '~ts' removed).",
-                [ CompressedFilePath, BinTracePath ] ),
+                "Trace rotation #~B done: archive '~ts' generated "
+                "(original '~ts' reset).",
+                [ RotCount, CompressedFilePath, BinTracePath ] ),
 
             NewTraceFile = open_trace_file( BinTracePath ),
 
-            RotatedState = setAttributes( State, [
+            RotatedState = setAttributes( SentState, [
                 { trace_file, NewTraceFile },
+
+                % Reset:
+                { rotation_msg_count, 0 },
+
                 { rotation_count, RotCount+1 } ] ),
 
             { CompressedFilePath, RotatedState };
 
+
         false ->
+            %trace_utils:debug_fmt( "Not rotating, as the current size "
+            %    "(~B bytes) is still below the minimum one (~B bytes).",
+            %     [ TraceFileSize, RotMinSize ] ),
             undefined
 
     end.

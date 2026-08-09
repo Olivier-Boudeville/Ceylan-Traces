@@ -397,11 +397,39 @@ Traces may be browsed thanks to either of the following supervision solutions (s
 Trace Rotation
 ==============
 
-Note also that trace rotation can be enabled: when requested, it is performed (in a synchronous or asynchronous manner, see the ``rotateTraceFile/1`` oneway and the ``rotateTraceFileSync/1`` request of the trace aggregator) unconditionally or based on a threshold in the size of the trace file (the default; see also the ``setMinimumTraceFileSizeForRotation/2`` oneway).
+The best criterion to trigger a trace rotation is not time elapsed or number of traces written, but the size (in bytes) of the current trace file (whose default maximum size is 8MB).
 
-Such trace rotation is typically meant to be triggered by a scheduler, on a regular basis (doing so is more relevant than for example checking a criterion at each trace addition).
+The goal is not only to compress smartly trace files that may become huge, but also to ensure that the current trace file remains tractable for one's trace supervisor of choice, yet without losing any trace.
 
-If the current trace file is ``my_file.traces``, its rotated version will be an XZ archive named for example ``my_file.traces.8.2021-1-17-at-22h-14m-00s.xz`` (the count, here ``8``, allows to keep track of a series of rotation archives, while the timestamp corresponds to the time at which the log rotation was done), located in the same directory.
+Two ways of triggering such a rotation are provided by our trace aggregator:
+
+- an internal one, enabled by default, based on a threshold in the number of trace messages received (which then triggers a file size test); default message threshold count: 8000)
+- one that can be externally requested, again triggering then a file size test
+
+In both cases, if the current trace file is ``my_file.traces``, its rotated version will be an XZ archive named for example ``my_file.traces.8.2021-1-17-at-22h-14m-00s.xz`` (the rotation count, here ``8``, allows to keep track of a series of rotation archives, while the timestamp corresponds to the time at which this trace rotation was done), located in the same directory.
+
+After a rotation, the new current trace file starts with a message indicating that a rotation just occurred.
+
+See also our `unrotate-trace-files.sh <https://github.com/Olivier-Boudeville/Ceylan-Myriad/blob/master/priv/bin/unrotate-trace-files.sh>`_ script, whose usage is::
+
+
+
+
+Internally-performed Trace Rotation
+-----------------------------------
+
+An optional maximum threshold in terms of **number of traces** in the current trace file applies. It is set either explicitly (see the ``setMessageCountThresholdForRotation/2`` oneway), or by default (every 16000 messages received). If reached, the size of the current trace file is checked and, if exceeding the rotation threshold, a rotation takes place.
+
+
+
+Externally-triggered Trace Rotation
+-----------------------------------
+
+Trace rotation can also be triggered by a third party: when requested, it is performed (in a synchronous or asynchronous manner, see the ``rotateTraceFile/1`` oneway and the ``rotateTraceFileSync/1`` request of the trace aggregator) unconditionally or based on a threshold in the **size (in bytes) of the trace file** (the default; see also the ``setMinimumTraceFileSizeForRotation/2`` oneway).
+
+Such trace rotation is typically meant to be triggered by a scheduler, on a regular basis (possibly more relevant than for example checking a filesystem-level size criterion at each trace addition), or any tool in charge of processing traces.
+
+
 
 
 ----------------------------
@@ -698,14 +726,19 @@ Trace Supervisors
 
 Currently, in practice, traces may be browsed as simple text files, PDF files or Traces (``*.traces``) files (thus following the `Traces file format <#internal-trace-format>`_, which is currently read only by our corresponding `trace parser <https://github.com/Olivier-Boudeville/Ceylan-Traces/blob/master/conf/logmx/CeylanTraceParser.java>`__).
 
-We certainly recommend LogMX - whose only constraint is to be a `commercial tool <https://logmx.com/buy>`_.
+We certainly recommend LogMX - whose only constraint is to be a `commercial tool <https://logmx.com/buy>`_ - yet, by many standards, fully acceptable from our point of view.
 
-We did not really find very relevant open-source alternatives (they would have notably to be feature-rich, stable, actively maintained, distributed with a suitable free software license.
+We did not really find very relevant open-source alternatives (they would have notably to be feature-rich, stable, actively maintained, distributed with a suitable free software license).
 
 The best contenders that we identified are:
 
-- `OtrosLogViewer <https://github.com/otros-systems/otroslogviewer>`__
-- `Apache Chainsaw v2 <https://projects.apache.org/project.html?logging-chainsaw>`__
+- `OtrosLogViewer <https://github.com/otros-systems/otroslogviewer>`__ (Apache 2.0 license, Java-based, actively maintained, but less rich than LogMX or Chainsaw)
+- `Apache Chainsaw v2 <https://projects.apache.org/project.html?logging-chainsaw>`__ (Apache license, offline, graphical, with channels, extensible through plugins, yet not actively maintained)
+- `KLOGG <https://klogg.filimonov.dev/>`__ (BSD license, but no concept of hierarchical channels)
+- `Inav <https://lnav.org/>`_, i.e. the *The Logfile Navigator* (BSD license, but in-terminal only)
+- `LogViewer  <https://github.com/anb0s/LogViewer>`__ (EPL license, Eclipse plugin)
+- `Log Voyager <https://www.logvoyager.cc/>`__ (MIT license, browser-based yet usable offline, with no plugin support apparently)
+- `GoAccess <https://goaccess.io/>`__ (MIT license, mostly for web logs)
 
 
 
